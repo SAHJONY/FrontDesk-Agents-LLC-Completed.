@@ -1,0 +1,3 @@
+git add app/page.tsx
+git commit -m "Fix: Add root page component to resolve 404"
+git push origin main
