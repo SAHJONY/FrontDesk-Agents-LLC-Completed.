@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 export const metadata = {
   title: "FrontDesk Agents LLC",
-  description: "AI-powered front desk automation and virtual receptionist platform",
+  description: "AI-powered front desk automation platform",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
