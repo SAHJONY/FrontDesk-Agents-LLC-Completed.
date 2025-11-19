@@ -1,20 +1,50 @@
 {
-  "name": "frontdesk-agents-llc-completed",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "devCommand": "next dev",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    }
+  ],
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 10,
+      "memory": 1024
+    }
   },
-  "dependencies": {
-    "next": "14.2.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
-  },
-  "devDependencies": {
-    "eslint": "8.56.0",
-    "eslint-config-next": "14.2.4"
+  "env": {
+    "NODE_ENV": "production"
   }
 }
