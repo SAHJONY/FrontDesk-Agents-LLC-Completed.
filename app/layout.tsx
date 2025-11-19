@@ -1,1 +1,1 @@
-import "./app/globals.css";
+import "./globals.css";
