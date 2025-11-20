@@ -1,17 +1,19 @@
 export default function Home() {
   return (
-    <main style={{
-      height: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "#f9fafb",
-      color: "#111",
-      fontFamily: "sans-serif"
-    }}>
+    <main
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f9fafb",
+        color: "#111",
+        fontFamily: "sans-serif",
+      }}
+    >
       <h1>🚀 Front Desk Agents Platform</h1>
-      <p>Live deployment successful — your Next.js app is online.</p>
+      <p>Live deployment successful!</p>
     </main>
   );
 }
