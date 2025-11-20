@@ -1,66 +1,53 @@
-'use client';
-import './globals.css';
-import { useEffect, useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
+"use client";
+
+import "./globals.css";
+import { useState, useEffect } from "react";
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [lang, setLang] = useState<'en' | 'es'>('en');
+  const [darkMode, setDarkMode] = useState(false);
+  const [language, setLanguage] = useState<"en" | "es">("en");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    const savedLang = localStorage.getItem('lang') as 'en' | 'es' | null;
-    if (savedTheme) document.documentElement.dataset.theme = savedTheme;
-    if (savedTheme) setTheme(savedTheme);
-    if (savedLang) setLang(savedLang);
+    const storedMode = localStorage.getItem("theme");
+    const storedLang = localStorage.getItem("lang");
+    if (storedMode === "dark") setDarkMode(true);
+    if (storedLang === "es") setLanguage("es");
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.dataset.theme = newTheme;
-    localStorage.setItem('theme', newTheme);
-  };
-
-  const toggleLang = () => {
-    const newLang = lang === 'en' ? 'es' : 'en';
-    setLang(newLang);
-    localStorage.setItem('lang', newLang);
-  };
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+    localStorage.setItem("lang", language);
+  }, [darkMode, language]);
 
   return (
-    <html lang={lang}>
-      <body className="min-h-screen flex flex-col transition-colors duration-300">
-        {/* Header */}
-        <header className="flex justify-between items-center px-8 py-4 border-b border-gray-300 dark:border-slate-700">
-          <h1 className="text-xl font-extrabold text-cyan-600 dark:text-cyan-300">
-            FrontDesk Agents LLC
-          </h1>
-          <div className="flex gap-4 items-center">
+    <html lang={language} className={inter.className}>
+      <body className={`min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
+        <header className="w-full flex justify-between items-center p-4 fixed top-0 left-0 backdrop-blur-md bg-black/20 z-50">
+          <h1 className="text-lg font-semibold tracking-wide">FrontDesk.Agents</h1>
+          <div className="flex items-center gap-3">
             <button
-              onClick={toggleLang}
-              className="text-sm font-medium hover:text-cyan-500 transition-colors"
+              onClick={() => setLanguage(language === "en" ? "es" : "en")}
+              className="px-3 py-1 rounded-lg bg-sky-500 text-white text-sm font-medium hover:bg-sky-600"
             >
-              {lang === 'en' ? 'ES' : 'EN'}
+              {language === "en" ? "ES" : "EN"}
             </button>
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full bg-gray-100 dark:bg-slate-800 hover:scale-110 transition-transform"
-              aria-label="Toggle Theme"
+              onClick={() => setDarkMode(!darkMode)}
+              className="px-3 py-1 rounded-lg bg-gray-200 text-gray-900 font-medium dark:bg-gray-700 dark:text-white hover:opacity-90"
             >
-              {theme === 'light' ? (
-                <Moon className="w-5 h-5 text-cyan-600" />
-              ) : (
-                <Sun className="w-5 h-5 text-yellow-400" />
-              )}
+              {darkMode ? "☀️" : "🌙"}
             </button>
           </div>
         </header>
 
-        <main className="flex-grow">{children}</main>
+        <main className="pt-20">{children}</main>
 
-        <footer className="py-6 text-center text-sm text-gray-500 dark:text-slate-400 border-t border-gray-200 dark:border-slate-800">
-          © {new Date().getFullYear()} FrontDesk Agents LLC. All rights reserved.
+        <footer className="text-center py-6 text-sm opacity-80">
+          © {new Date().getFullYear()} FrontDesk Agents — All rights reserved.
         </footer>
       </body>
     </html>
