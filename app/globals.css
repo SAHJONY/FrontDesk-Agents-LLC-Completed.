@@ -2,38 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme color variables */
-:root {
-  --bg: #f9fafb;
-  --text: #0f172a;
-  --accent: #06b6d4;
-  --accent-hover: #0891b2;
-}
-
-[data-theme="dark"] {
-  --bg: #0f172a;
-  --text: #f8fafc;
-  --accent: #22d3ee;
-  --accent-hover: #06b6d4;
-}
-
-/* Smooth theme transitions */
+/* Smooth dark/light transition */
 html {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  scroll-behavior: smooth;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* Body and global style */
 body {
-  background-color: var(--bg);
-  color: var(--text);
   font-family: 'Inter', sans-serif;
-  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #111827;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+/* Dark mode */
+.dark body {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+/* Buttons */
 button {
+  cursor: pointer;
   transition: all 0.25s ease;
 }
 
-h1, h2, h3, h4 {
-  font-weight: 800;
+button:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+/* Background overlays for hero section */
+.hero {
+  position: relative;
+  background: linear-gradient(
+      rgba(0, 0, 0, 0.4),
+      rgba(0, 0, 0, 0.6)
+    ),
+    url('/images/ai-receptionist.jpg') center/cover no-repeat;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Headings */
+h1, h2, h3 {
+  letter-spacing: -0.5px;
+  font-weight: 700;
+}
+
+/* Button theme */
+.btn-primary {
+  background-color: #0ea5e9;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:hover {
+  background-color: #0284c7;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+  p {
+    font-size: 1rem;
+  }
 }
