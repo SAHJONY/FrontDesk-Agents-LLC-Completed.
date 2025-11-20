@@ -1,0 +1,28 @@
+export const translations = {
+  en: {
+    heroTitle: "Turn Calls into Appointments in 60 Seconds",
+    heroSubtitle: "AI Receptionist for Real Estate Professionals",
+    trial: "Free 14-Day Trial",
+    setupTitle: "Set Up Your AI Receptionist",
+    setupSubtitle: "Configure an AI-powered receptionist for your online business.",
+    businessName: "Business Name",
+    website: "Website",
+    receptionistName: "Receptionist Name",
+    mainPurpose: "Main Purpose",
+    continue: "Continue",
+    start: "Start Now",
+  },
+  es: {
+    heroTitle: "Convierte Llamadas en Citas en 60 Segundos",
+    heroSubtitle: "Recepcionista de IA para Profesionales Inmobiliarios",
+    trial: "Prueba Gratis de 14 Días",
+    setupTitle: "Configura Tu Recepcionista de IA",
+    setupSubtitle: "Configura una recepcionista impulsada por IA para tu negocio en línea.",
+    businessName: "Nombre del Negocio",
+    website: "Sitio Web",
+    receptionistName: "Nombre de la Recepcionista",
+    mainPurpose: "Propósito Principal",
+    continue: "Continuar",
+    start: "Empezar Ahora",
+  },
+};
