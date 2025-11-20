@@ -1,13 +1,17 @@
-import Controls from "./components/Controls";
-import Hero from "./components/Hero";
-import CTA from "./components/CTA";
-
 export default function Home() {
   return (
-    <>
-      <Controls />
-      <Hero />
-      <CTA />
-    </>
+    <main style={{
+      height: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#f9fafb",
+      color: "#111",
+      fontFamily: "sans-serif"
+    }}>
+      <h1>🚀 Front Desk Agents Platform</h1>
+      <p>Live deployment successful — your Next.js app is online.</p>
+    </main>
   );
 }
