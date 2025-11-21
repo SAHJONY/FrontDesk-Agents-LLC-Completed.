@@ -2,10 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  experimental: {
-    appDir: true, // enables /app directory for Next.js 14+
+  output: "standalone", // required for Vercel optimized deployment
+  images: {
+    domains: ["frontdeskagents.com", "vercel.app"],
   },
-  output: "standalone", // required for optimal Vercel deployment
 };
 
 export default nextConfig;
