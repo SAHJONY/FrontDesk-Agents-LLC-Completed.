@@ -1,12 +1,14 @@
 'use client';
-
-import Image from 'next/image';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import Link from 'next/link';
 
 export default function DashboardPage() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 300], [0, 80]); // Parallax depth
 
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   useEffect(() => {
     const stored = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (stored) setTheme(stored);
@@ -22,19 +24,18 @@ export default function DashboardPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden transition-colors duration-300 bg-white dark:bg-black text-gray-900 dark:text-gray-100">
-      <Image
-        src="/images/hero-bg.jpg"
-        alt="Cinematic background"
-        fill
-        priority
-        className="object-cover opacity-40 absolute inset-0 -z-10"
-      />
+      <motion.div style={{ y }} className="absolute inset-0 -z-10">
+        <Image
+          src="/images/hero-bg.jpg"
+          alt="Cinematic background"
+          fill
+          priority
+          className="object-cover opacity-40"
+        />
+      </motion.div>
 
       <header className="flex justify-between items-center p-6">
-        <Link
-          href="/"
-          className="px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black rounded-md hover:opacity-80 transition"
-        >
+        <Link href="/" className="px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black rounded-md hover:opacity-80 transition">
           ← Back Home
         </Link>
         <button
@@ -51,21 +52,6 @@ export default function DashboardPage() {
           Real-time analytics and performance insights
         </p>
       </section>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8">
-        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-xl p-6 shadow-md">
-          <h2 className="font-semibold mb-2">Active Automations</h2>
-          <p>12 active / 1 paused</p>
-        </div>
-        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-xl p-6 shadow-md">
-          <h2 className="font-semibold mb-2">Clients Onboarded</h2>
-          <p>327 total / +14 this week</p>
-        </div>
-        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-xl p-6 shadow-md">
-          <h2 className="font-semibold mb-2">Revenue Recovered</h2>
-          <p>$42,500 this month</p>
-        </div>
-      </div>
     </main>
   );
 }
