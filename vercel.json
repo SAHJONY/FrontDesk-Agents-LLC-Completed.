@@ -2,8 +2,8 @@
   "version": 2,
   "framework": "nextjs",
   "buildCommand": "next build",
-  "outputDirectory": ".next",
   "installCommand": "npm install",
+  "outputDirectory": ".next",
   "devCommand": "next dev",
   "env": {
     "NEXT_TELEMETRY_DISABLED": "1"
