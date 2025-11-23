@@ -1,25 +1,11 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    },
-    {
-      "src": "pages/api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/cron/onboarding-sync",
-      "destination": "/pages/api/cron/onboarding-sync.js"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/onboarding-sync",
-      "schedule": "0 13 * * *"
-    }
-  ]
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "devCommand": "next dev",
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  }
 }
