@@ -1,10 +1,9 @@
-// app/layout.tsx
 import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
   title: 'FrontDesk Agents',
-  description: 'AI Receptionist that books your appointments automatically.',
+  description: 'Enterprise-grade platform deployment',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
