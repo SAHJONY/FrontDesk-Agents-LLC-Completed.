@@ -1,14 +1,10 @@
 {
   "version": 2,
   "framework": "nextjs",
-  "buildCommand": "next build",
+  "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
-  ],
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://YOUR_SUPABASE_URL_HERE",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "YOUR_SUPABASE_ANON_KEY_HERE"
-  }
+  ]
 }
