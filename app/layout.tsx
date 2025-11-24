@@ -1,25 +1,25 @@
-'use client';
-import { AnimatePresence, motion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
-import { ReactNode } from 'react';
+// app/layout.tsx
+import './globals.css';
+import { Inter } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/react';
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
+const inter = Inter({ subsets: ['latin'] });
 
+export const metadata = {
+  title: 'Front Desk Agents Platform',
+  description: 'AI-powered reception management for modern businesses',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="bg-white dark:bg-black text-gray-900 dark:text-gray-100 transition-colors duration-500">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={pathname}
-            initial={{ opacity: 0, scale: 0.98, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.02, y: -10 }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+      <body className={inter.className}>
+        {children}
+        <Analytics />
       </body>
     </html>
   );
