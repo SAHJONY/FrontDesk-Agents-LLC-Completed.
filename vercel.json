@@ -1,10 +1,18 @@
-"builds": [
-  {
-    "src": "package.json",
-    "use": "@vercel/next"
-  },
-  {
-    "src": "pages/api/**/*.js",
-    "use": "@vercel/node"
-  }
-],
+{
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "outputDirectory": ".next",
+  "rewrites": [
+    {
+      "source": "/api/cron/onboarding-sync",
+      "destination": "/pages/api/cron/onboarding-sync.js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/onboarding-sync",
+      "schedule": "0 13 * * *"
+    }
+  ]
+}
