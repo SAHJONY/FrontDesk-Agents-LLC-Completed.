@@ -3,16 +3,12 @@
   "framework": "nextjs",
   "buildCommand": "next build",
   "outputDirectory": ".next",
+  "installCommand": "npm install",
   "rewrites": [
-    {
-      "source": "/api/cron/onboarding-sync",
-      "destination": "/pages/api/cron/onboarding-sync.js"
-    }
+    { "source": "/(.*)", "destination": "/" }
   ],
-  "crons": [
-    {
-      "path": "/api/cron/onboarding-sync",
-      "schedule": "0 13 * * *"
-    }
-  ]
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://YOUR_SUPABASE_URL_HERE",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "YOUR_SUPABASE_ANON_KEY_HERE"
+  }
 }
