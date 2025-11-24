@@ -1,9 +1,9 @@
 :root {
-  --color-bg-dark: #010510;
-  --color-accent: #06b6d4;
-  --color-glow: rgba(6, 182, 212, 0.25);
-  --color-text: #f1f5f9;
-  --color-muted: #94a3b8;
+  --color-bg-dark: #050915;
+  --color-panel: #0e1627;
+  --color-accent: #00d1ff;
+  --color-accent-soft: #007d99;
+  --color-text: #f5f9ff;
 }
 
 body {
@@ -12,12 +12,9 @@ body {
   font-family: "Inter", sans-serif;
 }
 
-h1, h2 {
-  background: linear-gradient(90deg, var(--color-accent), #60a5fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.glow {
-  box-shadow: 0 0 30px var(--color-glow);
+.card {
+  background: var(--color-panel);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 0 40px rgba(0, 209, 255, 0.08);
 }
