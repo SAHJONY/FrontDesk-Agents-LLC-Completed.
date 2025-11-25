@@ -1,7 +1,8 @@
-// app/page.tsx
-import { redirect } from 'next/navigation';
-
-// This page redirects the root path (/) to the English localized path (/en)
-export default function RootPage() {
-  redirect('/en');
+export default function Home() {
+  return (
+    <div style={{ padding: 40 }}>
+      <h1>FrontDesk Agents – Dashboard Online</h1>
+      <p>La aplicación ya está activa.</p>
+    </div>
+  );
 }
