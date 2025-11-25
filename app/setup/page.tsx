@@ -1,69 +1,102 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 import AISetupForm from "../components/AISetupForm";
-import Link from "next/link";
 
 type Lang = "en" | "es";
 
-function getLang(searchParams?: { lang?: string }): Lang {
-  if (!searchParams?.lang) return "en";
-  return searchParams.lang === "es" ? "es" : "en";
-}
+export default function SetupPage() {
+  const [lang, setLang] = useState<Lang>("en");
 
-export default function SetupPage({
-  searchParams,
-}: {
-  searchParams?: { lang?: string };
-}) {
-  const lang = getLang(searchParams);
-
-  const copy =
+  const t =
     lang === "en"
       ? {
-          title: "Set Up Your AI Receptionist",
+          title: "Set up your AI Receptionist",
           subtitle:
-            "Configure an AI-powered receptionist for your online business. You can always tweak these settings later in the command center.",
-          buttonBack: "Back to home",
+            "Tell FrontDesk Agents how your business works. You’ll have a trained receptionist in minutes.",
+          helper:
+            "You can change all of this later. This is just to get your first AI agent live quickly.",
+          businessName: "Business name",
+          website: "Website",
+          receptionistName: "Receptionist name",
+          purpose: "Main purpose"
         }
       : {
-          title: "Configura Tu Recepcionista de IA",
+          title: "Configura tu Recepcionista de IA",
           subtitle:
-            "Configura una recepcionista impulsada por IA para tu negocio en línea. Podrás ajustar estos datos luego en el panel.",
-          buttonBack: "Volver al inicio",
+            "Explícale a FrontDesk Agents cómo funciona tu negocio. Tendrás una recepcionista entrenada en minutos.",
+          helper:
+            "Todo se puede editar después. Esto es solo para poner tu primera agente de IA en producción rápido.",
+          businessName: "Nombre del negocio",
+          website: "Sitio web",
+          receptionistName: "Nombre de la recepcionista",
+          purpose: "Propósito principal"
         };
 
+  const heroImage = lang === "en" ? "/setup-en.jpg" : "/setup-es.jpg";
+
   return (
-    <main className="fd-page fd-setup">
-      <header className="fd-topbar fd-topbar-inner">
-        <div className="fd-topbar-left">
-          <span className="fd-logo-mark">FD</span>
-          <span className="fd-logo-text">FrontDesk Agents</span>
-        </div>
-        <div className="fd-topbar-right">
-          <Link href={`/?lang=${lang}`} className="fd-link-muted">
-            {copy.buttonBack}
-          </Link>
+    <div className="app-shell">
+      <header className="navbar">
+        <div className="nav-inner">
+          <div className="nav-title">
+            <span>FrontDesk Agents – Setup</span>
+            <span className="nav-badge">Onboarding</span>
+          </div>
+          <div className="nav-lang-toggle">
+            <button
+              className={
+                "nav-lang-pill " + (lang === "en" ? "nav-lang-pill--active" : "")
+              }
+              onClick={() => setLang("en")}
+            >
+              EN
+            </button>
+            <button
+              className={
+                "nav-lang-pill " + (lang === "es" ? "nav-lang-pill--active" : "")
+              }
+              onClick={() => setLang("es")}
+            >
+              ES
+            </button>
+          </div>
         </div>
       </header>
 
-      <section className="fd-setup-layout">
-        <div className="fd-setup-visual">
-          <div className="fd-setup-image-frame">
-            <Image
-              src="/images/setup-dashboard.jpg"
-              alt="AI receptionist configuration dashboard"
-              fill
-              priority
-              className="fd-setup-image"
-            />
-          </div>
-        </div>
+      <main className="setup-page">
+        <div className="setup-layout">
+          <aside className="setup-media">
+            <div className="hero-media-image-wrapper">
+              <Image
+                src={heroImage}
+                alt="AI Receptionist configuration dashboard"
+                width={900}
+                height={700}
+                style={{ width: "100%", height: "auto" }}
+              />
+            </div>
+          </aside>
 
-        <div className="fd-setup-form-wrapper">
-          <h1 className="fd-setup-title">{copy.title}</h1>
-          <p className="fd-setup-subtitle">{copy.subtitle}</p>
-          <AISetupForm lang={lang} />
+          <section className="setup-form-shell">
+            <h1 className="setup-title">{t.title}</h1>
+            <p className="setup-subtitle">{t.subtitle}</p>
+
+            {/* Reutiliza tu formulario existente */}
+            <AISetupForm
+              labels={{
+                businessName: t.businessName,
+                website: t.website,
+                receptionistName: t.receptionistName,
+                purpose: t.purpose
+              }}
+            />
+
+            <p className="form-helper">{t.helper}</p>
+          </section>
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }
