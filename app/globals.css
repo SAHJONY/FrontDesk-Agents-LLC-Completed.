@@ -1,20 +1,20 @@
 /* Root + reset */
 
 :root {
-  --fd-bg: #020617;
-  --fd-bg-elevated: #02081b;
-  --fd-bg-soft: #030b26;
+  --fd-bg: #FFFFFF;
+  --fd-bg-elevated: #F5F5F5;
+  --fd-bg-soft: #E0E0E0;
   --fd-border-subtle: rgba(148, 163, 184, 0.25);
-  --fd-text-main: #e5f0ff;
+  --fd-text-main: #0A192F;
   --fd-text-muted: #9ca3af;
-  --fd-accent: #22d3ee;
-  --fd-accent-soft: rgba(56, 189, 248, 0.14);
+  --fd-accent: #00C7B7;
+  --fd-accent-soft: rgba(0, 199, 183, 0.14);
   --fd-danger: #f97373;
   --fd-radius-xl: 26px;
   --fd-radius-lg: 18px;
   --fd-radius-md: 12px;
   --fd-radius-pill: 999px;
-  --fd-shadow-soft: 0 24px 80px rgba(15, 23, 42, 0.8);
+  --fd-shadow-soft: 0 8px 24px rgba(10, 25, 47, 0.12);
   --fd-font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Inter", sans-serif;
 }
@@ -33,7 +33,7 @@ body {
 }
 
 body.fd-root {
-  background: radial-gradient(circle at top left, #0f172a, #020617 55%, #000 100%);
+  background: #FFFFFF;
   color: var(--fd-text-main);
   font-family: var(--fd-font-sans);
   -webkit-font-smoothing: antialiased;
@@ -44,8 +44,8 @@ body.fd-root {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 10% 0, rgba(56, 189, 248, 0.24), transparent 50%),
-    radial-gradient(circle at 90% 100%, rgba(59, 130, 246, 0.2), transparent 55%);
+    radial-gradient(circle at 10% 0, rgba(0, 199, 183, 0.1), transparent 50%),
+    radial-gradient(circle at 90% 100%, rgba(0, 199, 183, 0.1), transparent 55%);
   opacity: 0.9;
   z-index: -1;
 }
@@ -87,8 +87,8 @@ button {
   width: 28px;
   height: 28px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #22d3ee, #38bdf8);
-  color: #020617;
+  background: #0A192F;
+  color: #FFFFFF;
   font-size: 14px;
   font-weight: 700;
   margin-right: 10px;
@@ -99,7 +99,7 @@ button {
   letter-spacing: 0.03em;
   font-size: 13px;
   text-transform: uppercase;
-  color: #cbd5f5;
+  color: #0A192F;
 }
 
 .fd-topbar-right {
@@ -113,13 +113,13 @@ button {
   padding: 7px 16px;
   border: 1px solid rgba(148, 163, 184, 0.4);
   font-size: 13px;
-  background: rgba(15, 23, 42, 0.6);
+  background: #F5F5F5;
 }
 
 .fd-topbar-button-primary {
   border: none;
-  background: linear-gradient(135deg, #22d3ee, #38bdf8);
-  color: #020617;
+  background: #00C7B7;
+  color: #FFFFFF;
   font-weight: 600;
 }
 
@@ -159,25 +159,25 @@ button {
 }
 
 .fd-button-primary {
-  background: linear-gradient(135deg, #22d3ee, #38bdf8);
-  color: #020617;
-  box-shadow: 0 16px 40px rgba(56, 189, 248, 0.35);
+  background: #00C7B7;
+  color: #FFFFFF;
+  box-shadow: 0 8px 16px rgba(0, 199, 183, 0.2);
 }
 
 .fd-button-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 24px 60px rgba(56, 189, 248, 0.45);
+  box-shadow: 0 12px 24px rgba(0, 199, 183, 0.3);
 }
 
 .fd-button-ghost {
-  background: rgba(15, 23, 42, 0.8);
-  border-color: rgba(148, 163, 184, 0.4);
+  background: #FFFFFF;
+  border-color: #E0E0E0;
   color: var(--fd-text-main);
 }
 
 .fd-button-ghost:hover {
   border-color: rgba(148, 163, 184, 0.7);
-  background: rgba(15, 23, 42, 0.95);
+  background: #F5F5F5;
 }
 
 /* Links */
@@ -194,9 +194,9 @@ button {
   align-items: center;
   padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  background: rgba(15, 23, 42, 0.7);
-  color: #e5e7eb;
+  border: 1px solid #E0E0E0;
+  background: #FFFFFF;
+  color: #0A192F;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -208,8 +208,8 @@ button {
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 11px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
 }
 
 /* Landing – hero */
@@ -287,7 +287,7 @@ button {
   position: relative;
   border-radius: var(--fd-radius-xl);
   overflow: hidden;
-  background: radial-gradient(circle at top, #0ea5e9, #020617 55%);
+  background: #F5F5F5;
   min-height: 320px;
   box-shadow: var(--fd-shadow-soft);
 }
@@ -313,13 +313,13 @@ button {
 
 .fd-hero-chip-top {
   top: 16px;
-  background: rgba(15, 23, 42, 0.92);
+  background: #F5F5F5;
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
 .fd-hero-chip-bottom {
   bottom: 16px;
-  background: rgba(15, 23, 42, 0.88);
+  background: #F5F5F5;
   border: 1px solid rgba(56, 189, 248, 0.45);
 }
 
@@ -335,7 +335,7 @@ button {
   border-radius: 999px;
   padding: 3px 8px;
   font-size: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  border: 1px solid #E0E0E0;
 }
 
 /* Use cases */
@@ -347,7 +347,7 @@ button {
 .fd-section-title {
   font-size: 18px;
   margin-bottom: 18px;
-  color: #e5edff;
+  color: #0A192F;
 }
 
 .fd-usecase-grid {
@@ -359,8 +359,8 @@ button {
 .fd-usecase-card {
   border-radius: var(--fd-radius-md);
   padding: 14px 14px 16px;
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), #020617);
-  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
 }
 
 .fd-usecase-card h3 {
@@ -396,7 +396,7 @@ button {
   border-radius: var(--fd-radius-xl);
   overflow: hidden;
   min-height: 320px;
-  background: radial-gradient(circle at top, #22d3ee, #020617 60%);
+  background: #F5F5F5;
   box-shadow: var(--fd-shadow-soft);
 }
 
@@ -437,8 +437,8 @@ button {
 
 .fd-input {
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
   padding: 9px 14px;
   color: var(--fd-text-main);
   font-size: 14px;
@@ -450,8 +450,8 @@ button {
 }
 
 .fd-input:focus {
-  border-color: rgba(56, 189, 248, 0.9);
-  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35);
+  border-color: #00C7B7;
+  box-shadow: 0 0 0 1px rgba(0, 199, 183, 0.2);
 }
 
 .fd-form-helper {
@@ -469,9 +469,8 @@ button {
 
 .fd-dashboard-inner {
   border-radius: var(--fd-radius-xl);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  background: radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 52%),
-    rgba(15, 23, 42, 0.98);
+  border: 1px solid #E0E0E0;
+  background: #FFFFFF;
   padding: 22px 22px 26px;
   box-shadow: var(--fd-shadow-soft);
 }
@@ -501,19 +500,19 @@ button {
   gap: 6px;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(22, 163, 74, 0.12);
-  border: 1px solid rgba(34, 197, 94, 0.6);
+  background: rgba(0, 199, 183, 0.1);
+  border: 1px solid rgba(0, 199, 183, 0.4);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #bbf7d0;
+  color: #00C7B7;
 }
 
 .fd-status-dot {
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: #22c55e;
+  background: #00C7B7;
 }
 
 /* Dashboard stats */
@@ -528,8 +527,8 @@ button {
 .fd-stat-card {
   border-radius: var(--fd-radius-md);
   padding: 12px 14px;
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
 }
 
 .fd-stat-label {
@@ -572,8 +571,8 @@ button {
 .fd-timeline-placeholder {
   border-radius: var(--fd-radius-md);
   padding: 14px;
-  border: 1px dashed rgba(148, 163, 184, 0.6);
-  background: rgba(15, 23, 42, 0.9);
+  border: 1px dashed #E0E0E0;
+  background: #FFFFFF;
   font-size: 12px;
   color: var(--fd-text-muted);
 }
