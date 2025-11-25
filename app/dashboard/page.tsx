@@ -1,11 +1,23 @@
-export default function DashboardPage() {
+type StatCardProps = {
+  label: string;
+  value: string;
+  sublabel?: string;
+};
+
+function StatCard({ label, value, sublabel }: StatCardProps) {
   return (
-    <main style={{ padding: 40 }}>
-      <h1>FrontDesk Agents – Command Center</h1>
-      <p>La plataforma ya está LIVE en producción.</p>
-      <p>
-        Aquí va el dashboard completo (llamadas, inbox, analytics, etc.).
-      </p>
-    </main>
+    <div className="stat-card">
+      <div className="stat-label">{label}</div>
+      <div className="stat-value">{value}</div>
+      {sublabel && <div className="stat-sublabel">{sublabel}</div>}
+    </div>
   );
 }
+
+export default function DashboardPage() {
+  return (
+    <main className="dashboard">
+      <div className="dashboard-inner">
+        <header className="dashboard-header">
+          <div>
+            <h1>FrontDesk Agents – Command Center
