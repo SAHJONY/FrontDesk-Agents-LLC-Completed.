@@ -1,104 +1,131 @@
 // app/components/AISetupForm.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState, FormEvent } from "react";
+
+type Step = 1 | 2 | 3;
 
 export default function AISetupForm() {
-  const [lang, setLang] = useState<'en' | 'es'>('en');
-  const content = {
-    en: {
-      title: 'Set Up Your AI Receptionist',
-      subtitle: 'Configure an AI-powered receptionist for your online business.',
-      fields: {
-        business: 'Business Name',
-        website: 'Website',
-        receptionist: 'Receptionist Name',
-        purpose: 'Main Purpose',
-      },
-      button: 'Continue',
-      imageAlt: 'AI Receptionist Configuration Screen',
-    },
-    es: {
-      title: 'Configura Tu Recepcionista de IA',
-      subtitle:
-        'Configura una recepcionista impulsada por IA para tu negocio en línea.',
-      fields: {
-        business: 'Nombre del Negocio',
-        website: 'Sitio Web',
-        receptionist: 'Nombre de la Recepcionista',
-        purpose: 'Propósito Principal',
-      },
-      button: 'Continuar',
-      imageAlt: 'Pantalla de Configuración de Recepcionista IA',
-    },
+  const [step, setStep] = useState<Step>(1);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (step < 3) {
+      setStep((s) => (s + 1) as Step);
+    } else {
+      alert("Guardado (demo). En producción esto enviará los datos al backend.");
+    }
   };
-  const t = content[lang];
 
   return (
-    <section className="bg-[#0A0A12] text-white py-20 px-6 flex flex-col items-center">
-      {/* Language Toggle */}
-      <div className="w-full max-w-4xl flex justify-end mb-4 space-x-3 text-sm font-semibold">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 max-w-2xl mx-auto bg-slate-900/70 border border-slate-800 rounded-xl p-5 sm:p-6 shadow"
+    >
+      <header className="space-y-1">
+        <p className="text-xs uppercase tracking-[0.2em] text-sky-400">
+          Setup · Paso {step} de 3
+        </p>
+        <h1 className="text-xl font-semibold">Configurar agentes de IA</h1>
+        <p className="text-sm text-slate-400">
+          Este formulario es solo UI (demo). Más adelante lo conectamos al
+          backend real para guardar tus claves y números.
+        </p>
+      </header>
+
+      {step === 1 && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-medium text-slate-100">
+            1. Números telefónicos (Bland / Twilio)
+          </h2>
+          <div className="space-y-3 text-sm">
+            <label className="block">
+              <span className="text-slate-300">Número principal de negocio</span>
+              <input
+                className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                placeholder="+1 305 555 5555"
+              />
+            </label>
+            <label className="block">
+              <span className="text-slate-300">Proveedor</span>
+              <select className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                <option>Bland.ai (recomendado)</option>
+                <option>Twilio</option>
+                <option>Otro / aún no definido</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-medium text-slate-100">
+            2. CRM / Base de datos de leads
+          </h2>
+          <div className="space-y-3 text-sm">
+            <label className="block">
+              <span className="text-slate-300">Herramienta principal</span>
+              <select className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                <option>Airtable</option>
+                <option>HubSpot</option>
+                <option>Otro</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-slate-300">Nombre de la tabla / pipeline</span>
+              <input
+                className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                placeholder="FrontDesk Prospects / Leads"
+              />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-medium text-slate-100">
+            3. Reglas básicas del agente
+          </h2>
+          <div className="space-y-3 text-sm">
+            <label className="block">
+              <span className="text-slate-300">Horario de atención</span>
+              <input
+                className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                placeholder="24/7, o L-V 9am–6pm, etc."
+              />
+            </label>
+            <label className="block">
+              <span className="text-slate-300">Objetivo principal</span>
+              <textarea
+                className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                rows={3}
+                placeholder="Ej: responder preguntas frecuentes y agendar citas en el calendario."
+              />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* Buttons */}
+      <div className="flex items-center justify-between pt-2">
         <button
-          className={`${lang === 'en' ? 'text-cyan-400' : 'text-gray-400'}`}
-          onClick={() => setLang('en')}
+          type="button"
+          onClick={() => setStep((s) => (s > 1 ? ((s - 1) as Step) : s))}
+          className="text-xs text-slate-400 hover:text-slate-200"
+          disabled={step === 1}
         >
-          EN
+          ← Atrás
         </button>
+
         <button
-          className={`${lang === 'es' ? 'text-cyan-400' : 'text-gray-400'}`}
-          onClick={() => setLang('es')}
+          type="submit"
+          className="inline-flex items-center rounded-lg bg-sky-500 px-4 py-2 text-xs font-medium text-white hover:bg-sky-400 transition"
         >
-          ES
+          {step < 3 ? "Continuar" : "Guardar configuración (demo)"}
         </button>
       </div>
-
-      {/* Preview Image */}
-      <div className="w-full max-w-4xl overflow-hidden rounded-2xl mb-10">
-        <Image
-          src="/ai_receptionist_dashboard.jpg" // replace with your actual dashboard image
-          alt={t.imageAlt}
-          width={1200}
-          height={600}
-          className="w-full object-cover"
-          priority
-        />
-      </div>
-
-      {/* Setup Form */}
-      <div className="w-full max-w-2xl bg-[#111827] p-10 rounded-2xl shadow-lg">
-        <h2 className="text-2xl md:text-3xl font-bold mb-2">{t.title}</h2>
-        <p className="text-gray-400 mb-8">{t.subtitle}</p>
-
-        <form className="space-y-4">
-          <input
-            type="text"
-            placeholder={t.fields.business}
-            className="w-full bg-[#1F2937] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
-          />
-          <input
-            type="text"
-            placeholder={t.fields.website}
-            className="w-full bg-[#1F2937] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
-          />
-          <input
-            type="text"
-            placeholder={t.fields.receptionist}
-            className="w-full bg-[#1F2937] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
-          />
-          <input
-            type="text"
-            placeholder={t.fields.purpose}
-            className="w-full bg-[#1F2937] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
-          />
-          <button
-            type="submit"
-            className="w-full bg-cyan-400 text-black font-semibold py-3 rounded-full hover:bg-cyan-300 transition"
-          >
-            {t.button}
-          </button>
-        </form>
-      </div>
-    </section>
+    </form>
   );
 }
