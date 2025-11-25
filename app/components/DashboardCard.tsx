@@ -1,36 +1,56 @@
-// app/components/DashboardCard.tsx
+"use client";
 
-type DashboardCardProps = {
-  title: string;
-  value?: string | number;
-  helperText?: string;
-  badge?: string;
+import React from "react";
+
+type Tone = "green" | "blue" | "gray";
+
+const toneClasses: Record<Tone, { border: string; badge: string }> = {
+  green: {
+    border: "border-emerald-500/60",
+    badge: "text-emerald-300",
+  },
+  blue: {
+    border: "border-sky-500/60",
+    badge: "text-sky-300",
+  },
+  gray: {
+    border: "border-slate-500/60",
+    badge: "text-slate-300",
+  },
 };
+
+interface DashboardCardProps {
+  title: string;
+  value: string | number;
+  helper?: string;
+  badge?: string;
+  tone?: Tone;
+}
 
 export default function DashboardCard({
   title,
   value,
-  helperText,
+  helper,
   badge,
+  tone = "gray",
 }: DashboardCardProps) {
+  const t = toneClasses[tone];
+
   return (
-    <section className="dashboard-card">
-      <header className="dashboard-card-header">
-        <div className="dashboard-card-title-row">
-          <h3 className="dashboard-card-title">{title}</h3>
-          {badge && <span className="dashboard-card-badge">{badge}</span>}
-        </div>
-      </header>
-
-      {typeof value !== "undefined" && (
-        <p className="dashboard-card-value">{value}</p>
-      )}
-
-      {helperText && (
-        <p className="dashboard-card-helper">
-          {helperText}
-        </p>
-      )}
-    </section>
+    <div
+      className={[
+        "card",
+        "border",
+        t.border,
+        "bg-[radial-gradient(circle_at_top,#020617,#020617_55%,#000_100%)]",
+      ].join(" ")}
+    >
+      <div className="card-header">
+        <div className="card-title">{title}</div>
+        {badge && <span className={["card-pill", t.badge].join(" ")}>{badge}</span>}
+      </div>
+      <div className="card-value">{value}</div>
+      {helper && <div className="card-footer">{helper}</div>}
+    </div>
   );
 }
