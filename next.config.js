@@ -1,11 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
-  output: "standalone", // required for Vercel optimized deployment
-  images: {
-    domains: ["frontdeskagents.com", "vercel.app"],
-  },
+  reactStrictMode: false,
+  experimental: {
+    appDir: true
+  }
 };
 
-export default nextConfig;
+module.exports = nextConfig;
