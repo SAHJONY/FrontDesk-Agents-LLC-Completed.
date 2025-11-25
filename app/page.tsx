@@ -1,175 +1,293 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 type Lang = "en" | "es";
 
-function getLang(searchParams?: { lang?: string }): Lang {
-  if (!searchParams?.lang) return "en";
-  return searchParams.lang === "es" ? "es" : "en";
-}
+export default function HomePage() {
+  const [lang, setLang] = useState<Lang>("en");
 
-export default function HomePage({
-  searchParams,
-}: {
-  searchParams?: { lang?: string };
-}) {
-  const lang = getLang(searchParams);
-
-  const copy =
+  const t =
     lang === "en"
       ? {
-          badge: "AI Receptionist · FrontDesk Agents LLC",
-          title: "Deploy Your AI Receptionist in Minutes",
+          kicker: "AI Phone OS for real businesses",
+          title: "Deploy your AI Receptionist in minutes.",
           subtitle:
-            "Quickly set up an AI-powered receptionist for your business with just a few clicks.",
-          cta: "Get Started",
-          secondaryCta: "Watch how it works",
-          localeSwitchLabel: "ES",
-          localeCurrent: "EN",
+            "FrontDesk Agents answers, qualifies and books appointments 24/7. No missed calls, no training, no headaches.",
+          primaryCta: "Start 14-day free trial",
+          secondaryCta: "See Command Center live",
+          meta1: "4 continents using FrontDesk Agents",
+          meta2: "Under 60 seconds to first booked call",
+          heroTagLeft: "Live demo",
+          heroTagRight: "Voice • WhatsApp • SMS",
+          heroPill: "Real calls, real bookings – not a mockup.",
+          howItWorksTitle: "From missed calls to fully booked calendars.",
+          howItWorksSubtitle:
+            "Plug in your existing numbers, calendar and CRM. The AI receptionist handles the rest.",
+          steps: [
+            {
+              label: "Step 1",
+              title: "Connect your numbers",
+              body: "Forward your existing line or use dedicated AI numbers from Bland/Twilio in a few clicks."
+            },
+            {
+              label: "Step 2",
+              title: "Teach it your business",
+              body: "Plain-language instructions: services, pricing, availability, FAQs. No scripts or prompts to code."
+            },
+            {
+              label: "Step 3",
+              title: "Watch bookings roll in",
+              body: "Every call is logged with transcript, sentiment and outcome inside the Command Center."
+            }
+          ],
+          useCasesTitle: "Who is this built for?",
+          useCasesSubtitle:
+            "High-intent calls where every missed ring is lost revenue.",
+          footerLeft: "© " + new Date().getFullYear() + " FrontDesk Agents LLC",
+          footerRight: "Made for clinics, law firms, home services and serious agencies."
         }
       : {
-          badge: "Recepcionista de IA · FrontDesk Agents LLC",
-          title: "Implementa Tu Recepcionista de IA en Minutos",
+          kicker: "OS de Telefonía IA para negocios reales",
+          title: "Implementa tu Recepcionista de IA en minutos.",
           subtitle:
-            "Configura rápidamente una recepcionista impulsada por IA para tu negocio en línea.",
-          cta: "Empezar",
-          secondaryCta: "Ver cómo funciona",
-          localeSwitchLabel: "EN",
-          localeCurrent: "ES",
+            "FrontDesk Agents atiende, califica y agenda citas 24/7. Sin llamadas perdidas, sin capacitación, sin dolores de cabeza.",
+          primaryCta: "Prueba gratis de 14 días",
+          secondaryCta: "Ver Command Center en vivo",
+          meta1: "Clientes en 4 continentes",
+          meta2: "Menos de 60 segundos hasta la primera cita",
+          heroTagLeft: "Demo en vivo",
+          heroTagRight: "Voz • WhatsApp • SMS",
+          heroPill: "Llamadas reales, citas reales – no es maqueta.",
+          howItWorksTitle: "De llamadas perdidas a agenda llena.",
+          howItWorksSubtitle:
+            "Conecta tus números, calendario y CRM. La recepcionista de IA se encarga del resto.",
+          steps: [
+            {
+              label: "Paso 1",
+              title: "Conecta tus números",
+              body: "Desvía tu línea actual o usa números dedicados de IA (Bland/Twilio) en pocos clics."
+            },
+            {
+              label: "Paso 2",
+              title: "Enséñale tu negocio",
+              body: "Instrucciones en lenguaje normal: servicios, precios, horario, preguntas frecuentes."
+            },
+            {
+              label: "Paso 3",
+              title: "Observa las reservas llegar",
+              body: "Cada llamada queda registrada con transcripción, sentimiento y resultado en el Command Center."
+            }
+          ],
+          useCasesTitle: "¿Para quién está construido?",
+          useCasesSubtitle:
+            "Llamadas de alta intención donde cada timbre perdido es dinero perdido.",
+          footerLeft:
+            "© " + new Date().getFullYear() + " FrontDesk Agents LLC",
+          footerRight: "Hecho para clínicas, despachos legales, servicios y agencias serias."
         };
 
-  const otherLang: Lang = lang === "en" ? "es" : "en";
+  const heroImage = lang === "en" ? "/hero-en.jpg" : "/hero-es.jpg";
 
   return (
-    <main className="fd-page fd-landing">
-      {/* Top bar with language toggle */}
-      <header className="fd-topbar">
-        <div className="fd-topbar-left">
-          <span className="fd-logo-mark">FD</span>
-          <span className="fd-logo-text">FrontDesk Agents</span>
-        </div>
-        <div className="fd-topbar-right">
-          <div className="fd-lang-toggle">
-            <span className={lang === "en" ? "fd-lang-active" : ""}>EN</span>
-            <span className="fd-lang-divider">|</span>
-            <span className={lang === "es" ? "fd-lang-active" : ""}>ES</span>
+    <div className="app-shell">
+      {/* NAVBAR */}
+      <header className="navbar">
+        <div className="nav-inner">
+          <div className="nav-title">
+            <span>FrontDesk Agents – Command Center</span>
+            <span className="nav-badge">AI Phone OS</span>
           </div>
-          <Link
-            href={`/setup?lang=${lang}`}
-            className="fd-topbar-button fd-topbar-button-primary"
-          >
-            {copy.cta}
-          </Link>
+          <div className="nav-lang-toggle">
+            <button
+              className={
+                "nav-lang-pill " + (lang === "en" ? "nav-lang-pill--active" : "")
+              }
+              onClick={() => setLang("en")}
+            >
+              EN
+            </button>
+            <button
+              className={
+                "nav-lang-pill " + (lang === "es" ? "nav-lang-pill--active" : "")
+              }
+              onClick={() => setLang("es")}
+            >
+              ES
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Hero section */}
-      <section className="fd-hero">
-        <div className="fd-hero-content">
-          <span className="fd-badge">{copy.badge}</span>
-          <h1 className="fd-hero-title">{copy.title}</h1>
-          <p className="fd-hero-subtitle">{copy.subtitle}</p>
-
-          <div className="fd-hero-actions">
-            <Link
-              href={`/setup?lang=${lang}`}
-              className="fd-button fd-button-primary"
-            >
-              {copy.cta}
-            </Link>
-            <Link
-              href={`/?lang=${otherLang}`}
-              className="fd-button fd-button-ghost"
-            >
-              {copy.localeSwitchLabel}
-            </Link>
-          </div>
-
-          <div className="fd-hero-trust">
-            <p>
-              24/7 AI receptionists for clinics, law firms, home services, and
-              e-commerce brands.
-            </p>
-            <div className="fd-hero-metrics">
-              <div>
-                <span className="fd-metric-number">60s</span>
-                <span className="fd-metric-label">to book a call</span>
-              </div>
-              <div>
-                <span className="fd-metric-number">24/7</span>
-                <span className="fd-metric-label">coverage</span>
-              </div>
-              <div>
-                <span className="fd-metric-number">+30%</span>
-                <span className="fd-metric-label">more appointments</span>
-              </div>
+      {/* HERO */}
+      <main>
+        <section className="hero">
+          <div>
+            <div className="hero-kicker">
+              <span className="hero-kicker-dot" />
+              <span>{t.kicker}</span>
             </div>
-          </div>
-        </div>
+            <h1 className="hero-title">{t.title}</h1>
+            <p className="hero-subtitle">{t.subtitle}</p>
 
-        {/* Hero image – use your premium 4K receptionist artwork */}
-        <div className="fd-hero-visual">
-          <div className="fd-hero-image-frame">
-            <Image
-              src="/images/hero-receptionist.jpg"
-              alt="AI receptionist answering calls"
-              fill
-              priority
-              className="fd-hero-image"
-            />
-            <div className="fd-hero-chip fd-hero-chip-top">
-              <span className="fd-chip-title">
-                Turn calls into appointments
+            <div className="hero-cta-row">
+              <Link href="/setup">
+                <button className="btn-primary">
+                  {t.primaryCta}
+                  <span>↗</span>
+                </button>
+              </Link>
+              <Link href="/dashboard">
+                <button className="btn-secondary">
+                  <span>{t.secondaryCta}</span>
+                </button>
+              </Link>
+            </div>
+
+            <div className="hero-meta">
+              <span>
+                <strong>24/7</strong> AI receptionists
               </span>
-              <span className="fd-chip-subtitle">in under 60 seconds</span>
-            </div>
-            <div className="fd-hero-chip fd-hero-chip-bottom">
-              <span className="fd-chip-pill">Free 14-day trial</span>
-              <span className="fd-chip-pill">No charges during the trial</span>
-              <span className="fd-chip-pill">@frontdesk.agents</span>
+              <span>{t.meta1}</span>
+              <span>{t.meta2}</span>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Stripe with verticals like your 6-card graphic */}
-      <section className="fd-usecases">
-        <h2 className="fd-section-title">
-          Built for clinics, law firms, agencies, and home services.
-        </h2>
-        <div className="fd-usecase-grid">
-          <article className="fd-usecase-card">
-            <h3>Healthcare & Dental</h3>
-            <p>Answer new patient calls 24/7 and book cleanings automatically.</p>
-            <span className="fd-pill">Free 14-day trial</span>
-          </article>
-          <article className="fd-usecase-card">
-            <h3>Hospitality</h3>
-            <p>Capture direct bookings, upsell late check-out, and reduce no-shows.</p>
-            <span className="fd-pill">No charges during trial</span>
-          </article>
-          <article className="fd-usecase-card">
-            <h3>Home Services</h3>
-            <p>Handle emergency calls, schedule visits, and win more jobs.</p>
-            <span className="fd-pill">24/7 coverage</span>
-          </article>
-          <article className="fd-usecase-card">
-            <h3>E-commerce</h3>
-            <p>Recover abandoned carts and qualify buyers via phone & WhatsApp.</p>
-            <span className="fd-pill">Omni-channel</span>
-          </article>
-          <article className="fd-usecase-card">
-            <h3>Legal</h3>
-            <p>Qualify leads, pre-screen cases, and book paid consultations.</p>
-            <span className="fd-pill">Intake done</span>
-          </article>
-          <article className="fd-usecase-card">
-            <h3>Multi-location brands</h3>
-            <p>Central command center for all phone numbers and inboxes.</p>
-            <span className="fd-pill">Command Center OS</span>
-          </article>
-        </div>
-      </section>
-    </main>
+          <div className="hero-media">
+            <div className="hero-media-image-wrapper">
+              <Image
+                src={heroImage}
+                alt="FrontDesk Agents AI receptionist dashboard"
+                width={900}
+                height={700}
+                priority
+                style={{ width: "100%", height: "auto" }}
+              />
+              <div className="hero-media-tag">
+                <span>{t.heroTagLeft}</span>
+                <span>•</span>
+                <span>{t.heroTagRight}</span>
+              </div>
+              <div className="hero-media-pill">{t.heroPill}</div>
+            </div>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS */}
+        <section className="section">
+          <div className="section-header">
+            <span className="section-kicker">
+              {lang === "en" ? "How it works" : "Cómo funciona"}
+            </span>
+            <h2 className="section-title">{t.howItWorksTitle}</h2>
+            <p className="section-subtitle">{t.howItWorksSubtitle}</p>
+          </div>
+
+          <div className="steps-grid">
+            {t.steps.map((step) => (
+              <article key={step.title} className="step-card">
+                <div className="step-pill">{step.label}</div>
+                <div className="step-title">{step.title}</div>
+                <div className="step-body">{step.body}</div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* USE CASES – estilo banners verticales */}
+        <section className="section">
+          <div className="section-header">
+            <span className="section-kicker">
+              {lang === "en" ? "Industries" : "Industrias"}
+            </span>
+            <h2 className="section-title">{t.useCasesTitle}</h2>
+            <p className="section-subtitle">{t.useCasesSubtitle}</p>
+          </div>
+
+          <div className="usecases-grid">
+            {/* Clinics */}
+            <article className="usecase-card">
+              <Image
+                src="/usecase-clinic.jpg"
+                alt="Clinic receptionist"
+                fill
+                style={{ objectFit: "cover" }}
+              />
+              <div className="usecase-inner">
+                <div className="usecase-title">
+                  {lang === "en"
+                    ? "Clinics & medical practices"
+                    : "Clínicas y consultorios"}
+                </div>
+                <div className="usecase-list">
+                  {lang === "en"
+                    ? "New patients, follow-ups, no-show reduction."
+                    : "Pacientes nuevos, seguimientos, menos ausencias."}
+                </div>
+                <div className="usecase-cta">
+                  {lang === "en" ? "Book more patients" : "Agenda más pacientes"}
+                </div>
+              </div>
+            </article>
+
+            {/* Home services */}
+            <article className="usecase-card">
+              <Image
+                src="/usecase-services.jpg"
+                alt="Home services"
+                fill
+                style={{ objectFit: "cover" }}
+              />
+              <div className="usecase-inner">
+                <div className="usecase-title">
+                  {lang === "en"
+                    ? "Home services & repairs"
+                    : "Servicios y reparaciones"}
+                </div>
+                <div className="usecase-list">
+                  {lang === "en"
+                    ? "Answer 24/7, dispatch jobs, capture every lead."
+                    : "Atiende 24/7, agenda visitas y captura cada lead."}
+                </div>
+                <div className="usecase-cta">
+                  {lang === "en" ? "Fill your calendar" : "Llena tu agenda"}
+                </div>
+              </div>
+            </article>
+
+            {/* Law firms */}
+            <article className="usecase-card">
+              <Image
+                src="/usecase-law.jpg"
+                alt="Law firm"
+                fill
+                style={{ objectFit: "cover" }}
+              />
+              <div className="usecase-inner">
+                <div className="usecase-title">
+                  {lang === "en" ? "Law firms" : "Despachos legales"}
+                </div>
+                <div className="usecase-list">
+                  {lang === "en"
+                    ? "Qualify consultations and book intakes in under a minute."
+                    : "Califica consultas y agenda intakes en menos de un minuto."}
+                </div>
+                <div className="usecase-cta">
+                  {lang === "en" ? "Qualify more cases" : "Califica más casos"}
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <span>{t.footerLeft}</span>
+        <span>{t.footerRight}</span>
+      </footer>
+    </div>
   );
 }
