@@ -1,293 +1,103 @@
-"use client";
-
-import Image from "next/image";
+// app/page.tsx
 import Link from "next/link";
-import { useState } from "react";
+import Image from "next/image";
+import { copy, normalizeLang } from "@/lib/i18n";
 
-type Lang = "en" | "es";
+type PageProps = {
+  searchParams?: { lang?: string };
+};
 
-export default function HomePage() {
-  const [lang, setLang] = useState<Lang>("en");
-
-  const t =
-    lang === "en"
-      ? {
-          kicker: "AI Phone OS for real businesses",
-          title: "Deploy your AI Receptionist in minutes.",
-          subtitle:
-            "FrontDesk Agents answers, qualifies and books appointments 24/7. No missed calls, no training, no headaches.",
-          primaryCta: "Start 14-day free trial",
-          secondaryCta: "See Command Center live",
-          meta1: "4 continents using FrontDesk Agents",
-          meta2: "Under 60 seconds to first booked call",
-          heroTagLeft: "Live demo",
-          heroTagRight: "Voice • WhatsApp • SMS",
-          heroPill: "Real calls, real bookings – not a mockup.",
-          howItWorksTitle: "From missed calls to fully booked calendars.",
-          howItWorksSubtitle:
-            "Plug in your existing numbers, calendar and CRM. The AI receptionist handles the rest.",
-          steps: [
-            {
-              label: "Step 1",
-              title: "Connect your numbers",
-              body: "Forward your existing line or use dedicated AI numbers from Bland/Twilio in a few clicks."
-            },
-            {
-              label: "Step 2",
-              title: "Teach it your business",
-              body: "Plain-language instructions: services, pricing, availability, FAQs. No scripts or prompts to code."
-            },
-            {
-              label: "Step 3",
-              title: "Watch bookings roll in",
-              body: "Every call is logged with transcript, sentiment and outcome inside the Command Center."
-            }
-          ],
-          useCasesTitle: "Who is this built for?",
-          useCasesSubtitle:
-            "High-intent calls where every missed ring is lost revenue.",
-          footerLeft: "© " + new Date().getFullYear() + " FrontDesk Agents LLC",
-          footerRight: "Made for clinics, law firms, home services and serious agencies."
-        }
-      : {
-          kicker: "OS de Telefonía IA para negocios reales",
-          title: "Implementa tu Recepcionista de IA en minutos.",
-          subtitle:
-            "FrontDesk Agents atiende, califica y agenda citas 24/7. Sin llamadas perdidas, sin capacitación, sin dolores de cabeza.",
-          primaryCta: "Prueba gratis de 14 días",
-          secondaryCta: "Ver Command Center en vivo",
-          meta1: "Clientes en 4 continentes",
-          meta2: "Menos de 60 segundos hasta la primera cita",
-          heroTagLeft: "Demo en vivo",
-          heroTagRight: "Voz • WhatsApp • SMS",
-          heroPill: "Llamadas reales, citas reales – no es maqueta.",
-          howItWorksTitle: "De llamadas perdidas a agenda llena.",
-          howItWorksSubtitle:
-            "Conecta tus números, calendario y CRM. La recepcionista de IA se encarga del resto.",
-          steps: [
-            {
-              label: "Paso 1",
-              title: "Conecta tus números",
-              body: "Desvía tu línea actual o usa números dedicados de IA (Bland/Twilio) en pocos clics."
-            },
-            {
-              label: "Paso 2",
-              title: "Enséñale tu negocio",
-              body: "Instrucciones en lenguaje normal: servicios, precios, horario, preguntas frecuentes."
-            },
-            {
-              label: "Paso 3",
-              title: "Observa las reservas llegar",
-              body: "Cada llamada queda registrada con transcripción, sentimiento y resultado en el Command Center."
-            }
-          ],
-          useCasesTitle: "¿Para quién está construido?",
-          useCasesSubtitle:
-            "Llamadas de alta intención donde cada timbre perdido es dinero perdido.",
-          footerLeft:
-            "© " + new Date().getFullYear() + " FrontDesk Agents LLC",
-          footerRight: "Hecho para clínicas, despachos legales, servicios y agencias serias."
-        };
-
-  const heroImage = lang === "en" ? "/hero-en.jpg" : "/hero-es.jpg";
+export default function HomePage({ searchParams }: PageProps) {
+  const lang = normalizeLang(searchParams?.lang);
+  const t = copy.hero[lang];
 
   return (
-    <div className="app-shell">
-      {/* NAVBAR */}
-      <header className="navbar">
-        <div className="nav-inner">
-          <div className="nav-title">
-            <span>FrontDesk Agents – Command Center</span>
-            <span className="nav-badge">AI Phone OS</span>
+    <main className="hero-wrapper min-h-screen flex flex-col">
+      <div className="hero-overlay" />
+      <div className="hero-glow" />
+
+      <header className="flex items-center justify-between px-5 sm:px-8 pt-5 sm:pt-7 max-w-6xl mx-auto w-full">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-xl bg-cyan-400/10 border border-cyan-400/40 flex items-center justify-center">
+            <span className="text-xs font-semibold text-cyan-300">FD</span>
           </div>
-          <div className="nav-lang-toggle">
-            <button
-              className={
-                "nav-lang-pill " + (lang === "en" ? "nav-lang-pill--active" : "")
-              }
-              onClick={() => setLang("en")}
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-semibold tracking-wide">
+              FrontDesk Agents LLC
+            </span>
+            <span className="text-[11px] text-slate-400">
+              AI Receptionist Command Center
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="lang-toggle">
+            <Link
+              href="/?lang=en"
+              className={`lang-pill ${lang === "en" ? "lang-pill-active" : ""}`}
             >
               EN
-            </button>
-            <button
-              className={
-                "nav-lang-pill " + (lang === "es" ? "nav-lang-pill--active" : "")
-              }
-              onClick={() => setLang("es")}
+            </Link>
+            <span className="text-slate-600">|</span>
+            <Link
+              href="/?lang=es"
+              className={`lang-pill ${lang === "es" ? "lang-pill-active" : ""}`}
             >
               ES
-            </button>
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* HERO */}
-      <main>
-        <section className="hero">
-          <div>
-            <div className="hero-kicker">
-              <span className="hero-kicker-dot" />
-              <span>{t.kicker}</span>
-            </div>
-            <h1 className="hero-title">{t.title}</h1>
-            <p className="hero-subtitle">{t.subtitle}</p>
+      <section className="flex-1 flex flex-col items-center justify-center px-5 sm:px-8 pb-16 pt-10">
+        <div className="max-w-5xl w-full grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-10 items-center">
+          {/* Text */}
+          <div className="space-y-6">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.22em] text-cyan-300/80">
+              {t.eyebrow}
+            </p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.3rem] font-extrabold leading-tight text-slate-50">
+              {t.title}
+            </h1>
+            <p className="text-sm sm:text-base md:text-lg text-slate-300 max-w-xl">
+              {t.subtitle}
+            </p>
 
-            <div className="hero-cta-row">
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link href="/setup">
-                <button className="btn-primary">
-                  {t.primaryCta}
-                  <span>↗</span>
+                <button className="fd-btn-primary">
+                  {t.ctaPrimary}
                 </button>
               </Link>
-              <Link href="/dashboard">
-                <button className="btn-secondary">
-                  <span>{t.secondaryCta}</span>
-                </button>
+
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium text-cyan-300 hover:text-cyan-200 underline-offset-4 hover:underline"
+              >
+                {t.ctaSecondary}
               </Link>
             </div>
 
-            <div className="hero-meta">
-              <span>
-                <strong>24/7</strong> AI receptionists
-              </span>
-              <span>{t.meta1}</span>
-              <span>{t.meta2}</span>
+            <div className="flex flex-wrap gap-4 pt-4 text-xs sm:text-sm text-slate-400">
+              <span>• 24/7 AI phone agents</span>
+              <span>• WhatsApp & SMS</span>
+              <span>• Airtable + email integration</span>
             </div>
           </div>
 
-          <div className="hero-media">
-            <div className="hero-media-image-wrapper">
-              <Image
-                src={heroImage}
-                alt="FrontDesk Agents AI receptionist dashboard"
-                width={900}
-                height={700}
-                priority
-                style={{ width: "100%", height: "auto" }}
-              />
-              <div className="hero-media-tag">
-                <span>{t.heroTagLeft}</span>
-                <span>•</span>
-                <span>{t.heroTagRight}</span>
-              </div>
-              <div className="hero-media-pill">{t.heroPill}</div>
-            </div>
+          {/* Hero image */}
+          <div className="premium-image-container">
+            <Image
+              src={lang === "es" ? "/premium/hero-es.png" : "/premium/hero-en.png"}
+              alt="FrontDesk Agents – AI Receptionist"
+              fill
+              priority
+              className="premium-image"
+            />
           </div>
-        </section>
-
-        {/* HOW IT WORKS */}
-        <section className="section">
-          <div className="section-header">
-            <span className="section-kicker">
-              {lang === "en" ? "How it works" : "Cómo funciona"}
-            </span>
-            <h2 className="section-title">{t.howItWorksTitle}</h2>
-            <p className="section-subtitle">{t.howItWorksSubtitle}</p>
-          </div>
-
-          <div className="steps-grid">
-            {t.steps.map((step) => (
-              <article key={step.title} className="step-card">
-                <div className="step-pill">{step.label}</div>
-                <div className="step-title">{step.title}</div>
-                <div className="step-body">{step.body}</div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        {/* USE CASES – estilo banners verticales */}
-        <section className="section">
-          <div className="section-header">
-            <span className="section-kicker">
-              {lang === "en" ? "Industries" : "Industrias"}
-            </span>
-            <h2 className="section-title">{t.useCasesTitle}</h2>
-            <p className="section-subtitle">{t.useCasesSubtitle}</p>
-          </div>
-
-          <div className="usecases-grid">
-            {/* Clinics */}
-            <article className="usecase-card">
-              <Image
-                src="/usecase-clinic.jpg"
-                alt="Clinic receptionist"
-                fill
-                style={{ objectFit: "cover" }}
-              />
-              <div className="usecase-inner">
-                <div className="usecase-title">
-                  {lang === "en"
-                    ? "Clinics & medical practices"
-                    : "Clínicas y consultorios"}
-                </div>
-                <div className="usecase-list">
-                  {lang === "en"
-                    ? "New patients, follow-ups, no-show reduction."
-                    : "Pacientes nuevos, seguimientos, menos ausencias."}
-                </div>
-                <div className="usecase-cta">
-                  {lang === "en" ? "Book more patients" : "Agenda más pacientes"}
-                </div>
-              </div>
-            </article>
-
-            {/* Home services */}
-            <article className="usecase-card">
-              <Image
-                src="/usecase-services.jpg"
-                alt="Home services"
-                fill
-                style={{ objectFit: "cover" }}
-              />
-              <div className="usecase-inner">
-                <div className="usecase-title">
-                  {lang === "en"
-                    ? "Home services & repairs"
-                    : "Servicios y reparaciones"}
-                </div>
-                <div className="usecase-list">
-                  {lang === "en"
-                    ? "Answer 24/7, dispatch jobs, capture every lead."
-                    : "Atiende 24/7, agenda visitas y captura cada lead."}
-                </div>
-                <div className="usecase-cta">
-                  {lang === "en" ? "Fill your calendar" : "Llena tu agenda"}
-                </div>
-              </div>
-            </article>
-
-            {/* Law firms */}
-            <article className="usecase-card">
-              <Image
-                src="/usecase-law.jpg"
-                alt="Law firm"
-                fill
-                style={{ objectFit: "cover" }}
-              />
-              <div className="usecase-inner">
-                <div className="usecase-title">
-                  {lang === "en" ? "Law firms" : "Despachos legales"}
-                </div>
-                <div className="usecase-list">
-                  {lang === "en"
-                    ? "Qualify consultations and book intakes in under a minute."
-                    : "Califica consultas y agenda intakes en menos de un minuto."}
-                </div>
-                <div className="usecase-cta">
-                  {lang === "en" ? "Qualify more cases" : "Califica más casos"}
-                </div>
-              </div>
-            </article>
-          </div>
-        </section>
-      </main>
-
-      {/* FOOTER */}
-      <footer className="footer">
-        <span>{t.footerLeft}</span>
-        <span>{t.footerRight}</span>
-      </footer>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }
