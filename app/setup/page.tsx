@@ -1,102 +1,60 @@
-"use client";
-
+// app/setup/page.tsx
 import Image from "next/image";
-import { useState } from "react";
+import { copy, normalizeLang } from "@/lib/i18n";
 import AISetupForm from "../components/AISetupForm";
 
-type Lang = "en" | "es";
+type PageProps = {
+  searchParams?: { lang?: string };
+};
 
-export default function SetupPage() {
-  const [lang, setLang] = useState<Lang>("en");
-
-  const t =
-    lang === "en"
-      ? {
-          title: "Set up your AI Receptionist",
-          subtitle:
-            "Tell FrontDesk Agents how your business works. You’ll have a trained receptionist in minutes.",
-          helper:
-            "You can change all of this later. This is just to get your first AI agent live quickly.",
-          businessName: "Business name",
-          website: "Website",
-          receptionistName: "Receptionist name",
-          purpose: "Main purpose"
-        }
-      : {
-          title: "Configura tu Recepcionista de IA",
-          subtitle:
-            "Explícale a FrontDesk Agents cómo funciona tu negocio. Tendrás una recepcionista entrenada en minutos.",
-          helper:
-            "Todo se puede editar después. Esto es solo para poner tu primera agente de IA en producción rápido.",
-          businessName: "Nombre del negocio",
-          website: "Sitio web",
-          receptionistName: "Nombre de la recepcionista",
-          purpose: "Propósito principal"
-        };
-
-  const heroImage = lang === "en" ? "/setup-en.jpg" : "/setup-es.jpg";
+export default function SetupPage({ searchParams }: PageProps) {
+  const lang = normalizeLang(searchParams?.lang);
+  const t = copy.setup[lang];
 
   return (
-    <div className="app-shell">
-      <header className="navbar">
-        <div className="nav-inner">
-          <div className="nav-title">
-            <span>FrontDesk Agents – Setup</span>
-            <span className="nav-badge">Onboarding</span>
+    <main className="min-h-screen px-5 sm:px-8 pt-6 pb-12 bg-slate-950">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <header className="flex justify-between items-center">
+          <div>
+            <p className="text-xs uppercase tracking-[0.20em] text-cyan-300/80">
+              FrontDesk Agents – Setup
+            </p>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-50">
+              {t.title}
+            </h1>
+            <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-xl">
+              {t.subtitle}
+            </p>
           </div>
-          <div className="nav-lang-toggle">
-            <button
-              className={
-                "nav-lang-pill " + (lang === "en" ? "nav-lang-pill--active" : "")
-              }
-              onClick={() => setLang("en")}
-            >
-              EN
-            </button>
-            <button
-              className={
-                "nav-lang-pill " + (lang === "es" ? "nav-lang-pill--active" : "")
-              }
-              onClick={() => setLang("es")}
-            >
-              ES
-            </button>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="setup-page">
-        <div className="setup-layout">
-          <aside className="setup-media">
-            <div className="hero-media-image-wrapper">
+        <div className="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-10 items-start">
+          {/* Form card */}
+          <section className="fd-card p-6 sm:p-7">
+            <AISetupForm lang={lang} />
+          </section>
+
+          {/* Visual */}
+          <section className="space-y-4">
+            <div className="premium-image-container">
               <Image
-                src={heroImage}
-                alt="AI Receptionist configuration dashboard"
-                width={900}
-                height={700}
-                style={{ width: "100%", height: "auto" }}
+                src={
+                  lang === "es"
+                    ? "/premium/dashboard-dark-es.png"
+                    : "/premium/dashboard-dark.png"
+                }
+                alt="FrontDesk Agents dashboard preview"
+                fill
+                className="premium-image"
               />
             </div>
-          </aside>
-
-          <section className="setup-form-shell">
-            <h1 className="setup-title">{t.title}</h1>
-            <p className="setup-subtitle">{t.subtitle}</p>
-
-            {/* Reutiliza tu formulario existente */}
-            <AISetupForm
-              labels={{
-                businessName: t.businessName,
-                website: t.website,
-                receptionistName: t.receptionistName,
-                purpose: t.purpose
-              }}
-            />
-
-            <p className="form-helper">{t.helper}</p>
+            <p className="text-xs sm:text-sm text-slate-400">
+              This is a demo preview of how your AI receptionists, live calls,
+              WhatsApp threads and leads will appear inside the Command Center.
+            </p>
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
