@@ -1,3 +1,5 @@
+import DashboardCard from "../components/DashboardCard";
+
 export default function DashboardPage() {
   return (
     <main className="dashboard">
@@ -5,64 +7,60 @@ export default function DashboardPage() {
         <header className="dashboard-header">
           <div>
             <h1>FrontDesk Agents – Command Center</h1>
-            <p className="dashboard-subtitle">
-              La plataforma ya está LIVE en producción. Aquí monitoreas llamadas,
-              leads e inbox en tiempo real.
+            <p>
+              La plataforma ya está LIVE en producción. Aquí monitoreamos
+              llamadas, leads e inbox en tiempo real.
             </p>
           </div>
-          <div className="env-pill">
-            <span className="env-dot" />
-            LIVE
-          </div>
+          <span className="badge-live">LIVE</span>
         </header>
 
-        <section className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-label">Llamadas de hoy</div>
-            <div className="stat-value">0</div>
-            <div className="stat-sublabel">Conectadas / atendidas</div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-label">Leads nuevos</div>
-            <div className="stat-value">0</div>
-            <div className="stat-sublabel">Últimas 24 horas</div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-label">Mensajes pendientes</div>
-            <div className="stat-value">0</div>
-            <div className="stat-sublabel">Inbox sin responder</div>
-          </div>
+        {/* Top stats */}
+        <section className="dashboard-grid">
+          <DashboardCard
+            title="Llamadas de hoy"
+            value="0"
+            subtitle="Conectadas / atendidas"
+          />
+          <DashboardCard
+            title="Leads nuevos"
+            value="0"
+            subtitle="Últimas 24 horas"
+          />
+          <DashboardCard
+            title="Mensajes pendientes"
+            value="0"
+            subtitle="WhatsApp / SMS / Email por responder"
+          />
         </section>
 
-        <section className="panels-grid">
+        {/* Bottom row */}
+        <section className="dashboard-bottom">
           <div className="panel">
-            <div className="panel-header">
-              <h2>Actividad reciente</h2>
-              <span className="panel-tag">Demo</span>
-            </div>
-            <p className="panel-empty">
+            <h2>Actividad reciente</h2>
+            <p>
               Aquí verás un timeline de llamadas, SMS, WhatsApp y correos
               manejados por tus agentes de IA.
             </p>
+            <span className="tag">DEMO</span>
           </div>
 
           <div className="panel">
-            <div className="panel-header">
-              <h2>Próximos pasos</h2>
-            </div>
-            <ol className="panel-list">
-              <li>Conectar números telefónicos (Bland.ai / Twilio).</li>
-              <li>Conectar tu CRM o Airtable para guardar los leads.</li>
-              <li>Configurar el script de tu recepcionista (español/inglés).</li>
+            <h2>Próximos pasos</h2>
+            <ol className="steps">
+              <li>Conectar números telefónicos (Bland / Twilio).</li>
+              <li>Conectar el CRM o Airtable para registrar los leads.</li>
+              <li>
+                Configurar el motor de secuencias de prospección (scripts /
+                respuestas).
+              </li>
               <li>Revisar métricas diarias de llamadas y conversiones.</li>
             </ol>
           </div>
         </section>
 
         <footer className="dashboard-footer">
-          <span>FrontDesk Agents LLC · Command Center v1</span>
+          FrontDesk Agents LLC · Command Center v1
         </footer>
       </div>
     </main>
