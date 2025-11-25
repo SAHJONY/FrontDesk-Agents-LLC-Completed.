@@ -1,123 +1,62 @@
+// app/dashboard/page.tsx
+import Image from "next/image";
 import DashboardCard from "../components/DashboardCard";
-import Link from "next/link";
 
-type Lang = "en" | "es";
-
-function getLang(searchParams?: { lang?: string }): Lang {
-  if (!searchParams?.lang) return "en";
-  return searchParams.lang === "es" ? "es" : "en";
-}
-
-export default function DashboardPage({
-  searchParams,
-}: {
-  searchParams?: { lang?: string };
-}) {
-  const lang = getLang(searchParams);
-
-  const copy =
-    lang === "en"
-      ? {
-          title: "FrontDesk Agents – Command Center",
-          subtitle:
-            "The platform is LIVE in production. Monitor calls, leads, WhatsApp, emails and metrics in real time with 24/7 AI agents.",
-          nextStepsTitle: "Next steps",
-          steps: [
-            "Connect phone numbers (Bland / Twilio).",
-            "Connect your CRM or Airtable base for leads.",
-            "Configure call flows and reception scripts.",
-            "Review daily metrics for calls and conversions.",
-          ],
-        }
-      : {
-          title: "FrontDesk Agents – Command Center",
-          subtitle:
-            "La plataforma ya está LIVE en producción. Monitorea llamadas, leads, WhatsApp, correos y métricas en tiempo real con agentes de IA 24/7.",
-          nextStepsTitle: "Próximos pasos",
-          steps: [
-            "Conectar números telefónicos (Bland / Twilio).",
-            "Conectar tu CRM o base de Airtable para los leads.",
-            "Configurar el flujo de recepcionistas (scripts / reglas).",
-            "Revisar métricas diarias de llamadas y conversiones.",
-          ],
-        };
-
+export default function DashboardPage() {
   return (
-    <main className="fd-page fd-dashboard">
-      <header className="fd-topbar fd-topbar-inner">
-        <div className="fd-topbar-left">
-          <span className="fd-logo-mark">FD</span>
-          <span className="fd-logo-text">FrontDesk Agents</span>
-        </div>
-        <div className="fd-topbar-right">
-          <Link href="/setup" className="fd-topbar-button">
-            Setup
-          </Link>
-        </div>
-      </header>
-
-      <section className="fd-dashboard-inner">
-        <div className="fd-dashboard-header">
+    <main className="min-h-screen px-5 sm:px-8 pt-6 pb-12 bg-slate-950">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <p className="fd-badge">Internal Demo Version – FrontDesk Agents LLC</p>
-            <h1 className="fd-dashboard-title">{copy.title}</h1>
-            <p className="fd-dashboard-subtitle">{copy.subtitle}</p>
-          </div>
-          <div className="fd-dashboard-status">
-            <span className="fd-status-dot" />
-            <span>LIVE</span>
-          </div>
-        </div>
-
-        <div className="fd-dashboard-grid">
-          <DashboardCard
-            label={lang === "en" ? "Calls today" : "Llamadas de hoy"}
-            value="0"
-            description={
-              lang === "en" ? "Connected numbers / agents" : "Números / agentes conectados"
-            }
-          />
-          <DashboardCard
-            label={lang === "en" ? "New leads" : "Leads nuevos"}
-            value="0"
-            description={lang === "en" ? "Last 24 hours" : "Últimas 24 horas"}
-          />
-          <DashboardCard
-            label={lang === "en" ? "Pending messages" : "Mensajes pendientes"}
-            value="0"
-            description={
-              lang === "en"
-                ? "Needing follow-up"
-                : "Mensajes en espera de respuesta"
-            }
-          />
-        </div>
-
-        <div className="fd-dashboard-bottom">
-          <div className="fd-dashboard-timeline">
-            <h2>{lang === "en" ? "Recent activity" : "Actividad reciente"}</h2>
-            <p className="fd-dashboard-muted">
-              {lang === "en"
-                ? "Here you will see a real-time timeline of calls, WhatsApp, SMS and emails handled by your AI agents."
-                : "Aquí verás en tiempo real llamadas, WhatsApp, SMS y correos atendidos por tus agentes de IA."}
+            <p className="text-xs uppercase tracking-[0.20em] text-cyan-300/80">
+              Internal Demo Version · FrontDesk Agents LLC
             </p>
-            <div className="fd-timeline-placeholder">
-              {lang === "en"
-                ? "Connect your phone system to start streaming activity."
-                : "Conecta tu sistema telefónico para empezar a ver actividad."}
-            </div>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-bold">
+              FrontDesk Agents Command Center
+            </h1>
+            <p className="mt-1 text-sm text-slate-300 max-w-xl">
+              Monitor calls, WhatsApp, leads and inbox activity in real time
+              with 24/7 AI agents.
+            </p>
           </div>
 
-          <aside className="fd-dashboard-nextsteps">
-            <h2>{copy.nextStepsTitle}</h2>
-            <ul>
-              {copy.steps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ul>
-          </aside>
-        </div>
-      </section>
+          <span className="inline-flex items-center rounded-full border border-emerald-400/50 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+            ● LIVE Demo · Production-ready UI
+          </span>
+        </header>
+
+        {/* Top visual */}
+        <section className="premium-image-container mb-2">
+          <Image
+            src="/premium/dashboard-light.png"
+            alt="FrontDesk Agents dashboard"
+            fill
+            className="premium-image"
+          />
+        </section>
+
+        {/* Stats grid */}
+        <section className="grid md:grid-cols-3 gap-4">
+          <DashboardCard
+            title="Answered Calls (24h)"
+            value="128"
+            trend="+34%"
+            hint="AI agents handling calls in under 3 seconds."
+          />
+          <DashboardCard
+            title="Appointments Booked"
+            value="42"
+            trend="+19%"
+            hint="Synced with your calendar provider."
+          />
+          <DashboardCard
+            title="Recovered Leads"
+            value="27"
+            trend="+55%"
+            hint="Abandoned calls converted via WhatsApp follow-up."
+          />
+        </section>
+      </div>
     </main>
   );
 }
