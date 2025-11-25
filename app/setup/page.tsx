@@ -1,29 +1,25 @@
-import Image from "next/image";
+// app/setup/page.tsx
+import AISetupForm from "../components/AISetupForm";
 
 export default function SetupPage() {
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center px-4">
-      <Image
-        src="/images/setup-bg.jpg"
-        alt="Setup background"
-        fill
-        className="object-cover opacity-20"
-        priority
-      />
-      <div className="relative z-10 card max-w-lg w-full text-center">
-        <h2 className="text-3xl font-bold mb-2">Set Up Your AI Receptionist</h2>
-        <p className="text-gray-400 mb-6">
-          Configure an AI-powered receptionist for your online business.
-        </p>
-        <form className="flex flex-col space-y-4">
-          <input className="p-3 rounded bg-[#0b1220] border border-gray-700" placeholder="Business Name" />
-          <input className="p-3 rounded bg-[#0b1220] border border-gray-700" placeholder="Website" />
-          <input className="p-3 rounded bg-[#0b1220] border border-gray-700" placeholder="Receptionist Name" />
-          <input className="p-3 rounded bg-[#0b1220] border border-gray-700" placeholder="Main Purpose" />
-          <button className="bg-cyan-400 text-black font-semibold py-3 rounded hover:bg-cyan-300 transition">
-            Continue
-          </button>
-        </form>
+    <main className="min-h-screen bg-slate-950 text-slate-50 px-4 py-6 sm:px-6 md:px-8">
+      <div className="max-w-5xl mx-auto space-y-6">
+        <header className="space-y-1">
+          <p className="text-xs uppercase tracking-[0.2em] text-sky-400">
+            Setup
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+            Configuración inicial de FrontDesk Agents
+          </h1>
+          <p className="text-sm text-slate-400 max-w-2xl">
+            Aquí conectaremos tus números, CRM y reglas básicas del agente.
+            Por ahora es una UI de demostración; luego la conectamos al backend
+            real.
+          </p>
+        </header>
+
+        <AISetupForm />
       </div>
     </main>
   );
