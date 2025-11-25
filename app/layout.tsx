@@ -1,22 +1,9 @@
-import './globals.css';
-import { Analytics } from '@vercel/analytics/react';
+import type { ReactNode } from "react";
 
-export const metadata = {
-  title: 'FrontDesk Agents',
-  description: 'Enterprise-grade platform deployment for FrontDesk Agents LLC',
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        {children}
-        <Analytics />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
