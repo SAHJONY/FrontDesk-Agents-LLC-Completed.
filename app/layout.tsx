@@ -2,18 +2,17 @@ import "./globals.css";
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "FrontDesk Agents – Command Center",
+  title: "FrontDesk Agents – AI Receptionist Command Center",
   description:
-    "AI receptionists and command center to manage calls, leads, inbox and automations in real time.",
+    "Deploy an AI receptionist in minutes. Answer calls 24/7, turn calls into booked appointments, and monitor everything from a single command center.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es">
-      <body className="app-body">
-        <div className="app-shell">
-          {children}
-        </div>
+    <html lang="en">
+      <body className="fd-root">
+        <div className="fd-background-glow" />
+        {children}
       </body>
     </html>
   );
