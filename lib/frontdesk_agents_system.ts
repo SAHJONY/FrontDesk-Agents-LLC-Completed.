@@ -18,8 +18,50 @@ export const frontdeskAgentsSystem = {
   strategic_goal:
     "Achieve market leadership as the most advanced AI agent platform.",
 
+  // 🔹 NUEVA SECCIÓN: AVANCE DEL AGENTE DE IA (AI PHONE OS)
+  ai_agent_advancement: {
+    title: "Next-Gen Autonomous Agent System",
+    focus: [
+      "Proactive, context-aware, and deeply integrated intelligence.",
+      "From simple call handling to full AI PHONE OS orchestration."
+    ],
+    next_gen_features: [
+      {
+        name: "Proactive Intent Modeling",
+        description:
+          "Predicts user needs based on history and real-time interaction, shifting from reactive support to proactive assistance."
+      },
+      {
+        name: "Cross-Channel Contextual Memory",
+        description:
+          "Maintains a shared memory across voice, WhatsApp, SMS, and email so customers never repeat themselves."
+      },
+      {
+        name: "Dynamic Persona & Tone Shifting",
+        description:
+          "Adapts tone, persona, and language complexity based on customer profile and emotional state."
+      },
+      {
+        name: "Autonomous Task Execution (ATE)",
+        description:
+          "Executes multi-step workflows (quotes, bookings, follow-ups) without human intervention, inside connected systems."
+      },
+      {
+        name: "Real-Time Sentiment & Emotion Analysis",
+        description:
+          "Detects frustration, urgency, and purchase intent to escalate, slow down, or push for a close when appropriate."
+      }
+    ],
+    technical_priorities: [
+      "Ultra-low latency voice pipeline with natural turn-taking.",
+      "Two-way deep CRM synchronization (Salesforce, HubSpot, etc.).",
+      "Continuous feedback loop and reinforcement learning from real calls.",
+      "Automated error-correction training on misclassified or escalated calls."
+    ]
+  },
+
+  // Política de identidad: modo cliente (white-label) vs modo empresa
   identity_policy: {
-    // White-label vs company mode (ALEX policy)
     modes: {
       client_white_label: {
         description:
@@ -31,7 +73,7 @@ export const frontdeskAgentsSystem = {
       },
       company_public: {
         description:
-          "Represents FrontDesk Agents directly in sales/support contexts.",
+          "Represents FrontDesk Agents directly in sales or support.",
         outbound_example:
           "Hi, this is ALEX with FrontDesk Agents. I wanted to share how our AI PHONE OS helps automate client communications.",
         inbound_example:
@@ -130,7 +172,6 @@ export const frontdeskAgentsSystem = {
       "Sensitive data must be encrypted, access-controlled, and auditable."
   },
 
-  // 🔹 NUEVA SECCIÓN PARA EL SYSTEM STATUS BAR
   ui_ux_unification: {
     system_status_bar: {
       example_message_cycle: [
