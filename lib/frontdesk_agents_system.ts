@@ -18,143 +18,126 @@ export const frontdeskAgentsSystem = {
   strategic_goal:
     "Achieve market leadership as the most advanced AI agent platform.",
 
-  // 🔒 IDENTIDAD UNIFICADA: VOZ + EMAIL + SMS
   identity_policy: {
+    // White-label vs company mode (ALEX policy)
     modes: {
       client_white_label: {
-        key: "client_white_label",
         description:
-          "ALEX acts as the client's own receptionist/representative. No mention of FrontDesk Agents.",
-        allowBrandReference: false
+          "Acts as the client’s receptionist. No mention of FrontDesk Agents.",
+        outbound_example:
+          "Hi, this is ALEX from [Client Business Name]. I’m reaching out about your recent inquiry.",
+        inbound_example:
+          "Thank you for calling [Client Business Name]. This is ALEX, how can I assist you today?"
       },
       company_public: {
-        key: "company_public",
         description:
-          "ALEX represents FrontDesk Agents for internal sales, support and ops.",
-        allowBrandReference: true
-      }
-    },
-
-    voice: {
-      outbound_templates: {
-        client_white_label:
-          "Hi, this is ALEX from [CLIENT_NAME]. [MESSAGE_BODY]",
-        company_public:
-          "Hi, this is ALEX with FrontDesk Agents. [MESSAGE_BODY]"
-      },
-      inbound_templates: {
-        client_white_label:
-          "Thank you for calling [CLIENT_NAME]. This is ALEX, how can I assist you today?",
-        company_public:
+          "Represents FrontDesk Agents directly in sales/support contexts.",
+        outbound_example:
+          "Hi, this is ALEX with FrontDesk Agents. I wanted to share how our AI PHONE OS helps automate client communications.",
+        inbound_example:
           "Hello, this is ALEX with FrontDesk Agents — how can I help you today?"
-      },
-      compliance_notice:
-        "This call may be recorded for quality and training purposes."
-    },
-
-    email: {
-      from_name: {
-        client_white_label: "ALEX | [CLIENT_NAME]",
-        company_public: "ALEX | FrontDesk Agents"
-      },
-      from_address: {
-        // Estos domains luego los puedes mapear en tu proveedor (SendGrid, etc)
-        client_white_label: "no-reply@[CLIENT_DOMAIN]",
-        company_public: "no-reply@frontdeskagents.com"
-      },
-      signature: {
-        client_white_label:
-          "Best regards,\nALEX\n[CLIENT_NAME]",
-        company_public:
-          "Best regards,\nALEX\nFrontDesk Agents – AI PHONE OS"
       }
     },
-
-    sms: {
-      prefix: {
-        client_white_label: "[CLIENT_NAME]: ",
-        company_public: "FrontDesk Agents: "
-      },
-      footer_optout: " Reply STOP to opt out."
-    },
-
-    // Aquí se hace el mapping por números / remitentes
-    mode_selection_logic: {
-      company_numbers: [
-        // EJEMPLO: agrega aquí tus números de FrontDesk
-        "+12164526636"
-      ],
-      client_numbers: [
-        // Se rellena dinámicamente desde DB o panel
-      ],
-      company_email_domains: ["frontdeskagents.com"],
-      // client domains se infieren desde cada cliente
-    }
+    routing_logic:
+      "Phone numbers and call flows determine whether ALEX represents the client or FrontDesk Agents."
   },
 
-  // El resto de tu estrategia original puede seguir debajo si ya la tenías
   business_strategy: {
     positioning: {
       vertical_specialization: {
         focus_verticals: [
           "Real Estate",
-          "Medical / Dental High-End",
+          "High-End Medical / Dental",
           "B2B SaaS Lead Qualification"
         ],
-        benefit: "Deeper features + higher pricing power."
+        benefit: "Deeper features and stronger pricing power per vertical."
       },
       roi_marketing:
-        "Market the platform by measurable revenue outcomes.",
+        "Communicate value using measurable outcomes: more booked appointments, fewer missed calls, higher conversion.",
       partner_ecosystem:
-        "Collaborate with CRMs, call systems, booking systems."
+        "Collaborate with CRMs, call systems, and booking platforms for scalable distribution."
     },
     operational_priorities: {
       data_security: {
-        soc2: "SOC 2 Type II compliance mandatory.",
-        gdpr: "GDPR/CCPA coverage required for enterprise."
+        soc2: "SOC 2 Type II compliance required for enterprise targets.",
+        gdpr: "GDPR/CCPA coverage required where applicable."
       },
       hil_service: {
         description:
-          "Human-in-the-loop escalation for complex cases.",
-        value: "Acts as reliability guarantee for enterprise."
+          "Human-in-the-loop escalation for complex or sensitive conversations.",
+        value:
+          "Acts as a reliability guarantee and safety net for enterprise clients."
       }
     }
   },
 
   pricing_model: {
-    base_principle: "Price based on value delivered, not minutes used.",
+    base_principle: "Price based on value delivered, not only minutes used.",
     tiers: {
       starter: {
-        target: "Small Business / 1 Vertical",
-        monthly_price: "$249-$349",
-        setup_fee: "$399-$599"
+        name: "Starter",
+        target: "Small business / 1 vertical",
+        monthly_price: "$249–$349 / month",
+        setup_fee: "$399–$599 one-time",
+        core_features: [
+          "Core automation and routing",
+          "Basic appointment booking",
+          "Lead capture and intake",
+          "Single phone number"
+        ]
       },
       pro: {
-        target: "Scaling Business / Multi-Channel",
-        monthly_price: "$699-$999",
-        setup_fee: "$1,299-$1,999"
+        name: "Pro",
+        target: "Scaling business / multi-channel",
+        monthly_price: "$699–$999 / month",
+        setup_fee: "$1,299–$1,999 one-time",
+        core_features: [
+          "Everything in Starter",
+          "Cross-channel contextual memory",
+          "2-way CRM sync",
+          "Dynamic persona and tone shifting"
+        ]
       },
       enterprise: {
-        target: "High Volume / Complex workflows",
-        monthly_price: "$1,999-$4,999+",
-        setup_fee: "$3,500-$7,500+"
+        name: "Enterprise",
+        target: "High volume / complex workflows",
+        monthly_price: "$1,999–$4,999+ / month",
+        setup_fee: "$3,500–$7,500+ one-time",
+        core_features: [
+          "Everything in Pro",
+          "Autonomous Task Execution (ATE)",
+          "Human-in-the-loop (HIL)",
+          "Custom model tuning and SLAs"
+        ]
       }
     },
     pricing_rules: {
-      overage_rate: "$0.10-$0.15 per minute",
+      overage_rate: "$0.10–$0.15 per minute beyond included usage",
       vertical_multipliers: {
         ecommerce: "+15%",
         legal_medical: "+20%",
         b2b_saas: "+25%"
-      }
+      },
+      setup_fee_strategy:
+        "Discount or waive part of the setup fee for annual commitments; keep mandatory for custom integrations."
     }
   },
 
   compliance: {
-    legal: {
-      note: "All interactions must follow TCPA, GDPR, CCPA, SOC2 guidelines.",
-      storage_rules:
-        "No storing sensitive data unless encrypted and audited."
+    legal_note:
+      "All interactions must follow TCPA, GDPR, CCPA, and SOC 2-aligned guidelines.",
+    storage_rules:
+      "Sensitive data must be encrypted, access-controlled, and auditable."
+  },
+
+  // 🔹 NUEVA SECCIÓN PARA EL SYSTEM STATUS BAR
+  ui_ux_unification: {
+    system_status_bar: {
+      example_message_cycle: [
+        "Analyzing call outcomes…",
+        "Syncing customer data…",
+        "Optimizing response models…"
+      ]
     }
   }
-};
+} as const;
