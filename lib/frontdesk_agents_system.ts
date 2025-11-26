@@ -26,7 +26,7 @@ export const frontdeskAgentsSystem = {
       "From simple call handling to full AI PHONE OS orchestration."
     ],
 
-    // ⚠ Usado por app/dashboard/page.tsx → ai.features.*
+    // Usado por app/dashboard/page.tsx → ai.features.*
     features: {
       proactive_intent_modeling:
         "Predicts the customer’s next need from history and real-time context.",
@@ -40,7 +40,6 @@ export const frontdeskAgentsSystem = {
         "Detects frustration, urgency, and buying intent in real time to escalate or push for a close when needed."
     },
 
-    // Lista extendida para futuras vistas / mapeos
     next_gen_features: [
       {
         name: "Proactive Intent Modeling",
@@ -182,11 +181,21 @@ export const frontdeskAgentsSystem = {
     }
   },
 
+  // 🔐 Compliance y legal
   compliance: {
+    // Campos originales (por si algún sitio ya los usa)
     legal_note:
       "All interactions must follow TCPA, GDPR, CCPA, and SOC 2-aligned guidelines.",
     storage_rules:
-      "Sensitive data must be encrypted, access-controlled, and auditable."
+      "Sensitive data must be encrypted, access-controlled, and auditable.",
+
+    // 🔹 Campos anidados usados por el dashboard → compliance.legal.note
+    legal: {
+      note:
+        "All interactions must follow TCPA, GDPR, CCPA, and SOC 2-aligned guidelines.",
+      storage_rules:
+        "Sensitive data must be encrypted, access-controlled, and auditable."
+    }
   },
 
   ui_ux_unification: {
