@@ -18,13 +18,29 @@ export const frontdeskAgentsSystem = {
   strategic_goal:
     "Achieve market leadership as the most advanced AI agent platform.",
 
-  // 🔹 NUEVA SECCIÓN: AVANCE DEL AGENTE DE IA (AI PHONE OS)
+  // 🔹 AI PHONE OS – Motor de inteligencia
   ai_agent_advancement: {
     title: "Next-Gen Autonomous Agent System",
     focus: [
       "Proactive, context-aware, and deeply integrated intelligence.",
       "From simple call handling to full AI PHONE OS orchestration."
     ],
+
+    // ⚠ Usado por app/dashboard/page.tsx → ai.features.*
+    features: {
+      proactive_intent_modeling:
+        "Predicts the customer’s next need from history and real-time context.",
+      cross_channel_contextual_memory:
+        "Keeps a shared memory across calls, WhatsApp, SMS, and email so customers never repeat themselves.",
+      dynamic_persona_shifting:
+        "Adapts tone, persona, and language complexity to each customer and situation.",
+      autonomous_task_execution:
+        "Executes multi-step workflows (quotes, bookings, follow-ups) without human intervention, inside integrated systems.",
+      sentiment_emotion_analysis:
+        "Detects frustration, urgency, and buying intent in real time to escalate or push for a close when needed."
+    },
+
+    // Lista extendida para futuras vistas / mapeos
     next_gen_features: [
       {
         name: "Proactive Intent Modeling",
@@ -52,6 +68,7 @@ export const frontdeskAgentsSystem = {
           "Detects frustration, urgency, and purchase intent to escalate, slow down, or push for a close when appropriate."
       }
     ],
+
     technical_priorities: [
       "Ultra-low latency voice pipeline with natural turn-taking.",
       "Two-way deep CRM synchronization (Salesforce, HubSpot, etc.).",
