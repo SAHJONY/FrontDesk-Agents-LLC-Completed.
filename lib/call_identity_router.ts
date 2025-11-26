@@ -12,7 +12,6 @@ export interface CallIdentityInput {
 export interface CallIdentityResult {
   mode: IdentityMode;
   representedBusiness: "FrontDesk Agents" | "Client";
-  // útil para logging / auditoría
   metadata: {
     isCompanyNumber: boolean;
     rawFrom: string;
@@ -36,9 +35,13 @@ export function resolveCallIdentity(
   const dialedFrom = normalizeNumber(input.fromNumber);
   const dialedTo = normalizeNumber(input.toNumber);
 
+  // 👇 Cast explícito para evitar el error de TS:
+  const companyNumbers = modeConfig
+    .company_numbers as readonly string[];
+
   const isCompanyNumber =
-    modeConfig.company_numbers.includes(dialedFrom) ||
-    modeConfig.company_numbers.includes(dialedTo);
+    companyNumbers.includes(dialedFrom) ||
+    companyNumbers.includes(dialedTo);
 
   const mode: IdentityMode = isCompanyNumber
     ? "company_public"
@@ -56,6 +59,5 @@ export function resolveCallIdentity(
 }
 
 function normalizeNumber(num: string): string {
-  // Normaliza para comparación consistente
   return num.replace(/[\s\-()]/g, "");
 }
