@@ -46,3 +46,13 @@ export default function DashboardPage() {
     </main>
   );
 }
+import BackToHomeButton from "@/app/components/BackToHomeButton";
+
+export default function DashboardPage() {
+  return (
+    <main className="px-4 py-6">
+      {/* …tu contenido actual… */}
+      <BackToHomeButton />
+    </main>
+  );
+}
