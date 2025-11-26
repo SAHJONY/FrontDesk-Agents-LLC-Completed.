@@ -1,62 +1,48 @@
-// app/dashboard/page.tsx
-import Image from "next/image";
-import DashboardCard from "../components/DashboardCard";
+import { frontdeskAgentsSystem } from "@/lib/frontdesk_agents_system";
 
 export default function DashboardPage() {
+  const ai = frontdeskAgentsSystem.ai_agent_advancement;
+
   return (
-    <main className="min-h-screen px-5 sm:px-8 pt-6 pb-12 bg-slate-950">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-[0.20em] text-cyan-300/80">
-              Internal Demo Version · FrontDesk Agents LLC
-            </p>
-            <h1 className="mt-2 text-2xl sm:text-3xl font-bold">
-              FrontDesk Agents Command Center
-            </h1>
-            <p className="mt-1 text-sm text-slate-300 max-w-xl">
-              Monitor calls, WhatsApp, leads and inbox activity in real time
-              with 24/7 AI agents.
-            </p>
-          </div>
+    <main className="mx-auto max-w-6xl px-4 py-8">
+      <h1 className="text-2xl font-semibold tracking-tight">
+        Command Center
+      </h1>
+      <p className="mt-1 text-xs text-slate-400">
+        {frontdeskAgentsSystem.identity.core_tagline} ·{" "}
+        {frontdeskAgentsSystem.identity.name}
+      </p>
 
-          <span className="inline-flex items-center rounded-full border border-emerald-400/50 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-            ● LIVE Demo · Production-ready UI
-          </span>
-        </header>
+      <section className="mt-6 grid gap-4 md:grid-cols-3">
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+          <h2 className="text-sm font-semibold text-cyan-300">
+            Today&apos;s performance
+          </h2>
+          {/* Aquí luego conectamos métricas reales */}
+          <p className="mt-2 text-sm text-slate-300">
+            Calls handled: 0 · Booked: 0 · Conversion: 0%
+          </p>
+        </div>
 
-        {/* Top visual */}
-        <section className="premium-image-container mb-2">
-          <Image
-            src="/premium/dashboard-light.png"
-            alt="FrontDesk Agents dashboard"
-            fill
-            className="premium-image"
-          />
-        </section>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+          <h2 className="text-sm font-semibold text-cyan-300">
+            Core capabilities
+          </h2>
+          <ul className="mt-2 space-y-1 text-xs text-slate-300">
+            <li>• {ai.features.proactive_intent_modeling}</li>
+            <li>• {ai.features.cross_channel_contextual_memory}</li>
+            <li>• {ai.features.dynamic_persona_shifting}</li>
+            <li>• {ai.features.autonomous_task_execution}</li>
+          </ul>
+        </div>
 
-        {/* Stats grid */}
-        <section className="grid md:grid-cols-3 gap-4">
-          <DashboardCard
-            title="Answered Calls (24h)"
-            value="128"
-            trend="+34%"
-            hint="AI agents handling calls in under 3 seconds."
-          />
-          <DashboardCard
-            title="Appointments Booked"
-            value="42"
-            trend="+19%"
-            hint="Synced with your calendar provider."
-          />
-          <DashboardCard
-            title="Recovered Leads"
-            value="27"
-            trend="+55%"
-            hint="Abandoned calls converted via WhatsApp follow-up."
-          />
-        </section>
-      </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+          <h2 className="text-sm font-semibold text-cyan-300">Compliance</h2>
+          <p className="mt-2 text-xs text-slate-300">
+            {frontdeskAgentsSystem.compliance.legal.note}
+          </p>
+        </div>
+      </section>
     </main>
   );
 }
