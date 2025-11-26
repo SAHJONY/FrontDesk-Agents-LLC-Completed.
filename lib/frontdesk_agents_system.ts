@@ -76,7 +76,7 @@ export const frontdeskAgentsSystem = {
     ]
   },
 
-  // Política de identidad: modo cliente (white-label) vs modo empresa
+  // 🔐 Política de identidad ALEX: modo cliente (white-label) vs modo empresa
   identity_policy: {
     modes: {
       client_white_label: {
@@ -96,8 +96,23 @@ export const frontdeskAgentsSystem = {
           "Hello, this is ALEX with FrontDesk Agents — how can I help you today?"
       }
     },
+
     routing_logic:
-      "Phone numbers and call flows determine whether ALEX represents the client or FrontDesk Agents."
+      "Phone numbers and call flows determine whether ALEX represents the client or FrontDesk Agents.",
+
+    // 🔹 NUEVO: lógica de selección de modo utilizada por call_identity_router
+    mode_selection_logic: {
+      // Números que siempre representan a FrontDesk Agents (modo "company_public").
+      // Ajusta esta lista con tus números reales de FrontDesk Agents.
+      company_numbers: [
+        "+12164804413", // Ejemplo: número de pruebas de FrontDesk Agents
+        "+12164526636"  // Otro ejemplo posible (ajústalo a tu realidad)
+      ],
+
+      // Modo por defecto si el número no está en company_numbers:
+      // casi todo lo demás será cliente (white-label).
+      default_mode: "client_white_label" as const
+    }
   },
 
   business_strategy: {
@@ -183,13 +198,13 @@ export const frontdeskAgentsSystem = {
 
   // 🔐 Compliance y legal
   compliance: {
-    // Campos originales (por si algún sitio ya los usa)
+    // Campos planos
     legal_note:
       "All interactions must follow TCPA, GDPR, CCPA, and SOC 2-aligned guidelines.",
     storage_rules:
       "Sensitive data must be encrypted, access-controlled, and auditable.",
 
-    // 🔹 Campos anidados usados por el dashboard → compliance.legal.note
+    // Campos anidados para el dashboard → compliance.legal.note
     legal: {
       note:
         "All interactions must follow TCPA, GDPR, CCPA, and SOC 2-aligned guidelines.",
