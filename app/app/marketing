@@ -1,0 +1,215 @@
+// app/(marketing)/page.tsx
+import Link from "next/link";
+
+const FEATURE_TAGS = [
+  "AI PHONE OS",
+  "24/7 Global Reception",
+  "100+ Languages & Dialects",
+  "Cross-Channel Contextual Memory",
+  "Autonomous Task Execution (ATE)",
+];
+
+const INDUSTRIES = [
+  "Medical & Dental",
+  "Law Firms",
+  "Real Estate & Title",
+  "Home Services",
+  "SaaS & Agencies",
+  "Automotive & Dealerships",
+];
+
+export default function MarketingPage() {
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-50">
+      {/* Hero */}
+      <section className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-16 md:flex-row md:items-center">
+        <div className="flex-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
+            FrontDesk Agents · AI PHONE OS
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
+            Turn every call, WhatsApp, and email into booked revenue — in under
+            60 seconds.
+          </h1>
+          <p className="mt-4 max-w-xl text-sm text-slate-300">
+            FrontDesk Agents is the autonomous AI receptionist that answers,
+            qualifies, routes, and books clients for you — across phone, SMS,
+            WhatsApp, and email — in any language, any country. No engineers
+            needed. Keep your current phone numbers.
+          </p>
+
+          {/* Primary CTAs */}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="#pricing"
+              className="btn-primary rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 transition hover:bg-cyan-300"
+            >
+              Start Free Trial
+            </Link>
+            <Link
+              href="/enterprise"
+              className="btn-secondary rounded-full border border-slate-600 px-5 py-2.5 text-sm font-semibold text-slate-50 transition hover:border-cyan-400 hover:text-cyan-200"
+            >
+              Request Enterprise Demo
+            </Link>
+          </div>
+
+          {/* Proof points */}
+          <dl className="mt-6 grid max-w-xl grid-cols-2 gap-4 text-xs text-slate-300 md:grid-cols-3">
+            <div>
+              <dt className="font-semibold text-slate-100">+40% more bookings</dt>
+              <dd className="mt-1 text-slate-400">
+                From calls that used to hit voicemail.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-slate-100">100+ languages</dt>
+              <dd className="mt-1 text-slate-400">
+                Local voice + dialect per region.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-slate-100">Sub-second response</dt>
+              <dd className="mt-1 text-slate-400">
+                Human-like timing and tone.
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* Side card */}
+        <aside className="flex-1">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
+              Command Center Preview
+            </p>
+            <p className="mt-2 text-sm text-slate-200">
+              Configure your AI receptionist in minutes: connect numbers, choose
+              languages, define booking rules, and sync your calendar &amp; CRM.
+            </p>
+            <ul className="mt-4 space-y-2 text-xs text-slate-300">
+              <li>• Detects language, intent, and urgency in real time.</li>
+              <li>• Books directly into your calendar via ATE playbooks.</li>
+              <li>• Remembers context across calls, SMS, WhatsApp, and email.</li>
+            </ul>
+            <div className="mt-4 rounded-xl bg-slate-950/60 p-4 text-xs text-slate-200">
+              <p className="font-semibold text-cyan-300">
+                Cross-Channel Contextual Memory
+              </p>
+              <p className="mt-1 text-slate-300">
+                “Your AI sees the full conversation, not just this call — so it
+                responds like a trained, full-time receptionist.”
+              </p>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      {/* Feature tags */}
+      <section className="border-y border-slate-800 bg-slate-950/60">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 py-4 text-[0.7rem] text-slate-300">
+          <span className="mr-2 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            PLATFORM PILLARS
+          </span>
+          {FEATURE_TAGS.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full border border-slate-700 bg-slate-900/70 px-3 py-1"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Industries */}
+      <section className="mx-auto max-w-5xl px-4 py-12">
+        <h2 className="text-lg font-semibold tracking-tight">
+          Built for high-value, high-intent industries.
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-slate-300">
+          From solo offices to multi-location enterprises, FrontDesk Agents
+          qualifies, routes, and books clients with vertical-optimized scripts,
+          compliance, and routing.
+        </p>
+
+        <div className="mt-6 grid gap-4 text-sm text-slate-200 md:grid-cols-3">
+          {INDUSTRIES.map((name) => (
+            <div
+              key={name}
+              className="rounded-xl border border-slate-800 bg-slate-900/70 p-4"
+            >
+              <h3 className="text-sm font-semibold">{name}</h3>
+              <p className="mt-2 text-xs text-slate-400">
+                Replace voicemail, reduce no-shows, and let AI book directly
+                into your systems while following your rules.
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Pricing anchor */}
+      <section
+        id="pricing"
+        className="mx-auto max-w-5xl px-4 pb-16 pt-4 border-t border-slate-800"
+      >
+        <h2 className="text-lg font-semibold tracking-tight">Simple, honest pricing.</h2>
+        <p className="mt-2 text-sm text-slate-300">
+          Start in minutes with a free trial. Upgrade when your AI receptionist
+          is booking appointments and generating revenue.
+        </p>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3 text-sm">
+          <div className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Starter
+            </p>
+            <p className="mt-2 text-2xl font-semibold">$399/mo</p>
+            <p className="mt-1 text-xs text-slate-400">
+              1 AI receptionist · 1 inbox · 24/7 · 1 language.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-cyan-400/70 bg-slate-900 p-4 shadow-lg shadow-cyan-500/30">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
+              Professional
+            </p>
+            <p className="mt-2 text-2xl font-semibold">$899/mo</p>
+            <p className="mt-1 text-xs text-slate-300">
+              3 AI agents · multilingual · CRM integration · smart routing.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Enterprise
+            </p>
+            <p className="mt-2 text-2xl font-semibold">$1,799/mo</p>
+            <p className="mt-1 text-xs text-slate-400">
+              Unlimited agents & inboxes · SSO/SLA · custom workflows · CSM.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            href="#top"
+            className="rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 transition hover:bg-cyan-300"
+          >
+            Start Free Trial
+          </Link>
+          <Link
+            href="/enterprise"
+            className="rounded-full border border-slate-600 px-5 py-2.5 text-sm font-semibold text-slate-50 transition hover:border-cyan-400 hover:text-cyan-200"
+          >
+            Talk to Sales
+          </Link>
+        </div>
+
+        <p className="mt-4 text-[0.7rem] text-slate-500">
+          All interactions must follow TCPA, GDPR, and CCPA. Calls and messages
+          are logged with audit trails for enterprise compliance.
+        </p>
+      </section>
+    </main>
+  );
+}
