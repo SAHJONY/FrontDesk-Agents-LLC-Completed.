@@ -3,214 +3,264 @@ import Link from "next/link";
 import AISetupForm from "./components/AISetupForm";
 import PricingTable from "./components/PricingTable";
 import SystemStatusBar from "./components/SystemStatusBar";
+import ThemeToggle from "./components/ThemeToggle";
 
-export default function HomePage() {
+const lang: "en" = "en";
+
+export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50">
-      {/* TOP STATUS BAR */}
-      <SystemStatusBar />
-
-      {/* HERO */}
-      <section className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pb-16 pt-10 md:flex-row md:items-center">
-        <div className="flex-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
-            GLOBAL AI PHONE OS · 24/7 · MULTILINGUAL
-          </p>
-
-          <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
-            Turn every call, WhatsApp, and email into{" "}
-            <span className="text-cyan-300">booked revenue</span> in under 60
-            seconds.
-          </h1>
-
-          <p className="mt-4 text-sm text-slate-300">
-            FrontDesk Agents is the{" "}
-            <span className="font-semibold">AI PHONE OS</span> that answers,
-            qualifies, routes and books clients for you — 24/7, in multiple
-            languages, with human-like voice and{" "}
-            <span className="font-semibold">Cross-Channel Contextual Memory</span>.
-          </p>
-
-          <ul className="mt-4 space-y-1 text-sm text-slate-200">
-            <li>• No more missed calls or voicemails.</li>
-            <li>• Instant booking into your calendar and CRM.</li>
-            <li>
-              • Voice-first intelligence with{" "}
-              <span className="font-semibold">
-                low-latency, human-like turn-taking
-              </span>
-              .
-            </li>
-            <li>
-              • <span className="font-semibold">Unified Customer Profile</span>{" "}
-              across phone, SMS, WhatsApp, and email.
-            </li>
-          </ul>
-
-          {/* MAIN CTAS – FIXED ROUTES */}
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/setup"
-              className="btn-primary inline-flex items-center justify-center px-6 py-3 text-sm font-semibold"
-            >
-              Start Free Trial
-            </Link>
-            <Link
-              href="/setup?plan=enterprise"
-              className="btn-secondary inline-flex items-center justify-center px-6 py-3 text-sm font-semibold"
-            >
-              Request Enterprise Demo
-            </Link>
+    <main className="min-h-screen bg-slate-950 text-slate-100">
+      {/* Top status / theme */}
+      <div className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-cyan-400">
+              FrontDesk Agents
+            </span>
+            <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+              AI PHONE OS
+            </span>
           </div>
-
-          <p className="mt-4 text-xs text-slate-400">
-            Built for medical, legal, real estate, and high-velocity B2B teams.
-          </p>
+          <div className="flex items-center gap-4">
+            <SystemStatusBar />
+            <ThemeToggle />
+          </div>
         </div>
+      </div>
 
-        {/* QUICK PREVIEW / SETUP CARD */}
-        <div className="flex-1">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl">
-            <h2 className="text-sm font-semibold text-slate-100">
-              Design Your AI PHONE OS
-            </h2>
-            <p className="mt-1 text-xs text-slate-400">
-              Get your custom AI receptionist blueprint in under 60 seconds.
+      {/* Hero */}
+      <section className="border-b border-slate-800 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-950/90">
+        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-14 lg:flex-row lg:items-center">
+          <div className="flex-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
+              AI PHONE OS • INBOUND & OUTBOUND
+            </p>
+            <h1 className="mt-4 text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl lg:text-5xl">
+              Turn every call into booked revenue
+              <span className="text-cyan-400"> in under 60 seconds.</span>
+            </h1>
+            <p className="mt-4 max-w-xl text-sm text-slate-300 sm:text-base">
+              FrontDesk Agents is the AI PHONE OS that answers, qualifies,
+              routes and books clients for you — 24/7, in multiple languages,
+              with human-like voice and memory.
             </p>
 
-            <div className="mt-4">
-              <AISetupForm lang="en" />
+            <ul className="mt-5 space-y-1 text-sm text-slate-200">
+              <li>• No more missed calls or voicemails.</li>
+              <li>• Instant booking into your calendar and CRM.</li>
+              <li>
+                • Voice-first intelligence with low-latency, human-like
+                turn-taking.
+              </li>
+              <li>
+                • Unified customer profile across phone, SMS, WhatsApp, and
+                email.
+              </li>
+            </ul>
+
+            {/* CTAs with anchors */}
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a href="#pricing" className="btn-primary">
+                Start Free Trial
+              </a>
+              <a href="#setup" className="btn-secondary">
+                Request Enterprise Demo
+              </a>
             </div>
 
-            <p className="mt-3 text-[11px] text-slate-500">
-              Tell us about your industry and call volume. We automatically map
-              you to the right plan and onboarding flow.
+            <p className="mt-3 text-xs text-slate-400">
+              Built for medical, legal, real estate, and high-velocity B2B
+              teams.
             </p>
+          </div>
+
+          {/* Simple hero visual placeholder (kept minimal) */}
+          <div className="flex-1">
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400">
+                AI Receptionist Live View
+              </p>
+              <div className="mt-3 rounded-2xl bg-slate-950/80 p-3 text-xs text-slate-200">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-50">
+                    New inbound call
+                  </span>
+                  <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                    Qualified Lead
+                  </span>
+                </div>
+                <p className="mt-2 text-[11px] text-slate-300">
+                  “Hi Ana, this is your AI receptionist. I can book your
+                  consultation for tomorrow at 3:00 PM or Thursday at 10:30 AM.
+                  Which works better for you?”
+                </p>
+                <p className="mt-3 text-[11px] text-slate-400">
+                  • Low-latency, human-like turn-taking  
+                  • Context carried across calls, SMS and email  
+                  • Automatic booking into your calendar
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* TRUST & COMPLIANCE STRIP */}
-      <section className="border-y border-slate-800 bg-slate-900/60">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 text-xs text-slate-300 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <span className="font-semibold text-slate-100">Trust & Compliance</span>{" "}
-            · SOC 2 Type II–ready architecture, GDPR/CCPA-aware data handling,
-            and audit-friendly logging for regulated teams.
-          </div>
-          <div className="flex flex-wrap gap-3 text-[11px] text-slate-400">
-            <span>Healthcare · Law · Financial Services · Multi-location brands</span>
+      {/* Trust & Compliance section */}
+      <section
+        id="trust"
+        className="border-y border-slate-800 bg-slate-950/60 py-16"
+      >
+        <div className="mx-auto max-w-5xl px-4">
+          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
+            Trust &amp; Compliance
+          </h2>
+          <p className="mt-4 text-center text-2xl font-semibold text-slate-50">
+            Enterprise-grade security for regulated industries.
+          </p>
+          <p className="mt-3 text-center text-slate-300">
+            FrontDesk Agents is designed for medical, legal, real-estate and
+            high-velocity B2B teams that require strict privacy, auditability
+            and compliance-ready infrastructure.
+          </p>
+
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+              <h3 className="text-sm font-semibold text-slate-50">
+                SOC 2 Type II–Ready Architecture
+              </h3>
+              <p className="mt-2 text-sm text-slate-300">
+                Built following SOC 2 Type II best practices for access
+                control, encryption and audit logs to support your compliance
+                journey.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+              <h3 className="text-sm font-semibold text-slate-50">
+                GDPR / CCPA–Ready
+              </h3>
+              <p className="mt-2 text-sm text-slate-300">
+                Data-minimization, regional routing and right-to-be-forgotten
+                workflows to help you stay aligned with GDPR and CCPA.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+              <h3 className="text-sm font-semibold text-slate-50">
+                Human-in-the-Loop (HIL) as a Service
+              </h3>
+              <p className="mt-2 text-sm text-slate-300">
+                Optional human escalation layer for sensitive flows, providing a
+                safety net and quality guarantee for high-stakes conversations.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* INDUSTRIES */}
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <h2 className="text-lg font-semibold">
-          Built for high-value, high-intent industries.
-        </h2>
-        <p className="mt-2 text-sm text-slate-300">
-          FrontDesk Agents qualifies, routes, and books clients for medical,
-          legal, real estate, SaaS, home services, and more — tuned by industry,
-          geography, and language.
-        </p>
+      {/* Industries section (simple) */}
+      <section className="bg-slate-950 py-14">
+        <div className="mx-auto max-w-5xl px-4">
+          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
+            Built for High-ROI Verticals
+          </h2>
+          <p className="mt-4 text-center text-xl font-semibold text-slate-50">
+            Medical, legal, real estate, and high-velocity B2B teams.
+          </p>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-            <h3 className="text-sm font-semibold text-cyan-300">
-              Medical & Dental
-            </h3>
-            <p className="mt-2 text-xs text-slate-300">
-              Fill the calendar, eliminate no-shows, and let the AI handle
-              insurance pre-qualification and reminders.
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-            <h3 className="text-sm font-semibold text-cyan-300">Law Firms</h3>
-            <p className="mt-2 text-xs text-slate-300">
-              Capture every inbound lead, route by practice area, and sync
-              notes straight into your case management tools.
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-            <h3 className="text-sm font-semibold text-cyan-300">
-              Real Estate & High-velocity B2B
-            </h3>
-            <p className="mt-2 text-xs text-slate-300">
-              Qualify buyers and sellers, book showings, and trigger outbound
-              follow-ups from missed opportunities.
-            </p>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 text-sm">
+              <p className="font-semibold text-slate-50">Medical</p>
+              <p className="mt-2 text-slate-300">
+                New patient intake, recalls, treatment plan follow-ups and
+                no-show winback.
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 text-sm">
+              <p className="font-semibold text-slate-50">Legal</p>
+              <p className="mt-2 text-slate-300">
+                Case screening, qualification and calendar booking for
+                high-value consults.
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 text-sm">
+              <p className="font-semibold text-slate-50">Real Estate &amp; B2B</p>
+              <p className="mt-2 text-slate-300">
+                Lead qualification, showings, pipeline follow-up and outbound
+                campaigns.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* AI PHONE OS FEATURE BLOCK */}
-      <section className="mx-auto max-w-6xl px-4 pb-12">
-        <h2 className="text-lg font-semibold">Inside the AI PHONE OS.</h2>
-        <p className="mt-2 text-sm text-slate-300">
-          A full operating system for inbound and outbound conversations — not
-          just another call bot.
-        </p>
+      {/* Pricing section */}
+      <section
+        id="pricing"
+        className="border-y border-slate-800 bg-slate-950 py-16"
+      >
+        <div className="mx-auto max-w-5xl px-4">
+          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
+            Pricing
+          </h2>
+          <p className="mt-4 text-center text-2xl font-semibold text-slate-50">
+            Value-based pricing with scalable setup fees.
+          </p>
+          <p className="mt-3 text-center text-sm text-slate-300">
+            Start small, then scale into full AI PHONE OS with Cross-Channel
+            Memory, ATE and HIL as you grow.
+          </p>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-            <h3 className="text-sm font-semibold text-cyan-300">
-              Voice-first Intelligence
-            </h3>
-            <p className="mt-2 text-xs text-slate-300">
-              Low-latency, human-like turn-taking so clients speak naturally,
-              without robotic pauses or talk-over.
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-            <h3 className="text-sm font-semibold text-cyan-300">
-              Cross-Channel Contextual Memory
-            </h3>
-            <p className="mt-2 text-xs text-slate-300">
-              Every call, SMS, WhatsApp, and email feeds a{" "}
-              <span className="font-semibold">Unified Customer Profile</span>,
-              so the AI always knows who is calling and why.
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-            <h3 className="text-sm font-semibold text-cyan-300">
-              Autonomous Task Execution (ATE)
-            </h3>
-            <p className="mt-2 text-xs text-slate-300">
-              The AI follows your rules: qualify, route, book directly into your
-              calendar/CRM, or trigger workflows — without human hand-offs.
-            </p>
+          <div className="mt-8">
+            <PricingTable />
           </div>
         </div>
       </section>
 
-      {/* PRICING SECTION (ANCHOR) */}
-      <section id="pricing" className="mx-auto max-w-6xl px-4 pb-16">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold">Transparent, value-based pricing.</h2>
-            <p className="mt-2 text-sm text-slate-300">
-              Start with a free trial, then scale to Enterprise with setup fees,
-              volume pricing, and premium routing options.
-            </p>
+      {/* Setup section */}
+      <section
+        id="setup"
+        className="bg-slate-950 py-16"
+      >
+        <div className="mx-auto max-w-5xl px-4">
+          <h2 className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
+            Setup
+          </h2>
+          <p className="mt-4 text-center text-2xl font-semibold text-slate-50">
+            Get your custom AI PHONE OS blueprint.
+          </p>
+          <p className="mt-3 text-center text-sm text-slate-300">
+            Share a few details about your business and call volume. We&apos;ll
+            map you to the right tier and design an AI playbook tailored to
+            your workflow.
+          </p>
+
+          <div className="mt-8">
+            <AISetupForm lang={lang} />
           </div>
-          <div className="flex gap-3 text-xs">
-            <Link href="/setup" className="btn-primary px-4 py-2">
-              Start Free Trial
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-800 bg-slate-950 py-6">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-4 text-xs text-slate-500 sm:flex-row">
+          <span>© {new Date().getFullYear()} FrontDesk Agents, LLC.</span>
+          <div className="flex gap-4">
+            <Link href="#trust" className="hover:text-cyan-300">
+              Trust &amp; Compliance
             </Link>
-            <Link
-              href="/setup?plan=enterprise"
-              className="btn-secondary px-4 py-2"
+            <Link href="#pricing" className="hover:text-cyan-300">
+              Pricing
+            </Link>
+            <a
+              href="mailto:sales@frontdeskagents.com"
+              className="hover:text-cyan-300"
             >
-              Talk to Sales
-            </Link>
+              Contact Sales
+            </a>
           </div>
         </div>
-
-        <div className="mt-6">
-          <PricingTable />
-        </div>
-      </section>
+      </footer>
     </main>
   );
 }
