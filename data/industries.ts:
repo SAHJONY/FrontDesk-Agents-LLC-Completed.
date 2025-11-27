@@ -1,0 +1,68 @@
+// data/industries.ts
+
+export type Industry = {
+  slug: string;
+  name: string;
+  headline: string;
+  subheadline?: string;
+  image: string;
+};
+
+export const INDUSTRIES: Industry[] = [
+  {
+    slug: "real-estate",
+    name: "Real Estate",
+    headline: "Close every lead with an AI-enabled real estate assistant.",
+    subheadline: "Qualify buyers and sellers, route inquiries, and auto-book showings 24/7.",
+    image: "/images/real-estate/close-every-lead.jpg"
+  },
+  {
+    slug: "medical",
+    name: "Medical & Dental",
+    headline: "Fill the calendar and eliminate no-shows.",
+    subheadline: "Pre-qualify patients, verify insurance, and send automated reminders.",
+    image: "/images/medical/fill-calendar-no-shows.jpg"
+  },
+  {
+    slug: "legal",
+    name: "Legal Services",
+    headline: "Built for high-value, high-intent legal clients.",
+    subheadline: "Capture, qualify, and schedule consultations with business-grade workflows.",
+    image: "/images/legal/high-intent-legal.jpg"
+  },
+  {
+    slug: "home-services",
+    name: "Home Services",
+    headline: "Make every job call a booked appointment.",
+    subheadline: "Capture new jobs for plumbers, electricians, HVAC and more.",
+    image: "/images/home-services/job-call-booked-appointment.jpg"
+  },
+  {
+    slug: "automotive",
+    name: "Automotive",
+    headline: "Inspire your automotive customers.",
+    subheadline: "Drive bookings for service, repairs and test drives.",
+    image: "/images/automotive/inspire-automotive-customers.jpg"
+  },
+  {
+    slug: "hospitality",
+    name: "Restaurants & Hospitality",
+    headline: "Upgrade guest services with an AI receptionist.",
+    subheadline: "From first reservation to final bill, create extraordinary experiences.",
+    image: "/images/hospitality/upgrade-guest-services.jpg"
+  },
+  {
+    slug: "logistics",
+    name: "Logistics & Transportation",
+    headline: "Inbound made easy for logistics and transportation.",
+    subheadline: "Track loads, route calls, and keep operations moving 24/7.",
+    image: "/images/logistics/inbound-logistics.jpg"
+  },
+  {
+    slug: "core",
+    name: "Global Virtual Reception",
+    headline: "Empower your business with global AI virtual reception.",
+    subheadline: "Turn calls, WhatsApp, and email into booked revenue in under 60 seconds.",
+    image: "/images/core/global-virtual-reception.jpg"
+  }
+];
