@@ -1,136 +1,79 @@
 // app/components/PricingTable.tsx
+import React from "react";
 
-"use client";
-
-type TierId = "starter" | "pro" | "enterprise";
-
-type Tier = {
-  id: TierId;
-  name: string;
-  target: string;
-  monthly_price: string;
-  setup_fee: string;
-  highlight?: boolean;
-  features: string[];
-};
-
-const tierList: Tier[] = [
+const tiers = [
   {
-    id: "starter",
     name: "Starter",
-    target: "Small business • 1 vertical",
-    monthly_price: "$249 – $349 / month",
-    setup_fee: "$399 – $599 one-time",
-    features: [
-      "Core call answering & routing",
-      "Basic appointment booking",
-      "Lead capture & intake forms",
-      "Single phone number",
-      "Email + SMS notifications"
+    monthly: "$249 – $349 /mo",
+    setup: "$399 – $599 one-time",
+    bullets: [
+      "Core 24/7 automation and appointment booking",
+      "1 AI receptionist, 1 inbox",
+      "Up to ~1,000 minutes / month included",
+      "Basic reporting dashboard"
     ]
   },
   {
-    id: "pro",
     name: "Pro",
-    target: "Growing teams • Multi-channel",
-    monthly_price: "$699 – $999 / month",
-    setup_fee: "$1,299 – $1,999 one-time",
-    highlight: true,
-    features: [
-      "Everything in Starter",
-      "Cross-channel contextual memory",
-      "2-way CRM sync (HubSpot, etc.)",
-      "Dynamic persona & tone shifting",
-      "Advanced workflows & routing rules"
+    monthly: "$699 – $999 /mo",
+    setup: "$1,299 – $1,999 one-time",
+    bullets: [
+      "Cross-Channel Contextual Memory",
+      "2-way CRM sync and advanced routing",
+      "Multiple numbers and inboxes",
+      "Priority support & onboarding"
     ]
   },
   {
-    id: "enterprise",
     name: "Enterprise",
-    target: "High volume • Complex workflows",
-    monthly_price: "$1,999 – $4,999+ / month",
-    setup_fee: "$3,500 – $7,500+ one-time",
-    features: [
-      "Everything in Pro",
-      "Full Autonomous Task Execution (ATE)",
-      "Human-in-the-loop (HIL) escalation",
-      "Custom model tuning & SLAs",
-      "Dedicated onboarding & support"
+    monthly: "$1,999 – $4,999+ /mo",
+    setup: "$3,500 – $7,500+ one-time",
+    bullets: [
+      "Full Autonomous Task Execution (ATE) playbooks",
+      "Optional Human-in-the-Loop (HIL) coverage",
+      "Custom model tuning & dedicated CSM",
+      "SLA, security review and partner API access"
     ]
   }
 ];
 
 export default function PricingTable() {
   return (
-    <section className="w-full max-w-5xl mx-auto">
-      <div className="mb-8 text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-50">
-          Pricing that scales with your volume
-        </h2>
-        <p className="mt-3 text-sm text-slate-400 max-w-2xl mx-auto">
-          FrontDesk Agents is priced on value: more booked appointments,
-          fewer missed calls, and a receptionist that never sleeps.
-        </p>
-      </div>
-
+    <div className="mx-auto max-w-5xl">
       <div className="grid gap-6 md:grid-cols-3">
-        {tierList.map((tier) => (
+        {tiers.map((tier) => (
           <div
-            key={tier.id}
-            className={`flex flex-col rounded-2xl border p-6 shadow-sm bg-slate-900/70 border-slate-800 ${
-              tier.highlight
-                ? "ring-2 ring-cyan-400 shadow-cyan-500/20"
-                : ""
-            }`}
+            key={tier.name}
+            className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg shadow-cyan-500/5"
           >
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-slate-50">
-                {tier.name}
-              </h3>
-              <p className="mt-1 text-xs uppercase tracking-wide text-cyan-300">
-                {tier.target}
-              </p>
-            </div>
+            <h3 className="text-lg font-semibold text-slate-50">
+              {tier.name}
+            </h3>
+            <p className="mt-2 text-sm font-medium text-cyan-400">
+              {tier.monthly}
+            </p>
+            <p className="text-xs text-slate-400">{tier.setup}</p>
 
-            <div className="mb-4 space-y-1">
-              <p className="text-xl font-semibold text-slate-50">
-                {tier.monthly_price}
-              </p>
-              <p className="text-xs text-slate-400">
-                Setup fee: {tier.setup_fee}
-              </p>
-            </div>
-
-            <ul className="mb-6 flex-1 space-y-2 text-sm text-slate-300">
-              {tier.features.map((feature) => (
-                <li key={feature} className="flex gap-2">
+            <ul className="mt-4 space-y-2 text-sm text-slate-200">
+              {tier.bullets.map((b) => (
+                <li key={b} className="flex gap-2">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-cyan-400" />
-                  <span>{feature}</span>
+                  <span>{b}</span>
                 </li>
               ))}
             </ul>
 
-            <button
-              className={`mt-auto w-full rounded-full px-4 py-2 text-sm font-semibold transition ${
-                tier.highlight
-                  ? "bg-cyan-400 text-slate-900 hover:bg-cyan-300"
-                  : "border border-slate-600 text-slate-100 hover:bg-slate-800"
-              }`}
-            >
-              {tier.id === "starter"
-                ? "Start 14-day trial"
-                : tier.id === "pro"
-                ? "Talk to sales"
-                : "Book enterprise demo"}
+            <button className="mt-6 inline-flex items-center justify-center rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-cyan-400">
+              Start with {tier.name}
             </button>
           </div>
         ))}
       </div>
 
-      <p className="mt-4 text-center text-xs text-slate-500">
-        Usage beyond included volume is billed per minute. Premium verticals
-        (law, medical, B2B SaaS) may use a value-based multiplier.
+      <p className="mt-4 text-center text-xs text-slate-400">
+        Usage overages billed at $0.10 – $0.15 per minute beyond included
+        allowance. Annual contracts may qualify for setup-fee waivers.
       </p>
-    </section>
+    </div>
   );
 }
