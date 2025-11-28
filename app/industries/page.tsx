@@ -1,103 +1,136 @@
 // app/industries/page.tsx
-import Image from "next/image";
+import Link from "next/link";
 
-type IndustryCardProps = {
-  name: string;
-  description: string;
-  image: string;
+type Industry = {
+  id: string;
   badge: string;
+  title: string;
+  description: string;
+  href: string;
 };
 
-function IndustryCard({ name, description, image, badge }: IndustryCardProps) {
-  return (
-    <article className="fd-card overflow-hidden flex flex-col">
-      <div className="premium-image-container max-w-full aspect-[16/9] rounded-2xl">
-        <Image src={image} alt={name} fill className="premium-image" />
-      </div>
-      <div className="p-5 space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="text-base sm:text-lg font-semibold text-slate-50">
-            {name}
-          </h3>
-          <span className="rounded-full bg-cyan-400/10 text-cyan-300 text-[11px] font-semibold px-2.5 py-1 uppercase tracking-wide">
-            {badge}
-          </span>
-        </div>
-        <p className="text-sm text-slate-300">{description}</p>
-      </div>
-    </article>
-  );
-}
+const INDUSTRIES: Industry[] = [
+  {
+    id: "medical",
+    badge: "+38% más citas confirmadas",
+    title: "Medical & Dental Clinics",
+    description:
+      "Llena la agenda, reduce no-shows y confirma citas en segundos con un AI receptionist entrenado para salud.",
+    href: "/setup?vertical=medical",
+  },
+  {
+    id: "legal",
+    badge: "Prioriza casos de alto valor",
+    title: "Law Firms & Legal Services",
+    description:
+      "Califica leads legales, agenda consultas y protege cada interacción con registros auditables 24/7.",
+    href: "/setup?vertical=legal",
+  },
+  {
+    id: "real-estate",
+    badge: "Nunca pierdas un lead caliente",
+    title: "Real Estate & Investors",
+    description:
+      "Responde a cada llamada, WhatsApp y formulario de anuncios en segundos, con routing por tipo de operación.",
+    href: "/setup?vertical=real_estate",
+  },
+  {
+    id: "home-services",
+    badge: "Más trabajos cerrados por semana",
+    title: "Home Services & Contractors",
+    description:
+      "Responde urgencias, agenda visitas y coordina equipos de campo sin depender de recepcionistas humanos.",
+    href: "/setup?vertical=home_services",
+  },
+];
 
 export default function IndustriesPage() {
-  const industries: IndustryCardProps[] = [
-    {
-      name: "Medical & Dental",
-      description:
-        "Answer new patient calls 24/7, pre-qualify insurance and book cleanings or consultations automatically.",
-      image: "/premium/industries/medical.png",
-      badge: "Healthcare",
-    },
-    {
-      name: "Law Firms",
-      description:
-        "Capture consultations, qualify cases and route calls by practice area in seconds.",
-      image: "/premium/industries/lawyers.png",
-      badge: "Legal",
-    },
-    {
-      name: "Real Estate & Investors",
-      description:
-        "Qualify sellers, screen buyers and schedule showings while you sleep.",
-      image: "/premium/industries/real-estate.png",
-      badge: "Real Estate",
-    },
-    {
-      name: "E-commerce & Logistics",
-      description:
-        "Recover abandoned calls, track orders and process simple support requests with AI messaging.",
-      image: "/premium/industries/ecommerce.png",
-      badge: "E-commerce",
-    },
-    {
-      name: "HVAC & Home Services",
-      description:
-        "Book urgent jobs, route emergencies and reduce no-shows with automated reminders.",
-      image: "/premium/industries/hvac.png",
-      badge: "Field Service",
-    },
-    {
-      name: "Restaurants & Salons",
-      description:
-        "Handle reservations, confirmations and waitlists without burning your staff.",
-      image: "/premium/industries/restaurants.png",
-      badge: "Local",
-    },
-  ];
-
   return (
-    <main className="min-h-screen px-5 sm:px-8 pt-6 pb-12 bg-slate-950">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <header className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.22em] text-cyan-300/80">
-            Built for High-Volume Businesses
+    <main className="min-h-screen bg-slate-950 text-slate-50">
+      <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 pb-20 pt-16">
+        {/* Encabezado */}
+        <header className="space-y-3 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
+            Built for your industry · Diseñado para tu sector
           </p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-50">
-            Industries We Serve
+          <h1 className="text-3xl font-semibold sm:text-4xl">
+            FrontDesk Agents se adapta a tu negocio,
+            <span className="block text-cyan-300">
+              no tu negocio al sistema.
+            </span>
           </h1>
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl">
-            FrontDesk Agents is ready for your niche: clinics, attorneys,
-            wholesalers, HVAC, e-commerce and more. One platform, many
-            playbooks.
+          <p className="mx-auto max-w-2xl text-sm text-slate-300">
+            Cada vertical usa scripts, flujos y métricas específicos para tu
+            industria, mientras el motor base de AI maneja llamadas, WhatsApp y
+            email en más de 100 idiomas y dialectos.
           </p>
         </header>
 
-        <section className="grid md:grid-cols-2 gap-5 lg:gap-6">
-          {industries.map((industry) => (
-            <IndustryCard key={industry.name} {...industry} />
+        {/* Grid de industrias */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {INDUSTRIES.map((industry) => (
+            <article
+              key={industry.id}
+              className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg shadow-slate-950/60"
+            >
+              <span className="inline-flex w-fit rounded-full border border-cyan-500/40 px-3 py-1 text-[11px] font-medium text-cyan-300">
+                {industry.badge}
+              </span>
+              <h2 className="mt-3 text-lg font-semibold">{industry.title}</h2>
+              <p className="mt-2 text-sm text-slate-300">
+                {industry.description}
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                <span>✓ Voz, WhatsApp, SMS y email</span>
+                <span>·</span>
+                <span>✓ Logging y grabaciones 24/7</span>
+                <span>·</span>
+                <span>✓ Integración con tu stack actual</span>
+              </div>
+              <div className="mt-5 flex items-center justify-between text-sm">
+                <Link
+                  href={industry.href}
+                  className="inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200"
+                >
+                  Ver playbook para este sector
+                  <span aria-hidden>↗</span>
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200"
+                >
+                  Ver precios y planes
+                </Link>
+              </div>
+            </article>
           ))}
-        </section>
-      </div>
+        </div>
+
+        {/* CTA final */}
+        <footer className="mt-4 rounded-2xl border border-slate-800 bg-slate-900/50 p-5 text-center text-sm text-slate-200">
+          <p>
+            ¿Tu industria no está en la lista? —{" "}
+            <span className="text-cyan-300">
+              Configuramos un AI receptionist entrenado para tu caso específico
+              en menos de 7 días.
+            </span>
+          </p>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/setup"
+              className="inline-flex items-center justify-center rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
+            >
+              Configurar mi AI Receptionist
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-full border border-slate-700 px-5 py-2 text-sm font-semibold text-slate-200 hover:border-cyan-500/70"
+            >
+              Hablar con el equipo
+            </Link>
+          </div>
+        </footer>
+      </section>
     </main>
   );
 }
