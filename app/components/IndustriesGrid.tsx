@@ -1,65 +1,100 @@
 // components/IndustriesGrid.tsx
-import React from "react";
+import Image from "next/image";
+
+const INDUSTRIES = [
+  {
+    id: "medical",
+    title: "Medical & Dental Clinics",
+    description:
+      "Turn missed calls into booked appointments, recalls and follow-ups – 24/7 in English & Spanish.",
+    badge: "+38% more booked visits",
+    image: "/0672B5C4-2EA5-4904-B71C-F50815398E48.png",
+  },
+  {
+    id: "legal",
+    title: "Law Firms & Immigration",
+    description:
+      "Intake, qualification and scheduling for high-value cases with call recording and full audit trail.",
+    badge: "Pre-qualified leads",
+    image: "/08E6E2CC-933F-448F-96AA-E2CAC6AC7598.png",
+  },
+  {
+    id: "real-estate",
+    title: "Real Estate & Investors",
+    description:
+      "Capture every buyer, seller and wholesaler lead – even after hours, weekends and holidays.",
+    badge: "Never miss a hot lead",
+    image: "/0DD5A262-4F4A-48A6-BCA8-B7D106E781EB.png",
+  },
+  {
+    id: "b2b",
+    title: "B2B & Professional Services",
+    description:
+      "Qualify prospects, route calls to the right team and sync every interaction to your CRM.",
+    badge: "Full pipeline visibility",
+    image: "/0E208AAA-D75C-4EE3-A570-8E88DAF84829.png",
+  },
+];
 
 export function IndustriesGrid() {
-  const industries = [
-    {
-      label: "Medical & Dental",
-      headline: "Never miss a new patient call again.",
-      body: "24/7 AI reception that books visits, handles follow-ups and reduces no-shows with reminders.",
-      badge: "Clinics · Dental · Aesthetic",
-    },
-    {
-      label: "Law Firms",
-      headline: "Turn consultations into retained clients.",
-      body: "Pre-qualify leads, capture case details and route high-value callers to the right attorney.",
-      badge: "Immigration · Injury · Litigation",
-    },
-    {
-      label: "Real Estate",
-      headline: "Capture every showing and seller lead.",
-      body: "Answer portal leads instantly, schedule showings and keep buyers and sellers always updated.",
-      badge: "Agents · Brokers · Investors",
-    },
-    {
-      label: "B2B & Agencies",
-      headline: "Qualify leads while your team sleeps.",
-      body: "Score inbound calls, ask discovery questions and sync qualified leads into your CRM.",
-      badge: "SaaS · Marketing · Consulting",
-    },
-    {
-      label: "Multi-location & Chains",
-      headline: "One AI PHONE OS for every location.",
-      body: "Consistent scripts, centralized reporting and local numbers for each branch or office.",
-      badge: "Franchises · Groups",
-    },
-    {
-      label: "Global & Multilingual",
-      headline: "From Houston to México y Latinoamérica.",
-      body: "English + Spanish today, ready to scale across languages as your brand goes global.",
-      badge: "Worldwide · 24/7",
-    },
-  ];
-
   return (
-    <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {industries.map((item) => (
-        <div
-          key={item.label}
-          className="flex h-full flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-5"
-        >
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-            {item.label}
+    <section
+      id="industries"
+      className="border-y border-slate-800 bg-slate-950/40 py-16"
+    >
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
+            Industries
           </p>
-          <h3 className="mt-3 text-sm font-semibold text-slate-50">
-            {item.headline}
-          </h3>
-          <p className="mt-2 text-xs text-slate-300">{item.body}</p>
-          <div className="mt-4 inline-flex w-fit rounded-full border border-slate-700 bg-slate-950/60 px-3 py-1 text-[10px] text-slate-400">
-            {item.badge}
-          </div>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-slate-50">
+            Built for high-value, phone-driven businesses.
+          </h2>
+          <p className="max-w-2xl text-sm text-slate-300">
+            From medical practices to law firms and real-estate investors, FrontDesk
+            Agents turns every call into a tracked, measurable revenue event.
+          </p>
         </div>
-      ))}
-    </div>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          {INDUSTRIES.map((item) => (
+            <article
+              key={item.id}
+              className="flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-lg shadow-slate-950/40"
+            >
+              <div className="relative h-40 w-full overflow-hidden">
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover object-center"
+                  priority={item.id === "medical"}
+                />
+              </div>
+
+              <div className="flex flex-1 flex-col gap-2 p-5">
+                <div className="inline-flex items-center gap-2">
+                  <h3 className="text-base font-semibold text-slate-50">
+                    {item.title}
+                  </h3>
+                  {item.badge && (
+                    <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-sm text-slate-300">{item.description}</p>
+
+                <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
+                  <span className="inline-flex h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                  <span>AI PHONE OS · 24/7 · Call, SMS & WhatsApp</span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
