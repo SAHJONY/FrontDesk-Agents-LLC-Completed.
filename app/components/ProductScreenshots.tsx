@@ -1,4 +1,3 @@
-// app/components/ProductScreenshots.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,55 +5,38 @@ import Image from "next/image";
 
 type TabId = "dashboard" | "inbox" | "analytics";
 
-interface TabConfig {
-  id: TabId;
-  label: string;
-  description: string;
-  image: string;
-}
-
-const TABS: TabConfig[] = [
-  {
-    id: "dashboard",
-    label: "Command Center",
-    description:
-      "Vista general en tiempo real: llamadas, WhatsApps y emails en una sola pantalla.",
-    image: "/images/product/dashboard-preview.png",
-  },
-  {
-    id: "inbox",
-    label: "AI Inbox",
-    description:
-      "Cada interacción clasificada, resumida y lista para responder o escalar.",
-    image: "/images/product/inbox-preview.png",
-  },
-  {
-    id: "analytics",
-    label: "Revenue & Analytics",
-    description:
-      "Métricas de ingresos, tasa de respuesta y conversión de llamadas a citas.",
-    image: "/images/product/analytics-preview.png",
-  },
+const TABS: { id: TabId; label: string }[] = [
+  { id: "dashboard", label: "Command Center" },
+  { id: "inbox", label: "AI Inbox" },
+  { id: "analytics", label: "Revenue & Analytics" },
 ];
 
-export default function ProductScreenshots() {
-  const [active, setActive] = useState<TabId>("dashboard");
+// Importa tus imágenes (asegúrate de que existan en /public/screenshots)
+import dashboardImg from "@/public/screenshots/dashboard.png";
+import inboxImg from "@/public/screenshots/inbox.png";
+import analyticsImg from "@/public/screenshots/analytics.png";
 
-  const activeTab = TABS.find((t) => t.id === active) ?? TABS[0];
+export default function ProductScreenshots() {
+  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+
+  const screenshots: Record<TabId, any> = {
+    dashboard: dashboardImg,
+    inbox: inboxImg,
+    analytics: analyticsImg,
+  };
 
   return (
-    <section className="w-full rounded-2xl border border-slate-800/80 bg-slate-950/80 shadow-[0_0_40px_rgba(15,23,42,0.8)] overflow-hidden">
+    <div className="w-full bg-slate-950/90 rounded-xl border border-slate-800 p-4">
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800/80 px-4 pt-3 pb-2 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 mb-4 overflow-x-auto">
         {TABS.map((tab) => (
           <button
             key={tab.id}
-            type="button"
-            onClick={() => setActive(tab.id)}
-            className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs md:text-sm font-medium transition ${
-              tab.id === active
-                ? "bg-cyan-500 text-slate-950 shadow-[0_0_20px_rgba(34,211,238,0.5)]"
-                : "bg-slate-900 text-slate-300 hover:bg-slate-800"
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 rounded-md text-sm transition ${
+              activeTab === tab.id
+                ? "bg-cyan-600 text-white"
+                : "bg-slate-800 text-slate-300"
             }`}
           >
             {tab.label}
@@ -62,31 +44,16 @@ export default function ProductScreenshots() {
         ))}
       </div>
 
-      {/* Screenshot + description */}
-      <div className="grid md:grid-cols-[1.7fr_1fr] gap-4 p-4 md:p-6 items-center">
-        <div className="relative w-full h-60 md:h-80 rounded-xl overflow-hidden border border-slate-800/80 bg-slate-900">
-          <Image
-            src={activeTab.image}
-            alt={activeTab.label}
-            fill
-            className="object-cover"
-          />
-        </div>
-
-        <div className="space-y-3">
-          <p className="uppercase text-[11px] tracking-wide text-cyan-300">
-            FRONTDESK AGENTS · PREVIEW
-          </p>
-          <h3 className="text-lg md:text-xl font-semibold text-slate-50">
-            {activeTab.label}
-          </h3>
-          <p className="text-sm text-slate-300">{activeTab.description}</p>
-          <p className="text-xs text-slate-500">
-            *Las capturas son ilustrativas. La aplicación real se adapta a tu
-            idioma, marca y flujos de negocio.
-          </p>
-        </div>
+      {/* Screenshot */}
+      <div className="relative w-full h-[420px] rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+        <Image
+          src={screenshots[activeTab]}
+          alt="Product Screenshot"
+          fill
+          className="object-cover"
+          priority
+        />
       </div>
-    </section>
+    </div>
   );
 }
