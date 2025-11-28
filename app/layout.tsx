@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter"; // lo definimos abajo
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,9 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body className={inter.className}>
-        {children}
+        <SiteHeader />
+        <main className="min-h-screen bg-slate-950 text-slate-50">
+          {children}
+        </main>
+        <SiteFooter />
         <Analytics />
       </body>
     </html>
