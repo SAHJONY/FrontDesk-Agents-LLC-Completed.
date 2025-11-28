@@ -1,117 +1,189 @@
 // app/page.tsx
 import Link from "next/link";
-import { IndustriesGrid } from "./components/IndustriesGrid";
+
+import IndustriesGrid from "./components/IndustriesGrid";
+import PricingTable from "./components/PricingTable";
+import ProductScreenshots from "./components/ProductScreenshots";
+import SystemStatusBar from "./components/SystemStatusBar";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+    <main className="min-h-screen bg-slate-950 text-slate-50">
+      {/* Barra de estado arriba (uptime, llamadas, etc.) */}
+      <SystemStatusBar />
+
       {/* HERO PRINCIPAL */}
-      <section className="border-b border-white/10 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900">
-        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:py-20">
-          <div className="max-w-xl space-y-6">
-            <span className="inline-flex items-center rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-300 ring-1 ring-cyan-400/40">
-              AI PHONE OS · FrontDesk Agents
-            </span>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              Convierte cada llamada, WhatsApp y email
-              <span className="block text-cyan-300">
-                en ingresos reservados en menos de 60 segundos.
-              </span>
+      <section className="px-4 py-16 sm:py-20 lg:py-24 max-w-6xl mx-auto">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-center">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.25em] text-cyan-400 mb-4">
+              FRONTDESK AGENTS · AI PHONE OS
+            </p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-slate-50 mb-4">
+              Convierte cada llamada, WhatsApp y email en{" "}
+              <span className="text-cyan-300">ingresos reservados</span> en
+              menos de 60 segundos.
             </h1>
-            <p className="text-sm text-slate-300 sm:text-base">
-              AI receptionists y agentes de voz listos para producción que
-              atienden 24/7, califican leads, agendan citas y registran cada
-              interacción con calidad Fortune-500.
+            <p className="text-slate-300 text-sm sm:text-base max-w-xl mb-3">
+              Un OS de telefonía con agentes de voz, flujos y bandejas de
+              entrada listos para industrias de alto valor.
+            </p>
+            <p className="text-slate-300 text-xs sm:text-sm max-w-xl mb-6">
+              Por defecto trabaja en <span className="font-semibold">
+                English + Español
+              </span>{" "}
+              y puede auto-configurarse en{" "}
+              <span className="font-semibold">100+ idiomas y dialectos</span>{" "}
+              para que cada cliente escuche a su recepcionista en su propio
+              idioma.
             </p>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
               <Link
                 href="/setup"
-                className="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 transition hover:bg-cyan-300"
+                className="inline-flex items-center justify-center rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 hover:bg-cyan-300 transition"
               >
                 Iniciar demo guiada
               </Link>
               <Link
-                href="/pricing"
-                className="text-sm font-semibold text-slate-200 hover:text-cyan-200"
+                href="/app/pricing"
+                className="inline-flex items-center justify-center rounded-full border border-slate-600 px-5 py-2.5 text-sm font-semibold text-slate-100 hover:border-cyan-400 hover:text-cyan-200 transition"
               >
-                Ver precios y planes <span aria-hidden>→</span>
+                Ver precios y planes
               </Link>
             </div>
 
-            <dl className="grid max-w-md grid-cols-3 gap-4 text-xs text-slate-300">
-              <div>
-                <dt className="font-semibold text-white">24/7</dt>
-                <dd className="text-slate-400">Cobertura continua</dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-white">+38%</dt>
-                <dd className="text-slate-400">Más citas confirmadas</dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-white">GDPR / CCPA</dt>
-                <dd className="text-slate-400">Listo para compliance</dd>
-              </div>
-            </dl>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="inline-flex items-center rounded-full border border-cyan-500/50 bg-cyan-500/10 px-3 py-1 text-[11px] font-semibold text-cyan-100">
+                Multilingual by default
+              </span>
+              <span className="inline-flex items-center rounded-full border border-slate-600 px-3 py-1 text-[11px] text-slate-300">
+                EN · ES · +100 idiomas & dialectos
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              24/7 · Grabado, auditable y compatible con{" "}
+              <span className="text-slate-100">HIPAA / GDPR / CCPA</span>.
+            </p>
           </div>
 
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/80 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.7)] backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
-              Command Center
-            </p>
-            <p className="mt-2 text-sm text-slate-200">
-              Panel unificado de llamadas, mensajes y citas para todo tu
-              negocio. Diseñado para equipos que viven de cada cliente que
-              entra por teléfono.
-            </p>
-            <ul className="mt-4 space-y-2 text-xs text-slate-300">
-              <li>• Enrutamiento inteligente por idioma y horario.</li>
-              <li>• Grabaciones, transcripciones y notas automáticas.</li>
-              <li>• Integración con tu CRM, calendarios y facturación.</li>
-            </ul>
-            <div className="mt-4 rounded-lg border border-cyan-500/30 bg-slate-900/80 px-3 py-2 text-[11px] text-cyan-100">
-              “Configura una vez, y deja que el sistema atienda, califique y
-              reserve como un equipo humano experto.”
+          {/* Previews del producto */}
+          <div className="relative">
+            <div className="rounded-3xl bg-slate-900/80 border border-slate-800/80 shadow-2xl shadow-cyan-500/15 overflow-hidden">
+              <ProductScreenshots />
+            </div>
+            <div className="hidden sm:block absolute -bottom-6 -left-6 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 px-4 py-3 text-xs text-cyan-100 backdrop-blur">
+              <p className="font-semibold">+38% más citas confirmadas</p>
+              <p className="text-[11px] text-cyan-100/80">
+                Promedio en clientes piloto en 90 días.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* GRID DE INDUSTRIAS CON IMÁGENES PREMIUM */}
-      <IndustriesGrid />
+      {/* CINTA DE CUMPLIMIENTO */}
+      <section className="border-y border-slate-800 bg-slate-950/80">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+          <span className="inline-flex items-center rounded-full border border-emerald-500/50 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-200">
+            GDPR / CCPA–Ready
+          </span>
+          <span>Grabación completa de llamadas y WhatsApp.</span>
+          <span className="hidden sm:inline">Logs auditables 24/7.</span>
+          <span className="hidden lg:inline">
+            Human-in-the-loop opcional para casos críticos.
+          </span>
+        </div>
+      </section>
 
-      {/* SECCIÓN FINAL DE CONFIANZA */}
-      <section className="border-t border-white/5 bg-slate-950">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+      {/* INDUSTRIAS */}
+      <section
+        id="industries"
+        className="max-w-6xl mx-auto px-4 py-14 sm:py-16 lg:py-20"
+      >
+        <div className="flex items-baseline justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-white">
-              Listo para operar como un call center de clase mundial.
+            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-50">
+              Built for your industry
             </h2>
-            <p className="mt-2 max-w-2xl text-sm text-slate-300">
-              Diseñado para clínicas, despachos legales, real estate,
-              contractors, hoteles y más. Una sola plataforma para capturar
-              cada oportunidad.
+            <p className="text-sm text-slate-400 mt-1">
+              From first ring to booked revenue, con playbooks listos para
+              ejecutar.
             </p>
           </div>
-          <div className="flex flex-col gap-3 text-xs text-slate-300 sm:flex-row sm:items-center">
+          <Link
+            href="/industries"
+            className="hidden sm:inline-flex text-xs font-medium text-cyan-300 hover:text-cyan-100"
+          >
+            Ver todos los sectores →
+          </Link>
+        </div>
+
+        <IndustriesGrid />
+      </section>
+
+      {/* PRECIOS */}
+      <section
+        id="pricing"
+        className="border-t border-slate-800 bg-slate-950/80"
+      >
+        <div className="max-w-6xl mx-auto px-4 py-14 sm:py-16 lg:py-20">
+          <div className="flex items-baseline justify-between gap-4 mb-8">
             <div>
-              <span className="block font-semibold text-white">
-                HIL / Human-in-the-Loop
-              </span>
-              <span className="block text-slate-400">
-                Escala a un humano solo cuando es crítico.
-              </span>
+              <h2 className="text-2xl sm:text-3xl font-semibold text-slate-50">
+                Pricing para cerrar más deals, no solo contestar llamadas
+              </h2>
+              <p className="text-sm text-slate-400 mt-1">
+                Planes mensuales simples, sin contratos largos. Escala por
+                ubicación, inbox o volumen de llamadas.
+              </p>
             </div>
-            <div className="hidden h-10 w-px bg-slate-700 sm:block" />
-            <div>
-              <span className="block font-semibold text-white">
-                Trust & Compliance
-              </span>
-              <span className="block text-slate-400">
-                Registros auditables, data-minimization y rutas seguras.
-              </span>
-            </div>
+            <Link
+              href="/app/pricing"
+              className="hidden sm:inline-flex text-xs font-medium text-cyan-300 hover:text-cyan-100"
+            >
+              Comparar planes →
+            </Link>
           </div>
+
+          <PricingTable />
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="border-t border-slate-800 bg-slate-950">
+        <div className="max-w-5xl mx-auto px-4 py-12 sm:py-14 lg:py-16 text-center">
+          <p className="text-xs font-semibold tracking-[0.22em] text-cyan-400 mb-3">
+            LISTO PARA EL PILOTO
+          </p>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-slate-50 mb-3">
+            Lanza tu AI Receptionist en menos de{" "}
+            <span className="text-cyan-300">7 días hábiles</span>.
+          </h2>
+          <p className="text-sm text-slate-400 max-w-2xl mx-auto mb-6">
+            Configuramos flujos, scripts y bandejas de entrada contigo.
+            Grabación, compliance y reportes incluidos desde el día uno – en el
+            idioma de cada cliente.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link
+              href="/setup"
+              className="inline-flex items-center justify-center rounded-full bg-cyan-400 px-6 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 hover:bg-cyan-300 transition"
+            >
+              Agendar implementación
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-full border border-slate-600 px-5 py-2.5 text-sm font-semibold text-slate-100 hover:border-cyan-400 hover:text-cyan-200 transition"
+            >
+              Hablar con un especialista
+            </Link>
+          </div>
+          <p className="mt-3 text-[11px] text-slate-500">
+            Sin contrato anual · Cancelas cuando quieras · Soporte humano
+            incluido.
+          </p>
         </div>
       </section>
     </main>
