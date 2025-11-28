@@ -1,0 +1,18 @@
+export const premiumImages = {
+  heroEn: "/premium/hero-en.webp",
+  heroEs: "/premium/hero-es.webp",
+  dashboardDark: "/premium/dashboard-dark.webp",
+  dashboardLight: "/premium/dashboard-light.webp",
+  aiAgent: "/premium/ai-agent.webp",
+  aiPhoneOS: "/premium/ai-phone-os.webp",
+  medical: "/premium/medical.webp",
+  lawFirm: "/premium/law-firm.webp",
+  realEstate: "/premium/real-estate.webp",
+  hvac: "/premium/hvac.webp",
+  ecommerce: "/premium/ecommerce.webp",
+  restaurant: "/premium/restaurant.webp",
+  tiktok1: "/premium/tiktok-1.webp",
+  tiktok2: "/premium/tiktok-2.webp",
+  tiktok3: "/premium/tiktok-3.webp",
+  benefitsGrid: "/premium/benefits-grid.webp",
+};
