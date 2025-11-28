@@ -2,9 +2,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/react";
 
-// IMPORTS **POR DEFECTO** DESDE app/components
+// IMPORTS RELATIVOS
 import SiteHeader from "./components/SiteHeader";
 import SiteFooter from "./components/SiteFooter";
 
@@ -22,19 +21,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        {/* Header global con nav + toggle light/dark */}
-        <SiteHeader />
-
-        {/* Contenido de cada página */}
-        {children}
-
-        {/* Footer global */}
-        <SiteFooter />
-
-        {/* Analytics de Vercel */}
-        <Analytics />
+        <div className="min-h-screen flex flex-col bg-slate-950 text-slate-50 transition-colors duration-300">
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+        </div>
       </body>
     </html>
   );
