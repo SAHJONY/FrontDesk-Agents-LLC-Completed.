@@ -1,94 +1,64 @@
-// app/components/IndustriesGrid.tsx
-"use client";
-
-import Image from "next/image";
-
-type Industry = {
-  id: string;
-  name: string;
-  description: string;
-  imageSrc: string;
-  badge?: string;
-};
-
-const INDUSTRIES: Industry[] = [
-  {
-    id: "medical",
-    name: "Medical & Dental Clinics",
-    description:
-      "Answer every patient call, reduce no-shows and keep your schedule fully booked — without adding front-desk headcount.",
-    imageSrc: "/IMG_MEDICAL.png", // CAMBIA por un nombre real de /public
-    badge: "+38% more booked appointments"
-  },
-  {
-    id: "legal",
-    name: "Law Firms & Immigration",
-    description:
-      "Qualify inbound cases, schedule consultations and keep clients informed with compliant, human-sounding voice.",
-    imageSrc: "/IMG_LAW.png", // CAMBIA por un nombre real
-    badge: "24/7 intake & screening"
-  },
-  {
-    id: "realestate",
-    name: "Real Estate & Property",
-    description:
-      "Capture every buyer and seller call, route to the right agent and follow up automatically by SMS and WhatsApp.",
-    imageSrc: "/IMG_REALESTATE.png", // CAMBIA por un nombre real
-    badge: "Never miss an opportunity"
-  },
-  {
-    id: "hospitality",
-    name: "Hotels, Spas & Hospitality",
-    description:
-      "Handle reservations, changes and FAQs for guests day and night with a calm, multilingual AI receptionist.",
-    imageSrc: "/IMG_HOSPITALITY.png", // CAMBIA por un nombre real
-  },
-  {
-    id: "b2b",
-    name: "High-Velocity B2B Teams",
-    description:
-      "Qualify leads, book demos and sync outcomes directly into your CRM so your sales team only speaks with warm prospects.",
-    imageSrc: "/IMG_B2B.png", // CAMBIA por un nombre real
-  },
-  {
-    id: "callcenter",
-    name: "Call Centers & Outsourcing",
-    description:
-      "Augment human agents with an AI layer that handles routine calls, leaving your team focused on high-value cases.",
-    imageSrc: "/IMG_CALLCENTER.png", // CAMBIA por un nombre real
-  }
-];
+// components/IndustriesGrid.tsx
+import React from "react";
 
 export function IndustriesGrid() {
+  const industries = [
+    {
+      label: "Medical & Dental",
+      headline: "Never miss a new patient call again.",
+      body: "24/7 AI reception that books visits, handles follow-ups and reduces no-shows with reminders.",
+      badge: "Clinics · Dental · Aesthetic",
+    },
+    {
+      label: "Law Firms",
+      headline: "Turn consultations into retained clients.",
+      body: "Pre-qualify leads, capture case details and route high-value callers to the right attorney.",
+      badge: "Immigration · Injury · Litigation",
+    },
+    {
+      label: "Real Estate",
+      headline: "Capture every showing and seller lead.",
+      body: "Answer portal leads instantly, schedule showings and keep buyers and sellers always updated.",
+      badge: "Agents · Brokers · Investors",
+    },
+    {
+      label: "B2B & Agencies",
+      headline: "Qualify leads while your team sleeps.",
+      body: "Score inbound calls, ask discovery questions and sync qualified leads into your CRM.",
+      badge: "SaaS · Marketing · Consulting",
+    },
+    {
+      label: "Multi-location & Chains",
+      headline: "One AI PHONE OS for every location.",
+      body: "Consistent scripts, centralized reporting and local numbers for each branch or office.",
+      badge: "Franchises · Groups",
+    },
+    {
+      label: "Global & Multilingual",
+      headline: "From Houston to México y Latinoamérica.",
+      body: "English + Spanish today, ready to scale across languages as your brand goes global.",
+      badge: "Worldwide · 24/7",
+    },
+  ];
+
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {INDUSTRIES.map((industry) => (
-        <article
-          key={industry.id}
-          className="group flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-sm shadow-slate-950/40 transition hover:border-cyan-500/60 hover:shadow-cyan-500/20"
+    <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {industries.map((item) => (
+        <div
+          key={item.label}
+          className="flex h-full flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-5"
         >
-          <div className="relative h-40 w-full overflow-hidden bg-slate-950">
-            <Image
-              src={industry.imageSrc}
-              alt={industry.name}
-              fill
-              className="object-cover transition duration-500 group-hover:scale-105"
-            />
-            {industry.badge && (
-              <div className="absolute bottom-2 left-2 rounded-full bg-slate-950/80 px-3 py-1 text-[10px] font-medium text-cyan-300 backdrop-blur">
-                {industry.badge}
-              </div>
-            )}
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+            {item.label}
+          </p>
+          <h3 className="mt-3 text-sm font-semibold text-slate-50">
+            {item.headline}
+          </h3>
+          <p className="mt-2 text-xs text-slate-300">{item.body}</p>
+          <div className="mt-4 inline-flex w-fit rounded-full border border-slate-700 bg-slate-950/60 px-3 py-1 text-[10px] text-slate-400">
+            {item.badge}
           </div>
-          <div className="flex flex-1 flex-col p-4">
-            <h3 className="text-sm font-semibold text-slate-50">
-              {industry.name}
-            </h3>
-            <p className="mt-2 text-xs text-slate-300">
-              {industry.description}
-            </p>
-          </div>
-        </article>
+        </div>
       ))}
     </div>
   );
