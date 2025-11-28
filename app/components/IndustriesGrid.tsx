@@ -1,76 +1,68 @@
-// components/IndustriesGrid.tsx
+// app/components/IndustriesGrid.tsx
+"use client";
+
+import Link from "next/link";
 import Image from "next/image";
 
-const INDUSTRIES = [
+interface Industry {
+  title: string;
+  description: string;
+  href: string;
+  badge: string;
+  image: string;
+}
+
+const INDUSTRIES: Industry[] = [
   {
-    id: "medical",
     title: "Medical & Dental Clinics",
     description:
-      "Fill the calendar, reduce no-shows y confirma citas en segundos con un AI receptionist entrenado para salud.",
+      "Fill the calendar, reduce no-shows y confirma citas en segundos.",
+    href: "/industries/medical",
     badge: "+38% más visitas confirmadas",
-    image: "/medical.jpg", // ← reemplaza por tu archivo correcto
+    image: "/images/industries/medical.jpg",
   },
   {
-    id: "legal",
     title: "Law Firms & Legal Services",
     description:
-      "Califica leads, agenda consultas y protege cada interacción con registros auditables 24/7.",
+      "Califica leads, agenda consultas y protege cada interacción con auditoría 24/7.",
+    href: "/industries/law",
     badge: "Prioriza casos de alto valor",
-    image: "/legal.jpg", // ← imagen correcta para legal
-  },
-  {
-    id: "realestate",
-    title: "Real Estate & Investors",
-    description:
-      "Captura leads calientes, agenda citas de compradores e inversores y automatiza seguimiento.",
-    badge: "+62% más citas exitosas",
-    image: "/realestate.jpg",
-  },
-  {
-    id: "homeservices",
-    title: "Home Services & Contractors",
-    description:
-      "Responde cotizaciones, agenda trabajos y confirma visitas sin perder clientes.",
-    badge: "Convierte 24/7",
-    image: "/homeservices.jpg",
+    image: "/images/industries/law.jpg",
   },
 ];
 
 export default function IndustriesGrid() {
   return (
-    <div className="grid gap-8 md:grid-cols-2 mt-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
       {INDUSTRIES.map((industry) => (
-        <div
-          key={industry.id}
-          className="rounded-2xl overflow-hidden bg-[#0D1117] border border-white/10 shadow-xl"
+        <Link
+          key={industry.title}
+          href={industry.href}
+          className="rounded-xl border border-slate-800 bg-slate-900/40 p-3 hover:border-cyan-400/50 transition block"
         >
-          <div className="relative w-full h-56 md:h-64">
+          <div className="text-[11px] inline-flex items-center rounded-full border border-cyan-400/50 bg-cyan-500/10 px-2 py-1 text-cyan-300 mb-3">
+            {industry.badge}
+          </div>
+
+          <div className="relative w-full h-44 mb-3 overflow-hidden rounded-lg">
             <Image
               src={industry.image}
               alt={industry.title}
               fill
               className="object-cover"
-              sizes="100%"
             />
-            <span className="absolute top-4 left-4 bg-blue-500/20 text-blue-300 px-4 py-1 rounded-full text-sm font-medium backdrop-blur">
-              {industry.badge}
-            </span>
           </div>
 
-          <div className="p-6">
-            <h3 className="text-xl font-semibold text-white">
-              {industry.title}
-            </h3>
-            <p className="text-gray-400 mt-2">{industry.description}</p>
+          <h3 className="text-lg text-slate-50 font-semibold">
+            {industry.title}
+          </h3>
 
-            <a
-              href={`/industries/${industry.id}`}
-              className="text-blue-400 mt-4 inline-block font-medium"
-            >
-              Ver playbook para este sector ↗
-            </a>
-          </div>
-        </div>
+          <p className="text-sm text-slate-400">{industry.description}</p>
+
+          <p className="text-cyan-300 text-sm font-medium mt-2">
+            Ver playbook para este sector →
+          </p>
+        </Link>
       ))}
     </div>
   );
