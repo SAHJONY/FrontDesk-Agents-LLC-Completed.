@@ -4,9 +4,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 
-// IMPORTS **RELATIVOS** (sin alias @)
-import SiteHeader from "./components/SiteHeader";
-import SiteFooter from "./components/SiteFooter";
+// IMPORTS RELATIVOS CON EXPORTACIONES NOMBRADAS
+import { SiteHeader } from "./components/SiteHeader";
+import { SiteFooter } from "./components/SiteFooter";
 
 const inter = Inter({ subsets: ["latin"] });
 
