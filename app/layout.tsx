@@ -1,21 +1,17 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import SiteHeader from "./components/SiteHeader";
 import SiteFooter from "./components/SiteFooter";
-import { LanguageProvider } from "./components/LanguageProvider";
+import { LanguageProvider } from "./context/LanguageContext";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents · AI PHONE OS",
   description:
-    "Enterprise-grade AI receptionist, scheduling and inbound OS for high-value industries, clinics, law firms, real estate investors and service businesses.",
+    "Enterprise-grade AI receptionist, scheduling and inbound OS for high-value industries.",
 };
 
 export default function RootLayout({
@@ -26,18 +22,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} min-h-screen bg-slate-950 text-slate-50 antialiased`}
+        className={`${inter.className} bg-slate-950 text-slate-50 antialiased`}
       >
         <LanguageProvider>
-          <div className="flex min-h-screen flex-col">
+          <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900">
             <SiteHeader />
-            <main className="flex-1 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-950">
-              {children}
-            </main>
+            <main className="flex-1">{children}</main>
             <SiteFooter />
           </div>
-          <Analytics />
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );
