@@ -1,55 +1,56 @@
-// app/components/SiteHeader.tsx
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import ThemeToggle from "./ThemeToggle";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
 
 const navItems = [
-  { href: "/", label: "Home / Inicio" },
-  { href: "/industries", label: "Industrias" },
-  { href: "/pricing", label: "Pricing / Precios" },
-  { href: "/setup", label: "Onboarding" },
-  { href: "/dashboard", label: "Command Center" },
-  { href: "/admin", label: "Owner Admin" },
+  { label: 'Home', href: '/' },
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'Industries', href: '/industries' },
+  { label: 'Dashboard', href: '/dashboard' },
+  { label: 'Setup', href: '/setup' }
 ];
 
 export default function SiteHeader() {
-  const pathname = usePathname();
+  // Normalizamos pathname para evitar null
+  const pathnameRaw = usePathname();
+  const pathname = pathnameRaw ?? '/';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800/70 bg-slate-950/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        {/* Logo + Brand */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/10 ring-1 ring-cyan-400/60">
-            <span className="text-sm font-bold text-cyan-300">FD</span>
+    <header className="sticky top-0 z-40 border-b border-slate-800/70 bg-slate-950/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        {/* Logo + brand */}
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-400 shadow-[0_0_30px_rgba(34,211,238,0.7)]">
+            <span className="text-xs font-black text-slate-950">FD</span>
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold tracking-wide">
+            <Link href="/" className="text-sm font-semibold text-slate-50">
               FrontDesk Agents
-            </span>
-            <span className="text-[11px] text-slate-400">
-              AI PHONE · 24/7 Revenue OS
+            </Link>
+            <span className="text-[10px] text-slate-400">
+              AI Receptionist · Phone OS
             </span>
           </div>
-        </Link>
+        </div>
 
-        {/* Nav */}
-        <nav className="hidden items-center gap-4 md:flex">
+        {/* Navegación principal */}
+        <nav className="hidden items-center gap-4 text-sm text-slate-300 md:flex">
           {navItems.map((item) => {
-            const active =
-              item.href === "/"
-                ? pathname === "/"
+            const isActive =
+              item.href === '/'
+                ? pathname === '/'
                 : pathname.startsWith(item.href);
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-xs font-medium transition-colors ${
-                  active
-                    ? "text-cyan-300"
-                    : "text-slate-300/80 hover:text-cyan-200"
+                className={`rounded-full px-3 py-1 transition ${
+                  isActive
+                    ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-[0_0_25px_rgba(34,211,238,0.5)]'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-900/60 border border-transparent'
                 }`}
               >
                 {item.label}
@@ -58,16 +59,41 @@ export default function SiteHeader() {
           })}
         </nav>
 
-        {/* Right side controls */}
+        {/* Lado derecho: toggle + CTA */}
         <div className="flex items-center gap-3">
           <ThemeToggle />
+
           <Link
-            href="/setup"
-            className="hidden rounded-full bg-cyan-500 px-3 py-1.5 text-xs font-semibold text-slate-950 shadow-md shadow-cyan-500/40 hover:bg-cyan-400 md:inline-flex"
+            href="/pricing"
+            className="hidden rounded-full bg-cyan-500 px-3 py-1.5 text-xs font-semibold text-slate-950 shadow-[0_0_30px_rgba(34,211,238,0.8)] hover:bg-cyan-400 md:inline-flex"
           >
-            Iniciar demo guiada
+            View pricing & plans
           </Link>
         </div>
+      </div>
+
+      {/* Nav compacto para mobile */}
+      <div className="flex gap-2 overflow-x-auto border-t border-slate-900/80 px-4 py-2 text-xs text-slate-300 md:hidden">
+        {navItems.map((item) => {
+          const isActive =
+            item.href === '/'
+              ? pathname === '/'
+              : pathname.startsWith(item.href);
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`whitespace-nowrap rounded-full px-3 py-1 transition ${
+                isActive
+                  ? 'bg-cyan-500/20 text-cyan-200 border border-cyan-500/40'
+                  : 'bg-slate-900/70 text-slate-300 border border-slate-800/80'
+              }`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </div>
     </header>
   );
