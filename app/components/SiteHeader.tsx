@@ -1,46 +1,64 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import ThemeToggle from './ThemeToggle';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useLanguage } from "./LanguageProvider";
+import LanguageSwitcher from "./LanguageSwitcher";
 
-const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'Industries', href: '/industries' },
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Setup', href: '/setup' }
+type Lang = "en" | "es";
+
+const NAV_ITEMS: { href: string; id: string }[] = [
+  { href: "/", id: "home" },
+  { href: "/industries", id: "industries" },
+  { href: "/ai-agents", id: "aiAgents" },
+  { href: "/pricing", id: "pricing" },
+  { href: "/dashboard", id: "dashboard" },
 ];
 
+function getLabel(id: string, lang: Lang): string {
+  const map: Record<string, { en: string; es: string }> = {
+    home: { en: "Home", es: "Inicio" },
+    industries: { en: "Industries", es: "Industrias" },
+    aiAgents: { en: "AI Agents", es: "Agentes IA" },
+    pricing: { en: "Pricing", es: "Precios" },
+    dashboard: { en: "Login", es: "Ingresar" },
+  };
+  return map[id]?.[lang] ?? id;
+}
+
 export default function SiteHeader() {
-  // Normalizamos pathname para evitar null
-  const pathnameRaw = usePathname();
-  const pathname = pathnameRaw ?? '/';
+  const pathname = usePathname() || "/";
+  const { lang } = useLanguage();
+
+  const primaryCta =
+    lang === "en" ? "Start guided demo" : "Iniciar demo guiada";
+  const secondaryCta =
+    lang === "en" ? "See plans & pricing" : "Ver planes y precios";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800/70 bg-slate-950/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        {/* Logo + brand */}
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-400 shadow-[0_0_30px_rgba(34,211,238,0.7)]">
-            <span className="text-xs font-black text-slate-950">FD</span>
+    <header className="sticky top-0 z-40 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo + Brand */}
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/90 text-white shadow-lg shadow-sky-500/40">
+            <span className="text-xs font-black tracking-tight">FD</span>
           </div>
           <div className="flex flex-col leading-tight">
-            <Link href="/" className="text-sm font-semibold text-slate-50">
+            <span className="text-sm font-semibold text-slate-50">
               FrontDesk Agents
-            </Link>
-            <span className="text-[10px] text-slate-400">
-              AI Receptionist · Phone OS
+            </span>
+            <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">
+              AI Phone OS
             </span>
           </div>
-        </div>
+        </Link>
 
-        {/* Navegación principal */}
-        <nav className="hidden items-center gap-4 text-sm text-slate-300 md:flex">
-          {navItems.map((item) => {
+        {/* Center navigation */}
+        <nav className="hidden items-center gap-4 text-xs font-medium text-slate-300 sm:flex">
+          {NAV_ITEMS.map((item) => {
             const isActive =
-              item.href === '/'
-                ? pathname === '/'
+              item.href === "/"
+                ? pathname === "/"
                 : pathname.startsWith(item.href);
 
             return (
@@ -49,51 +67,34 @@ export default function SiteHeader() {
                 href={item.href}
                 className={`rounded-full px-3 py-1 transition ${
                   isActive
-                    ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-[0_0_25px_rgba(34,211,238,0.5)]'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-900/60 border border-transparent'
+                    ? "bg-sky-500/15 text-sky-300 border border-sky-500/40"
+                    : "text-slate-300/80 hover:text-slate-50 hover:bg-slate-800/60"
                 }`}
               >
-                {item.label}
+                {getLabel(item.id, lang)}
               </Link>
             );
           })}
         </nav>
 
-        {/* Lado derecho: toggle + CTA */}
+        {/* Right side: language + CTAs */}
         <div className="flex items-center gap-3">
-          <ThemeToggle />
+          <LanguageSwitcher />
 
           <Link
             href="/pricing"
-            className="hidden rounded-full bg-cyan-500 px-3 py-1.5 text-xs font-semibold text-slate-950 shadow-[0_0_30px_rgba(34,211,238,0.8)] hover:bg-cyan-400 md:inline-flex"
+            className="hidden rounded-full border border-sky-500/40 bg-slate-900/40 px-3 py-1.5 text-xs font-medium text-sky-200 hover:border-sky-400/80 hover:text-sky-50 sm:inline-flex"
           >
-            View pricing & plans
+            {secondaryCta}
+          </Link>
+
+          <Link
+            href="/setup"
+            className="inline-flex items-center rounded-full bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-sky-500/40 hover:bg-sky-400"
+          >
+            {primaryCta}
           </Link>
         </div>
-      </div>
-
-      {/* Nav compacto para mobile */}
-      <div className="flex gap-2 overflow-x-auto border-t border-slate-900/80 px-4 py-2 text-xs text-slate-300 md:hidden">
-        {navItems.map((item) => {
-          const isActive =
-            item.href === '/'
-              ? pathname === '/'
-              : pathname.startsWith(item.href);
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`whitespace-nowrap rounded-full px-3 py-1 transition ${
-                isActive
-                  ? 'bg-cyan-500/20 text-cyan-200 border border-cyan-500/40'
-                  : 'bg-slate-900/70 text-slate-300 border border-slate-800/80'
-              }`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
       </div>
     </header>
   );
