@@ -1,9 +1,10 @@
 // app/setup/page.tsx
 import type { Metadata } from "next";
-import AISetupForm, {
-  type SupportedLang,
-} from "../components/AISetupForm";
+import AISetupForm from "../components/AISetupForm";
 import Link from "next/link";
+
+// Define here instead of importing from the component
+type SupportedLang = "en" | "es";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents – Initial AI Setup",
@@ -11,7 +12,6 @@ export const metadata: Metadata = {
     "Configure your FrontDesk AI receptionist in less than 60 seconds. Multilingual, 24/7, Fortune-500 grade call handling.",
 };
 
-// Tipamos los searchParams que Next.js pasa a los page components
 interface SetupPageProps {
   searchParams?: {
     lang?: string;
@@ -19,10 +19,8 @@ interface SetupPageProps {
 }
 
 export default function SetupPage({ searchParams }: SetupPageProps) {
-  // Idioma por defecto si no viene nada en la URL: "es"
   const rawLang = searchParams?.lang;
   const lang: SupportedLang = rawLang === "en" ? "en" : "es";
-
   const isEs = lang === "es";
 
   const t = {
@@ -47,12 +45,10 @@ export default function SetupPage({ searchParams }: SetupPageProps) {
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
-      {/* Capa de fondo premium */}
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.25),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(59,130,246,0.25),_transparent_60%)] opacity-80" />
 
-      {/* Contenido */}
       <div className="relative z-10 flex min-h-screen flex-col">
-        {/* Header superior con back + selector de idioma */}
+        {/* Top header */}
         <header className="flex items-center justify-between px-4 py-4 sm:px-8 border-b border-white/10 bg-slate-950/80 backdrop-blur">
           <div className="flex items-center gap-3">
             <Link
@@ -66,7 +62,7 @@ export default function SetupPage({ searchParams }: SetupPageProps) {
             </Link>
           </div>
 
-          {/* Selector de idioma simple (link-based) */}
+          {/* Language selector */}
           <div className="flex items-center gap-2 text-xs sm:text-sm">
             <span className="text-slate-400">{t.languageLabel}:</span>
             <div className="inline-flex rounded-full bg-slate-900/60 p-1 border border-slate-700/70">
@@ -97,7 +93,7 @@ export default function SetupPage({ searchParams }: SetupPageProps) {
         {/* Body */}
         <div className="flex-1 px-4 py-6 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
           <div className="mx-auto max-w-6xl grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-start">
-            {/* Lado izquierdo: formulario */}
+            {/* Left: form */}
             <section className="fd-card bg-slate-950/80 border border-slate-800/80 shadow-2xl shadow-sky-900/40">
               <div className="mb-4 space-y-1">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-400">
@@ -111,11 +107,10 @@ export default function SetupPage({ searchParams }: SetupPageProps) {
                 </p>
               </div>
 
-              {/* Formulario de setup IA */}
               <AISetupForm lang={lang} />
             </section>
 
-            {/* Lado derecho: visual premium */}
+            {/* Right: visual preview */}
             <aside className="space-y-4">
               <div className="fd-card bg-gradient-to-b from-slate-900/90 to-slate-950/95 border border-sky-500/40 shadow-[0_0_60px_rgba(56,189,248,0.45)]">
                 <h2 className="text-base sm:text-lg font-semibold text-white mb-1">
@@ -125,9 +120,8 @@ export default function SetupPage({ searchParams }: SetupPageProps) {
                   {t.visualSubtitle}
                 </p>
 
-                {/* Fake dashboard visual */}
                 <div className="space-y-3 rounded-xl bg-slate-950/70 p-3 sm:p-4 border border-slate-800/80">
-                  {/* KPI row */}
+                  {/* KPIs */}
                   <div className="grid grid-cols-3 gap-2 sm:gap-3 text-[10px] sm:text-xs">
                     <div className="rounded-lg bg-slate-900/80 px-2 py-2 border border-sky-500/40">
                       <p className="text-slate-400">
@@ -164,7 +158,7 @@ export default function SetupPage({ searchParams }: SetupPageProps) {
                     </div>
                   </div>
 
-                  {/* Call list mock */}
+                  {/* Calls list */}
                   <div className="mt-3 rounded-lg bg-slate-900/80 border border-slate-800/80 p-2 sm:p-3">
                     <div className="flex items-center justify-between mb-2 text-[11px] sm:text-xs text-slate-400">
                       <span>
@@ -208,7 +202,6 @@ export default function SetupPage({ searchParams }: SetupPageProps) {
                 </div>
               </div>
 
-              {/* Nota de seguridad / compliance breve */}
               <p className="text-[10px] sm:text-xs text-slate-400">
                 {isEs
                   ? "Todos los datos se procesan con cifrado extremo a extremo y cumplimiento HIPAA/GDPR cuando aplica."
