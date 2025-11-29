@@ -5,7 +5,6 @@ import ThemeProvider from "./components/ThemeProvider";
 import LangProvider from "./components/LangProvider";
 import SiteHeader from "./components/SiteHeader";
 import SiteFooter from "./components/SiteFooter";
-import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,8 +29,6 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <SiteFooter />
             </div>
-            {/* Analíticas de Vercel */}
-            <Analytics />
           </LangProvider>
         </ThemeProvider>
       </body>
