@@ -1,171 +1,294 @@
-// app/components/AISetupForm.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
 
-type Lang = "en" | "es";
+export type SupportedLang = "en" | "es";
 
 interface AISetupFormProps {
-  lang: Lang;
+  lang: SupportedLang;
 }
 
-export default function AISetupForm({ lang }: AISetupFormProps) {
-  const [form, setForm] = useState({
-    businessName: "",
-    website: "",
-    receptionistName: "",
-    mainPurpose: "",
-    industry: "",
-    callVolume: "",
-    crm: ""
-  });
+export function AISetupForm({ lang }: AISetupFormProps) {
+  const isEs = lang === "es";
 
   const t = {
-    title:
-      lang === "en" ? "Design Your AI PHONE OS" : "Diseña Tu AI PHONE OS",
-    subtitle:
-      lang === "en"
-        ? "Share a few details and we’ll generate a custom AI agent blueprint for your business."
-        : "Cuéntanos unos detalles y generaremos un plano personalizado de tu agente de IA.",
-    businessName: lang === "en" ? "Business Name" : "Nombre del Negocio",
-    website: lang === "en" ? "Website" : "Sitio Web",
-    receptionistName:
-      lang === "en" ? "Receptionist Name" : "Nombre de la Recepcionista",
-    mainPurpose:
-      lang === "en"
-        ? "Main Purpose (e.g. new leads, patient intake)"
-        : "Propósito Principal (ej. nuevos clientes, admisión de pacientes)",
-    industry: lang === "en" ? "Industry" : "Industria",
-    callVolume:
-      lang === "en"
-        ? "Estimated Monthly Call Volume"
-        : "Volumen de llamadas mensuales estimado",
-    crm:
-      lang === "en"
-        ? "Current CRM / Calendar (optional)"
-        : "CRM / Calendario actual (opcional)",
-    button: lang === "en" ? "Generate My Blueprint" : "Generar Mi Plano de IA"
+    title: isEs
+      ? "Configura tu Agente IA FrontDesk en 60 segundos"
+      : "Set up your FrontDesk AI Agent in 60 seconds",
+    subtitle: isEs
+      ? "Cuéntanos lo básico de tu negocio para que el agente comience a atender llamadas, WhatsApp y emails como si fuera tu mejor recepcionista."
+      : "Tell us the basics about your business so the agent can start handling calls, WhatsApp and emails like your best receptionist.",
+    businessSection: isEs ? "Datos del negocio" : "Business details",
+    businessName: isEs ? "Nombre del negocio" : "Business name",
+    businessNamePlaceholder: isEs
+      ? "Ej. Clínica Sonrisa Perfecta"
+      : "e.g. Perfect Smile Dental Clinic",
+    website: isEs ? "Sitio web" : "Website",
+    websitePlaceholder: "https://",
+    industry: isEs ? "Industria principal" : "Primary industry",
+    industryPlaceholder: isEs
+      ? "Ej. Clínica dental, bufete de abogados, bienes raíces..."
+      : "e.g. Dental clinic, law firm, real estate...",
+    phoneSection: isEs ? "Contacto y llamadas" : "Contact & calls",
+    mainPhone: isEs ? "Teléfono principal de la empresa" : "Main business phone",
+    mainPhonePlaceholder: isEs
+      ? "Número que tus clientes ya conocen"
+      : "Number your clients already know",
+    country: isEs ? "País principal de operación" : "Primary country",
+    countryPlaceholder: isEs ? "Ej. Estados Unidos, México" : "e.g. United States, Mexico",
+    timezone: isEs ? "Zona horaria" : "Time zone",
+    timezonePlaceholder: isEs ? "Ej. America/Chicago" : "e.g. America/Chicago",
+    volumeSection: isEs ? "Volumen y canales" : "Volume & channels",
+    callsPerDay: isEs ? "Llamadas promedio por día" : "Average calls per day",
+    callsPerDayPlaceholder: isEs ? "Ej. 15" : "e.g. 15",
+    channelsLabel: isEs ? "Canales que quieres activar" : "Channels to activate",
+    chPhone: isEs ? "Llamadas telefónicas 24/7" : "24/7 phone calls",
+    chWhatsApp: "WhatsApp Business",
+    chEmail: isEs ? "Email profesional" : "Professional email",
+    chSms: "SMS",
+    languageSection: isEs ? "Idioma y estilo" : "Language & tone",
+    primaryLanguage: isEs ? "Idioma principal del agente" : "Agent primary language",
+    primaryLanguageHelp: isEs
+      ? "El sistema soporta más de 100 idiomas y dialectos. Aquí defines el idioma por defecto para tus clientes."
+      : "The system supports 100+ languages and dialects. Here you define your default customer-facing language.",
+    toneLabel: isEs ? "Tono del agente" : "Agent tone",
+    toneOption1: isEs ? "Profesional y cálido" : "Professional & warm",
+    toneOption2: isEs ? "Súper cercano / amistoso" : "Very friendly / casual",
+    toneOption3: isEs ? "Ultra formal (legal / médico)" : "Ultra formal (legal / medical)",
+    submit: isEs ? "Activar configuración inicial" : "Activate initial configuration",
+    submitting: isEs ? "Guardando configuración..." : "Saving configuration...",
+    success: isEs
+      ? "Configuración inicial guardada. Tu agente IA ya puede comenzar a trabajar."
+      : "Initial configuration saved. Your AI agent can now start working.",
+    error: isEs
+      ? "No se pudo guardar la configuración. Inténtalo de nuevo."
+      : "Could not save configuration. Please try again."
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // Por ahora solo evitamos el reload.
-    // En el futuro aquí podemos integrar con tu API / CRM.
-    console.log("AI Setup Form submitted", form);
-  };
+    setIsSubmitting(true);
+    setStatus("idle");
+
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      // 🔹 Aquí puedes conectar con tu backend real (API / Airtable / DB)
+      // Ejemplo placeholder seguro (no rompe nada en producción):
+      console.log("[FrontDesk Setup] Submitted data:", Object.fromEntries(formData));
+
+      setStatus("success");
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm md:p-6 md:text-base"
-    >
-      <h3 className="text-lg font-semibold text-slate-50">{t.title}</h3>
-      <p className="text-xs text-slate-400 md:text-sm">{t.subtitle}</p>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Header */}
+      <header className="space-y-2">
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+          {t.title}
+        </h2>
+        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
+          {t.subtitle}
+        </p>
+      </header>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="space-y-1">
-          <label className="block text-xs font-medium text-slate-300">
+      {/* Business section */}
+      <section className="space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {t.businessSection}
+        </h3>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
             {t.businessName}
           </label>
           <input
             name="businessName"
-            value={form.businessName}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
+            required
+            placeholder={t.businessNamePlaceholder}
+            className="fd-input"
           />
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-xs font-medium text-slate-300">
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
             {t.website}
           </label>
           <input
             name="website"
-            value={form.website}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
+            type="url"
+            placeholder={t.websitePlaceholder}
+            className="fd-input"
           />
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-xs font-medium text-slate-300">
-            {t.receptionistName}
-          </label>
-          <input
-            name="receptionistName"
-            value={form.receptionistName}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label className="block text-xs font-medium text-slate-300">
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
             {t.industry}
           </label>
           <input
             name="industry"
-            value={form.industry}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
+            placeholder={t.industryPlaceholder}
+            className="fd-input"
           />
         </div>
+      </section>
 
-        <div className="space-y-1 md:col-span-2">
-          <label className="block text-xs font-medium text-slate-300">
-            {t.mainPurpose}
-          </label>
-          <textarea
-            name="mainPurpose"
-            value={form.mainPurpose}
-            onChange={handleChange}
-            rows={2}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
-          />
-        </div>
+      {/* Phone & contact */}
+      <section className="space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {t.phoneSection}
+        </h3>
 
-        <div className="space-y-1">
-          <label className="block text-xs font-medium text-slate-300">
-            {t.callVolume}
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
+            {t.mainPhone}
           </label>
           <input
-            name="callVolume"
-            value={form.callVolume}
-            onChange={handleChange}
-            placeholder={lang === "en" ? "e.g. 800–1,200" : "ej. 800–1,200"}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
+            name="mainPhone"
+            type="tel"
+            placeholder={t.mainPhonePlaceholder}
+            className="fd-input"
           />
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-xs font-medium text-slate-300">
-            {t.crm}
-          </label>
-          <input
-            name="crm"
-            value={form.crm}
-            onChange={handleChange}
-            placeholder={
-              lang === "en" ? "e.g. HubSpot, Zoho, Google" : "ej. HubSpot, Zoho"
-            }
-            className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
+              {t.country}
+            </label>
+            <input
+              name="country"
+              placeholder={t.countryPlaceholder}
+              className="fd-input"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
+              {t.timezone}
+            </label>
+            <input
+              name="timezone"
+              placeholder={t.timezonePlaceholder}
+              className="fd-input"
+            />
+          </div>
         </div>
+      </section>
+
+      {/* Volume & channels */}
+      <section className="space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {t.volumeSection}
+        </h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
+              {t.callsPerDay}
+            </label>
+            <input
+              name="callsPerDay"
+              type="number"
+              min={0}
+              placeholder={t.callsPerDayPlaceholder}
+              className="fd-input"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
+              {t.channelsLabel}
+            </label>
+            <div className="grid grid-cols-1 gap-2 text-sm text-slate-700 dark:text-slate-200">
+              <label className="inline-flex items-center gap-2">
+                <input type="checkbox" name="channels" value="phone" />
+                <span>{t.chPhone}</span>
+              </label>
+              <label className="inline-flex items-center gap-2">
+                <input type="checkbox" name="channels" value="whatsapp" />
+                <span>{t.chWhatsApp}</span>
+              </label>
+              <label className="inline-flex items-center gap-2">
+                <input type="checkbox" name="channels" value="email" />
+                <span>{t.chEmail}</span>
+              </label>
+              <label className="inline-flex items-center gap-2">
+                <input type="checkbox" name="channels" value="sms" />
+                <span>{t.chSms}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Language & tone */}
+      <section className="space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {t.languageSection}
+        </h3>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
+            {t.primaryLanguage}
+          </label>
+          <select name="primaryLanguage" className="fd-input">
+            <option value="es">Español (default)</option>
+            <option value="en">English</option>
+            <option value="bilingual">
+              {isEs ? "Bilingüe: Inglés + Español" : "Bilingual: English + Spanish"}
+            </option>
+          </select>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            {t.primaryLanguageHelp}
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-100">
+            {t.toneLabel}
+          </label>
+          <select name="tone" className="fd-input">
+            <option value="pro-warm">{t.toneOption1}</option>
+            <option value="friendly">{t.toneOption2}</option>
+            <option value="ultra-formal">{t.toneOption3}</option>
+          </select>
+        </div>
+      </section>
+
+      {/* Status & submit */}
+      {status === "success" && (
+        <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          {t.success}
+        </p>
+      )}
+      {status === "error" && (
+        <p className="text-xs font-medium text-red-600 dark:text-red-400">
+          {t.error}
+        </p>
+      )}
+
+      <div className="flex justify-end pt-2">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="inline-flex items-center justify-center rounded-md border border-transparent bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-700 disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? t.submitting : t.submit}
+        </button>
       </div>
-
-      <button
-        type="submit"
-        className="mt-2 inline-flex w-full items-center justify-center rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-cyan-400 md:w-auto"
-      >
-        {t.button}
-      </button>
     </form>
   );
 }
+
+export default AISetupForm;
