@@ -1,9 +1,9 @@
-// app/components/BackToHome.tsx
+// app/components/BackToHomeButton.tsx
 "use client";
 
 import Link from "next/link";
 
-export default function BackToHome() {
+export default function BackToHomeButton() {
   return (
     <div className="mb-4">
       <Link
