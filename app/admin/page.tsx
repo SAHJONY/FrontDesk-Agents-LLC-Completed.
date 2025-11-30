@@ -1,100 +1,144 @@
-// app/admin/page.tsx
+"use client";
+
 import Link from "next/link";
+import BackToHome from "../components/BackToHome";
+import { useLang } from "../components/LangProvider";
 
-export default function AdminPage() {
+export default function OwnerDashboardPage() {
+  const { lang } = useLang();
+  const isEs = lang === "es";
+
+  const t = {
+    title: isEs
+      ? "Owner Command Center – FrontDesk Agents"
+      : "Owner Command Center – FrontDesk Agents",
+    subtitle: isEs
+      ? "Panel central para ver el impacto real de tu recepcionista IA y controlar los ajustes clave del sistema."
+      : "Central panel to see the real impact of your AI receptionist and control key system settings.",
+    kpiTitle: isEs ? "Métricas en tiempo casi real" : "Near real-time metrics",
+    configTitle: isEs ? "Controles del sistema" : "System controls",
+    channelsTitle: isEs ? "Canales & Integraciones" : "Channels & Integrations",
+  };
+
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-12 pt-8">
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300/80">
-            OWNER ADMIN DASHBOARD
-          </p>
-          <h1 className="text-xl font-semibold text-slate-50">
-            Control Center del dueño · Configuración global
+    <div className="bg-slate-950 text-slate-50 min-h-[calc(100vh-4rem)]">
+      <div className="mx-auto max-w-7xl px-4 py-8 space-y-6">
+        <BackToHome />
+
+        <header className="space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-50">
+            {t.title}
           </h1>
-          <p className="mt-1 text-xs text-slate-400">
-            Desde aquí controlas industrias activas, canales, precios,
-            límites de llamadas y equipos. Listo para conectar con tu backend.
+          <p className="text-sm sm:text-base text-slate-300 max-w-3xl">
+            {t.subtitle}
           </p>
+        </header>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-start">
+          {/* LEFT: KPIs */}
+          <section className="fd-card p-5 space-y-4">
+            <h2 className="text-sm font-semibold text-slate-100 uppercase tracking-wide">
+              {t.kpiTitle}
+            </h2>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-3">
+                <p className="text-[11px] text-slate-400">
+                  {isEs ? "Llamadas atendidas hoy" : "Calls handled today"}
+                </p>
+                <p className="mt-1 text-2xl font-semibold text-emerald-400">124</p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {isEs ? "Promedio de respuesta < 4s." : "Avg. answer time &lt; 4s."}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-3">
+                <p className="text-[11px] text-slate-400">
+                  {isEs ? "Citas / leads cualificados" : "Qualified appointments / leads"}
+                </p>
+                <p className="mt-1 text-2xl font-semibold text-amber-300">57</p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {isEs ? "Integrado a tu CRM." : "Synced to your CRM."}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-3">
+                <p className="text-[11px] text-slate-400">
+                  {isEs ? "Llamadas perdidas" : "Missed calls"}
+                </p>
+                <p className="mt-1 text-2xl font-semibold text-sky-400">0</p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {isEs ? "Reintentos automáticos activos." : "Automatic retries active."}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 space-y-2">
+              <p className="text-xs font-semibold text-slate-200">
+                {isEs ? "Vista de auditoría y exportación" : "Audit view & export"}
+              </p>
+              <p className="text-xs text-slate-300">
+                {isEs
+                  ? "En producción, aquí ves el log completo de llamadas, WhatsApp y emails con filtros avanzados por operador, resultado, fuente y campaña. Además puedes exportar CSV/JSON auditables."
+                  : "In production, this is where you see full call, WhatsApp and email logs with advanced filters by operator, outcome, source and campaign. You can also export audit-grade CSV/JSON."}
+              </p>
+            </div>
+          </section>
+
+          {/* RIGHT: CONFIG */}
+          <section className="fd-card p-5 space-y-4">
+            <h2 className="text-sm font-semibold text-slate-100 uppercase tracking-wide">
+              {t.configTitle}
+            </h2>
+
+            <div className="space-y-4 text-xs text-slate-300">
+              <div className="rounded-lg border border-slate-800 bg-slate-900/80 p-3">
+                <p className="font-semibold text-slate-100">
+                  {isEs ? "Idiomas & tono del agente" : "Agent languages & tone"}
+                </p>
+                <p className="mt-1">
+                  {isEs
+                    ? "Definir idiomas principales (Inglés, Español y +100 idiomas en el back-end) y el tono por vertical (clínicas, legal, real estate, servicios)."
+                    : "Define primary languages (English, Spanish and 100+ back-end languages) and tone per vertical (clinics, legal, real estate, services)."}
+                </p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {isEs
+                    ? "En el código actual esto es UI; la lógica real se conecta a tu orquestador de IA."
+                    : "In the current code this is UI; real logic plugs into your AI orchestrator."}
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-slate-800 bg-slate-900/80 p-3">
+                <p className="font-semibold text-slate-100">
+                  {t.channelsTitle}
+                </p>
+                <p className="mt-1">
+                  {isEs
+                    ? "Teléfono (Twilio/Bland), WhatsApp Business API, SMS, email (Outlook/Google), y CRMs como HubSpot, Salesforce o tu propio stack."
+                    : "Phone (Twilio/Bland), WhatsApp Business API, SMS, email (Outlook/Google), and CRMs like HubSpot, Salesforce or your own stack."}
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-slate-800 bg-slate-900/80 p-3">
+                <p className="font-semibold text-slate-100">
+                  {isEs ? "Planes & facturación" : "Plans & billing"}
+                </p>
+                <p className="mt-1">
+                  {isEs
+                    ? "Control central para activar/desactivar sucursales, bundles de agentes IA y límites de minutos/canales."
+                    : "Central control to enable/disable locations, AI agent bundles and minutes/channel limits."}
+                </p>
+                <Link
+                  href="/pricing"
+                  className="mt-2 inline-flex items-center justify-center rounded-md border border-slate-600 px-3 py-1.5 text-[11px] font-semibold text-slate-100 hover:border-slate-300 hover:bg-slate-900/60 transition"
+                >
+                  {isEs ? "Ver estructura de precios" : "View pricing structure"}
+                </Link>
+              </div>
+            </div>
+          </section>
         </div>
-        <Link
-          href="/"
-          className="rounded-full border border-slate-600/70 px-3 py-1.5 text-xs font-medium text-slate-100 hover:border-cyan-400 hover:text-cyan-200"
-        >
-          ← Back to Home
-        </Link>
       </div>
-
-      {/* KPI CARDS */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-          <p className="text-[11px] text-slate-400">Llamadas hoy</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-50">382</p>
-          <p className="mt-1 text-[11px] text-emerald-400">
-            +18% vs. promedio 7 días
-          </p>
-        </div>
-        <div className="rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-          <p className="text-[11px] text-slate-400">Show-up rate citas</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-50">92%</p>
-          <p className="mt-1 text-[11px] text-cyan-300">
-            Objetivo mínimo: 85%
-          </p>
-        </div>
-        <div className="rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-          <p className="text-[11px] text-slate-400">Revenue atribuido al AI</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-50">
-            $128,400
-          </p>
-          <p className="mt-1 text-[11px] text-slate-400">Últimos 30 días</p>
-        </div>
-        <div className="rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-          <p className="text-[11px] text-slate-400">Industrias activas</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-50">4</p>
-          <p className="mt-1 text-[11px] text-slate-400">
-            Médica, Legal, Real Estate, Servicios
-          </p>
-        </div>
-      </div>
-
-      {/* CONFIG BLOCKS */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        <div className="space-y-3 rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-          <p className="text-xs font-semibold text-slate-200">
-            Configuración de Canales
-          </p>
-          <p className="text-[11px] text-slate-400">
-            Activa o desactiva canales globalmente. Aquí luego conectamos tu
-            backend (Twilio, WhatsApp, email, etc.).
-          </p>
-          <ul className="space-y-2 text-[11px] text-slate-300">
-            <li>✅ Teléfono · Números DID activos</li>
-            <li>✅ WhatsApp Business · Integrado</li>
-            <li>✅ Email · Inbound/Outbound</li>
-            <li>⏳ SMS · En preparación</li>
-          </ul>
-        </div>
-
-        <div className="space-y-3 rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-          <p className="text-xs font-semibold text-slate-200">
-            Planes & Pricing (solo Owner)
-          </p>
-          <p className="text-[11px] text-slate-400">
-            Control interno de planes para clientes: Starter, Professional,
-            Enterprise. Aquí luego conectamos Stripe/HubSpot.
-          </p>
-          <ul className="space-y-2 text-[11px] text-slate-300">
-            <li>Starter · $399/mo · 1 AI receptionist</li>
-            <li>Professional · $899/mo · 3 agentes + multilenguaje</li>
-            <li>Enterprise · $1,799/mo · ilimitado + SLA</li>
-          </ul>
-        </div>
-      </div>
-
-      <p className="mt-5 text-[11px] text-slate-500">
-        Próximo paso técnico: conectar estos bloques con tus APIs reales (calls,
-        billing, CRM) y proteger la ruta <code>/admin</code> con auth.
-      </p>
     </div>
   );
 }
