@@ -1,4 +1,4 @@
-// app/components/ackToHome.tsx
+// app/components/BackToHome.tsx
 "use client";
 
 import Link from "next/link";
