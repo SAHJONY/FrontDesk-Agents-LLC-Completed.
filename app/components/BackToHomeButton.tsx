@@ -1,17 +1,20 @@
-// app/components/BackToHomeButton.tsx
 "use client";
 
 import Link from "next/link";
+import { useLang } from "./LangProvider";
 
-export default function BackToHomeButton() {
+export default function BackToHome() {
+  const { lang } = useLang();
+  const isEs = lang === "es";
+
   return (
-    <div className="mt-6">
+    <div className="mb-4">
       <Link
         href="/"
-        className="inline-flex items-center gap-2 rounded-full border border-slate-600 bg-slate-900/70 px-4 py-2 text-xs font-medium text-slate-100 shadow-sm hover:border-cyan-400 hover:text-cyan-300 dark:bg-slate-800/80"
+        className="inline-flex items-center gap-1 rounded-md border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-100 hover:border-slate-300 hover:bg-slate-900/60 transition"
       >
-        <span className="text-lg">←</span>
-        <span>Back to Home</span>
+        <span>←</span>
+        <span>{isEs ? "Volver al inicio" : "Back to home"}</span>
       </Link>
     </div>
   );
