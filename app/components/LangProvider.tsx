@@ -1,72 +1,28 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useState } from "react";
 
-export type Lang = "es" | "en";
+type SupportedLang = "es" | "en";
 
-interface LangContextValue {
-  lang: Lang;
-  setLang: (lang: Lang) => void;
-  toggleLang: () => void;
+interface LangContextProps {
+  lang: SupportedLang;
+  setLang: (lang: SupportedLang) => void;
 }
 
-const LangContext = createContext<LangContextValue | undefined>(undefined);
+const LangContext = createContext<LangContextProps | undefined>(undefined);
 
-const STORAGE_KEY = "frontdesk-lang";
-
-function getInitialLang(): Lang {
-  if (typeof window === "undefined") return "es";
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY) as Lang | null;
-    if (stored === "es" || stored === "en") return stored;
-
-    // Detección básica por navegador
-    const navLang = navigator.language.toLowerCase();
-    if (navLang.startsWith("es")) return "es";
-    return "en";
-  } catch {
-    return "es";
-  }
-}
-
-export default function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("es");
-
-  useEffect(() => {
-    setLangState(getInitialLang());
-  }, []);
-
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, lang);
-    } catch {
-      // ignorar errores
-    }
-  }, [lang]);
-
-  const setLang = (next: Lang) => {
-    setLangState(next);
-  };
-
-  const toggleLang = () => {
-    setLangState((prev) => (prev === "es" ? "en" : "es"));
-  };
-
-  const value: LangContextValue = { lang, setLang, toggleLang };
-
-  return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
-}
-
-export function useLang(): LangContextValue {
+export function useLang() {
   const ctx = useContext(LangContext);
-  if (!ctx) {
-    throw new Error("useLang must be used within LangProvider");
-  }
+  if (!ctx) throw new Error("useLang must be used within LangProvider");
   return ctx;
+}
+
+export default function LangProvider({ children }: { children: React.ReactNode }) {
+  const [lang, setLang] = useState<SupportedLang>("es");
+
+  return (
+    <LangContext.Provider value={{ lang, setLang }}>
+      {children}
+    </LangContext.Provider>
+  );
 }
