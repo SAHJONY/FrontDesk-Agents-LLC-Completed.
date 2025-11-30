@@ -1,15 +1,9 @@
 "use client";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import AISetupForm from "../components/AISetupForm";
 import BackToHome from "../components/BackToHome";
 import { useLang } from "../components/LangProvider";
-
-export const metadata: Metadata = {
-  title: "FrontDesk Agents – AI Setup",
-  description: "Configure your FrontDesk AI Receptionist in 60 seconds.",
-};
 
 export default function SetupPage() {
   const { lang } = useLang();
@@ -39,12 +33,13 @@ export default function SetupPage() {
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] items-start">
-          {/* Form */}
+          {/* Formulario principal */}
           <section className="fd-card p-6 sm:p-7">
+            {/* Forzamos el tipo al union que espera el formulario */}
             <AISetupForm lang={lang as "es" | "en"} />
           </section>
 
-          {/* Visual side panel */}
+          {/* Panel lateral visual / explicativo */}
           <section className="fd-card bg-slate-900/80 border border-slate-800 p-5 space-y-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-sky-300">
               FrontDesk Owner View
