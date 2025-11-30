@@ -2,14 +2,22 @@
 
 import Link from "next/link";
 
-export default function BackToHome() {
+type BackToHomeButtonProps = {
+  href?: string;
+  label?: string;
+};
+
+export default function BackToHomeButton({
+  href = "/",
+  label = "← Back to Home",
+}: BackToHomeButtonProps) {
   return (
     <div className="mb-4">
       <Link
-        href="/"
+        href={href}
         className="inline-flex items-center gap-1 rounded-md border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-100 hover:bg-slate-800"
       >
-        ← Back to Home
+        {label}
       </Link>
     </div>
   );
