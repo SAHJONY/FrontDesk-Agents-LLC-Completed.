@@ -1,86 +1,68 @@
-"use client";
-
-import Link from "next/link";
+import type { Metadata } from "next";
 import AISetupForm from "../components/AISetupForm";
-import BackToHome from "../components/BackToHome";
-import { useLang } from "../components/LangProvider";
+import BackToHomeButton from "../components/BackToHomeButton";
+
+export const metadata: Metadata = {
+  title: "FrontDesk Agents – AI Setup",
+  description: "Configure your FrontDesk AI Receptionist in 60 seconds."
+};
 
 export default function SetupPage() {
-  const { lang } = useLang();
-  const isEs = lang === "es";
-
-  const t = {
-    title: isEs
-      ? "Configuración inicial de tu Agente IA"
-      : "Initial configuration of your AI Agent",
-    subtitle: isEs
-      ? "Completa estos datos y tu recepcionista IA podrá empezar a atender llamadas, WhatsApp y correos como si fuera parte de tu equipo."
-      : "Fill in these details and your AI receptionist can start handling calls, WhatsApp and emails like part of your team.",
-  };
+  // Idioma por defecto del asistente en el formulario
+  const lang: "en" | "es" = "es";
 
   return (
-    <div className="bg-slate-950 text-slate-50 min-h-[calc(100vh-4rem)]">
-      <div className="mx-auto max-w-5xl px-4 py-8">
-        <BackToHome />
+    <main className="min-h-screen bg-slate-950 text-slate-50">
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <BackToHomeButton />
 
-        <header className="mb-6 space-y-2">
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-50">
-            {t.title}
+        <header className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+            Configure Your AI Receptionist
           </h1>
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl">
-            {t.subtitle}
+          <p className="mt-2 text-sm text-slate-300 max-w-2xl">
+            Tell us about your business and we’ll generate the perfect AI phone agent
+            script, flows and inbox. You can adjust everything later from your
+            Command Center.
           </p>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] items-start">
-          {/* Formulario principal */}
+        <section className="grid gap-6 md:grid-cols-2">
+          {/* Formulario */}
           <section className="fd-card p-6 sm:p-7">
-            {/* Forzamos el tipo al union que espera el formulario */}
-            <AISetupForm lang={lang as "es" | "en"} />
+            <AISetupForm lang={lang} />
           </section>
 
-          {/* Panel lateral visual / explicativo */}
-          <section className="fd-card bg-slate-900/80 border border-slate-800 p-5 space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-sky-300">
-              FrontDesk Owner View
-            </p>
-            <p className="text-xs text-slate-300">
-              {isEs
-                ? "Los datos que completes aquí se usan para entrenar a tu recepcionista IA y conectar con tus canales reales (teléfono, WhatsApp, email, calendario, CRM)."
-                : "The details you provide here are used to train your AI receptionist and connect to your real channels (phone, WhatsApp, email, calendar, CRM)."}
-            </p>
-            <ul className="text-xs text-slate-300 space-y-1.5">
-              <li>
-                • {isEs ? "Número de negocio y horarios de atención." : "Business phone and hours of operation."}
-              </li>
-              <li>
-                •{" "}
-                {isEs
-                  ? "Idiomas principales de tus clientes (más de 100 idiomas soportados en back-end)."
-                  : "Primary languages of your customers (100+ languages supported in the back-end)."}
-              </li>
-              <li>
-                •{" "}
-                {isEs
-                  ? "Conexión a tu CRM, calendario y herramientas actuales."
-                  : "Connection to your existing CRM, calendar and tools."}
-              </li>
-              <li>
-                •{" "}
-                {isEs
-                  ? "Políticas sobre emergencias, urgencias y escalamiento a humanos."
-                  : "Policies for emergencies, urgency and human escalation."}
-              </li>
-            </ul>
-
-            <p className="text-[11px] text-slate-500">
-              {isEs
-                ? "En producción, este módulo se conecta a tu back-end real (Twilio, WhatsApp Business API, Stripe, HubSpot, etc.). Este formulario es seguro para usar en Vercel sin romper el build."
-                : "In production, this module connects to your real back-end (Twilio, WhatsApp Business API, Stripe, HubSpot, etc.). This form is safe to use on Vercel without breaking the build."}
-            </p>
+          {/* Visual / demo placeholder */}
+          <section className="fd-card p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-100 mb-2">
+                Live preview
+              </h2>
+              <p className="text-xs text-slate-300 mb-4">
+                Aquí verás un preview de cómo tu agente IA saluda, confirma datos y
+                agenda citas según la información que vas completando.
+              </p>
+            </div>
+            <div className="rounded-lg border border-slate-800 bg-slate-900/70 p-4 text-xs text-slate-200 space-y-2">
+              <p>
+                <span className="font-semibold text-sky-400">AI:</span> FrontDesk
+                Agents, buenos días, gracias por llamar a su clínica. ¿En qué puedo
+                ayudarle hoy?
+              </p>
+              <p>
+                <span className="font-semibold text-emerald-400">Cliente:</span> Quiero
+                agendar una cita para la próxima semana.
+              </p>
+              <p>
+                <span className="font-semibold text-sky-400">AI:</span> Perfecto, con
+                gusto. ¿Cuál es su nombre completo y el mejor número para
+                confirmaciones?
+              </p>
+            </div>
           </section>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
