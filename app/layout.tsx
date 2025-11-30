@@ -24,7 +24,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-slate-950 text-slate-50`}>
         <ThemeProvider>
           <LangProvider>
-            <div className="min-h-screen flex flex-col bg-slate-950 text-slate-50">
+            <div className="min-h-screen flex flex-col">
               <SiteHeader />
               <main className="flex-1">{children}</main>
               <SiteFooter />
