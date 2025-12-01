@@ -1,51 +1,54 @@
 // lib/metrics.ts
-import type { CallEventFields } from "./airtable";
-import { callEventsTable } from "./airtable";
+
+import { getTodayStats } from "./airtable";
 
 export interface DashboardMetrics {
   callsHandledToday: number;
   bookedAppointments: number;
-  missedCallsRecoveredPercent: number;
+  recoveryRate: number; // porcentaje 0–100
 }
 
 /**
- * Devuelve la fecha de hoy en formato YYYY-MM-DD (zona UTC sencilla).
- * Si quieres usar zona local, ajusta aquí.
+ * Lee Airtable ("Call Events") y genera las métricas del dashboard.
+ * Ajusta aquí las reglas según los nombres de tus campos/estados reales.
  */
-function todayISO(): string {
-  const now = new Date();
-  return now.toISOString().slice(0, 10);
-}
+export async function getDashboardMetrics(): Promise<DashboardMetrics> {
+  const records = await getTodayStats();
 
-export async function getTodayMetrics(): Promise<DashboardMetrics> {
-  const date = todayISO();
+  if (!records || records.length === 0) {
+    return {
+      callsHandledToday: 0,
+      bookedAppointments: 0,
+      recoveryRate: 0
+    };
+  }
 
-  const records = await callEventsTable()
-    .select({
-      filterByFormula: `IS_SAME({Date}, "${date}", "day")`,
-    })
-    .all();
+  const total = records.length;
+  let booked = 0;
+  let missed = 0;
+  let recovered = 0;
 
-  const events = records.map((r) => r.fields as CallEventFields);
+  for (const rec of records) {
+    const statusRaw = (rec.get("Status") as string | undefined) ?? "";
+    const status = statusRaw.toLowerCase();
 
-  const callsHandledToday = events.length;
+    // Ejemplo: si en Airtable usas "Booked" o "Appointment Booked"
+    if (status.includes("booked")) booked++;
 
-  const bookedAppointments = events.filter(
-    (e) => e.Status === "booked"
-  ).length;
+    // Ejemplo: si marcas las llamadas perdidas como "Missed"
+    if (status.includes("missed")) missed++;
 
-  const missed = events.filter((e) => e.Status === "missed").length;
+    // Campo booleano opcional "Recovered" que marcas cuando se recupera la llamada
+    const recoveredFlag = (rec.get("Recovered") as boolean | undefined) ?? false;
+    if (recoveredFlag) recovered++;
+  }
 
-  const recovered = events.filter(
-    (e) => e.RecoveredFromMissed && e.Status === "booked"
-  ).length;
-
-  const missedCallsRecoveredPercent =
+  const recoveryRate =
     missed > 0 ? Math.round((recovered / missed) * 100) : 0;
 
   return {
-    callsHandledToday,
-    bookedAppointments,
-    missedCallsRecoveredPercent,
+    callsHandledToday: total,
+    bookedAppointments: booked,
+    recoveryRate
   };
 }
