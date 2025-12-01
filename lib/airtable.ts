@@ -1,26 +1,70 @@
 // lib/airtable.ts
+
 import Airtable from "airtable";
 
-if (!process.env.AIRTABLE_API_KEY || !process.env.AIRTABLE_BASE_ID) {
-  throw new Error("AIRTABLE_API_KEY and AIRTABLE_BASE_ID must be set");
+const apiKey = process.env.AIRTABLE_API_KEY;
+const baseId = process.env.AIRTABLE_BASE_ID;
+
+if (!apiKey || !baseId) {
+  console.warn(
+    "[Airtable] AIRTABLE_API_KEY o AIRTABLE_BASE_ID no están configurados. Se omitirán las escrituras."
+  );
 }
 
-const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
-  process.env.AIRTABLE_BASE_ID
-);
+const base = apiKey && baseId ? new Airtable({ apiKey }).base(baseId) : null;
 
-export const callEventsTable = () => base("CallEvents");
+/**
+ * Obtiene la instancia de base de Airtable o lanza error si no está configurada.
+ */
+export function getAirtableBase() {
+  if (!base) {
+    throw new Error(
+      "[Airtable] Base no configurada. Revisa AIRTABLE_API_KEY y AIRTABLE_BASE_ID."
+    );
+  }
+  return base;
+}
 
-// Ajusta estos tipos a tu esquema real si quieres
-export type CallDirection = "inbound" | "outbound";
-export type CallStatus = "completed" | "missed" | "voicemail" | "booked";
+/**
+ * Crea un registro en la tabla "Call Events" con la info de una llamada
+ * (Bland.ai / Twilio / etc.).
+ */
+export async function createCallEvent(record: {
+  from?: string;
+  to?: string;
+  direction?: string;
+  status?: string;
+  durationSeconds?: number;
+  recordingUrl?: string;
+  transcript?: string;
+  provider?: string;
+  meta?: any;
+}) {
+  if (!base) {
+    console.warn(
+      "[Airtable] Base no configurada. createCallEvent() se omite en runtime."
+    );
+    return;
+  }
 
-export interface CallEventFields {
-  Phone?: string;
-  Direction?: CallDirection;
-  Status?: CallStatus;
-  Source?: "bland" | "twilio";
-  Date?: string; // ISO date string (YYYY-MM-DD)
-  RecoveredFromMissed?: boolean;
-  RawPayload?: string;
+  const safeMeta =
+    record.meta && typeof record.meta === "object"
+      ? JSON.stringify(record.meta)
+      : "{}";
+
+  await base("Call Events").create([
+    {
+      fields: {
+        From: record.from ?? "",
+        To: record.to ?? "",
+        Direction: record.direction ?? "",
+        Status: record.status ?? "",
+        DurationSeconds: record.durationSeconds ?? null,
+        RecordingUrl: record.recordingUrl ?? "",
+        Transcript: record.transcript ?? "",
+        Provider: record.provider ?? "Bland.ai",
+        MetaJson: safeMeta,
+      },
+    },
+  ]);
 }
