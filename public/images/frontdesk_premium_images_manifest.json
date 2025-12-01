@@ -1,0 +1,163 @@
+[
+  {
+    "id": "office_scene_01",
+    "file": "office_scene_01.png",
+    "path": "/images/office_scene_01.png",
+    "role": "hero-secondary",
+    "alt": "Team in a modern office collaborating around a laptop"
+  },
+  {
+    "id": "office_scene_02",
+    "file": "office_scene_02.png",
+    "path": "/images/office_scene_02.png",
+    "role": "testimonial",
+    "alt": "Businesswoman in suit smiling during a meeting"
+  },
+  {
+    "id": "office_scene_03",
+    "file": "office_scene_03.png",
+    "path": "/images/office_scene_03.png",
+    "role": "ai-section",
+    "alt": "Two colleagues looking at a laptop with AI brain graphic"
+  },
+  {
+    "id": "office_scene_04",
+    "file": "office_scene_04.png",
+    "path": "/images/office_scene_04.png",
+    "role": "enterprise-meeting",
+    "alt": "Team in boardroom listening to a business presentation"
+  },
+  {
+    "id": "office_scene_05",
+    "file": "office_scene_05.png",
+    "path": "/images/office_scene_05.png",
+    "role": "lobby-clients",
+    "alt": "Receptionist greeting a client in a corporate lobby"
+  },
+  {
+    "id": "office_scene_06",
+    "file": "office_scene_06.png",
+    "path": "/images/office_scene_06.png",
+    "role": "engineering",
+    "alt": "Developer working at a desk with three code monitors"
+  },
+  {
+    "id": "office_scene_07",
+    "file": "office_scene_07.png",
+    "path": "/images/office_scene_07.png",
+    "role": "team-success",
+    "alt": "Diverse team celebrating and high fiving on a sofa"
+  },
+  {
+    "id": "office_scene_08",
+    "file": "office_scene_08.png",
+    "path": "/images/office_scene_08.png",
+    "role": "waiting-area",
+    "alt": "Clients and staff talking in a bright lobby waiting area"
+  },
+  {
+    "id": "office_scene_09",
+    "file": "office_scene_09.png",
+    "path": "/images/office_scene_09.png",
+    "role": "client-onboarding",
+    "alt": "Professional at laptop in meeting space with team in background"
+  },
+  {
+    "id": "office_scene_10",
+    "file": "office_scene_10.png",
+    "path": "/images/office_scene_10.png",
+    "role": "tablet-demo",
+    "alt": "Executive holding a tablet displaying FrontDesk Agents text"
+  },
+  {
+    "id": "office_scene_11",
+    "file": "office_scene_11.png",
+    "path": "/images/office_scene_11.png",
+    "role": "medical-meeting",
+    "alt": "Professional discussing at a table in a clinical style office"
+  },
+  {
+    "id": "office_scene_12",
+    "file": "office_scene_12.png",
+    "path": "/images/office_scene_12.png",
+    "role": "analytics-presentation",
+    "alt": "Executive presenting charts and graphs on a large screen"
+  },
+  {
+    "id": "office_scene_13",
+    "file": "office_scene_13.png",
+    "path": "/images/office_scene_13.png",
+    "role": "hero-main",
+    "alt": "Colleagues talking and smiling over coffee in an office kitchen"
+  },
+  {
+    "id": "office_scene_14",
+    "file": "office_scene_14.png",
+    "path": "/images/office_scene_14.png",
+    "role": "workflow-hero",
+    "alt": "Professional drawing workflow and website on glass wall"
+  },
+  {
+    "id": "office_scene_15",
+    "file": "office_scene_15.png",
+    "path": "/images/office_scene_15.png",
+    "role": "ideas-session",
+    "alt": "Team watching a colleague draw ideas on transparent board"
+  },
+  {
+    "id": "office_scene_16",
+    "file": "office_scene_16.png",
+    "path": "/images/office_scene_16.png",
+    "role": "hallway-business",
+    "alt": "Businessman walking down a bright corporate hallway"
+  },
+  {
+    "id": "office_scene_17",
+    "file": "office_scene_17.png",
+    "path": "/images/office_scene_17.png",
+    "role": "kitchen-chat",
+    "alt": "Two coworkers talking and smiling with coffee mugs"
+  },
+  {
+    "id": "office_scene_18",
+    "file": "office_scene_18.png",
+    "path": "/images/office_scene_18.png",
+    "role": "tablet-analytics",
+    "alt": "Businesswoman reviewing analytics on a tablet by a city window"
+  },
+  {
+    "id": "office_scene_19",
+    "file": "office_scene_19.png",
+    "path": "/images/office_scene_19.png",
+    "role": "standing-desk-dashboard",
+    "alt": "Professional at standing desk looking at analytics on monitor"
+  },
+  {
+    "id": "office_scene_20",
+    "file": "office_scene_20.png",
+    "path": "/images/office_scene_20.png",
+    "role": "focus-work",
+    "alt": "Focused professional typing on laptop in modern office"
+  },
+  {
+    "id": "medical_industry_concept",
+    "file": "medical_industry_concept.png",
+    "path": "/images/medical_industry_concept.png",
+    "role": "vertical-medical",
+    "alt": "AI sign on tablet at medical clinic reception desk at night"
+  },
+  {
+    "id": "business_impact_concept",
+    "file": "business_impact_concept.png",
+    "path": "/images/business_impact_concept.png",
+    "role": "ai-business-impact",
+    "alt": "Dark AI themed business concept with glowing graphics"
+  },
+  {
+    "id": "ai_hero_concept",
+    "file": "ai_hero_concept.png",
+    "path": "/images/ai_hero_concept.png",
+    "role": "ai-hero",
+    "alt": "Futuristic AI interface concept suitable for hero section"
+  }
+]
