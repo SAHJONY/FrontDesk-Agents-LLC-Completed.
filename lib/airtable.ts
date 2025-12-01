@@ -5,7 +5,7 @@ import Airtable from "airtable";
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 
-// Nombre de la tabla donde vamos a guardar los eventos de llamadas
+// Nombre de la tabla donde se guardan los eventos de llamadas
 const CALL_EVENTS_TABLE = "Call Events";
 
 if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
@@ -45,7 +45,8 @@ export interface CallEventPayload {
 }
 
 /**
- * Crea un registro en Airtable con la info de una llamada (Bland, Twilio, etc.)
+ * Crea un registro en Airtable con la información de una llamada
+ * (Bland.ai, Twilio, etc.)
  */
 export async function createCallEvent(payload: CallEventPayload) {
   const base = getAirtableBase();
