@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       recording_url,
       transcript,
       provider: provider || "bland.ai",
-      raw: body,
+      raw: body
     });
 
     return NextResponse.json({ ok: true }, { status: 200 });
