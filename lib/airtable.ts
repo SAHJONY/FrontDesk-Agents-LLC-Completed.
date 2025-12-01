@@ -5,18 +5,22 @@ import Airtable, { FieldSet, Records } from "airtable";
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 
-// Nombre de la tabla donde guardamos los eventos
+// Nombre de la tabla donde se guardan los eventos de llamada
 const CALL_EVENTS_TABLE = "Call Events";
 
-// Validación mínima
+// Export por si en algún sitio quieres el nombre de la tabla
+export const callEventsTable = CALL_EVENTS_TABLE;
+
 if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
-  console.warn("[Airtable] Faltan las variables de entorno requeridas.");
+  console.warn(
+    "[Airtable] Faltan AIRTABLE_API_KEY o AIRTABLE_BASE_ID. La integración no funcionará."
+  );
 }
 
 let base: Airtable.Base | null = null;
 
 /**
- * Inicializa Airtable (lazy-load)
+ * Inicializa Airtable de forma lazy
  */
 function getAirtableBase(): Airtable.Base | null {
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) return null;
@@ -30,7 +34,7 @@ function getAirtableBase(): Airtable.Base | null {
 }
 
 /**
- * Payload del Webhook (Bland.ai / Twilio)
+ * Payload que recibimos desde Bland.ai / Twilio / etc.
  */
 export interface CallEventPayload {
   from?: string;
@@ -45,13 +49,12 @@ export interface CallEventPayload {
 }
 
 /**
- * Inserta un registro en Airtable con el evento completo
+ * Crea un registro de evento de llamada en Airtable
  */
 export async function createCallEvent(payload: CallEventPayload) {
   const base = getAirtableBase();
-
   if (!base) {
-    console.warn("[Airtable] No hay configuración válida. No se guardó el evento.");
+    console.warn("[Airtable] Configuración no válida. Evento no guardado.");
     return;
   }
 
@@ -80,18 +83,15 @@ export async function createCallEvent(payload: CallEventPayload) {
   };
 
   try {
-    await base(CALL_EVENTS_TABLE).create([
-      {
-        fields
-      }
-    ]);
+    await base(CALL_EVENTS_TABLE).create([{ fields }]);
   } catch (err) {
     console.error("[Airtable] Error creando registro:", err);
   }
 }
 
 /**
- * Recuperar llamadas del día → para el Dashboard
+ * Devuelve todos los eventos de HOY (por fecha de creación)
+ * para alimentar el dashboard.
  */
 export async function getTodayStats() {
   const base = getAirtableBase();
