@@ -2,96 +2,86 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useLang } from "./LangProvider";
 import { useEffect, useState } from "react";
 
 export default function SiteHeader() {
   const { theme, setTheme } = useTheme();
-  const { lang, toggleLang } = useLang();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  // Evitar desajustes de hidratación con next-themes
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const isEs = lang === "es";
-
-  const t = {
-    brand: "FrontDesk Agents",
-    navDashboard: isEs ? "Command Center" : "Command Center",
-    navPricing: isEs ? "Planes" : "Pricing",
-    navIndustries: isEs ? "Industrias" : "Industries",
-    navSetup: isEs ? "Onboarding" : "Onboarding",
-    langLabel: isEs ? "ES" : "EN",
+  const toggleTheme = () => {
+    if (!mounted) return;
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
-    <header className="border-b border-slate-200/70 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur">
-      <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
-        {/* Logo + brand */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-xl bg-sky-600 bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center shadow-md shadow-sky-500/40">
-            <span className="text-xs font-bold text-white">FD</span>
+    <header className="sticky top-0 z-40 border-b border-slate-800/60 bg-slate-950/70 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Brand */}
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-bold text-slate-950 shadow-lg">
+            FD
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="font-semibold text-sm sm:text-base">
-              {t.brand}
+            <span className="text-sm font-semibold tracking-wide text-slate-50">
+              FrontDesk Agents
             </span>
-            <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
-              AI Reception • 24/7 Command Center
+            <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-cyan-300/90">
+              AI Receptionist Command Center
             </span>
           </div>
-        </Link>
+        </div>
 
         {/* Nav + actions */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <nav className="hidden sm:flex items-center gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+        <div className="flex items-center gap-4">
+          <nav className="hidden items-center gap-4 text-xs font-medium text-slate-200/80 sm:flex">
             <Link
-              href="/dashboard"
-              className="hover:text-sky-600 dark:hover:text-sky-400"
+              href="/industries"
+              className="rounded-md px-2 py-1 transition hover:bg-slate-900/80 hover:text-slate-50"
             >
-              {t.navDashboard}
+              Industries
             </Link>
             <Link
               href="/pricing"
-              className="hover:text-sky-600 dark:hover:text-sky-400"
+              className="rounded-md px-2 py-1 transition hover:bg-slate-900/80 hover:text-slate-50"
             >
-              {t.navPricing}
+              Pricing
             </Link>
             <Link
-              href="/industries"
-              className="hover:text-sky-600 dark:hover:text-sky-400"
+              href="/app/ai-agents"
+              className="rounded-md px-2 py-1 transition hover:bg-slate-900/80 hover:text-slate-50"
             >
-              {t.navIndustries}
+              AI Agents
             </Link>
             <Link
-              href="/setup"
-              className="hover:text-sky-600 dark:hover:text-sky-400"
+              href="/dashboard"
+              className="rounded-md px-2 py-1 transition hover:bg-slate-900/80 hover:text-slate-50"
             >
-              {t.navSetup}
+              Command Center
             </Link>
           </nav>
 
-          {/* Language toggle */}
+          {/* Theme toggle */}
           <button
             type="button"
-            onClick={toggleLang}
-            className="inline-flex items-center justify-center rounded-full border border-slate-300/80 dark:border-slate-600/80 px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase hover:border-sky-500 hover:text-sky-600 dark:hover:border-sky-400 dark:hover:text-sky-300"
+            onClick={toggleTheme}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-[11px] font-semibold text-slate-100 shadow-sm transition hover:border-cyan-400/70 hover:bg-slate-900"
+            aria-label="Toggle theme"
           >
-            {t.langLabel}
+            {mounted ? (theme === "dark" ? "🌙" : "☀️") : "…"}
           </button>
 
-          {/* Theme toggle */}
-          {mounted && (
-            <button
-              type="button"
-              onClick={() =>
-                setTheme(theme === "light" ? "dark" : "light")
-              }
-              className="inline-flex items-center justify-center rounded-full border border-slate-300/80 dark:border-slate-600/80 w-8 h-8 text-slate-600 dark:text-slate-200 hover:border-sky-500 hover:text-sky-500 dark:hover:border-sky-400 dark:hover:text-sky-300"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? "🌙" : "☀️"}
-            </button>
-          )}
+          {/* CTA */}
+          <Link
+            href="/setup"
+            className="hidden items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950 shadow-lg shadow-cyan-500/30 transition hover:brightness-110 sm:inline-flex"
+          >
+            Launch Your AI Desk
+          </Link>
         </div>
       </div>
     </header>
