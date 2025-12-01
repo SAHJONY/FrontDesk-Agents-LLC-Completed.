@@ -1,53 +1,66 @@
 // app/api/webhooks/call-events/route.ts
+import { NextResponse } from "next/server";
+import { storeCallFromBland } from "@/lib/blandEvents";
+// import { sendRescueSms } from "@/lib/missedCallRescue"; // lo definiremos luego
 
-import { NextRequest, NextResponse } from "next/server";
-import { createCallEvent } from "@/lib/airtable";
+// Env var simple para autenticar el webhook
+const WEBHOOK_SECRET = process.env.BLAND_WEBHOOK_SECRET;
 
-export const runtime = "nodejs";
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
+    if (!WEBHOOK_SECRET) {
+      console.warn(
+        "[call-events] BLAND_WEBHOOK_SECRET not set; rejecting webhook."
+      );
+      return NextResponse.json(
+        { error: "Webhook secret not configured" },
+        { status: 500 }
+      );
+    }
 
-    const {
-      from,
-      to,
-      status,
-      direction,
-      duration,
-      recording_url,
-      transcript,
-      provider,
-      ...rest
-    } = body || {};
+    // Sencillo shared-secret en header, puedes usar también firma HMAC si Bland lo soporta
+    const authHeader = req.headers.get("x-webhook-secret");
+    if (authHeader !== WEBHOOK_SECRET) {
+      console.warn("[call-events] Invalid webhook secret");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    await createCallEvent({
-      from,
-      to,
-      status,
-      direction,
-      duration:
-        typeof duration === "number"
-          ? duration
-          : typeof duration === "string"
-          ? Number(duration)
-          : undefined,
-      recording_url,
-      transcript,
-      provider: provider || "bland.ai",
-      raw: body
-    });
+    const body = (await req.json()) as any;
 
-    return NextResponse.json({ ok: true }, { status: 200 });
+    // Mapea el payload de Bland a nuestro tipo
+    const payload = {
+      call_id: body.call_id ?? body.id,
+      from: body.from ?? body.caller_number,
+      to: body.to ?? body.destination_number,
+      status: (body.status ?? "answered") as any,
+      transcript: body.transcript ?? null,
+      summary: body.summary ?? null,
+      revenue_estimate: body.revenue_estimate ?? null
+    };
+
+    // Si ya tienes multi-tenant: resuelve tenantId (por número, por API key, etc.)
+    const tenantId: string | undefined = undefined;
+
+    await storeCallFromBland(payload, { tenantId });
+
+    // Missed Call Rescue (hook point)
+    if (payload.status === "missed") {
+      // TODO: descomenta cuando tengas Twilio u otro proveedor
+      // await sendRescueSms({
+      //   to: payload.from,
+      //   callId: payload.call_id
+      // });
+      console.log(
+        "[call-events] Missed call detected, Rescue SMS would be triggered here."
+      );
+    }
+
+    return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[Webhook] Error en /api/webhooks/call-events:", error);
+    console.error("[call-events] Unexpected error:", error);
     return NextResponse.json(
-      { ok: false, error: "Webhook processing error" },
+      { error: "Internal error processing call event" },
       { status: 500 }
     );
   }
-}
-
-export async function GET() {
-  return NextResponse.json({ ok: true, endpoint: "call-events" });
 }
