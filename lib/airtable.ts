@@ -24,7 +24,7 @@ function getAirtableBase() {
 
   if (!base) {
     Airtable.configure({
-      apiKey: AIRTABLE_API_KEY,
+      apiKey: AIRTABLE_API_KEY
     });
     base = Airtable.base(AIRTABLE_BASE_ID);
   }
@@ -66,7 +66,7 @@ export async function createCallEvent(payload: CallEventPayload) {
     recording_url,
     transcript,
     provider,
-    raw,
+    raw
   } = payload;
 
   const fields: Record<string, any> = {
@@ -78,14 +78,14 @@ export async function createCallEvent(payload: CallEventPayload) {
     RecordingUrl: recording_url || "",
     Transcript: transcript || "",
     Provider: provider || "unknown",
-    MetaJson: raw ? JSON.stringify(raw).slice(0, 50000) : "",
+    MetaJson: raw ? JSON.stringify(raw).slice(0, 50000) : ""
   };
 
   try {
     await base(CALL_EVENTS_TABLE).create([
       {
-        fields,
-      },
+        fields
+      }
     ]);
   } catch (err) {
     console.error("[Airtable] Error creando Call Event:", err);
