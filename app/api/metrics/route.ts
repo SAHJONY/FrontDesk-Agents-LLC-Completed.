@@ -1,44 +1,27 @@
-// app/api/metrics/route.ts
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseClient";
+import { resolveTenantContextFromRequest } from "@/lib/tenantContext";
 
-// ❗ SUPOSICIONES DE ESQUEMA (ajusta a tu SQL real):
-// Tabla `calls`:
-//   - id (uuid)
-//   - tenant_id (uuid o text) -> multi-tenant
-//   - from_number (text)
-//   - status (text: 'answered' | 'missed' | 'voicemail')
-//   - summary (text, opcional)
-//   - revenue_estimate (numeric, opcional)
-//   - created_at (timestamptz)
-//
-// Tabla `leads`:
-//   - id, tenant_id, created_at, ... (usamos count por fecha)
-//
-// Tabla `appointments`:
-//   - id, tenant_id, start_time (timestamptz), ... (usamos count por fecha)
+function getDateRange(range: string | null) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-type CallStatus = "answered" | "missed" | "voicemail";
+  if (range === "7d") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 6);
+    return { start, end: now };
+  }
+  if (range === "30d") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 29);
+    return { start, end: now };
+  }
 
-interface Metrics {
-  totalCallsToday: number;
-  answeredCallsToday: number;
-  missedCallsToday: number;
-  newLeadsToday: number;
-  appointmentsToday: number;
-  estimatedRevenueToday: number;
-  currency: string;
+  // default: hoy
+  return { start: today, end: now };
 }
 
-interface RecentCall {
-  id: string;
-  when: string;
-  from: string;
-  status: CallStatus;
-  summary: string | null;
-}
-
-export async function GET() {
+export async function GET(req: Request) {
   if (!supabaseAdmin) {
     return NextResponse.json(
       { error: "Supabase not configured on server" },
@@ -47,28 +30,58 @@ export async function GET() {
   }
 
   try {
-    const now = new Date();
-    const startOfDay = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
+    const url = new URL(req.url);
+    const rangeParam = url.searchParams.get("range"); // "today" | "7d" | "30d"
+    const { start, end } = getDateRange(rangeParam);
+    const startIso = start.toISOString();
+    const endIso = end.toISOString();
+
+    const { tenantId } = await resolveTenantContextFromRequest(req);
+
+    const baseFilter = (query: any) => {
+      let q = query.gte("created_at", startIso).lte("created_at", endIso);
+      if (tenantId) {
+        q = q.eq("tenant_id", tenantId);
+      }
+      return q;
+    };
+
+    // Calls
+    const { data: calls, error: callsError } = await baseFilter(
+      supabaseAdmin
+        .from("calls")
+        .select("id, from_number, status, summary, revenue_estimate, created_at, tenant_id")
+        .order("created_at", { ascending: false })
     );
-    const startOfDayIso = startOfDay.toISOString();
 
-    // TODO: Si quieres filtrar por tenant, añade .eq("tenant_id", "<TENANT_ID>")
-    // o calcula tenant_id en función del dominio/usuario.
+    if (callsError) throw callsError;
 
-    // 1) Llamadas de hoy
-    const { data: calls, error: callsError } = await supabaseAdmin
-      .from("calls")
-      .select("id, from_number, status, summary, revenue_estimate, created_at")
-      .gte("created_at", startOfDayIso)
-      .order("created_at", { ascending: false });
+    // Leads
+    const leadsQuery = supabaseAdmin
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", startIso)
+      .lte("created_at", endIso);
 
-    if (callsError) {
-      console.error("[metrics] Error loading calls:", callsError);
-      throw callsError;
+    const { count: leadsCount, error: leadsError } = tenantId
+      ? leadsQuery.eq("tenant_id", tenantId)
+      : leadsQuery;
+
+    if (leadsError) throw leadsError;
+
+    // Appointments (usamos start_time como referencia)
+    let apptsQuery = supabaseAdmin
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .gte("start_time", startIso)
+      .lte("start_time", endIso);
+
+    if (tenantId) {
+      apptsQuery = apptsQuery.eq("tenant_id", tenantId);
     }
+
+    const { count: apptsCount, error: apptsError } = await apptsQuery;
+    if (apptsError) throw apptsError;
 
     const totalCallsToday = calls?.length ?? 0;
     const answeredCallsToday =
@@ -81,30 +94,7 @@ export async function GET() {
         0
       ) ?? 0;
 
-    // 2) Leads creados hoy
-    const { count: leadsCount, error: leadsError } = await supabaseAdmin
-      .from("leads")
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", startOfDayIso);
-
-    if (leadsError) {
-      console.error("[metrics] Error loading leads:", leadsError);
-      throw leadsError;
-    }
-
-    // 3) Citas de hoy
-    // Suposición: appointments.start_time almacena fecha/hora de la cita
-    const { count: apptsCount, error: apptsError } = await supabaseAdmin
-      .from("appointments")
-      .select("id", { count: "exact", head: true })
-      .gte("start_time", startOfDayIso);
-
-    if (apptsError) {
-      console.error("[metrics] Error loading appointments:", apptsError);
-      throw apptsError;
-    }
-
-    const metrics: Metrics = {
+    const metrics = {
       totalCallsToday,
       answeredCallsToday,
       missedCallsToday,
@@ -114,15 +104,17 @@ export async function GET() {
       currency: "USD"
     };
 
-    const recentCalls: RecentCall[] =
-      calls?.slice(0, 20).map((c) => ({
+    const recentCalls =
+      calls?.slice(0, 50).map((c) => ({
         id: String(c.id),
-        when: new Date(c.created_at).toLocaleTimeString("en-US", {
+        when: new Date(c.created_at).toLocaleString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
           hour: "2-digit",
           minute: "2-digit"
         }),
         from: c.from_number ?? "Unknown",
-        status: (c.status as CallStatus) ?? "answered",
+        status: c.status ?? "answered",
         summary: c.summary ?? null
       })) ?? [];
 
