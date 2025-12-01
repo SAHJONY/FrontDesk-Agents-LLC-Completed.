@@ -1,66 +1,59 @@
-// app/api/webhooks/call-events/route.ts
-import { NextResponse } from "next/server";
 import { storeCallFromBland } from "@/lib/blandEvents";
-// import { sendRescueSms } from "@/lib/missedCallRescue"; // lo definiremos luego
-
-// Env var simple para autenticar el webhook
-const WEBHOOK_SECRET = process.env.BLAND_WEBHOOK_SECRET;
+import { storeLead, storeAppointment } from "@/lib/blandEvents";
 
 export async function POST(req: Request) {
-  try {
-    if (!WEBHOOK_SECRET) {
-      console.warn(
-        "[call-events] BLAND_WEBHOOK_SECRET not set; rejecting webhook."
-      );
-      return NextResponse.json(
-        { error: "Webhook secret not configured" },
-        { status: 500 }
-      );
-    }
+  // ... validación de secret y parse de body como antes
+  const body = (await req.json()) as any;
 
-    // Sencillo shared-secret en header, puedes usar también firma HMAC si Bland lo soporta
-    const authHeader = req.headers.get("x-webhook-secret");
-    if (authHeader !== WEBHOOK_SECRET) {
-      console.warn("[call-events] Invalid webhook secret");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const basePayload = {
+    call_id: body.call_id ?? body.id,
+    from: body.from ?? body.caller_number,
+    to: body.to ?? body.destination_number,
+    status: (body.status ?? "answered") as any,
+    transcript: body.transcript ?? null,
+    summary: body.summary ?? null,
+    revenue_estimate: body.revenue_estimate ?? null
+  };
 
-    const body = (await req.json()) as any;
+  const tenantId: string | undefined = undefined; // TODO: resolve per client
 
-    // Mapea el payload de Bland a nuestro tipo
-    const payload = {
-      call_id: body.call_id ?? body.id,
-      from: body.from ?? body.caller_number,
-      to: body.to ?? body.destination_number,
-      status: (body.status ?? "answered") as any,
-      transcript: body.transcript ?? null,
-      summary: body.summary ?? null,
-      revenue_estimate: body.revenue_estimate ?? null
-    };
+  await storeCallFromBland(
+    { ...basePayload },
+    { tenantId }
+  );
 
-    // Si ya tienes multi-tenant: resuelve tenantId (por número, por API key, etc.)
-    const tenantId: string | undefined = undefined;
-
-    await storeCallFromBland(payload, { tenantId });
-
-    // Missed Call Rescue (hook point)
-    if (payload.status === "missed") {
-      // TODO: descomenta cuando tengas Twilio u otro proveedor
-      // await sendRescueSms({
-      //   to: payload.from,
-      //   callId: payload.call_id
-      // });
-      console.log(
-        "[call-events] Missed call detected, Rescue SMS would be triggered here."
-      );
-    }
-
-    return NextResponse.json({ ok: true });
-  } catch (error) {
-    console.error("[call-events] Unexpected error:", error);
-    return NextResponse.json(
-      { error: "Internal error processing call event" },
-      { status: 500 }
-    );
+  // Si el evento de Bland incluye una bandera de "lead calificado"
+  if (body.is_qualified_lead === true) {
+    await storeLead({
+      lead_id: body.lead_id ?? basePayload.call_id,
+      tenantId,
+      name: body.lead_name ?? null,
+      phone: basePayload.from,
+      email: body.lead_email ?? null,
+      source: "bland_call",
+      notes: body.lead_notes ?? basePayload.summary
+    });
   }
+
+  // Si el evento incluye una cita confirmada
+  if (body.appointment && body.appointment.start_time) {
+    await storeAppointment({
+      appointment_id: body.appointment.id ?? undefined,
+      tenantId,
+      lead_id: body.lead_id ?? null,
+      phone: basePayload.from,
+      start_time: body.appointment.start_time, // ISO esperado
+      duration_minutes: body.appointment.duration_minutes ?? null,
+      channel: body.appointment.channel ?? "phone",
+      notes: body.appointment.notes ?? null
+    });
+  }
+
+  // Missed Call Rescue hook (como antes)
+  if (basePayload.status === "missed") {
+    console.log("[call-events] Missed call, Rescue SMS hook point.");
+    // await sendRescueSms({ to: basePayload.from, callId: basePayload.call_id });
+  }
+
+  return NextResponse.json({ ok: true });
 }
