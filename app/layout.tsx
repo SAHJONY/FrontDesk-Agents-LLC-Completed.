@@ -5,12 +5,15 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { LangProvider } from "./components/LangProvider";
 import SiteHeader from "./components/SiteHeader";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
-  title: "FrontDesk Agents – AI Reception & Command Center",
+  title: "FrontDesk Agents – AI Receptionist Command Center",
   description:
-    "24/7 AI Receptionist & Command Center that answers calls, WhatsApp, SMS and email for your business in any language.",
+    "AI Receptionist 24/7 para negocios modernos. Atendemos llamadas, mensajes y leads mientras tú cierras ventas.",
 };
 
 export default function RootLayout({
@@ -23,13 +26,11 @@ export default function RootLayout({
       <body
         className={`${inter.className} bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50`}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider>
           <LangProvider>
             <div className="min-h-screen flex flex-col">
               <SiteHeader />
-              <main className="flex-1 max-w-6xl w-full mx-auto px-4 pb-12 pt-4 sm:pt-8">
-                {children}
-              </main>
+              <main className="flex-1">{children}</main>
             </div>
           </LangProvider>
         </ThemeProvider>
