@@ -4,8 +4,7 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
 type Lang = "en" | "es";
@@ -16,30 +15,30 @@ interface LangContextValue {
   toggleLang: () => void;
 }
 
-const LangContext = createContext<LangContextValue | undefined>(undefined);
+const LangContext = createContext<LangContextValue | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
 
-  useEffect(() => {
+  const setLang = (value: Lang) => {
+    setLangState(value);
     if (typeof window !== "undefined") {
-      const saved = window.localStorage.getItem("fd-lang");
+      window.localStorage.setItem("fda_lang", value);
+    }
+  };
+
+  const toggleLang = () => {
+    setLang(lang === "en" ? "es" : "en");
+  };
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = window.localStorage.getItem("fda_lang");
       if (saved === "en" || saved === "es") {
         setLangState(saved);
       }
     }
   }, []);
-
-  function setLang(next: Lang) {
-    setLangState(next);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("fd-lang", next);
-    }
-  }
-
-  function toggleLang() {
-    setLang(lang === "en" ? "es" : "en");
-  }
 
   return (
     <LangContext.Provider value={{ lang, setLang, toggleLang }}>
@@ -51,7 +50,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
 export function useLang() {
   const ctx = useContext(LangContext);
   if (!ctx) {
-    throw new Error("useLang must be used inside LangProvider");
+    throw new Error("useLang must be used within LangProvider");
   }
   return ctx;
 }
