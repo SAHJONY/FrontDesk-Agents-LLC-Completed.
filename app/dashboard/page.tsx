@@ -27,10 +27,13 @@ interface ApiResponse {
   recentCalls: RecentCall[];
 }
 
+type RangeOption = "today" | "7d" | "30d";
+
 export default function DashboardPage() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [range, setRange] = useState<RangeOption>("today");
 
   useEffect(() => {
     let cancelled = false;
@@ -39,7 +42,13 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         setErrorMsg(null);
-        const res = await fetch("/api/metrics", { cache: "no-store" });
+
+        const params = new URLSearchParams();
+        if (range) params.set("range", range);
+
+        const res = await fetch(`/api/metrics?${params.toString()}`, {
+          cache: "no-store"
+        });
 
         if (!res.ok) {
           throw new Error(`Bad status: ${res.status}`);
@@ -52,10 +61,14 @@ export default function DashboardPage() {
       } catch (err: any) {
         console.error("[Dashboard] Error loading /api/metrics:", err);
         if (!cancelled) {
-          setErrorMsg("No se pudieron cargar las métricas del Command Center.");
+          setErrorMsg(
+            "No se pudieron cargar las métricas del Command Center."
+          );
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
@@ -64,7 +77,7 @@ export default function DashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [range]);
 
   const metrics = data?.metrics;
 
@@ -88,18 +101,35 @@ export default function DashboardPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
-        {/* ESTADO */}
-        {loading && (
-          <p className="text-sm text-slate-300">
-            Cargando métricas del Command Center…
-          </p>
-        )}
+        {/* CONTROLES SUPERIORES */}
+        <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            {loading && (
+              <p className="text-sm text-slate-300">
+                Cargando métricas del Command Center…
+              </p>
+            )}
+            {!loading && !errorMsg && metrics && (
+              <p className="text-xs text-slate-400">
+                Rango:{" "}
+                {range === "today"
+                  ? "Hoy"
+                  : range === "7d"
+                  ? "Últimos 7 días"
+                  : "Últimos 30 días"}
+              </p>
+            )}
+          </div>
 
+          <RangeSelector range={range} onChange={setRange} />
+        </section>
+
+        {/* ERROR */}
         {errorMsg && !loading && (
           <div className="rounded-md border border-rose-500/40 bg-rose-950/40 px-3 py-2 text-sm text-rose-100">
             {errorMsg}
             <p className="mt-1 text-[11px] text-rose-200/80">
-              Revisa los logs de Vercel y la configuración de Supabase.
+              Revisa los logs de Vercel y la configuración de Supabase / RLS.
             </p>
           </div>
         )}
@@ -107,10 +137,7 @@ export default function DashboardPage() {
         {/* KPIs PRINCIPALES */}
         {metrics && (
           <section className="grid gap-4 text-xs sm:grid-cols-3 lg:grid-cols-6 sm:text-sm">
-            <MetricCard
-              label="Llamadas hoy"
-              value={metrics.totalCallsToday}
-            />
+            <MetricCard label="Llamadas" value={metrics.totalCallsToday} />
             <MetricCard
               label="Contestadas"
               value={metrics.answeredCallsToday}
@@ -120,14 +147,8 @@ export default function DashboardPage() {
               value={metrics.missedCallsToday}
               tone="danger"
             />
-            <MetricCard
-              label="Leads nuevos"
-              value={metrics.newLeadsToday}
-            />
-            <MetricCard
-              label="Citas hoy"
-              value={metrics.appointmentsToday}
-            />
+            <MetricCard label="Leads nuevos" value={metrics.newLeadsToday} />
+            <MetricCard label="Citas" value={metrics.appointmentsToday} />
             <MetricCard
               label="Ingresos estimados"
               value={metrics.estimatedRevenueToday}
@@ -144,8 +165,12 @@ export default function DashboardPage() {
                 Últimas llamadas
               </h2>
               <p className="text-[11px] text-slate-400">
-                Las filas se generan desde la tabla <code>calls</code> en
-                Supabase.
+                Filtrado por rango:{" "}
+                {range === "today"
+                  ? "Hoy"
+                  : range === "7d"
+                  ? "7 días"
+                  : "30 días"}
               </p>
             </div>
 
@@ -153,7 +178,7 @@ export default function DashboardPage() {
               <table className="min-w-full text-left text-xs sm:text-sm">
                 <thead className="border-b border-slate-800 bg-slate-900/80 text-slate-300">
                   <tr>
-                    <th className="px-3 py-2">Hora</th>
+                    <th className="px-3 py-2">Fecha / Hora</th>
                     <th className="px-3 py-2">Número</th>
                     <th className="px-3 py-2">Estado</th>
                     <th className="px-3 py-2">Resumen</th>
@@ -165,8 +190,12 @@ export default function DashboardPage() {
                       key={call.id}
                       className="border-t border-slate-800/70 hover:bg-slate-900"
                     >
-                      <td className="px-3 py-2 text-slate-200">{call.when}</td>
-                      <td className="px-3 py-2 text-slate-200">{call.from}</td>
+                      <td className="px-3 py-2 text-slate-200">
+                        {call.when}
+                      </td>
+                      <td className="px-3 py-2 text-slate-200">
+                        {call.from}
+                      </td>
                       <td className="px-3 py-2">
                         <StatusPill status={call.status} />
                       </td>
@@ -181,15 +210,53 @@ export default function DashboardPage() {
           </section>
         )}
 
-        {/* SIN DATOS TODAVÍA */}
-        {!loading && !errorMsg && metrics && data?.recentCalls.length === 0 && (
-          <p className="text-xs text-slate-400">
-            No hay llamadas registradas hoy todavía. En cuanto entren llamadas en
-            la tabla <code>calls</code>, aparecerán aquí.
-          </p>
-        )}
+        {/* SIN DATOS */}
+        {!loading &&
+          !errorMsg &&
+          metrics &&
+          data?.recentCalls &&
+          data.recentCalls.length === 0 && (
+            <p className="text-xs text-slate-400">
+              No hay llamadas registradas en el rango seleccionado.
+            </p>
+          )}
       </div>
     </main>
+  );
+}
+
+function RangeSelector(props: {
+  range: RangeOption;
+  onChange: (r: RangeOption) => void;
+}) {
+  const { range, onChange } = props;
+
+  const options: { value: RangeOption; label: string }[] = [
+    { value: "today", label: "Hoy" },
+    { value: "7d", label: "7 días" },
+    { value: "30d", label: "30 días" }
+  ];
+
+  return (
+    <div className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900/60 p-1 text-[11px] sm:text-xs">
+      {options.map((opt) => {
+        const active = opt.value === range;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={`rounded-full px-3 py-1 transition ${
+              active
+                ? "bg-sky-500 text-slate-950"
+                : "bg-transparent text-slate-200 hover:bg-slate-800"
+            }`}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
