@@ -15,7 +15,8 @@ const navItems = [
 ];
 
 export default function SiteHeader() {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = rawPathname ?? "/"; // ✅ evita null
   const { theme, setTheme } = useTheme();
   const { lang, toggleLang } = useLang();
 
