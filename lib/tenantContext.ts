@@ -25,11 +25,11 @@ export async function resolveTenantContextFromRequest(
   }
 
   const host = req.headers.get("host") ?? "";
-  // Ejemplo: clinicA.frontdeskagents.com
-  const subdomain = host.split(".")[0];
+  const parts = host.split(".");
+  const subdomain = parts.length > 2 ? parts[0] : "";
 
+  // Dominio raíz → modo admin (sin tenant)
   if (!subdomain || subdomain === "frontdeskagents" || subdomain === "www") {
-    // Dominio raíz → modo admin (global)
     return { tenantId: null, mode: "admin" };
   }
 
