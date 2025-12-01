@@ -1,37 +1,37 @@
 // lib/airtable.ts
 
-import Airtable from "airtable";
+import Airtable, { FieldSet, Records } from "airtable";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 
-// Nombre de la tabla donde se guardan los eventos de llamadas
+// Nombre de la tabla donde guardamos los eventos
 const CALL_EVENTS_TABLE = "Call Events";
 
+// Validación mínima
 if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
-  console.warn(
-    "[Airtable] Falta AIRTABLE_API_KEY o AIRTABLE_BASE_ID en las variables de entorno. " +
-      "La integración con Airtable no funcionará hasta que se configuren."
-  );
+  console.warn("[Airtable] Faltan las variables de entorno requeridas.");
 }
 
 let base: Airtable.Base | null = null;
 
-function getAirtableBase() {
-  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
-    return null;
-  }
+/**
+ * Inicializa Airtable (lazy-load)
+ */
+function getAirtableBase(): Airtable.Base | null {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) return null;
 
   if (!base) {
-    Airtable.configure({
-      apiKey: AIRTABLE_API_KEY
-    });
+    Airtable.configure({ apiKey: AIRTABLE_API_KEY });
     base = Airtable.base(AIRTABLE_BASE_ID);
   }
 
   return base;
 }
 
+/**
+ * Payload del Webhook (Bland.ai / Twilio)
+ */
 export interface CallEventPayload {
   from?: string;
   to?: string;
@@ -45,16 +45,13 @@ export interface CallEventPayload {
 }
 
 /**
- * Crea un registro en Airtable con la información de una llamada
- * (Bland.ai, Twilio, etc.)
+ * Inserta un registro en Airtable con el evento completo
  */
 export async function createCallEvent(payload: CallEventPayload) {
   const base = getAirtableBase();
 
   if (!base) {
-    console.warn(
-      "[Airtable] No hay configuración válida. No se puede crear Call Event."
-    );
+    console.warn("[Airtable] No hay configuración válida. No se guardó el evento.");
     return;
   }
 
@@ -79,7 +76,7 @@ export async function createCallEvent(payload: CallEventPayload) {
     RecordingUrl: recording_url || "",
     Transcript: transcript || "",
     Provider: provider || "unknown",
-    MetaJson: raw ? JSON.stringify(raw).slice(0, 50000) : ""
+    MetaJson: raw ? JSON.stringify(raw).slice(0, 100000) : ""
   };
 
   try {
@@ -89,6 +86,29 @@ export async function createCallEvent(payload: CallEventPayload) {
       }
     ]);
   } catch (err) {
-    console.error("[Airtable] Error creando Call Event:", err);
+    console.error("[Airtable] Error creando registro:", err);
+  }
+}
+
+/**
+ * Recuperar llamadas del día → para el Dashboard
+ */
+export async function getTodayStats() {
+  const base = getAirtableBase();
+  if (!base) return null;
+
+  const today = new Date().toISOString().split("T")[0];
+
+  try {
+    const records: Records<FieldSet> = await base(CALL_EVENTS_TABLE)
+      .select({
+        filterByFormula: `IS_AFTER({Created}, "${today}")`
+      })
+      .all();
+
+    return records;
+  } catch (err) {
+    console.error("[Airtable] Error obteniendo estadísticas:", err);
+    return null;
   }
 }
