@@ -2,14 +2,14 @@
 import { NextResponse } from "next/server";
 import { getTodayMetrics } from "@/lib/metrics";
 
-export const runtime = "nodejs";
+export const runtime = "nodejs"; // usas Airtable SDK, mejor Node runtime
 
 export async function GET() {
   try {
-    const data = await getTodayMetrics();
-    return NextResponse.json(data, { status: 200 });
+    const metrics = await getTodayMetrics();
+    return NextResponse.json(metrics);
   } catch (err) {
-    console.error("Error fetching dashboard metrics", err);
+    console.error("[API /metrics] Error generando métricas:", err);
     return NextResponse.json(
       { error: "Failed to load metrics" },
       { status: 500 }
