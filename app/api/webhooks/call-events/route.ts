@@ -1,82 +1,77 @@
 // app/api/webhooks/call-events/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
-import { callEventsTable, CallEventFields } from "@/lib/airtable";
+import { createCallEvent } from "@/lib/airtable";
 
-export const runtime = "nodejs";
+export const runtime = "nodejs"; // Necesario para usar el SDK de Airtable (Node APIs)
 
-function todayISO(): string {
-  const now = new Date();
-  return now.toISOString().slice(0, 10);
-}
-
-async function saveCallEvent(fields: CallEventFields) {
-  const payloadString = fields.RawPayload ?? "";
-
-  await callEventsTable().create([
-    {
-      fields: {
-        ...fields,
-        Date: fields.Date ?? todayISO(),
-        RawPayload: payloadString,
-      },
-    },
-  ]);
-}
-
+/**
+ * Webhook para eventos de llamadas (Bland.ai / Twilio / etc.).
+ * Espera un JSON en el body con información de la llamada.
+ */
 export async function POST(req: NextRequest) {
   try {
-    const contentType = req.headers.get("content-type") || "";
+    const body = await req.json();
 
-    let body: any = {};
-    if (contentType.includes("application/json")) {
-      body = await req.json();
-    } else if (contentType.includes("application/x-www-form-urlencoded")) {
-      const formData = await req.text();
-      body = Object.fromEntries(new URLSearchParams(formData));
-    }
+    // Campos comunes que suelen mandar Bland.ai / Twilio
+    const from: string =
+      body.from ||
+      body.caller_number ||
+      body.customer_number ||
+      body.from_number ||
+      "";
+    const to: string =
+      body.to ||
+      body.called_number ||
+      body.agent_number ||
+      body.to_number ||
+      "";
+    const status: string = body.status || body.event || body.call_status || "";
+    const direction: string = body.direction || "";
 
-    const source =
-      (body.source as CallEventFields["Source"]) ||
-      (body.From ? "twilio" : "bland");
+    const durationSeconds: number | undefined =
+      typeof body.duration === "number"
+        ? body.duration
+        : typeof body.call_duration === "number"
+        ? body.call_duration
+        : undefined;
 
-    let fields: CallEventFields = {
-      Source: source,
-      RawPayload: JSON.stringify(body).slice(0, 15000),
-    };
+    const recordingUrl: string =
+      body.recording_url ||
+      body.recordingUrl ||
+      body.recording ||
+      body.recording_url_https ||
+      "";
 
-    if (source === "bland") {
-      // Ajusta a tu payload real de Bland.ai
-      fields = {
-        ...fields,
-        Phone: body.phone_number || body.to,
-        Direction: body.direction || "outbound",
-        Status: (body.status as any) || "completed",
-        RecoveredFromMissed: Boolean(body.recovered_from_missed),
-      };
-    } else if (source === "twilio") {
-      // Ajusta a tu payload real de Twilio
-      fields = {
-        ...fields,
-        Phone: body.From || body.To,
-        Direction: body.CallDirection || "inbound",
-        Status:
-          body.CallStatus === "completed"
-            ? "completed"
-            : body.CallStatus === "no-answer"
-            ? "missed"
-            : (body.CallStatus as any),
-        RecoveredFromMissed: false,
-      };
-    }
+    const transcript: string =
+      body.transcript || body.transcription || body.summary || "";
 
-    await saveCallEvent(fields);
+    // Guardar en Airtable (si está configurado)
+    await createCallEvent({
+      from,
+      to,
+      status,
+      direction,
+      durationSeconds,
+      recordingUrl,
+      transcript,
+      provider: "Bland.ai",
+      meta: body,
+    });
 
-    return NextResponse.json({ ok: true }, { status: 200 });
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Error handling call-events webhook", err);
+    console.error("[call-events webhook] Error:", err);
     return NextResponse.json(
-      { error: "Webhook error" },
+      { ok: false, error: "webhook-error" },
       { status: 500 }
     );
   }
+}
+
+/**
+ * Opcional: soportar GET para ver que la ruta está viva.
+ */
+export async function GET() {
+  return NextResponse.json({ ok: true, message: "Call events webhook live" });
 }
