@@ -2,73 +2,83 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-
-const NAV_ITEMS = [
-  { label: "Command Center", href: "/dashboard" },
-  { label: "Industries", href: "/industries" },
-  { label: "Pricing", href: "/pricing" },
-];
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export default function SiteHeader() {
-  const pathnameRaw = usePathname();
-  const pathname = pathnameRaw ?? "/";
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = theme === "dark";
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-800/40 bg-slate-950/90 text-slate-50 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 gap-3">
-        {/* Brand */}
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 text-lg font-semibold shadow-lg shadow-sky-500/40">
+    <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md dark:bg-slate-950/80">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        {/* Logo + Brand */}
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-xs font-bold text-slate-950 shadow-lg">
             FD
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold">
+            <span className="text-sm font-semibold text-slate-50">
               FrontDesk Agents
             </span>
             <span className="text-[11px] text-slate-400">
-              24/7 AI Receptionist Command Center
+              AI Receptionist Command Center
             </span>
           </div>
-        </Link>
+        </div>
 
-        {/* Center nav */}
-        <nav className="hidden items-center gap-4 text-xs md:flex">
-          {NAV_ITEMS.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`rounded-full px-3 py-1 transition ${
-                  isActive
-                    ? "bg-slate-800 text-slate-50"
-                    : "text-slate-400 hover:bg-slate-900 hover:text-slate-50"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Nav + Theme toggle */}
+        <div className="flex items-center gap-4">
+          <nav className="hidden items-center gap-4 text-xs font-medium text-slate-300 md:flex">
+            <Link
+              href="/"
+              className="hover:text-cyan-400 transition-colors"
+            >
+              Overview
+            </Link>
+            <Link
+              href="/dashboard"
+              className="hover:text-cyan-400 transition-colors"
+            >
+              Command Center
+            </Link>
+            <Link
+              href="/setup"
+              className="hover:text-cyan-400 transition-colors"
+            >
+              Setup
+            </Link>
+            <Link
+              href="/pricing"
+              className="hover:text-cyan-400 transition-colors"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/industries"
+              className="hover:text-cyan-400 transition-colors"
+            >
+              Industries
+            </Link>
+          </nav>
 
-        {/* Right controls: tema + idioma + CTA corta */}
-        <div className="flex items-center gap-2">
-          {/* Placeholder simple para Dark/Light; puedes cambiarlo por tu toggle real */}
-          <span className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300">
-            Dark
-          </span>
-          <button className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300">
-            ES
-          </button>
-          <Link
-            href="/setup"
-            className="hidden rounded-full bg-sky-500 px-3 py-1 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/40 hover:bg-sky-400 md:inline-flex"
-          >
-            Launch Command Center
-          </Link>
+          {/* Theme toggle */}
+          {mounted && (
+            <button
+              type="button"
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-100 shadow-sm hover:border-cyan-400 hover:text-cyan-300"
+              aria-label="Toggle theme"
+            >
+              {isDark ? "☀️" : "🌙"}
+            </button>
+          )}
         </div>
       </div>
     </header>
