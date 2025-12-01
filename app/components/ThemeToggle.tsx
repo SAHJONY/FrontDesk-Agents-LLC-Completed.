@@ -1,72 +1,41 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-const THEME_STORAGE_KEY = "fd-theme";
-
-type Theme = "light" | "dark";
-
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const { theme, setTheme, systemTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  // Cargar tema guardado
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(THEME_STORAGE_KEY) as
-        | Theme
-        | null;
-      const prefersDark =
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-      const initial: Theme =
-        saved === "light" || saved === "dark"
-          ? saved
-          : prefersDark
-          ? "dark"
-          : "light";
-
-      setTheme(initial);
-      applyTheme(initial);
-    } catch {
-      setTheme("dark");
-      applyTheme("dark");
-    }
+    setMounted(true);
   }, []);
 
-  const applyTheme = (next: Theme) => {
-    const root = document.documentElement;
-    if (next === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      // ignore
-    }
-  };
+  if (!mounted) {
+    return (
+      <button
+        type="button"
+        aria-label="Toggle theme"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 text-xs"
+      >
+        ◐
+      </button>
+    );
+  }
 
-  const toggle = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    applyTheme(next);
-  };
-
-  const isDark = theme === "dark";
+  const resolvedTheme = theme === "system" ? systemTheme : theme;
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
       type="button"
-      onClick={toggle}
-      className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900/60 px-2 py-1 text-xs text-slate-100 shadow-sm hover:border-cyan-500/80 hover:bg-slate-900/90 focus:outline-none focus:ring-2 focus:ring-cyan-500/80"
-      aria-label="Toggle light/dark mode"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label="Toggle theme"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 text-xs hover:border-slate-300 hover:bg-slate-800/60"
     >
-      <span className="hidden sm:inline">
-        {isDark ? "Dark" : "Light"}
+      <span className="text-lg" aria-hidden="true">
+        {isDark ? "☀️" : "🌙"}
       </span>
-      <span aria-hidden="true">{isDark ? "🌙" : "☀️"}</span>
     </button>
   );
 }
