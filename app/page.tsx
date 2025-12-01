@@ -1,105 +1,148 @@
 // app/page.tsx
-
-import Link from "next/link";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
-import { getDashboardMetrics } from "../lib/metrics";
+import Link from "next/link";
+import SiteHeader from "./components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents – AI Receptionist Command Center",
   description:
-    "One AI command center that turns missed calls into booked revenue across phone, SMS and WhatsApp."
+    "24/7 AI Receptionist for calls, SMS, WhatsApp and more. One Command Center to capture, qualify and schedule every lead.",
 };
 
-export const revalidate = 30; // refresca métricas cada 30s
-
-export default async function HomePage() {
-  const { callsHandledToday, bookedAppointments, recoveryRate } =
-    await getDashboardMetrics();
-
+export default function Home() {
   return (
-    <div className="flex flex-col gap-12 px-4 pb-16 pt-10 sm:px-6 lg:px-10">
-      {/* Badge live */}
-      <div className="mb-2">
-        <span className="inline-flex items-center rounded-full bg-emerald-900/40 px-3 py-1 text-xs font-medium text-emerald-200 ring-1 ring-emerald-500/40">
-          <span className="mr-2 h-2 w-2 rounded-full bg-emerald-400" />
-          Live · AI receptionist command center
-        </span>
-      </div>
+    <main className="min-h-screen bg-slate-950 text-slate-50 dark:bg-slate-950">
+      {/* Header */}
+      <SiteHeader />
 
       {/* Hero */}
-      <section className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center">
-        <div className="space-y-6">
-          <h1 className="text-balance text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl lg:text-5xl">
-            Turn every missed call into{" "}
-            <span className="bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent">
-              booked revenue
-            </span>{" "}
-            with 24/7 AI receptionists.
-          </h1>
+      <section className="border-b border-slate-900 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900">
+        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 md:flex-row md:items-center">
+          {/* Copy */}
+          <div className="flex-1 space-y-5">
+            <span className="inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
+              Live • AI Receptionist + Call Command Center
+            </span>
 
-          <p className="max-w-xl text-base text-slate-300 sm:text-lg">
-            FrontDesk Agents listens, speaks and types in real-time for your
-            clinic, law firm or service business. One AI command center handles
-            calls, SMS and WhatsApp while you focus on closing.
-          </p>
+            <h1 className="text-balance text-3xl font-semibold leading-tight text-slate-50 md:text-4xl lg:text-5xl">
+              Turn every missed call into{" "}
+              <span className="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
+                booked revenue
+              </span>{" "}
+              with your AI Front Desk.
+            </h1>
 
-          <div className="flex flex-wrap gap-4">
-            <Link
-              href="/setup"
-              className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-sky-500/40 bg-sky-400 hover:bg-sky-300 transition"
-            >
-              Launch my AI receptionist
-            </Link>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center rounded-full border border-slate-600 px-6 py-3 text-sm font-semibold text-slate-100 hover:bg-slate-800/60 transition"
-            >
-              View Command Center demo →
-            </Link>
+            <p className="max-w-xl text-sm text-slate-300 md:text-base">
+              FrontDesk Agents listens, answers and routes every call, SMS and
+              WhatsApp 24/7. Watch everything in one{" "}
+              <strong>Command Center</strong>: live calls, follow-ups,
+              appointments and conversion KPIs.
+            </p>
+
+            <div className="flex flex-wrap gap-3 pt-1">
+              <Link
+                href="/setup"
+                className="inline-flex items-center justify-center rounded-lg bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 hover:bg-cyan-400"
+              >
+                Launch my AI Receptionist
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center justify-center rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-100 hover:border-cyan-400 hover:text-cyan-300"
+              >
+                View Command Center
+              </Link>
+            </div>
+
+            {/* Highlights */}
+            <div className="grid max-w-xl grid-cols-2 gap-3 pt-4 text-xs text-slate-300 md:text-sm">
+              <div className="rounded-lg border border-slate-800 bg-slate-900/40 p-3">
+                <div className="text-[11px] font-semibold text-slate-400">
+                  Call Capture
+                </div>
+                <div className="text-sm font-semibold text-emerald-300">
+                  +38% more answered calls
+                </div>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  No more voicemails. Every call gets an AI agent.
+                </p>
+              </div>
+              <div className="rounded-lg border border-slate-800 bg-slate-900/40 p-3">
+                <div className="text-[11px] font-semibold text-slate-400">
+                  Scheduling
+                </div>
+                <div className="text-sm font-semibold text-cyan-300">
+                  Autopilot booking 24/7
+                </div>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Syncs with your calendar and sends confirmations.
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Stats cards conectados a Airtable */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-3 max-w-xl">
-            <div className="rounded-2xl border border-slate-700/70 bg-slate-900/40 px-4 py-3">
-              <p className="text-xs font-medium text-slate-400">
-                Calls handled today
-              </p>
-              <p className="mt-1 text-2xl font-semibold text-slate-50">
-                {callsHandledToday}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-700/70 bg-slate-900/40 px-4 py-3">
-              <p className="text-xs font-medium text-slate-400">
-                Booked appointments
-              </p>
-              <p className="mt-1 text-2xl font-semibold text-slate-50">
-                {bookedAppointments}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-700/70 bg-slate-900/40 px-4 py-3">
-              <p className="text-xs font-medium text-slate-400">
-                Missed calls recovered
-              </p>
-              <p className="mt-1 text-2xl font-semibold text-slate-50">
-                {recoveryRate}%
-              </p>
+          {/* Cinematic hero image */}
+          <div className="flex-1">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl shadow-cyan-500/20">
+              <Image
+                src="/images/hero-cinematic.jpg"
+                alt="AI Receptionist Command Center – cinematic 4K dashboard"
+                fill
+                className="object-cover"
+                priority
+              />
+              {/* Glow overlay */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between px-4 pb-3 text-[11px]">
+                <span className="rounded-full bg-slate-950/70 px-3 py-1 font-medium text-emerald-300 backdrop-blur">
+                  Live Agent • ALEX
+                </span>
+                <span className="rounded-full bg-slate-950/70 px-3 py-1 font-medium text-cyan-300 backdrop-blur">
+                  24/7 Command Center
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Imagen hero (cinemática) */}
-        <div className="relative h-72 w-full overflow-hidden rounded-3xl border border-slate-700/70 bg-gradient-to-b from-slate-900 to-slate-950 sm:h-80 lg:h-96">
-          <Image
-            src="/images/command-center-hero.jpg"
-            alt="FrontDesk Agents AI Command Center"
-            fill
-            className="object-cover opacity-80"
-            sizes="(min-width: 1024px) 480px, 100vw"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10" />
         </div>
       </section>
-    </div>
+
+      {/* Mini preview Command Center */}
+      <section className="border-t border-slate-900 bg-slate-950 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 md:flex-row md:items-center">
+          <div className="flex-1 space-y-2 text-sm text-slate-300">
+            <h2 className="text-base font-semibold text-slate-50">
+              One Command Center for every channel
+            </h2>
+            <p className="text-xs text-slate-400 md:text-sm">
+              Monitor live calls, outbound campaigns, retention follow-ups and
+              no-shows in a single view. Designed for clinics, law firms, real
+              estate and service businesses that can’t afford to miss leads.
+            </p>
+            <ul className="mt-2 space-y-1 text-xs text-slate-400">
+              <li>• Live call cards with outcomes and sentiment.</li>
+              <li>• Outbound sequences with conversion KPIs.</li>
+              <li>• Retention panel for recalls, renewals and no-shows.</li>
+            </ul>
+          </div>
+          <div className="flex-1">
+            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl shadow-cyan-500/20">
+              <Image
+                src="/images/command-center-dark.jpg"
+                alt="FrontDesk Agents – Command Center dashboard"
+                fill
+                className="hidden object-cover dark:block"
+              />
+              <Image
+                src="/images/command-center-light.jpg"
+                alt="FrontDesk Agents – Command Center dashboard light mode"
+                fill
+                className="object-cover dark:hidden"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
