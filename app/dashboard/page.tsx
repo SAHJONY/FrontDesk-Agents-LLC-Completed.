@@ -1,182 +1,245 @@
-// app/dashboard/page.tsx
-import SiteHeader from "../components/SiteHeader";
+"use client";
+
+import { useEffect, useState } from "react";
+
+type CallStatus = "answered" | "missed" | "voicemail";
+
+interface Metrics {
+  totalCallsToday: number;
+  answeredCallsToday: number;
+  missedCallsToday: number;
+  newLeadsToday: number;
+  appointmentsToday: number;
+  estimatedRevenueToday: number;
+  currency: string;
+}
+
+interface RecentCall {
+  id: string;
+  when: string;
+  from: string;
+  status: CallStatus;
+  summary: string | null;
+}
+
+interface ApiResponse {
+  metrics: Metrics;
+  recentCalls: RecentCall[];
+}
 
 export default function DashboardPage() {
+  const [data, setData] = useState<ApiResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        setLoading(true);
+        setErrorMsg(null);
+        const res = await fetch("/api/metrics", { cache: "no-store" });
+
+        if (!res.ok) {
+          throw new Error(`Bad status: ${res.status}`);
+        }
+
+        const json = (await res.json()) as ApiResponse;
+        if (!cancelled) {
+          setData(json);
+        }
+      } catch (err: any) {
+        console.error("[Dashboard] Error loading /api/metrics:", err);
+        if (!cancelled) {
+          setErrorMsg("No se pudieron cargar las métricas del Command Center.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const metrics = data?.metrics;
+
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 dark:bg-slate-950">
-      <SiteHeader />
-
-      <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-        {/* Title */}
-        <div className="flex items-center justify-between gap-3">
+    <main className="min-h-screen bg-slate-950 text-slate-50">
+      {/* HEADER */}
+      <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
-            <h1 className="text-xl font-semibold text-slate-50">
-              Command Center
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
+              FrontDesk Command Center
+            </p>
+            <h1 className="text-lg font-semibold md:text-xl">
+              Dashboard de llamadas, leads y citas
             </h1>
-            <p className="text-xs text-slate-400">
-              Live overview of calls, campaigns and retention for your AI
-              Receptionist.
-            </p>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs">
-            <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 font-medium text-emerald-300">
-              Status: Online 24/7
-            </span>
-            <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 font-medium text-cyan-300">
-              Agent: ALEX
-            </span>
-          </div>
+          <p className="text-[11px] text-slate-400">
+            Datos en vivo desde Supabase
+          </p>
         </div>
+      </header>
 
-        {/* KPI cards */}
-        <div className="grid gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <div className="text-[11px] font-semibold text-slate-400">
-              Calls answered (24h)
-            </div>
-            <div className="mt-1 text-2xl font-semibold text-emerald-300">
-              128
-            </div>
-            <p className="mt-1 text-[11px] text-emerald-400">
-              +32% vs. last 7 days
+      <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+        {/* ESTADO */}
+        {loading && (
+          <p className="text-sm text-slate-300">
+            Cargando métricas del Command Center…
+          </p>
+        )}
+
+        {errorMsg && !loading && (
+          <div className="rounded-md border border-rose-500/40 bg-rose-950/40 px-3 py-2 text-sm text-rose-100">
+            {errorMsg}
+            <p className="mt-1 text-[11px] text-rose-200/80">
+              Revisa los logs de Vercel y la configuración de Supabase.
             </p>
           </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <div className="text-[11px] font-semibold text-slate-400">
-              New leads captured
-            </div>
-            <div className="mt-1 text-2xl font-semibold text-cyan-300">
-              47
-            </div>
-            <p className="mt-1 text-[11px] text-cyan-400">
-              71% with phone & email
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <div className="text-[11px] font-semibold text-slate-400">
-              Booked appointments
-            </div>
-            <div className="mt-1 text-2xl font-semibold text-sky-300">
-              29
-            </div>
-            <p className="mt-1 text-[11px] text-sky-400">
-              Auto-scheduled by AI
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-            <div className="text-[11px] font-semibold text-slate-400">
-              Est. pipeline (next 30d)
-            </div>
-            <div className="mt-1 text-2xl font-semibold text-amber-300">
-              $84,500
-            </div>
-            <p className="mt-1 text-[11px] text-amber-400">
-              Based on current conversion
-            </p>
-          </div>
-        </div>
+        )}
 
-        {/* 3-column layout */}
-        <div className="grid gap-4 lg:grid-cols-3">
-          {/* Live calls feed */}
-          <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-900/60 p-4 lg:col-span-2">
-            <div className="flex items-center justify-between text-xs">
-              <h2 className="font-semibold text-slate-100">Live calls</h2>
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
-                3 active • 12 in last hour
-              </span>
-            </div>
-            <div className="divide-y divide-slate-800 text-xs">
-              {[
-                {
-                  id: "CALL-9821",
-                  name: "Maria Rodriguez",
-                  source: "Google Ads",
-                  status: "Completed • Qualified",
-                  sentiment: "Positive",
-                  duration: "06:24",
-                },
-                {
-                  id: "CALL-9819",
-                  name: "Dr. Smith Clinic",
-                  source: "Existing patient",
-                  status: "Completed • Booked",
-                  sentiment: "Very positive",
-                  duration: "04:58",
-                },
-                {
-                  id: "CALL-9815",
-                  name: "John Carter",
-                  source: "Website",
-                  status: "Missed • Callback queued",
-                  sentiment: "Neutral",
-                  duration: "00:42",
-                },
-              ].map((call) => (
-                <div
-                  key={call.id}
-                  className="flex items-center justify-between gap-3 py-2"
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-slate-300">
-                        {call.id}
-                      </span>
-                      <span className="text-xs font-semibold text-slate-100">
-                        {call.name}
-                      </span>
-                    </div>
-                    <div className="mt-0.5 text-[11px] text-slate-400">
-                      {call.source} • {call.status}
-                    </div>
-                  </div>
-                  <div className="text-right text-[11px]">
-                    <div className="font-mono text-slate-200">
-                      {call.duration}
-                    </div>
-                    <div className="text-emerald-300">{call.sentiment}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* KPIs PRINCIPALES */}
+        {metrics && (
+          <section className="grid gap-4 text-xs sm:grid-cols-3 lg:grid-cols-6 sm:text-sm">
+            <MetricCard
+              label="Llamadas hoy"
+              value={metrics.totalCallsToday}
+            />
+            <MetricCard
+              label="Contestadas"
+              value={metrics.answeredCallsToday}
+            />
+            <MetricCard
+              label="Perdidas"
+              value={metrics.missedCallsToday}
+              tone="danger"
+            />
+            <MetricCard
+              label="Leads nuevos"
+              value={metrics.newLeadsToday}
+            />
+            <MetricCard
+              label="Citas hoy"
+              value={metrics.appointmentsToday}
+            />
+            <MetricCard
+              label="Ingresos estimados"
+              value={metrics.estimatedRevenueToday}
+              prefix={metrics.currency}
+            />
+          </section>
+        )}
 
-          {/* Right column: outbound + retention */}
-          <div className="space-y-3">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-xs">
-              <div className="mb-2 flex items-center justify-between">
-                <h2 className="font-semibold text-slate-100">
-                  Outbound campaigns
-                </h2>
-                <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
-                  /dashboard/outbound
-                </span>
-              </div>
-              <ul className="space-y-1 text-[11px] text-slate-400">
-                <li>• Reactivation – 126 contacts – 31% contacted</li>
-                <li>• No-shows – 42 contacts – 19% rebooked</li>
-                <li>• Google leads – 63 contacts – 11% booked</li>
-              </ul>
+        {/* TABLA ÚLTIMAS LLAMADAS */}
+        {data?.recentCalls && data.recentCalls.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-100">
+                Últimas llamadas
+              </h2>
+              <p className="text-[11px] text-slate-400">
+                Las filas se generan desde la tabla <code>calls</code> en
+                Supabase.
+              </p>
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-xs">
-              <div className="mb-2 flex items-center justify-between">
-                <h2 className="font-semibold text-slate-100">
-                  Retention panel
-                </h2>
-                <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
-                  /dashboard/retention
-                </span>
-              </div>
-              <ul className="space-y-1 text-[11px] text-slate-400">
-                <li>• Renewals due (30d): 18</li>
-                <li>• VIP clients to touch this week: 9</li>
-                <li>• High-risk churn flagged by AI: 6</li>
-              </ul>
+            <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
+              <table className="min-w-full text-left text-xs sm:text-sm">
+                <thead className="border-b border-slate-800 bg-slate-900/80 text-slate-300">
+                  <tr>
+                    <th className="px-3 py-2">Hora</th>
+                    <th className="px-3 py-2">Número</th>
+                    <th className="px-3 py-2">Estado</th>
+                    <th className="px-3 py-2">Resumen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.recentCalls.map((call) => (
+                    <tr
+                      key={call.id}
+                      className="border-t border-slate-800/70 hover:bg-slate-900"
+                    >
+                      <td className="px-3 py-2 text-slate-200">{call.when}</td>
+                      <td className="px-3 py-2 text-slate-200">{call.from}</td>
+                      <td className="px-3 py-2">
+                        <StatusPill status={call.status} />
+                      </td>
+                      <td className="px-3 py-2 text-slate-300">
+                        {call.summary || "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </div>
+          </section>
+        )}
+
+        {/* SIN DATOS TODAVÍA */}
+        {!loading && !errorMsg && metrics && data?.recentCalls.length === 0 && (
+          <p className="text-xs text-slate-400">
+            No hay llamadas registradas hoy todavía. En cuanto entren llamadas en
+            la tabla <code>calls</code>, aparecerán aquí.
+          </p>
+        )}
       </div>
     </main>
+  );
+}
+
+function MetricCard(props: {
+  label: string;
+  value: number;
+  prefix?: string;
+  tone?: "default" | "danger";
+}) {
+  const { label, value, prefix, tone = "default" } = props;
+  const color =
+    tone === "danger"
+      ? "text-rose-300 border-rose-500/40"
+      : "text-sky-300 border-sky-500/40";
+
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-3">
+      <p className="text-[11px] text-slate-400">{label}</p>
+      <p className={`mt-1 text-base font-semibold ${color}`}>
+        {prefix ? `${prefix} ` : ""}
+        {value.toLocaleString()}
+      </p>
+    </div>
+  );
+}
+
+function StatusPill({ status }: { status: CallStatus }) {
+  const map: Record<CallStatus, { label: string; className: string }> = {
+    answered: {
+      label: "Contestada",
+      className:
+        "bg-emerald-500/10 text-emerald-300 ring-emerald-500/40"
+    },
+    missed: {
+      label: "Perdida",
+      className: "bg-rose-500/10 text-rose-300 ring-rose-500/40"
+    },
+    voicemail: {
+      label: "Voicemail",
+      className: "bg-sky-500/10 text-sky-300 ring-sky-500/40"
+    }
+  };
+
+  const cfg = map[status];
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] ring-1 ${cfg.className}`}
+    >
+      {cfg.label}
+    </span>
   );
 }
