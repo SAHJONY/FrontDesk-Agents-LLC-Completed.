@@ -4,144 +4,114 @@ import Link from "next/link";
 export default function PricingPage() {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
-      <section className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 pb-20 pt-16">
-        {/* Encabezado */}
-        <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-400">
-            Pricing · Precios
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
-            Plans that grow with your business
-            <span className="block text-cyan-300">
-              Planes que crecen con tu negocio
-            </span>
-          </h1>
-          <p className="mt-4 text-sm text-slate-300 sm:text-base">
-            Empieza con un piloto pequeño y escala cuando FrontDesk Agents esté
-            generando ingresos reservados 24/7 para tu empresa.
+      <section className="border-b border-slate-800 bg-slate-950">
+        <div className="mx-auto max-w-4xl px-4 py-12 text-center space-y-3">
+          <h1 className="text-3xl font-semibold">Pricing</h1>
+          <p className="text-sm text-slate-300">
+            Start with a 3-month pilot. No long-term contracts. Real results or
+            we don&apos;t continue.
           </p>
         </div>
+      </section>
 
-        {/* Grid de planes */}
-        <div className="grid gap-6 md:grid-cols-3">
+      <section className="bg-slate-950">
+        <div className="mx-auto max-w-6xl px-4 py-10 grid gap-6 md:grid-cols-3">
           {/* Starter */}
-          <div className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg shadow-slate-900/80">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
               Starter
             </p>
-            <h2 className="mt-2 text-xl font-semibold">$399 / mes</h2>
-            <p className="mt-1 text-xs text-slate-400">
-              Ideal para clínicas pequeñas, consultorios o despachos con un solo
-              número principal.
+            <p className="mt-2 text-2xl font-semibold text-slate-50">
+              $299<span className="text-sm text-slate-300">/mo</span>
             </p>
-            <ul className="mt-4 flex-1 space-y-2 text-xs text-slate-200">
-              <li>• 1 AI receptionist (voz + WhatsApp + email)</li>
-              <li>• 1 inbox central</li>
-              <li>• Soporte en Inglés + Español por defecto</li>
-              <li>• Horario 24/7</li>
-              <li>• Logs básicos y grabaciones de llamadas</li>
+            <p className="mt-2 text-sm text-slate-300">
+              For small offices that need a 24/7 AI Receptionist.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-200">
+              <li>• 1 AI Receptionist number</li>
+              <li>• 24/7 call handling</li>
+              <li>• Basic call log</li>
+              <li>• Email summaries</li>
             </ul>
-            <Link
-              href="/setup"
-              className="mt-5 inline-flex items-center justify-center rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
-            >
-              Start with Starter · Comenzar
-            </Link>
+            <div className="mt-6">
+              <Link
+                href="/demo"
+                className="inline-flex rounded-md border border-slate-600 px-4 py-2 text-xs font-semibold hover:bg-slate-900"
+              >
+                Book demo (Starter)
+              </Link>
+            </div>
           </div>
 
-          {/* Professional */}
-          <div className="relative flex flex-col rounded-2xl border border-cyan-500/80 bg-slate-900/80 p-6 shadow-xl shadow-cyan-500/30">
-            <span className="absolute right-4 top-4 rounded-full bg-cyan-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-cyan-300">
-              Most popular · Más vendido
-            </span>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Professional
+          {/* Command Center */}
+          <div className="flex flex-col rounded-xl border border-sky-500/60 bg-slate-900/80 p-5 ring-1 ring-sky-500/50">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
+              Command Center · Most popular
             </p>
-            <h2 className="mt-2 text-xl font-semibold">$899 / mes</h2>
+            <p className="mt-2 text-2xl font-semibold text-slate-50">
+              $799<span className="text-sm text-slate-300">/mo</span>
+            </p>
             <p className="mt-1 text-xs text-slate-400">
-              Para PYMES, firmas legales y multi-sucursales que quieren
-              reemplazar el call center tradicional.
+              + One-time setup: $399 (configuration + onboarding)
             </p>
-            <ul className="mt-4 flex-1 space-y-2 text-xs text-slate-200">
-              <li>• 3 AI receptionists (ventas, soporte, cobranza)</li>
-              <li>• 3 inboxes + routing inteligente</li>
-              <li>• Multilenguaje (hasta 100+ idiomas y dialectos)</li>
-              <li>• Integración con CRM y calendarios</li>
-              <li>• Dashboards de revenue y analytics en tiempo real</li>
-              <li>• Soporte prioritario</li>
+            <p className="mt-3 text-sm text-slate-300">
+              For serious businesses that want visibility and revenue control.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-200">
+              <li>• Everything in Starter</li>
+              <li>• Command Center Dashboard (calls, leads, appointments)</li>
+              <li>• Missed Call Rescue (automatic SMS)</li>
+              <li>• Appointment Engine (from call to calendar)</li>
+              <li>• Monthly Intelligence Summary</li>
             </ul>
-            <Link
-              href="/setup"
-              className="mt-5 inline-flex items-center justify-center rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
-            >
-              Start Professional · Agendar demo
-            </Link>
+            <div className="mt-6">
+              <Link
+                href="/demo"
+                className="inline-flex rounded-md bg-sky-400 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-300"
+              >
+                Apply for 3-month pilot
+              </Link>
+            </div>
           </div>
 
           {/* Enterprise */}
-          <div className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg shadow-slate-900/80">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
               Enterprise
             </p>
-            <h2 className="mt-2 text-xl font-semibold">$1,799 / mes</h2>
-            <p className="mt-1 text-xs text-slate-400">
-              Diseñado para cadenas, hospitales, grupos multi-marca o
-              operaciones con alto volumen de llamadas.
+            <p className="mt-2 text-2xl font-semibold text-slate-50">
+              From $1,499<span className="text-sm text-slate-300">/mo</span>
             </p>
-            <ul className="mt-4 flex-1 space-y-2 text-xs text-slate-200">
-              <li>• AI receptionists e inboxes ilimitados</li>
-              <li>• Flujos personalizados por sucursal y marca</li>
-              <li>• Single Sign-On, SLA empresarial y auditoría avanzada</li>
-              <li>• Soporte dedicado / Customer Success Manager</li>
-              <li>• Integraciones personalizadas y acceso API</li>
+            <p className="mt-2 text-sm text-slate-300">
+              For multi-location or high-volume operations.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-200">
+              <li>• Everything in Command Center</li>
+              <li>• Multi-location support</li>
+              <li>• Custom reports and KPIs</li>
+              <li>• Dedicated account manager</li>
+              <li>• SLAs and integration support</li>
             </ul>
-            <Link
-              href="/contact"
-              className="mt-5 inline-flex items-center justify-center rounded-full border border-cyan-500/70 px-4 py-2 text-sm font-semibold text-cyan-300 hover:bg-cyan-500/10"
-            >
-              Talk to sales · Hablar con ventas
-            </Link>
+            <div className="mt-6">
+              <Link
+                href="/demo"
+                className="inline-flex rounded-md border border-slate-600 px-4 py-2 text-xs font-semibold hover:bg-slate-900"
+              >
+                Talk to sales
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* FAQ corta */}
-        <div className="mt-6 grid gap-6 rounded-2xl border border-slate-800 bg-slate-900/50 p-5 text-sm text-slate-200 md:grid-cols-3">
-          <div>
-            <h3 className="text-sm font-semibold">¿Hay contrato mínimo?</h3>
-            <p className="mt-1 text-xs text-slate-400">
-              Mes a mes. Puedes cambiar de plan o cancelar con 30 días de aviso.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold">¿Incluye puesta en marcha?</h3>
-            <p className="mt-1 text-xs text-slate-400">
-              Sí. Configuramos tu primer agente, flujos y scripts sin costo
-              adicional en todos los planes.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold">¿Cómo se calcula el retorno?</h3>
-            <p className="mt-1 text-xs text-slate-400">
-              Medimos citas reservadas, consultas agendadas y valor de cada
-              llamada para mostrar el ROI directo en tu dashboard.
-            </p>
-          </div>
-        </div>
-
-        {/* CTA final */}
-        <div className="mt-4 flex flex-col items-center gap-3 text-center text-sm text-slate-300">
+        <div className="mx-auto max-w-3xl px-4 pb-12 text-xs text-slate-400">
           <p>
-            ¿No estás seguro de qué plan elegir? —{" "}
-            <span className="text-cyan-300">
-              Empezamos con un piloto pequeño y ajustamos después.
+            We currently activate pilots with invoice + manual payment (
+            <span className="font-semibold text-slate-200">
+              Zelle, CashApp, wire transfer or PayPal
             </span>
+            ). Online card payments (Stripe, Square, PayPal) will be enabled
+            after the pilot phase.
           </p>
-          <Link
-            href="/setup"
-            className="inline-flex items-center justify-center rounded-full bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
-          >
-            Configurar tu AI Receptionist en 5 minutos
-          </Link>
         </div>
       </section>
     </main>
