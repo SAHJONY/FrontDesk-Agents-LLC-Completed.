@@ -1,47 +1,69 @@
-# Supabase and Vercel Integration Plan
+# Supabase & Vercel Integration – FrontDesk Agents
 
-This document outlines the autonomous 5-step process for connecting the Supabase backend (FrontDeskAgents) to the deployed Vercel application (front-desk-agents-llc-completed.vercel.app) and confirming production sync on https://frontdeskagents.com.
+## 1. Contexto
 
-## 1. Retrieve Supabase API Credentials
+Este documento registra la integración entre:
 
-**Action**: Autonomously access the Supabase dashboard for the 'FrontDeskAgents' project.
-**Goal**: Retrieve the following credentials from the project's settings (API section):
-*   `NEXT_PUBLIC_SUPABASE_URL` (Project URL)
-*   `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Anon Public Key)
+- **Supabase Project**: `FrontDeskAgents`
+- **Supabase URL**: `https://awzczbaarskqjgdatefv.supabase.co`
+- **Frontend / Hosting**: Vercel
+- **Proyecto Vercel**: `front-desk-agents-llc-completed`
+- **Dominio de producción**: https://frontdeskagents.com
 
-## 2. Configure Vercel Environment Variables
+> Nota: Las claves privadas NO se guardan en este repositorio.  
+> Solo se documentan los nombres de variables y el flujo de integración.
 
-**Action**: Autonomously access the Vercel dashboard for the 'front-desk-agents-llc-completed' project.
-**Goal**: Add the retrieved Supabase credentials as environment variables.
-**Variables**:
-*   `NEXT_PUBLIC_SUPABASE_URL`
-*   `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-**Scope**: Apply to **Production** and **Preview** environments.
+---
 
-## 3. Trigger Redeployment in Vercel
+## 2. Variables de entorno requeridas
 
-**Action**: The addition of environment variables in Vercel should automatically trigger a new deployment. If not, manually trigger a redeployment of the 'front-desk-agents-llc-completed' project.
-**Goal**: Ensure the Vercel application is rebuilt with the new Supabase environment variables.
+En el panel de Vercel para `front-desk-agents-llc-completed`, deben existir:
 
-## 4. Validate Production Integration
+- `NEXT_PUBLIC_SUPABASE_URL`
+  - Valor: `https://awzczbaarskqjgdatefv.supabase.co`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - Valor: `ANON PUBLIC KEY` del proyecto Supabase (copiado del dashboard).
 
-**Action**: Perform a series of checks on the production URL: https://frontdeskagents.com.
-**Goal**: Confirm successful and secure integration with the Supabase backend.
-**Validation Checks**:
-*   **Status Code**: Confirm 200 OK status on API requests to the Supabase backend.
-*   **Security**: Verify the presence of the SSL padlock (HTTPS) and ensure no mixed content warnings.
-*   **Network**: Check for the absence of CORS or other network-related errors.
-*   **Telemetry**: Confirm active backend telemetry, indicating successful data exchange.
+Ambas variables deben estar definidas en:
+- **Production**
+- **Preview**
 
-## 5. Update Governance Documentation
+---
 
-**Action**: Update the project's governance documentation (or a designated status file).
-**Goal**: Mark the deployment as complete and verified.
-**Status**: "Production Live – Supabase Integrated (Autonomous Verification Complete)"
+## 3. Proceso estándar de integración
 
-## Completion Log
+1. **Obtener credenciales en Supabase**
+   - Ir a: Project → Settings → API
+   - Copiar:
+     - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
+     - anon public key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-- **Date of Completion**: December 01, 2025
-- **Supabase Project URL**: `https://awzczbaarskqjgdatefv.supabase.co`
-- **Integration Status**: **SUCCESS**
-- **Validation Notes**: The Vercel application successfully loaded the Command Center dashboard (`/dashboard`) with dynamic data (e.g., call counts, scheduled appointments), confirming a live and functional connection to the Supabase backend. SSL is active, and no critical network errors were observed during the data fetch process.
+2. **Configurar variables en Vercel**
+   - Settings → Environment Variables
+   - Crear/actualizar las variables anteriores.
+   - Guardar cambios.
+
+3. **Desplegar de nuevo**
+   - Vercel normalmente hace el redeploy automático.
+   - Si no, pulsar “Redeploy” sobre la rama `main`.
+
+4. **Validar en producción**
+   - Navegar a https://frontdeskagents.com
+   - Confirmar:
+     - Carga correcta de la aplicación (status 200).
+     - HTTPS válido (candado SSL).
+     - Sin errores de CORS en la consola del navegador.
+     - Llamadas a Supabase responden 200 OK.
+
+---
+
+## 4. Estado de la integración
+
+- **Fecha de última verificación**: 2025-12-01
+- **Estado**: ✅ Production Live – Supabase Integrated
+- **Notas de verificación**:
+  - El Command Center cargó datos dinámicos (ej. conteo de llamadas y citas).
+  - SSL activo, sin errores de red críticos durante la obtención de datos.
+
+> Esta sección debe actualizarse cada vez que se cambie de proyecto Supabase,
+> se roten claves o se migre el hosting.
