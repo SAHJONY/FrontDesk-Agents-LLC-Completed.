@@ -1,19 +1,17 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { LangProvider } from "./components/LangProvider";
+import LangProvider from "./components/LangProvider";
 import SiteHeader from "./components/SiteHeader";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents – AI Receptionist Command Center",
   description:
-    "AI Receptionist 24/7 para negocios modernos. Atendemos llamadas, mensajes y leads mientras tú cierras ventas.",
+    "Turn missed calls into booked revenue with 24/7 AI receptionists. One AI command center to handle calls, SMS and WhatsApp.",
 };
 
 export default function RootLayout({
@@ -26,7 +24,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50`}
       >
-        <ThemeProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <LangProvider>
             <div className="min-h-screen flex flex-col">
               <SiteHeader />
