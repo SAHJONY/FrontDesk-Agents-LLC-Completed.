@@ -32,13 +32,10 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     const statusRaw = (rec.get("Status") as string | undefined) ?? "";
     const status = statusRaw.toLowerCase();
 
-    // Ejemplo: si en Airtable usas "Booked" o "Appointment Booked"
+    // Ajusta estos includes a los valores reales que guardas en Airtable
     if (status.includes("booked")) booked++;
-
-    // Ejemplo: si marcas las llamadas perdidas como "Missed"
     if (status.includes("missed")) missed++;
 
-    // Campo booleano opcional "Recovered" que marcas cuando se recupera la llamada
     const recoveredFlag = (rec.get("Recovered") as boolean | undefined) ?? false;
     if (recoveredFlag) recovered++;
   }
@@ -51,4 +48,12 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     bookedAppointments: booked,
     recoveryRate
   };
+}
+
+/**
+ * Alias usado por el endpoint /api/metrics.
+ * Mantiene compatibilidad con el código existente.
+ */
+export async function getTodayMetrics(): Promise<DashboardMetrics> {
+  return getDashboardMetrics();
 }
