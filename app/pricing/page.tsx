@@ -1,105 +1,106 @@
 // app/pricing/page.tsx
 import Image from "next/image";
 import { getPageHero } from "@/lib/siteImages";
-import { TopNav } from "@/components/top-nav";
 import Link from "next/link";
 
 export default function PricingPage() {
   const hero = getPageHero("pricing");
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50">
-      <TopNav />
+    <div className="space-y-10">
+      <section className="space-y-4">
+        <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
+          PRICING
+        </p>
+        <h1 className="text-2xl font-bold text-slate-50 sm:text-3xl">
+          Simple plans that pay for themselves in the first month.
+        </h1>
+        <p className="max-w-2xl text-sm text-slate-300">
+          FrontDesk Agents replaces lost calls, basic reception roles and manual
+          follow-up. One new case or a few extra appointments usually covers the
+          full monthly fee.
+        </p>
+      </section>
 
-      <main className="mx-auto max-w-6xl px-4 pb-16 lg:px-0">
-        <section className="mb-10 grid gap-8 lg:grid-cols-[3fr,2fr] lg:items-center">
-          <div className="space-y-4">
-            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              Simple, transparent pricing
-            </h1>
-            <p className="text-sm md:text-base text-slate-300">
-              Plans designed for solo owners, growing teams and multi-location operations.
-              Always 24/7. Always AI + human takeover ready.
-            </p>
-            <p className="text-xs text-slate-400">
-              Precios en USD. Soporte en inglés y español. Sin contratos largos.
-            </p>
-          </div>
+      <Image
+        src={hero.src}
+        alt={hero.alt}
+        width={1600}
+        height={900}
+        className="h-auto w-full rounded-xl border border-slate-800 object-cover"
+      />
 
-          <div className="relative">
-            <Image
-              src={hero.src}
-              alt={hero.alt}
-              width={1600}
-              height={900}
-              className="h-auto w-full rounded-xl border border-slate-800 object-cover shadow-xl"
-            />
-          </div>
-        </section>
+      <section className="grid gap-6 md:grid-cols-3">
+        {/* Starter */}
+        <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-950/60 p-5">
+          <h2 className="text-sm font-semibold text-slate-50">Starter</h2>
+          <p className="mt-1 text-xs text-slate-400">Solo & small offices</p>
+          <p className="mt-4 text-2xl font-bold text-slate-50">
+            $399<span className="text-sm font-normal text-slate-400">/mo</span>
+          </p>
+          <ul className="mt-4 space-y-2 text-xs text-slate-300">
+            <li>• 1 AI Receptionist (phone + SMS)</li>
+            <li>• 1 inbox / main line</li>
+            <li>• 24/7 coverage</li>
+            <li>• English or Spanish</li>
+          </ul>
+          <Link
+            href="/setup"
+            className="mt-6 inline-flex justify-center rounded-md bg-sky-400 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-300"
+          >
+            Start Starter onboarding
+          </Link>
+        </div>
 
-        <section className="grid gap-6 md:grid-cols-3">
-          <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-5">
-            <h2 className="text-sm font-semibold text-slate-100">Starter</h2>
-            <p className="mt-1 text-xs text-slate-400">Solo / small office</p>
-            <p className="mt-4 text-2xl font-semibold text-sky-400">$399</p>
-            <p className="text-[11px] text-slate-500">per month</p>
-            <ul className="mt-4 space-y-1.5 text-xs text-slate-300">
-              <li>• 1 AI receptionist (voice + SMS)</li>
-              <li>• 1 inbox / phone number</li>
-              <li>• 24/7 coverage</li>
-              <li>• English or Spanish</li>
-            </ul>
-            <Link
-              href="/demo"
-              className="mt-4 rounded-md bg-sky-400 px-3 py-2 text-center text-xs font-semibold text-slate-950 hover:bg-sky-300"
-            >
-              Start with Starter
-            </Link>
+        {/* Professional */}
+        <div className="flex flex-col rounded-xl border border-sky-500 bg-slate-950 p-5 shadow-[0_0_30px_rgba(56,189,248,0.35)]">
+          <div className="mb-2 inline-flex items-center rounded-full bg-sky-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-sky-300">
+            Most Popular
           </div>
+          <h2 className="text-sm font-semibold text-slate-50">Professional</h2>
+          <p className="mt-1 text-xs text-slate-400">
+            Growing clinics & law firms
+          </p>
+          <p className="mt-4 text-2xl font-bold text-slate-50">
+            $899<span className="text-sm font-normal text-slate-400">/mo</span>
+          </p>
+          <ul className="mt-4 space-y-2 text-xs text-slate-300">
+            <li>• 3 AI agents (inbound, outbound, retention)</li>
+            <li>• Multilingual (EN/ES)</li>
+            <li>• CRM integration & call routing</li>
+            <li>• Campaigns for reactivation & no-shows</li>
+          </ul>
+          <Link
+            href="/setup"
+            className="mt-6 inline-flex justify-center rounded-md bg-sky-400 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-300"
+          >
+            Start Professional onboarding
+          </Link>
+        </div>
 
-          <div className="flex flex-col rounded-xl border border-sky-500 bg-slate-900/70 p-5 shadow-lg shadow-sky-900/30">
-            <h2 className="text-sm font-semibold text-slate-50">Professional</h2>
-            <p className="mt-1 text-xs text-slate-400">
-              Law firms, clinics, agencies, contractors
-            </p>
-            <p className="mt-4 text-2xl font-semibold text-sky-400">$899</p>
-            <p className="text-[11px] text-slate-500">per month</p>
-            <ul className="mt-4 space-y-1.5 text-xs text-slate-200">
-              <li>• 3 AI agents (departments)</li>
-              <li>• Multilingual (EN/ES)</li>
-              <li>• CRM integration</li>
-              <li>• Smart call routing</li>
-            </ul>
-            <Link
-              href="/demo"
-              className="mt-4 rounded-md bg-sky-400 px-3 py-2 text-center text-xs font-semibold text-slate-950 hover:bg-sky-300"
-            >
-              Most popular · Book demo
-            </Link>
-          </div>
-
-          <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-5">
-            <h2 className="text-sm font-semibold text-slate-100">Enterprise</h2>
-            <p className="mt-1 text-xs text-slate-400">
-              Multi-location, call centers, franchises
-            </p>
-            <p className="mt-4 text-2xl font-semibold text-sky-400">$1,799</p>
-            <p className="text-[11px] text-slate-500">per month</p>
-            <ul className="mt-4 space-y-1.5 text-xs text-slate-300">
-              <li>• Unlimited AI agents / inboxes</li>
-              <li>• SSO, SLA & custom workflows</li>
-              <li>• Dedicated CSM</li>
-              <li>• Priority support</li>
-            </ul>
-            <Link
-              href="/demo"
-              className="mt-4 rounded-md border border-sky-500 px-3 py-2 text-center text-xs font-semibold text-sky-400 hover:border-sky-300 hover:text-sky-300"
-            >
-              Talk to sales
-            </Link>
-          </div>
-        </section>
-      </main>
+        {/* Enterprise */}
+        <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-950/60 p-5">
+          <h2 className="text-sm font-semibold text-slate-50">Enterprise</h2>
+          <p className="mt-1 text-xs text-slate-400">
+            Multi-location & national brands
+          </p>
+          <p className="mt-4 text-2xl font-bold text-slate-50">
+            $1,799<span className="text-sm font-normal text-slate-400">/mo</span>
+          </p>
+          <ul className="mt-4 space-y-2 text-xs text-slate-300">
+            <li>• Unlimited agents & inboxes</li>
+            <li>• SSO, SLA & dedicated CSM</li>
+            <li>• Custom workflows & queues</li>
+            <li>• Quarterly revenue optimization review</li>
+          </ul>
+          <Link
+            href="/demo"
+            className="mt-6 inline-flex justify-center rounded-md border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-100 hover:border-sky-400 hover:text-sky-300"
+          >
+            Talk to sales about Enterprise
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
