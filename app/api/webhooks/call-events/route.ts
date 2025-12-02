@@ -1,59 +1,83 @@
-import { storeCallFromBland } from "@/lib/blandEvents";
-import { storeLead, storeAppointment } from "@/lib/blandEvents";
+// app/api/webhooks/call-events/route.ts
 
-export async function POST(req: Request) {
-  // ... validación de secret y parse de body como antes
-  const body = (await req.json()) as any;
+import { NextRequest, NextResponse } from "next/server";
+import {
+  storeCallFromBland,
+  storeLead,
+  storeAppointment
+} from "@/lib/blandEvents";
 
-  const basePayload = {
-    call_id: body.call_id ?? body.id,
-    from: body.from ?? body.caller_number,
-    to: body.to ?? body.destination_number,
-    status: (body.status ?? "answered") as any,
-    transcript: body.transcript ?? null,
-    summary: body.summary ?? null,
-    revenue_estimate: body.revenue_estimate ?? null
-  };
+/**
+ * Webhook de Bland.ai para eventos de llamada.
+ *
+ * v1: Solo enruta el payload a stubs que loguean y aceptan tenantId opcional.
+ * Más adelante se conecta a Supabase para guardar calls, leads y citas.
+ */
 
-  const tenantId: string | undefined = undefined; // TODO: resolve per client
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
 
-  await storeCallFromBland(
-    { ...basePayload },
-    { tenantId }
-  );
+    // Ejemplo de payload esperado (simplificado):
+    // {
+    //   "event": "call.completed",
+    //   "call_id": "...",
+    //   "from": "+1...",
+    //   "to": "+1...",
+    //   "status": "answered" | "missed" | "voicemail",
+    //   "lead": { ... },
+    //   "appointment": { ... },
+    //   "tenant_id": "..." (opcional)
+    // }
 
-  // Si el evento de Bland incluye una bandera de "lead calificado"
-  if (body.is_qualified_lead === true) {
-    await storeLead({
-      lead_id: body.lead_id ?? basePayload.call_id,
-      tenantId,
-      name: body.lead_name ?? null,
-      phone: basePayload.from,
-      email: body.lead_email ?? null,
-      source: "bland_call",
-      notes: body.lead_notes ?? basePayload.summary
-    });
+    const event = body?.event as string | undefined;
+    const tenantId: string | undefined =
+      body?.tenant_id || body?.tenant || body?.tenantId || undefined;
+
+    const basePayload = {
+      call_id: body?.call_id,
+      from: body?.from,
+      to: body?.to,
+      status: body?.status,
+      raw: body
+    };
+
+    // 1) Siempre registramos el evento de llamada
+    await storeCallFromBland(
+      { ...basePayload, event },
+      { tenantId }
+    );
+
+    // 2) Si Bland marca que hay lead asociado, lo pasamos a storeLead
+    if (body?.lead) {
+      await storeLead(
+        {
+          lead: body.lead,
+          call_id: body.call_id,
+          source: "bland_call"
+        },
+        { tenantId }
+      );
+    }
+
+    // 3) Si hay información de cita, lo pasamos a storeAppointment
+    if (body?.appointment) {
+      await storeAppointment(
+        {
+          appointment: body.appointment,
+          call_id: body.call_id,
+          source: "bland_call"
+        },
+        { tenantId }
+      );
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("[call-events webhook] error:", error);
+    return NextResponse.json(
+      { ok: false, error: "Internal error in call-events webhook" },
+      { status: 500 }
+    );
   }
-
-  // Si el evento incluye una cita confirmada
-  if (body.appointment && body.appointment.start_time) {
-    await storeAppointment({
-      appointment_id: body.appointment.id ?? undefined,
-      tenantId,
-      lead_id: body.lead_id ?? null,
-      phone: basePayload.from,
-      start_time: body.appointment.start_time, // ISO esperado
-      duration_minutes: body.appointment.duration_minutes ?? null,
-      channel: body.appointment.channel ?? "phone",
-      notes: body.appointment.notes ?? null
-    });
-  }
-
-  // Missed Call Rescue hook (como antes)
-  if (basePayload.status === "missed") {
-    console.log("[call-events] Missed call, Rescue SMS hook point.");
-    // await sendRescueSms({ to: basePayload.from, callId: basePayload.call_id });
-  }
-
-  return NextResponse.json({ ok: true });
 }
