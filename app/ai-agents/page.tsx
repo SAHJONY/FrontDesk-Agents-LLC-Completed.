@@ -1,4 +1,4 @@
-import { getPageHero } from "@/lib/content/heroes";
+import { getPageHero } from "@/lib/siteImages";
 
 export default function Page() {
   const hero = getPageHero("ai-agents");
