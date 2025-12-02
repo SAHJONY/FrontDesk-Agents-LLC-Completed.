@@ -13,4 +13,30 @@ export default function DemoPage() {
           See FrontDesk Command Center <span className="text-sky-400">live</span>.
         </h1>
         <p className="text-slate-300 mt-4">
-          In 15 minutes we’ll
+          In 15 minutes we’ll show you how your AI Receptionist answers calls,
+          qualifies leads and updates your live dashboard.
+        </p>
+
+        <div className="mt-8 flex justify-center">
+          <a
+            href="https://calendly.com/frontdeskllc/30min"
+            target="_blank"
+            className="rounded-md bg-sky-400 px-6 py-3 text-lg font-semibold text-slate-900"
+          >
+            Book your live demo
+          </a>
+        </div>
+
+        <div className="w-full mt-10">
+          <Image
+            src={hero.src}
+            alt={hero.alt}
+            width={1600}
+            height={900}
+            className="rounded-xl w-full h-auto object-cover border border-slate-800 shadow-xl"
+          />
+        </div>
+      </section>
+    </main>
+  );
+}
