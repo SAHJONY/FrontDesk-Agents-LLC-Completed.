@@ -1,39 +1,60 @@
-"use client";
-
+// app/setup/page.tsx
 import Image from "next/image";
 import { getPageHero } from "@/lib/siteImages";
+import { TopNav } from "@/components/top-nav";
 
 export default function SetupPage() {
   const hero = getPageHero("setup");
 
+  const steps = [
+    "Connect your main phone number (Twilio, operator or call forward).",
+    "Define business hours, languages and escalation rules.",
+    "Upload your FAQs, intake questions and qualification rules.",
+    "Connect CRM / spreadsheet so leads land where you want.",
+    "Test your first live calls and refine the script.",
+  ];
+
   return (
-    <main className="min-h-screen w-full px-4 md:px-10 py-10">
-      <section className="max-w-4xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold text-white text-center">
-          Go live in <span className="text-sky-400">48 hours</span>.
-        </h1>
-        <p className="text-slate-300 text-center mt-4">
-          We configure your phone numbers, call flows, FAQs and revenue
-          dashboards so your AI Receptionist starts taking calls in days, not months.
-        </p>
+    <div className="min-h-screen bg-slate-950 text-slate-50">
+      <TopNav />
 
-        <div className="w-full mt-10">
-          <Image
-            src={hero.src}
-            alt={hero.alt}
-            width={1600}
-            height={900}
-            className="rounded-xl w-full h-auto object-cover border border-slate-800 shadow-xl"
-          />
-        </div>
+      <main className="mx-auto max-w-6xl px-4 pb-16 lg:px-0">
+        <section className="mb-10 grid gap-8 lg:grid-cols-[3fr,2fr] lg:items-center">
+          <div className="space-y-4">
+            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              Client setup & onboarding
+            </h1>
+            <p className="text-sm md:text-base text-slate-300">
+              This page is your checklist to go from “just signed” to “AI receptionist is
+              answering real calls” in a few hours.
+            </p>
+            <p className="text-xs text-slate-400">
+              Podemos guiarte por Zoom o hacerlo 100% asíncrono si prefieres.
+            </p>
 
-        <ol className="mt-10 space-y-3 text-slate-200 text-sm">
-          <li>1. Connect your main phone line.</li>
-          <li>2. Import your client list and calendar.</li>
-          <li>3. Configure call scripts and FAQs.</li>
-          <li>4. Turn on Command Center live metrics.</li>
-        </ol>
-      </section>
-    </main>
+            <ol className="mt-4 space-y-2 text-xs text-slate-200">
+              {steps.map((step, idx) => (
+                <li key={idx}>
+                  <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-sky-500/10 text-[11px] font-semibold text-sky-400">
+                    {idx + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="relative">
+            <Image
+              src={hero.src}
+              alt={hero.alt}
+              width={1600}
+              height={900}
+              className="h-auto w-full rounded-xl border border-slate-800 object-cover shadow-xl"
+            />
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }
