@@ -2,7 +2,13 @@
 import Link from "next/link";
 
 const CALENDLY_URL =
-  "https://calendly.com/frontdesk-agents/demo-15"; // TODO: replace with your real booking link
+  "https://calendly.com/frontdesk-agents/demo-15";
+  href="https://calendly.com/TU-USUARIO/TU-EVENTO"
+  target="_blank"
+  className="rounded-md bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950"
+>
+  Agenda una demo en vivo
+</Link>
 
 export default function DemoPage() {
   return (
