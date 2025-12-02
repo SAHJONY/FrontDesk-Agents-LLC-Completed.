@@ -1,65 +1,42 @@
 // lib/siteImages.ts
 
-export type PageKey =
-  | "home"
-  | "pricing"
-  | "industries"
-  | "demo"
-  | "setup"
-  | "dashboard"
-  | "dashboard-outbound"
-  | "dashboard-retention"
-  | "admin"
-  | "ai-agents";
-
 type HeroConfig = {
   src: string;
   alt: string;
 };
 
-const HERO_IMAGES: Record<PageKey, HeroConfig> = {
+const HERO_IMAGES: Record<string, HeroConfig> = {
   home: {
-    src: "/images/premium/home-hero.jpg",
-    alt: "Futuristic AI brain hero image for FrontDesk Command Center"
+    src: "https://images.pexels.com/photos/886743/pexels-photo-886743.jpeg",
+    alt: "Modern contact center with AI-powered dashboards and agents",
   },
   pricing: {
-    src: "/images/premium/pricing-hero.jpg",
-    alt: "Pricing plans dashboard for AI receptionist platform"
+    src: "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg",
+    alt: "Business team reviewing pricing and ROI projections",
   },
   industries: {
-    src: "/images/premium/industries-hero.jpg",
-    alt: "Professionals from healthcare, law and agencies using AI receptionist"
+    src: "https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg",
+    alt: "Collage of different industries using AI receptionists",
   },
   demo: {
-    src: "/images/premium/demo-hero.jpg",
-    alt: "Live demo of FrontDesk Command Center on laptop screen"
+    src: "https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg",
+    alt: "Live video demo call with AI receptionist dashboard",
   },
   setup: {
-    src: "/images/premium/setup-hero.jpg",
-    alt: "Onboarding workflow for AI receptionist configuration"
+    src: "https://images.pexels.com/photos/1181460/pexels-photo-1181460.jpeg",
+    alt: "Onboarding wizard setting up phone numbers and agents",
   },
-  dashboard: {
-    src: "/images/premium/dashboard-executive.jpg",
-    alt: "Executive dashboard with real-time call and revenue metrics"
+  default: {
+    src: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg",
+    alt: "Premium AI contact center environment",
   },
-  "dashboard-outbound": {
-    src: "/images/premium/dashboard-outbound.jpg",
-    alt: "Outbound campaigns and follow-up calls dashboard"
-  },
-  "dashboard-retention": {
-    src: "/images/premium/dashboard-retention.jpg",
-    alt: "Retention and rebooking metrics dashboard"
-  },
-  admin: {
-    src: "/images/premium/admin-control.jpg",
-    alt: "Admin control center for tenants, numbers, and agents"
-  },
-  "ai-agents": {
-    src: "/images/premium/ai-agents-hero.jpg",
-    alt: "Multi-agent AI receptionists working together"
-  }
 };
 
-export function getPageHero(key: PageKey): HeroConfig {
-  return HERO_IMAGES[key];
+/**
+ * Dev note:
+ * - You can later replace these remote URLs with your own 4K images in /public/images/...
+ * - Example: src: "/images/premium/home-hero-1.jpg"
+ */
+export function getPageHero(page: string): HeroConfig {
+  return HERO_IMAGES[page] ?? HERO_IMAGES.default;
 }
