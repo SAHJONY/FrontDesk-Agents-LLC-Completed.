@@ -1,128 +1,235 @@
-import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseClient";
-import { resolveTenantContextFromRequest } from "@/lib/tenantContext";
+// app/api/metrics/route.ts
 
-function getDateRange(range: string | null) {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabaseClient";
 
-  if (range === "7d") {
-    const start = new Date(today);
-    start.setDate(start.getDate() - 6);
-    return { start, end: now };
-  }
-  if (range === "30d") {
-    const start = new Date(today);
-    start.setDate(start.getDate() - 29);
-    return { start, end: now };
-  }
+type Range = "today" | "7d" | "30d";
 
-  // default: hoy
-  return { start: today, end: now };
+interface CommandMetrics {
+  totalCallsToday: number;
+  answeredCallsToday: number;
+  missedCallsToday: number;
+  newLeadsToday: number;
+  appointmentsToday: number;
+  estimatedRevenueToday: number;
+  currency: string;
 }
 
-export async function GET(req: Request) {
-  if (!supabaseAdmin) {
-    return NextResponse.json(
-      { error: "Supabase not configured on server" },
-      { status: 500 }
-    );
+interface RecentCall {
+  id: string;
+  when: string;
+  from: string;
+  status: "answered" | "missed" | "voicemail";
+  summary: string;
+}
+
+interface ApiResponse {
+  metrics: CommandMetrics;
+  recentCalls: RecentCall[];
+}
+
+function getRangeDates(range: Range): { startIso: string; endIso: string } {
+  const now = new Date();
+  const end = new Date(now);
+  const start = new Date(now);
+
+  if (range === "today") {
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+  } else if (range === "7d") {
+    start.setDate(start.getDate() - 7);
+  } else if (range === "30d") {
+    start.setDate(start.getDate() - 30);
   }
 
+  return {
+    startIso: start.toISOString(),
+    endIso: end.toISOString()
+  };
+}
+
+export async function GET(req: NextRequest) {
   try {
-    const url = new URL(req.url);
-    const rangeParam = url.searchParams.get("range"); // "today" | "7d" | "30d"
-    const { start, end } = getDateRange(rangeParam);
-    const startIso = start.toISOString();
-    const endIso = end.toISOString();
+    const { searchParams } = new URL(req.url);
+    const rangeParam = (searchParams.get("range") as Range) || "today";
+    const tenantId = searchParams.get("tenant");
 
-    const { tenantId } = await resolveTenantContextFromRequest(req);
+    const range: Range =
+      rangeParam === "7d" || rangeParam === "30d" ? rangeParam : "today";
 
-    const baseFilter = (query: any) => {
-      let q = query.gte("created_at", startIso).lte("created_at", endIso);
-      if (tenantId) {
-        q = q.eq("tenant_id", tenantId);
-      }
-      return q;
-    };
+    const { startIso, endIso } = getRangeDates(range);
 
-    // Calls
-    const { data: calls, error: callsError } = await baseFilter(
-      supabaseAdmin
-        .from("calls")
-        .select("id, from_number, status, summary, revenue_estimate, created_at, tenant_id")
-        .order("created_at", { ascending: false })
-    );
+    // ---------- CALLS: TOTAL ----------
+    let callsQuery = supabase
+      .from("calls")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", startIso)
+      .lte("created_at", endIso);
 
-    if (callsError) throw callsError;
+    if (tenantId) {
+      callsQuery = callsQuery.eq("tenant_id", tenantId);
+    }
 
-    // Leads
-    const leadsQuery = supabaseAdmin
+    const {
+      count: totalCallsToday = 0,
+      error: callsError
+    } = await callsQuery;
+
+    if (callsError) {
+      console.error("[metrics] callsError:", callsError.message);
+    }
+
+    // ---------- CALLS: ANSWERED ----------
+    let answeredQuery = supabase
+      .from("calls")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", startIso)
+      .lte("created_at", endIso)
+      .eq("status", "answered");
+
+    if (tenantId) {
+      answeredQuery = answeredQuery.eq("tenant_id", tenantId);
+    }
+
+    const {
+      count: answeredCallsToday = 0,
+      error: answeredError
+    } = await answeredQuery;
+
+    if (answeredError) {
+      console.error("[metrics] answeredError:", answeredError.message);
+    }
+
+    // ---------- CALLS: MISSED ----------
+    let missedQuery = supabase
+      .from("calls")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", startIso)
+      .lte("created_at", endIso)
+      .eq("status", "missed");
+
+    if (tenantId) {
+      missedQuery = missedQuery.eq("tenant_id", tenantId);
+    }
+
+    const {
+      count: missedCallsToday = 0,
+      error: missedError
+    } = await missedQuery;
+
+    if (missedError) {
+      console.error("[metrics] missedError:", missedError.message);
+    }
+
+    // ---------- LEADS: NEW LEADS ----------
+    let leadsQuery = supabase
       .from("leads")
       .select("id", { count: "exact", head: true })
       .gte("created_at", startIso)
       .lte("created_at", endIso);
 
-    const { count: leadsCount, error: leadsError } = tenantId
-      ? leadsQuery.eq("tenant_id", tenantId)
-      : leadsQuery;
-
-    if (leadsError) throw leadsError;
-
-    // Appointments (usamos start_time como referencia)
-    let apptsQuery = supabaseAdmin
-      .from("appointments")
-      .select("id", { count: "exact", head: true })
-      .gte("start_time", startIso)
-      .lte("start_time", endIso);
-
     if (tenantId) {
-      apptsQuery = apptsQuery.eq("tenant_id", tenantId);
+      leadsQuery = leadsQuery.eq("tenant_id", tenantId);
     }
 
-    const { count: apptsCount, error: apptsError } = await apptsQuery;
-    if (apptsError) throw apptsError;
+    const {
+      count: newLeadsToday = 0,
+      error: leadsError
+    } = await leadsQuery;
 
-    const totalCallsToday = calls?.length ?? 0;
-    const answeredCallsToday =
-      calls?.filter((c) => c.status === "answered").length ?? 0;
-    const missedCallsToday =
-      calls?.filter((c) => c.status === "missed").length ?? 0;
+    if (leadsError) {
+      console.error("[metrics] leadsError:", leadsError.message);
+    }
+
+    // ---------- APPOINTMENTS + ESTIMATED REVENUE ----------
+    let appointmentsQuery = supabase
+      .from("appointments")
+      .select("id, created_at, estimated_value", { head: false })
+      .gte("created_at", startIso)
+      .lte("created_at", endIso);
+
+    if (tenantId) {
+      appointmentsQuery = appointmentsQuery.eq("tenant_id", tenantId);
+    }
+
+    const {
+      data: appointmentsData,
+      error: appointmentsError
+    } = await appointmentsQuery;
+
+    if (appointmentsError) {
+      console.error(
+        "[metrics] appointmentsError:",
+        appointmentsError.message
+      );
+    }
+
+    const appointmentsToday = appointmentsData?.length ?? 0;
     const estimatedRevenueToday =
-      calls?.reduce(
-        (sum, c) => sum + (Number(c.revenue_estimate) || 0),
-        0
-      ) ?? 0;
+      appointmentsData?.reduce((sum, appt: any) => {
+        const v = typeof appt.estimated_value === "number"
+          ? appt.estimated_value
+          : 0;
+        return sum + v;
+      }, 0) ?? 0;
 
-    const metrics = {
-      totalCallsToday,
-      answeredCallsToday,
-      missedCallsToday,
-      newLeadsToday: leadsCount ?? 0,
-      appointmentsToday: apptsCount ?? 0,
+    // ---------- RECENT CALLS LIST ----------
+    let recentCallsQuery = supabase
+      .from("calls")
+      .select("id, created_at, from_number, status, summary")
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (tenantId) {
+      recentCallsQuery = recentCallsQuery.eq("tenant_id", tenantId);
+    }
+
+    const {
+      data: recentCallsData,
+      error: recentCallsError
+    } = await recentCallsQuery;
+
+    if (recentCallsError) {
+      console.error("[metrics] recentCallsError:", recentCallsError.message);
+    }
+
+    const recentCalls: RecentCall[] =
+      recentCallsData?.map((call: any) => ({
+        id: call.id,
+        when: new Date(call.created_at).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit"
+        }),
+        from: call.from_number ?? "Unknown",
+        status:
+          call.status === "answered" ||
+          call.status === "missed" ||
+          call.status === "voicemail"
+            ? call.status
+            : "answered",
+        summary: call.summary ?? ""
+      })) ?? [];
+
+    const metrics: CommandMetrics = {
+      totalCallsToday: totalCallsToday ?? 0,
+      answeredCallsToday: answeredCallsToday ?? 0,
+      missedCallsToday: missedCallsToday ?? 0,
+      newLeadsToday: newLeadsToday ?? 0,
+      appointmentsToday,
       estimatedRevenueToday,
       currency: "USD"
     };
 
-    const recentCalls =
-      calls?.slice(0, 50).map((c) => ({
-        id: String(c.id),
-        when: new Date(c.created_at).toLocaleString("en-US", {
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit"
-        }),
-        from: c.from_number ?? "Unknown",
-        status: c.status ?? "answered",
-        summary: c.summary ?? null
-      })) ?? [];
+    const body: ApiResponse = {
+      metrics,
+      recentCalls
+    };
 
-    return NextResponse.json({ metrics, recentCalls }, { status: 200 });
-  } catch (error) {
-    console.error("[metrics] Unexpected error:", error);
+    return NextResponse.json(body);
+  } catch (err) {
+    console.error("[metrics] unexpected error:", err);
     return NextResponse.json(
-      { error: "Failed to load metrics from Supabase" },
+      { error: "Internal error in metrics endpoint" },
       { status: 500 }
     );
   }
