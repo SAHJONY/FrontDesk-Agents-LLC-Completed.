@@ -1,20 +1,33 @@
 // lib/supabaseClient.ts
-import { createClient } from "@supabase/supabase-js";
+
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  // This will show in Vercel logs if env vars are missing.
   console.warn(
-    "[supabaseClient] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    "[supabaseClient] Falta NEXT_PUBLIC_SUPABASE_URL o NEXT_PUBLIC_SUPABASE_ANON_KEY. " +
+      "La integración con Supabase no funcionará correctamente en runtime."
   );
 }
 
-export const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: false
-      }
-    })
-  : (null as any);
+// Cliente público (lado cliente y server-safe)
+export const supabase: SupabaseClient = createClient(
+  supabaseUrl || "",
+  supabaseAnonKey || ""
+);
+
+// SERVICE ROLE (solo backend)
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Si no hay service role, degradamos a supabase normal para no romper el build
+export const supabaseAdmin: SupabaseClient =
+  serviceRoleKey && supabaseUrl
+    ? createClient(supabaseUrl, serviceRoleKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false
+        }
+      })
+    : supabase;
