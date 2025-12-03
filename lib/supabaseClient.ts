@@ -1,20 +1,11 @@
-import { createBrowserClient, createServerClient } from '@supabase/ssr';
+// lib/supabase/client.ts
+import { createClient } from "@supabase/supabase-js";
 
-export const createSupabaseBrowser = () =>
-  createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const createSupabaseServer = (cookies: any) =>
-  createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookies.get(name)?.value;
-        },
-      },
-    }
-  );
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing Supabase env vars NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
