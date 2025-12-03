@@ -24,8 +24,8 @@ export function PremiumImage({ name, className, priority }: Props) {
     <Image
       src={fallback.src}
       alt={fallback.alt}
-      width={fallback.width ?? 1920}
-      height={fallback.height ?? 1080}
+      width={1920}
+      height={1080}
       className={className ?? "w-full h-auto rounded-xl object-cover"}
       priority={priority}
     />
