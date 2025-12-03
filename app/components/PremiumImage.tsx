@@ -3,10 +3,10 @@
 "use client";
 
 import Image from "next/image";
-import { PREMIUM_IMAGES } from "@/lib/premiumImages";
+import { PREMIUM_IMAGES, PremiumImageKey } from "@/lib/premiumImages";
 
 interface Props {
-  name: keyof typeof PREMIUM_IMAGES;
+  name: PremiumImageKey;
   className?: string;
   priority?: boolean;
 }
@@ -14,28 +14,18 @@ interface Props {
 export function PremiumImage({ name, className, priority }: Props) {
   const img = PREMIUM_IMAGES[name];
 
-  if (!img) {
-    // Fallback de seguridad: si el nombre no existe, usamos el hero de home
-    const fallback = PREMIUM_IMAGES["home-hero-4k"] ?? Object.values(PREMIUM_IMAGES)[0];
-
-    return (
-      <Image
-        src={fallback.src}
-        alt={fallback.alt}
-        width={fallback.width ?? 1920}
-        height={fallback.height ?? 1080}
-        className={className ?? "w-full h-auto rounded-xl object-cover"}
-        priority={priority}
-      />
-    );
-  }
+  // Fallback de seguridad: si el nombre no existe, usamos el hero de home
+  const fallback =
+    img ??
+    PREMIUM_IMAGES["home-hero" as PremiumImageKey] ??
+    Object.values(PREMIUM_IMAGES)[0];
 
   return (
     <Image
-      src={img.src}
-      alt={img.alt}
-      width={img.width ?? 1920}
-      height={img.height ?? 1080}
+      src={fallback.src}
+      alt={fallback.alt}
+      width={fallback.width ?? 1920}
+      height={fallback.height ?? 1080}
       className={className ?? "w-full h-auto rounded-xl object-cover"}
       priority={priority}
     />
