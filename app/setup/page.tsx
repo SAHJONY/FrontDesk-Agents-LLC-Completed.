@@ -1,60 +1,89 @@
 // app/setup/page.tsx
 import Image from "next/image";
+import TopNav from "@/components/top-nav";
 import { getPageHero } from "@/lib/siteImages";
-import { TopNav } from "@/components/top-nav";
 
 export default function SetupPage() {
-  const hero = getPageHero("setup");
-
-  const steps = [
-    "Connect your main phone number (Twilio, operator or call forward).",
-    "Define business hours, languages and escalation rules.",
-    "Upload your FAQs, intake questions and qualification rules.",
-    "Connect CRM / spreadsheet so leads land where you want.",
-    "Test your first live calls and refine the script.",
-  ];
+  // Hero como any para evitar errores de TypeScript con title/description
+  const hero: any = getPageHero("setup");
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50">
+    <main className="min-h-screen bg-slate-950 text-slate-50">
       <TopNav />
 
-      <main className="mx-auto max-w-6xl px-4 pb-16 lg:px-0">
-        <section className="mb-10 grid gap-8 lg:grid-cols-[3fr,2fr] lg:items-center">
-          <div className="space-y-4">
-            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              Client setup & onboarding
-            </h1>
-            <p className="text-sm md:text-base text-slate-300">
-              This page is your checklist to go from “just signed” to “AI receptionist is
-              answering real calls” in a few hours.
-            </p>
-            <p className="text-xs text-slate-400">
-              Podemos guiarte por Zoom o hacerlo 100% asíncrono si prefieres.
-            </p>
+      <section className="mx-auto max-w-5xl px-4 pb-16 pt-10 lg:px-8">
+        <header className="mb-8 space-y-3">
+          <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
+            Setup · Onboarding
+          </p>
+          <h1 className="text-3xl font-bold sm:text-4xl">
+            {hero?.title ?? "Configura tu AI Receptionist Command Center"}
+          </h1>
+          <p className="text-sm text-slate-300 sm:text-base">
+            {hero?.description ??
+              "Sigue estos pasos para conectar tu número, pagos y CRM y empezar a cobrar hoy mismo."}
+          </p>
+        </header>
 
-            <ol className="mt-4 space-y-2 text-xs text-slate-200">
-              {steps.map((step, idx) => (
-                <li key={idx}>
-                  <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-sky-500/10 text-[11px] font-semibold text-sky-400">
-                    {idx + 1}
-                  </span>
-                  {step}
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          <div className="relative">
+        {/* Hero image si existe */}
+        {hero?.image && (
+          <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-2xl border border-slate-800">
             <Image
-              src={hero.src}
-              alt={hero.alt}
-              width={1600}
-              height={900}
-              className="h-auto w-full rounded-xl border border-slate-800 object-cover shadow-xl"
+              src={hero.image.src}
+              alt={hero.image.alt ?? "Setup FrontDesk Agents"}
+              fill
+              className="object-cover"
             />
           </div>
-        </section>
-      </main>
-    </div>
+        )}
+
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <h2 className="mb-2 text-sm font-semibold text-sky-300">
+              Paso 1 · Conecta tu número de teléfono
+            </h2>
+            <p className="text-sm text-slate-300">
+              Usaremos Bland.ai / Twilio como troncal de voz. Desde el Owner
+              Command Center podrás elegir el país, prefijo y horario de
+              atención. Todas las llamadas quedarán registradas en el
+              dashboard de llamadas.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <h2 className="mb-2 text-sm font-semibold text-sky-300">
+              Paso 2 · Activa pagos (Stripe, Square, Zelle, Cash App, PayPal)
+            </h2>
+            <p className="text-sm text-slate-300">
+              En esta versión, conectaremos Stripe como pasarela principal. El
+              equipo puede añadir también Square, Zelle, Cash App, PayPal y
+              transferencias bancarias para cobrar depósitos y membresías
+              directamente desde las llamadas.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+            <h2 className="mb-2 text-sm font-semibold text-sky-300">
+              Paso 3 · Conecta tu CRM y calendarios
+            </h2>
+            <p className="text-sm text-slate-300">
+              El Command Center se integra con HubSpot, Google Sheets y otros
+              CRMs. Las citas confirmadas se enviarán automáticamente a tu
+              calendario y al paciente/cliente por SMS o WhatsApp.
+            </p>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <button className="rounded-full bg-sky-500 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-400">
+              Comenzar configuración guiada
+            </button>
+            <p className="text-xs text-slate-400">
+              Cuando completes estos pasos, tu cuenta estará lista para cobrar
+              y registrar llamadas en tiempo real.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
