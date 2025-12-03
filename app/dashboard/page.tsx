@@ -1,76 +1,91 @@
 // app/dashboard/page.tsx
-import Image from "next/image";
-import { getPageHero } from "@/lib/siteImages";
-import Link from "next/link";
+import { createServerSupabase } from "@/lib/supabase/server";
 
-export default function DashboardPage() {
-  const hero = getPageHero("dashboard");
+export default async function DashboardPage() {
+  const supabase = createServerSupabase();
+
+  const { data: leads, error } = await supabase
+    .from("demo_leads")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  const totalLeads = leads?.length ?? 0;
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
-            CLIENT DASHBOARD
-          </p>
-          <h1 className="text-2xl font-bold text-slate-50 sm:text-3xl">
-            Command Center
+    <main className="min-h-screen px-4 py-10 lg:px-8">
+      <section className="mx-auto max-w-6xl space-y-6">
+        <header>
+          <h1 className="text-3xl font-bold text-slate-50">
+            FrontDesk Command Center
           </h1>
-          <p className="max-w-xl text-sm text-slate-300">
-            High-level view of how your AI receptionists and outbound agents are
-            performing today.
+          <p className="mt-2 text-sm text-slate-400">
+            Live view of demo requests captured from the website.
           </p>
-        </div>
-        <div className="flex flex-wrap gap-2 text-xs">
-          <Link
-            href="/dashboard/outbound"
-            className="rounded-md border border-slate-700 px-3 py-1.5 text-slate-100 hover:border-sky-400 hover:text-sky-300"
-          >
-            Outbound campaigns
-          </Link>
-          <Link
-            href="/dashboard/retention"
-            className="rounded-md border border-slate-700 px-3 py-1.5 text-slate-100 hover:border-sky-400 hover:text-sky-300"
-          >
-            Retention & reactivation
-          </Link>
-        </div>
-      </header>
+        </header>
 
-      <Image
-        src={hero.src}
-        alt={hero.alt}
-        width={1600}
-        height={900}
-        className="h-auto w-full rounded-xl border border-slate-800 object-cover"
-      />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+              Demo leads
+            </p>
+            <p className="mt-2 text-3xl font-bold text-slate-50">
+              {totalLeads}
+            </p>
+          </div>
+        </div>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-          <p className="text-xs text-slate-400">Answered today</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-50">
-            {/* hook to real metrics later */}
-            0
-          </p>
-          <p className="mt-1 text-[11px] text-slate-500">
-            Connected calls handled by AI or live reception.
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-          <p className="text-xs text-slate-400">Booked appointments</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-50">0</p>
-          <p className="mt-1 text-[11px] text-slate-500">
-            Coming directly from AI agents into your calendar / CRM.
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-          <p className="text-xs text-slate-400">Estimated pipeline</p>
-          <p className="mt-1 text-2xl font-semibold text-sky-300">$0</p>
-          <p className="mt-1 text-[11px] text-slate-500">
-            Conservative estimate based on campaign configuration.
-          </p>
+        <div className="mt-6 rounded-xl border border-slate-800 bg-slate-950/70 p-4">
+          <h2 className="text-sm font-semibold text-slate-200">
+            Latest demo requests
+          </h2>
+
+          {error && (
+            <p className="mt-2 text-sm text-red-400">
+              Error loading leads
+            </p>
+          )}
+
+          {(!leads || leads.length === 0) && !error && (
+            <p className="mt-2 text-sm text-slate-400">
+              No demo leads yet. Send a test from the demo page.
+            </p>
+          )}
+
+          {leads && leads.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {leads.map((lead) => (
+                <div
+                  key={lead.id}
+                  className="flex flex-col gap-1 rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2 text-sm"
+                >
+                  <div className="flex justify-between">
+                    <span className="font-medium text-slate-50">
+                      {lead.name}
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      {new Date(lead.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {lead.email} {lead.phone ? `· ${lead.phone}` : ""}
+                  </span>
+                  {lead.business_type && (
+                    <span className="text-xs text-sky-400">
+                      {lead.business_type}
+                    </span>
+                  )}
+                  {lead.notes && (
+                    <p className="text-xs text-slate-300 truncate">
+                      {lead.notes}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
-    </div>
+    </main>
   );
 }
