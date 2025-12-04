@@ -19,17 +19,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === "undefined") return;
     const stored = window.localStorage.getItem("fda_theme") as Theme | null;
 
+    let initial: Theme = "dark";
     if (stored === "dark" || stored === "light") {
-      setTheme(stored);
-      document.body.dataset.theme = stored;
+      initial = stored;
     } else {
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ).matches;
-      const initial: Theme = prefersDark ? "dark" : "light";
-      setTheme(initial);
-      document.body.dataset.theme = initial;
+      initial = prefersDark ? "dark" : "light";
     }
+
+    setTheme(initial);
+    document.body.dataset.theme = initial;
   }, []);
 
   const toggleTheme = () => {
