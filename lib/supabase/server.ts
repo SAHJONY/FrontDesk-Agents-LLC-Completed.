@@ -1,27 +1,25 @@
 // lib/supabase/server.ts
-"use server";
-
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// Variables de entorno
+// Read environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Validación temprana
+// Runtime checks so TypeScript knows they're not undefined
 if (!supabaseUrl) {
   throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL environment variable.");
 }
 
-export function createServerSupabase(): SupabaseClient {
-  // Usamos primero la service role, si no existe usamos el anon
-  const key = supabaseServiceRoleKey || supabaseAnonKey;
+if (!supabaseAnonKey && !supabaseServiceRoleKey) {
+  throw new Error(
+    "Missing Supabase keys. Set at least NEXT_PUBLIC_SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY."
+  );
+}
 
-  if (!key) {
-    throw new Error(
-      "Missing Supabase key. Set SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY."
-    );
-  }
+// Normal helper (NOT a server action)
+export function createServerSupabase(): SupabaseClient {
+  const key = supabaseServiceRoleKey || supabaseAnonKey!;
 
   const supabase = createClient(supabaseUrl, key, {
     auth: {
