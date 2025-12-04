@@ -2,7 +2,6 @@
 "use client";
 
 import React from "react";
-// Si tu hook useLanguage está en otro sitio, ajusta el import:
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function DemoPage() {
