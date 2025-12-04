@@ -1,80 +1,63 @@
-// components/top-nav.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLanguage } from "@/app/providers/LanguageProvider";
-import ThemeToggle from "./ThemeToggle";
 
-const links = [
-  { href: "/", label: { en: "Home", es: "Inicio" } },
-  { href: "/pricing", label: { en: "Pricing", es: "Precios" } },
-  { href: "/demo", label: { en: "Live Demo", es: "Demo en vivo" } },
-  { href: "/industries", label: { en: "Industries", es: "Industrias" } },
-  { href: "/support", label: { en: "Support", es: "Soporte" } },
+const navItems = [
+  { href: "/", label: "Dashboard" },
+  { href: "/calls", label: "Calls" },
+  { href: "/analytics", label: "Analytics" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export default function TopNav() {
   const pathname = usePathname();
-  const { lang, setLang } = useLanguage();
 
   return (
-    <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/" className="font-semibold text-sky-400">
-          FrontDesk Agents
+    <header className="w-full border-b border-neutral-800 bg-black/80 backdrop-blur">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+        {/* Brand */}
+        <Link href="/" className="flex items-center gap-2">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500 text-xs font-bold text-black">
+            FD
+          </span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-semibold text-white">
+              FrontDesk Agents
+            </span>
+            <span className="text-[10px] text-neutral-400">
+              AI Receptionist · 24/7
+            </span>
+          </div>
         </Link>
 
-        <nav className="hidden gap-6 text-sm md:flex">
-          {links.map((link) => {
-            const isActive = pathname === link.href;
+        {/* Nav links */}
+        <nav className="hidden items-center gap-4 text-sm text-neutral-300 sm:flex">
+          {navItems.map((item) => {
+            const active = pathname === item.href;
             return (
               <Link
-                key={link.href}
-                href={link.href}
+                key={item.href}
+                href={item.href}
                 className={
-                  "transition-colors " +
-                  (isActive
-                    ? "text-sky-400"
-                    : "text-slate-300 hover:text-white")
+                  "rounded-md px-3 py-1 transition-colors " +
+                  (active
+                    ? "bg-neutral-800 text-white"
+                    : "hover:bg-neutral-900 hover:text-white")
                 }
               >
-                {link.label[lang]}
+                {item.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
-          {/* EN / ES */}
-          <div className="flex items-center rounded-full border border-slate-700 bg-slate-900 px-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setLang("en")}
-              className={
-                "rounded-full px-2 py-1 " +
-                (lang === "en"
-                  ? "bg-sky-500 text-slate-900"
-                  : "text-slate-300")
-              }
-            >
-              EN
-            </button>
-            <button
-              type="button"
-              onClick={() => setLang("es")}
-              className =
-                "rounded-full px-2 py-1 " +
-                (lang === "es"
-                  ? "bg-sky-500 text-slate-900"
-                  : "text-slate-300")
-            >
-              ES
-            </button>
-          </div>
-
-          {/* Theme */}
-          <ThemeToggle />
+        {/* Right side (placeholder for future actions) */}
+        <div className="flex items-center gap-2">
+          {/* Aquí después podemos re-agregar ThemeToggle o LanguageSwitcher */}
+          <span className="rounded-full border border-neutral-700 px-3 py-1 text-[11px] text-neutral-300">
+            v1 · Enterprise Ready
+          </span>
         </div>
       </div>
     </header>
