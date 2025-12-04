@@ -1,54 +1,21 @@
-// app/providers/LanguageProvider.tsx
+// app/providers.tsx
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import { ReactNode } from "react";
 
-export type Lang = "en" | "es";
+// 🔴 IMPORTANTE:
+// Ajusta esta línea si tu LanguageProvider está en otra ruta o archivo.
+// Ejemplos posibles:
+// "@/contexts/LanguageContext"
+// "@/context/LanguageContext"
+// "@/providers/LanguageProvider"
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
-interface LanguageContextValue {
-  lang: Lang;
-  setLang: (lang: Lang) => void;
-}
+type AppProvidersProps = {
+  children: ReactNode;
+};
 
-const LanguageContext = createContext<LanguageContextValue | undefined>(
-  undefined
-);
-
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("fda_lang") as Lang | null;
-    if (stored === "en" || stored === "es") {
-      setLangState(stored);
-    }
-  }, []);
-
-  const setLang = (next: Lang) => {
-    setLangState(next);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("fda_lang", next);
-    }
-  };
-
-  return (
-    <LanguageContext.Provider value={{ lang, setLang }}>
-      {children}
-    </LanguageContext.Provider>
-  );
-}
-
-export function useLanguage() {
-  const ctx = useContext(LanguageContext);
-  if (!ctx) {
-    throw new Error("useLanguage must be used inside LanguageProvider");
-  }
-  return ctx;
+export default function AppProviders({ children }: AppProvidersProps) {
+  // Aquí envuelves TODA la app con tu LanguageProvider existente
+  return <LanguageProvider>{children}</LanguageProvider>;
 }
