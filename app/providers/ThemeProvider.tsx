@@ -1,7 +1,13 @@
 // app/providers/ThemeProvider.tsx
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 
 type Theme = "dark" | "light";
 
@@ -12,23 +18,24 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
     const stored = window.localStorage.getItem("fda_theme") as Theme | null;
 
-    let initial: Theme = "dark";
     if (stored === "dark" || stored === "light") {
-      initial = stored;
-    } else {
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      initial = prefersDark ? "dark" : "light";
+      setTheme(stored);
+      document.body.dataset.theme = stored;
+      return;
     }
 
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    const initial: Theme = prefersDark ? "dark" : "light";
     setTheme(initial);
     document.body.dataset.theme = initial;
   }, []);
@@ -55,6 +62,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme() {
   const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used inside ThemeProvider");
+  if (!ctx) {
+    throw new Error("useTheme must be used inside ThemeProvider");
+  }
   return ctx;
 }
