@@ -1,26 +1,28 @@
 // lib/supabase/server.ts
+"use server";
+
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// Leemos las env vars necesarias
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Le decimos explícitamente a TS que pueden venir undefined
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string | undefined;
 
-// Comprobación temprana para no tener errores silenciosos
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Faltan NEXT_PUBLIC_SUPABASE_URL o NEXT_PUBLIC_SUPABASE_ANON_KEY en las environment variables."
-  );
+// Validación temprana para no vivir engañados
+if (!supabaseUrl) {
+  throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL environment variable.");
 }
 
-/**
- * createServerSupabase
- * Devuelve un cliente de Supabase para usar en el servidor (rutas API, server components, etc.).
- * NO es una Server Action, solo un helper normal, por eso no usamos "use server" aquí.
- */
-export function createServerSupabase(): SupabaseClient {
-  // Si tienes SERVICE_ROLE, la usamos; si no, usamos la ANON
+// Cliente Supabase para usar en el servidor (server actions / rutas API)
+export async function createServerSupabase(): Promise<SupabaseClient> {
+  // Elegimos primero la service role, si no existe usamos el anon
   const key = supabaseServiceRoleKey || supabaseAnonKey;
+
+  if (!key) {
+    throw new Error(
+      "Missing Supabase key. Set SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
+  }
 
   const supabase = createClient(supabaseUrl, key, {
     auth: {
@@ -29,4 +31,3 @@ export function createServerSupabase(): SupabaseClient {
   });
 
   return supabase;
-}
