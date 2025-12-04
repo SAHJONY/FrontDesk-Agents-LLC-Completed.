@@ -1,14 +1,16 @@
 // app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
-import { LanguageProvider } from "./providers/LanguageProvider";
-import { ThemeProvider } from "./providers/ThemeProvider";
-import TopNav from "@/components/top-nav";
+
+import { LanguageProvider } from "./components/LanguageProvider";
+import { ThemeProvider } from "./components/ThemeProvider";
+import SiteHeader from "./components/SiteHeader";
+import SiteFooter from "./components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents – AI Receptionist",
   description:
-    "24/7 AI receptionist that answers, texts and books appointments for your business.",
+    "24/7 AI receptionist that answers calls, texts back missed calls, and books appointments for your business in English and Spanish.",
 };
 
 export default function RootLayout({
@@ -18,11 +20,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-slate-950 text-slate-100">
+      <body>
         <ThemeProvider>
           <LanguageProvider>
-            <TopNav />
-            <main>{children}</main>
+            <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </div>
           </LanguageProvider>
         </ThemeProvider>
       </body>
