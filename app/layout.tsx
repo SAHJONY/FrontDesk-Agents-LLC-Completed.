@@ -1,16 +1,11 @@
-// app/layout.tsx
-import "./globals.css";
 import type { Metadata } from "next";
-
-import { LanguageProvider } from "./components/LanguageProvider";
-import { ThemeProvider } from "./components/ThemeProvider";
-import SiteHeader from "./components/SiteHeader";
-import SiteFooter from "./components/SiteFooter";
+import "./globals.css";
+import TopNav from "./components/top-nav";
 
 export const metadata: Metadata = {
-  title: "FrontDesk Agents – AI Receptionist",
+  title: "FrontDesk Agents · AI Receptionist SaaS",
   description:
-    "24/7 AI receptionist that answers calls, texts back missed calls, and books appointments for your business in English and Spanish.",
+    "FrontDesk Agents: 24/7 AI phone receptionist for clinics, law firms and enterprises.",
 };
 
 export default function RootLayout({
@@ -19,17 +14,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider>
-          <LanguageProvider>
-            <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-              <SiteHeader />
-              <main className="flex-1">{children}</main>
-              <SiteFooter />
-            </div>
-          </LanguageProvider>
-        </ThemeProvider>
+    <html lang="en" className="h-full bg-black">
+      <body className="min-h-screen bg-black text-neutral-100">
+        <TopNav />
+        <main className="mx-auto max-w-6xl px-4 pb-10 pt-6">{children}</main>
       </body>
     </html>
   );
