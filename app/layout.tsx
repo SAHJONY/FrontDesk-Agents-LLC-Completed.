@@ -1,11 +1,15 @@
-import type { Metadata } from "next";
+// app/layout.tsx
 import "./globals.css";
-import TopNav from "./components/top-nav";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import AppProviders from "./providers";
 
+const inter = Inter({ subsets: ["latin"] });
+
+// Ajusta el metadata si quieres, no afecta al bug actual.
 export const metadata: Metadata = {
-  title: "FrontDesk Agents · AI Receptionist SaaS",
-  description:
-    "FrontDesk Agents: 24/7 AI phone receptionist for clinics, law firms and enterprises.",
+  title: "FrontDesk Agents",
+  description: "AI Voice Receptionist & Call Center Platform",
 };
 
 export default function RootLayout({
@@ -14,10 +18,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full bg-black">
-      <body className="min-h-screen bg-black text-neutral-100">
-        <TopNav />
-        <main className="mx-auto max-w-6xl px-4 pb-10 pt-6">{children}</main>
+    <html lang="en">
+      <body className={inter.className}>
+        {/* 🔵 Aquí se inyecta el LanguageProvider global */}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
