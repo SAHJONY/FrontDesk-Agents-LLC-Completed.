@@ -1,14 +1,23 @@
-"use server";
+// app/components/ThemeToggle.tsx
 
-import { createClient } from "@supabase/supabase-js";
+"use client";
 
-export function createServerSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { useTheme } from "next-themes";
 
-  return createClient(url, key, {
-    auth: { persistSession: false },
-  });
+export function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+
+  const next = theme === "light" ? "dark" : "light";
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(next)}
+      className="inline-flex items-center rounded-md border px-3 py-1 text-xs font-medium"
+    >
+      {theme === "light" ? "Dark Mode" : "Light Mode"}
+    </button>
+  );
 }
+
+export default ThemeToggle;
