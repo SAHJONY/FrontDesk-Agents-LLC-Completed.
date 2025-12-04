@@ -1,60 +1,50 @@
 // app/page.tsx
-import Image from "next/image";
-import Link from "next/link";
-import { getPageHero } from "@/lib/siteImages";
+"use client";
+
+import PremiumImage from "./components/PremiumImage";
+import { useLanguage } from "./providers/LanguageProvider";
+import { homeCopy } from "@/lib/i18n";
 
 export default function HomePage() {
-  const hero = getPageHero("home");
+  const { lang } = useLanguage();
+  const t = homeCopy[lang];
 
   return (
-    <div className="space-y-10">
-      <section className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
-        <div className="space-y-5">
-          <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
-            AI RECEPTIONIST · 24/7
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl lg:text-5xl">
-            Turn missed calls into booked appointments on autopilot.
-          </h1>
-          <p className="text-sm leading-relaxed text-slate-300 sm:text-base">
-            FrontDesk Agents answers every call, texts back missed calls and
-            follows up with your leads so your team focuses only on pre-qualified
-            appointments ready to show and buy.
-          </p>
+    <main className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 md:flex-row">
+      <section className="flex-1 space-y-6">
+        <p className="text-xs tracking-[0.25em] text-sky-400">
+          AI RECEPTIONIST • 24/7
+        </p>
+        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+          {t.heroTitle}
+        </h1>
+        <p className="max-w-xl text-slate-300">{t.heroSubtitle}</p>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/setup"
-              className="rounded-md bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-300"
-            >
-              Start onboarding
-            </Link>
-            <Link
-              href="/demo"
-              className="rounded-md border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-100 hover:border-sky-400 hover:text-sky-300"
-            >
-              Book a live demo
-            </Link>
-          </div>
-
-          <ul className="mt-4 space-y-1 text-xs text-slate-400">
-            <li>• 24/7 AI phone agent + SMS follow-up</li>
-            <li>• Outbound reactivation campaigns</li>
-            <li>• No missed calls, no lost leads</li>
-          </ul>
+        <div className="flex flex-wrap gap-3">
+          <button className="rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-slate-950">
+            {t.ctaPrimary}
+          </button>
+          <button className="rounded-lg border border-slate-600 px-5 py-2.5 text-sm font-semibold text-slate-100">
+            {t.ctaSecondary}
+          </button>
         </div>
 
-        <div>
-          <Image
-            src={hero.src}
-            alt={hero.alt}
-            width={1600}
-            height={900}
-            className="h-auto w-full rounded-xl border border-slate-800 object-cover"
+        <ul className="mt-3 space-y-1 text-sm text-slate-300">
+          {t.bullets.map((b) => (
+            <li key={b}>• {b}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="flex-1">
+        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40">
+          <PremiumImage
+            name="home-hero"
+            className="h-full w-full object-cover"
             priority
           />
         </div>
       </section>
-    </div>
+    </main>
   );
 }
