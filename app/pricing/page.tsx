@@ -1,5 +1,5 @@
 // app/pricing/page.tsx
-"use client";
+"use client"; 
 
 import PremiumImage from "../components/PremiumImage";
 import { pricingCopy } from "@/lib/i18n";
