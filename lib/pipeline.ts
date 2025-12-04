@@ -1,61 +1,49 @@
+// lib/pipeline.ts
 import { supabaseAdmin } from "@/lib/supabaseClient";
 
 interface LeadPayload {
   lead_id?: string;
-  tenantId?: string;
-  name?: string | null;
-  phone?: string | null;
-  email?: string | null;
-  source?: string | null; // "bland_call", "web_form", etc.
-  notes?: string | null;
+  name?: string;
+  phone?: string;
+  email?: string;
+  source?: string;
+  status?: string;
 }
 
-interface AppointmentPayload {
-  appointment_id?: string;
-  tenantId?: string;
-  lead_id?: string | null;
-  phone?: string | null;
-  start_time?: string; // ISO string
-  duration_minutes?: number | null;
-  channel?: string | null; // "phone", "zoom", etc.
-  notes?: string | null;
-}
+/**
+ * Inserta o actualiza un lead en la tabla "leads_pipeline"
+ * usando el cliente admin de Supabase.
+ */
+export async function upsertLeadInPipeline(payload: LeadPayload) {
+  const supabase = supabaseAdmin;
 
-export async function storeLead(payload: LeadPayload) {
-  if (!supabaseAdmin) throw new Error("Supabase admin client not configured");
+  if (!supabase) {
+    throw new Error("Supabase admin client not initialized");
+  }
 
-  const { error } = await supabaseAdmin.from("leads").insert({
-    external_id: payload.lead_id ?? null,
-    tenant_id: payload.tenantId ?? null,
-    name: payload.name ?? null,
-    phone: payload.phone ?? null,
-    email: payload.email ?? null,
-    source: payload.source ?? "bland_call",
-    notes: payload.notes ?? null
-  });
+  const { lead_id, ...rest } = payload;
+
+  const { data, error } = await supabase
+    .from("leads_pipeline")
+    .upsert(
+      [
+        {
+          id: lead_id,
+          ...rest,
+        },
+      ],
+      {
+        onConflict: "id",
+        ignoreDuplicates: false,
+      }
+    )
+    .select()
+    .single();
 
   if (error) {
-    console.error("[storeLead] error inserting lead:", error);
+    console.error("[pipeline] Error upserting lead:", error);
     throw error;
   }
-}
 
-export async function storeAppointment(payload: AppointmentPayload) {
-  if (!supabaseAdmin) throw new Error("Supabase admin client not configured");
-
-  const { error } = await supabaseAdmin.from("appointments").insert({
-    external_id: payload.appointment_id ?? null,
-    tenant_id: payload.tenantId ?? null,
-    lead_id: payload.lead_id ?? null,
-    phone: payload.phone ?? null,
-    start_time: payload.start_time ?? null,
-    duration_minutes: payload.duration_minutes ?? null,
-    channel: payload.channel ?? "phone",
-    notes: payload.notes ?? null
-  });
-
-  if (error) {
-    console.error("[storeAppointment] error inserting appointment:", error);
-    throw error;
-  }
+  return data;
 }
