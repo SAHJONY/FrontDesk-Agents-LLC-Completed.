@@ -15,11 +15,4 @@ export function createServerSupabase() {
     throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
   }
   if (!anonKey) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
-  }
-
-  // Cliente de servicio básico (para lecturas/escrituras estándar)
-  const supabase = createClient(url, anonKey);
-
-  return supabase;
-}
+    throw new Error("Missing
