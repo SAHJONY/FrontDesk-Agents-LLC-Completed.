@@ -2,67 +2,57 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 
-/**
- * API para manejar el formulario de "Request Demo".
- * Guarda los datos en la tabla "demo_requests" en Supabase.
- *
- * Espera un body JSON con:
- * {
- *   name?: string;
- *   email: string;
- *   phone?: string;
- *   company?: string;
- *   plan?: string;
- *   notes?: string;
- * }
- */
+type DemoRequestBody = {
+  name?: string;
+  email?: string;
+  company?: string;
+  phone?: string;
+  notes?: string;
+  plan?: string;
+  locale?: string;
+};
+
 export async function POST(req: Request) {
   try {
-    const supabase = createServerSupabase();
-    const body = await req.json();
-
-    const {
-      name = "",
-      email,
-      phone = "",
-      company = "",
-      plan = "",
-      notes = "",
-    } = body ?? {};
+    const body = (await req.json()) as DemoRequestBody;
+    const { name, email, company, phone, notes, plan, locale } = body;
 
     if (!email) {
       return NextResponse.json(
-        { ok: false, error: "Missing required field: email" },
+        { ok: false, error: "Email is required" },
         { status: 400 }
       );
     }
 
-    // Cambia "demo_requests" por el nombre real de tu tabla si es diferente
+    const supabase = createServerSupabase();
+
+    // Cambia "demo_requests" por el nombre real de tu tabla si es otro
     const { error } = await supabase.from("demo_requests").insert([
       {
-        name,
+        name: name || null,
         email,
-        phone,
-        company,
-        plan,
-        notes,
+        company: company || null,
+        phone: phone || null,
+        notes: notes || null,
+        plan: plan || null,
+        locale: locale || "en",
         created_at: new Date().toISOString(),
       },
     ]);
 
     if (error) {
-      console.error("Supabase insert error (demo_requests):", error);
+      console.error("Error inserting demo request:", error);
       return NextResponse.json(
-        { ok: false, error: error.message },
+        { ok: false, error: "Failed to save demo request" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ ok: true }, { status: 200 });
-  } catch (err: any) {
-    console.error("Unexpected error in demo-request API:", err);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Error in demo-request route:", err);
     return NextResponse.json(
-      { ok: false, error: "Internal Server Error" },
+      { ok: false, error: "Internal server error" },
       { status: 500 }
     );
   }
