@@ -1,106 +1,53 @@
-// app/pricing/page.tsx
-import Image from "next/image";
-import { getPageHero } from "@/lib/siteImages";
-import Link from "next/link";
+"use client";
+
+import { useLanguage } from "../providers/LanguageProvider";
+import { pricingCopy } from "@/lib/i18n";
+import PremiumImage from "../components/PremiumImage";
 
 export default function PricingPage() {
-  const hero = getPageHero("pricing");
+  const { lang } = useLanguage();
+  const t = pricingCopy[lang];
 
   return (
-    <div className="space-y-10">
-      <section className="space-y-4">
-        <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
-          PRICING
-        </p>
-        <h1 className="text-2xl font-bold text-slate-50 sm:text-3xl">
-          Simple plans that pay for themselves in the first month.
-        </h1>
-        <p className="max-w-2xl text-sm text-slate-300">
-          FrontDesk Agents replaces lost calls, basic reception roles and manual
-          follow-up. One new case or a few extra appointments usually covers the
-          full monthly fee.
-        </p>
-      </section>
-
-      <Image
-        src={hero.src}
-        alt={hero.alt}
-        width={1600}
-        height={900}
-        className="h-auto w-full rounded-xl border border-slate-800 object-cover"
-      />
-
-      <section className="grid gap-6 md:grid-cols-3">
-        {/* Starter */}
-        <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-950/60 p-5">
-          <h2 className="text-sm font-semibold text-slate-50">Starter</h2>
-          <p className="mt-1 text-xs text-slate-400">Solo & small offices</p>
-          <p className="mt-4 text-2xl font-bold text-slate-50">
-            $399<span className="text-sm font-normal text-slate-400">/mo</span>
-          </p>
-          <ul className="mt-4 space-y-2 text-xs text-slate-300">
-            <li>• 1 AI Receptionist (phone + SMS)</li>
-            <li>• 1 inbox / main line</li>
-            <li>• 24/7 coverage</li>
-            <li>• English or Spanish</li>
-          </ul>
-          <Link
-            href="/setup"
-            className="mt-6 inline-flex justify-center rounded-md bg-sky-400 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-300"
-          >
-            Start Starter onboarding
-          </Link>
+    <main className="mx-auto max-w-6xl px-4 py-10 space-y-10">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center">
+        <div className="flex-1 space-y-3">
+          <h1 className="text-3xl font-bold text-white md:text-4xl">
+            {t.title}
+          </h1>
+          <p className="text-slate-300">{t.subtitle}</p>
         </div>
+        <div className="flex-1">
+          <PremiumImage
+            name="pricing-hero"
+            className="h-full w-full rounded-2xl object-cover"
+          />
+        </div>
+      </div>
 
-        {/* Professional */}
-        <div className="flex flex-col rounded-xl border border-sky-500 bg-slate-950 p-5 shadow-[0_0_30px_rgba(56,189,248,0.35)]">
-          <div className="mb-2 inline-flex items-center rounded-full bg-sky-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-sky-300">
-            Most Popular
+      <div className="grid gap-6 md:grid-cols-3">
+        {t.plans.map((plan) => (
+          <div
+            key={plan.id}
+            className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-900/60 p-5"
+          >
+            <div>
+              <h2 className="text-lg font-semibold text-white">
+                {plan.name}
+              </h2>
+              <p className="mt-2 text-2xl font-bold text-sky-400">
+                {plan.price}
+              </p>
+              <p className="mt-2 text-sm text-slate-300">
+                {plan.description}
+              </p>
+            </div>
+            <button className="mt-4 rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950">
+              {plan.cta}
+            </button>
           </div>
-          <h2 className="text-sm font-semibold text-slate-50">Professional</h2>
-          <p className="mt-1 text-xs text-slate-400">
-            Growing clinics & law firms
-          </p>
-          <p className="mt-4 text-2xl font-bold text-slate-50">
-            $899<span className="text-sm font-normal text-slate-400">/mo</span>
-          </p>
-          <ul className="mt-4 space-y-2 text-xs text-slate-300">
-            <li>• 3 AI agents (inbound, outbound, retention)</li>
-            <li>• Multilingual (EN/ES)</li>
-            <li>• CRM integration & call routing</li>
-            <li>• Campaigns for reactivation & no-shows</li>
-          </ul>
-          <Link
-            href="/setup"
-            className="mt-6 inline-flex justify-center rounded-md bg-sky-400 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-300"
-          >
-            Start Professional onboarding
-          </Link>
-        </div>
-
-        {/* Enterprise */}
-        <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-950/60 p-5">
-          <h2 className="text-sm font-semibold text-slate-50">Enterprise</h2>
-          <p className="mt-1 text-xs text-slate-400">
-            Multi-location & national brands
-          </p>
-          <p className="mt-4 text-2xl font-bold text-slate-50">
-            $1,799<span className="text-sm font-normal text-slate-400">/mo</span>
-          </p>
-          <ul className="mt-4 space-y-2 text-xs text-slate-300">
-            <li>• Unlimited agents & inboxes</li>
-            <li>• SSO, SLA & dedicated CSM</li>
-            <li>• Custom workflows & queues</li>
-            <li>• Quarterly revenue optimization review</li>
-          </ul>
-          <Link
-            href="/demo"
-            className="mt-6 inline-flex justify-center rounded-md border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-100 hover:border-sky-400 hover:text-sky-300"
-          >
-            Talk to sales about Enterprise
-          </Link>
-        </div>
-      </section>
-    </div>
+        ))}
+      </div>
+    </main>
   );
 }
