@@ -1,33 +1,58 @@
 // app/components/PremiumImage.tsx
-
 "use client";
 
 import Image from "next/image";
-import { PREMIUM_IMAGES, PremiumImageKey } from "@/lib/premiumImages";
 
-interface Props {
-  name: PremiumImageKey;
+type PremiumImageProps = {
+  name: string;
+  alt?: string;
   className?: string;
   priority?: boolean;
-}
+};
 
-export function PremiumImage({ name, className, priority }: Props) {
-  const img = PREMIUM_IMAGES[name];
+// Mapa simple de nombres a archivos reales en /public
+const IMAGE_MAP: Record<
+  string,
+  { src: string; alt: string; width?: number; height?: number }
+> = {
+  "home-hero": {
+    src: "/premium/home-hero.png",
+    alt: "FrontDesk Agents home dashboard preview",
+  },
+  "pricing-hero": {
+    src: "/premium/pricing-hero.png",
+    alt: "FrontDesk Agents pricing overview",
+  },
+  "demo-hero": {
+    src: "/premium/demo-hero.png",
+    alt: "FrontDesk Agents live demo call",
+  },
+  // Añade aquí más claves si quieres mapear imágenes específicas.
+};
 
-  // Fallback de seguridad: si el nombre no existe, usamos el hero de home
-  const fallback =
-    img ??
-    PREMIUM_IMAGES["home-hero" as PremiumImageKey] ??
-    Object.values(PREMIUM_IMAGES)[0];
+const DEFAULT_IMAGE = {
+  src: "/premium/default-hero.png",
+  alt: "FrontDesk Agents AI receptionist",
+};
+
+export default function PremiumImage(props: PremiumImageProps) {
+  const { name, alt, className, priority } = props;
+
+  const cfg = IMAGE_MAP[name] ?? DEFAULT_IMAGE;
+
+  const width = (cfg as any).width ?? 1920;
+  const height = (cfg as any).height ?? 1080;
 
   return (
     <Image
-      src={fallback.src}
-      alt={fallback.alt}
-      width={1920}
-      height={1080}
-      className={className ?? "w-full h-auto rounded-xl object-cover"}
+      src={cfg.src}
+      alt={alt ?? cfg.alt}
+      width={width}
+      height={height}
       priority={priority}
+      className={
+        "w-full h-auto rounded-xl object-cover " + (className ?? "")
+      }
     />
   );
 }
