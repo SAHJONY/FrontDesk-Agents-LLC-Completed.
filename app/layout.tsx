@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { LanguageProvider } from "./providers/LanguageProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
+import { MainNav } from "./components/MainNav";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents – AI Receptionist",
@@ -17,9 +18,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className="min-h-screen">
         <ThemeProvider>
-          <LanguageProvider>{children}</LanguageProvider>
+          <LanguageProvider>
+            <div className="flex min-h-screen flex-col bg-slate-950 text-slate-100">
+              <MainNav />
+              <main className="flex-1">{children}</main>
+              {/* Puedes añadir un footer aquí más adelante */}
+            </div>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>
