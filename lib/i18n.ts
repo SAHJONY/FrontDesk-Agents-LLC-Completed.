@@ -1,123 +1,80 @@
 // lib/i18n.ts
-// i18n simple para FrontDesk Agents
 
-export type Locale = "en" | "es";
-
-// ---------- HOME / LANDING ----------
-
-export const landingCopy: any = {
-  heroTitle: "AI receptionists that never miss a call.",
-  heroSubtitle:
-    "FrontDesk Agents answers, qualifies and routes every call 24/7 for clinics, law firms and service businesses.",
-  ctaPrimary: "Start now",
-  ctaSecondary: "Book a live demo",
-  bullets: [
-    "24/7 AI receptionist in EN/ES",
-    "Instant SMS replies to missed calls",
-    "Outbound follow-up to revive cold leads",
-  ],
-};
-
-export const landingCopyEs: any = {
-  heroTitle: "Recepcionistas de IA que nunca pierden una llamada.",
-  heroSubtitle:
-    "FrontDesk Agents atiende, califica y enruta todas tus llamadas 24/7 para clínicas, abogados y negocios de servicios.",
-  ctaPrimary: "Comenzar ahora",
-  ctaSecondary: "Pedir una demo en vivo",
-  bullets: [
-    "Recepcionista IA 24/7 en EN/ES",
-    "Respuestas por SMS a llamadas perdidas",
-    "Seguimiento automático para reactivar leads fríos",
-  ],
-};
-
-// ---------- PRICING ----------
-
-export const pricingCopy: any = {
-  title: "Simple, transparent pricing.",
+// ---------- HOME PAGE ----------
+export const homeCopy = {
+  title: "Your 24/7 AI Receptionist",
   subtitle:
-    "Choose the plan that fits your call volume and growth goals.",
-  plans: [
-    {
-      id: "starter",
+    "FrontDesk Agents answers calls, qualifies leads, and books appointments automatically.",
+  ctaPrimary: "Get started",
+  ctaSecondary: "Watch demo",
+};
+
+export const homeCopyEs = {
+  title: "Tu recepcionista de IA 24/7",
+  subtitle:
+    "FrontDesk Agents contesta llamadas, califica prospectos y agenda citas automáticamente.",
+  ctaPrimary: "Empezar ahora",
+  ctaSecondary: "Ver demo",
+};
+
+// ---------- PRICING PAGE ----------
+export const pricingCopy = {
+  title: "Simple, transparent pricing",
+  subtitle: "Choose the plan that fits your business.",
+  plans: {
+    starter: {
       name: "Starter",
       price: "$399/mo",
-      description:
-        "Solo & small clinics. 1 AI receptionist, 1 inbox, EN/ES, 24/7.",
-      cta: "Start with Starter",
+      description: "Solo & small clinics",
     },
-    {
-      id: "pro",
+    pro: {
       name: "Professional",
       price: "$899/mo",
-      description:
-        "Law firms & multi-location teams. 3 AI agents, CRM integration, call routing.",
-      cta: "Scale with Pro",
+      description: "SMBs, law firms & multi-location",
     },
-    {
-      id: "enterprise",
+    enterprise: {
       name: "Enterprise",
       price: "$1,799/mo",
-      description:
-        "Chains & large groups. Unlimited agents & inboxes, SSO, SLA, custom workflows.",
-      cta: "Talk to sales",
+      description: "Large orgs & call-heavy teams",
     },
-  ],
+  },
 };
 
-export const pricingCopyEs: any = {
-  title: "Precios simples y transparentes.",
-  subtitle:
-    "Elige el plan que se ajusta al volumen de llamadas y a tus objetivos de crecimiento.",
-  plans: [
-    {
-      id: "starter",
+export const pricingCopyEs = {
+  title: "Precios simples y transparentes",
+  subtitle: "Elige el plan que mejor se adapta a tu negocio.",
+  plans: {
+    starter: {
       name: "Starter",
-      price: "US$399/mes",
-      description:
-        "Consultorios y negocios pequeños. 1 recepcionista IA, 1 inbox, EN/ES, 24/7.",
-      cta: "Empezar con Starter",
+      price: "$399/mes",
+      description: "Consultorios pequeños y profesionales",
     },
-    {
-      id: "pro",
+    pro: {
       name: "Professional",
-      price: "US$899/mes",
-      description:
-        "Firmas legales y equipos multi-sede. 3 agentes IA, integración con CRM, enrutamiento.",
-      cta: "Escalar con Pro",
+      price: "$899/mes",
+      description: "Negocios, bufetes y varias sedes",
     },
-    {
-      id: "enterprise",
+    enterprise: {
       name: "Enterprise",
-      price: "US$1,799/mes",
-      description:
-        "Cadenas y grandes grupos. Agentes e inbox ilimitados, SSO, SLA, flujos a medida.",
-      cta: "Hablar con ventas",
+      price: "$1,799/mes",
+      description: "Organizaciones grandes y alto volumen",
     },
-  ],
+  },
 };
 
-// ---------- DEMO PAGE (IMPORTANTE) ----------
-
-export const demoCopy: any = {
-  heroTitle: "See FrontDesk Agents in action",
-  heroSubtitle:
-    "Book a live demo and watch our AI receptionist handle real calls, in real time.",
-  ctaPrimary: "Request a live demo",
-  ctaSecondary: "Talk to sales",
-};
-
-export const demoCopyEs: any = {
-  heroTitle: "Mira a FrontDesk Agents en acción",
-  heroSubtitle:
-    "Agenda una demo en vivo y mira cómo nuestra recepcionista de IA atiende llamadas reales, en tiempo real.",
-  ctaPrimary: "Solicitar demo en vivo",
-  ctaSecondary: "Hablar con ventas",
-};
+// ---------- DEMO PAGE ----------
 export const demoCopy = {
   heroTitle: "See FrontDesk Agents in action",
   heroSubtitle:
     "Book a live demo and watch our AI receptionist handle real calls, in real time.",
   ctaPrimary: "Request a live demo",
   ctaSecondary: "Talk to sales",
+};
+
+export const demoCopyEs = {
+  heroTitle: "Mira a FrontDesk Agents en acción",
+  heroSubtitle:
+    "Agenda una demo en vivo y mira cómo nuestra recepcionista de IA atiende llamadas reales, en tiempo real.",
+  ctaPrimary: "Solicitar demo en vivo",
+  ctaSecondary: "Hablar con ventas",
 };
