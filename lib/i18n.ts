@@ -6,8 +6,8 @@ import type { Lang } from "./use-language";
 // --------- TYPES ---------
 
 type HomeCopyBlock = {
-  title: string;
-  subtitle: string;
+  heroTitle: string;
+  heroSubtitle: string;
   ctaPrimary: string;
   ctaSecondary: string;
 };
@@ -27,15 +27,15 @@ type PricingCopyBlock = any;
 
 export const homeCopy: Record<Lang, HomeCopyBlock> = {
   en: {
-    title: "AI receptionists that never miss a call",
-    subtitle:
+    heroTitle: "AI receptionists that never miss a call",
+    heroSubtitle:
       "FrontDesk Agents answers, qualifies, and routes your calls 24/7 so you stop losing money every time the phone rings.",
     ctaPrimary: "Start with a live demo",
     ctaSecondary: "Talk to our team",
   },
   es: {
-    title: "Recepcionistas de IA que nunca pierden una llamada",
-    subtitle:
+    heroTitle: "Recepcionistas de IA que nunca pierden una llamada",
+    heroSubtitle:
       "FrontDesk Agents responde, califica y enruta tus llamadas 24/7 para que dejes de perder dinero cada vez que suena el teléfono.",
     ctaPrimary: "Comenzar con una demo en vivo",
     ctaSecondary: "Hablar con nuestro equipo",
