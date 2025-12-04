@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Lang = "en" | "es";
+export type Lang = "en" | "es";
 
 interface LanguageContextValue {
   lang: Lang;
@@ -20,7 +20,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const stored = window.localStorage.getItem("fda_lang") as Lang | null;
-    if (stored === "en" || stored === "es") setLangState(stored);
+    if (stored === "en" || stored === "es") {
+      setLangState(stored);
+    }
   }, []);
 
   const setLang = (next: Lang) => {
