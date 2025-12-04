@@ -1,19 +1,19 @@
-// components/ThemeToggle.tsx
+// app/components/ThemeToggle.tsx
 "use client";
 
-import { useTheme } from "@/app/providers/ThemeProvider";
+import { useTheme } from "../providers/ThemeProvider";
 
-export default function ThemeToggle() {
+export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
 
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs text-slate-200"
+      className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-medium text-slate-100 hover:border-sky-500 hover:text-sky-400 transition-colors"
       aria-label="Toggle theme"
     >
-      {theme === "dark" ? "🌙" : "☀️"}
+      {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
     </button>
   );
 }
