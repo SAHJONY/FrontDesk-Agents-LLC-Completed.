@@ -114,3 +114,10 @@ export const demoCopyEs: any = {
   ctaPrimary: "Solicitar demo en vivo",
   ctaSecondary: "Hablar con ventas",
 };
+export const demoCopy = {
+  heroTitle: "See FrontDesk Agents in action",
+  heroSubtitle:
+    "Book a live demo and watch our AI receptionist handle real calls, in real time.",
+  ctaPrimary: "Request a live demo",
+  ctaSecondary: "Talk to sales",
+};
