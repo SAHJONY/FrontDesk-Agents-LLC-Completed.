@@ -63,12 +63,11 @@ export default function TopNav() {
             <button
               type="button"
               onClick={() => setLang("es")}
-              className={
+              className =
                 "rounded-full px-2 py-1 " +
                 (lang === "es"
                   ? "bg-sky-500 text-slate-900"
                   : "text-slate-300")
-              }
             >
               ES
             </button>
