@@ -10,7 +10,7 @@ type PremiumImageProps = {
   priority?: boolean;
 };
 
-// Mapa simple de nombres a archivos reales en /public
+// Mapa simple de nombre lógico → archivo en /public
 const IMAGE_MAP: Record<
   string,
   { src: string; alt: string; width?: number; height?: number }
@@ -27,7 +27,6 @@ const IMAGE_MAP: Record<
     src: "/premium/demo-hero.png",
     alt: "FrontDesk Agents live demo call",
   },
-  // Añade aquí más claves si quieres mapear imágenes específicas.
 };
 
 const DEFAULT_IMAGE = {
