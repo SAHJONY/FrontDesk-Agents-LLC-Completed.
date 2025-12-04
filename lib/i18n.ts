@@ -1,10 +1,9 @@
 // lib/i18n.ts
 // i18n simple para FrontDesk Agents
-// Usamos tipos flexibles para evitar peleas con TypeScript.
 
 export type Locale = "en" | "es";
 
-// ----- LANDING / HOME -----
+// ---------- HOME / LANDING ----------
 
 export const landingCopy: any = {
   heroTitle: "AI receptionists that never miss a call.",
@@ -32,7 +31,7 @@ export const landingCopyEs: any = {
   ],
 };
 
-// ----- PRICING -----
+// ---------- PRICING ----------
 
 export const pricingCopy: any = {
   title: "Simple, transparent pricing.",
@@ -98,7 +97,7 @@ export const pricingCopyEs: any = {
   ],
 };
 
-// ----- DEMO PAGE (IMPORTANTE PARA EL ERROR) -----
+// ---------- DEMO PAGE (IMPORTANTE) ----------
 
 export const demoCopy: any = {
   heroTitle: "See FrontDesk Agents in action",
