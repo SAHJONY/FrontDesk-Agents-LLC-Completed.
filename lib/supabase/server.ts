@@ -1,24 +1,8 @@
-// lib/supabase/server.ts
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
+// TEMPORAL: stub para satisfacer imports desde /app/api/demo-request y /app/dashboard
+// Cuando definamos el cliente real de Supabase en el servidor, reemplazamos esto.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const createServerSupabase: any = () => {
   throw new Error(
-    "Missing Supabase env vars (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY)"
+    "createServerSupabase is not implemented yet. TODO: conectar Supabase server-side."
   );
-}
-
-export function getSupabaseServerClient(): SupabaseClient {
-  return createClient(supabaseUrl, supabaseAnonKey);
-}
-
-export const supabase = getSupabaseServerClient();
-
-export type SupabaseServerClient = typeof supabase;
-
-// Alias por si en algún sitio usan createServerClient()
-export function createServerClient(): SupabaseClient {
-  return getSupabaseServerClient();
-}
+};
