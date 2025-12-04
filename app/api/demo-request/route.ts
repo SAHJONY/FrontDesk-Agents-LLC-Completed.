@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Inserta en la tabla demo_requests (ajusta el nombre a tu tabla real si es diferente)
+    // Cambia "demo_requests" por el nombre real de tu tabla si es diferente
     const { error } = await supabase.from("demo_requests").insert([
       {
         name,
