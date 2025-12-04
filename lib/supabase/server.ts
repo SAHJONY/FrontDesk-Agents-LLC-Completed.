@@ -2,8 +2,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 /**
- * Cliente Supabase para usar en APIs y componentes server-side.
- * Usa las mismas env vars que ya configuraste en Vercel:
+ * Cliente Supabase para usar en rutas API y componentes server-side.
+ * Usa las mismas variables que ya configuraste en Vercel:
  * - NEXT_PUBLIC_SUPABASE_URL
  * - NEXT_PUBLIC_SUPABASE_ANON_KEY
  */
@@ -18,5 +18,8 @@ export function createServerSupabase() {
     throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
   }
 
-  return createClient(url, anonKey);
+  // Cliente de servicio básico (para lecturas/escrituras estándar)
+  const supabase = createClient(url, anonKey);
+
+  return supabase;
 }
