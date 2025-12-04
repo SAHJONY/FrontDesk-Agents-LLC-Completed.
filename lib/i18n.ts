@@ -1,80 +1,56 @@
 // lib/i18n.ts
+// Textos centralizados para la landing y la página de demo.
 
-// ---------- HOME PAGE ----------
-export const homeCopy = {
-  title: "Your 24/7 AI Receptionist",
-  subtitle:
-    "FrontDesk Agents answers calls, qualifies leads, and books appointments automatically.",
-  ctaPrimary: "Get started",
-  ctaSecondary: "Watch demo",
+import type { Lang } from "./use-language";
+
+type HomeCopyBlock = {
+  title: string;
+  subtitle: string;
+  ctaPrimary: string;
+  ctaSecondary: string;
 };
 
-export const homeCopyEs = {
-  title: "Tu recepcionista de IA 24/7",
-  subtitle:
-    "FrontDesk Agents contesta llamadas, califica prospectos y agenda citas automáticamente.",
-  ctaPrimary: "Empezar ahora",
-  ctaSecondary: "Ver demo",
+type DemoCopyBlock = {
+  heroTitle: string;
+  heroSubtitle: string;
+  ctaPrimary: string;
+  ctaSecondary: string;
 };
 
-// ---------- PRICING PAGE ----------
-export const pricingCopy = {
-  title: "Simple, transparent pricing",
-  subtitle: "Choose the plan that fits your business.",
-  plans: {
-    starter: {
-      name: "Starter",
-      price: "$399/mo",
-      description: "Solo & small clinics",
-    },
-    pro: {
-      name: "Professional",
-      price: "$899/mo",
-      description: "SMBs, law firms & multi-location",
-    },
-    enterprise: {
-      name: "Enterprise",
-      price: "$1,799/mo",
-      description: "Large orgs & call-heavy teams",
-    },
+// ---------------- HOME PAGE ----------------
+
+export const homeCopy: Record<Lang, HomeCopyBlock> = {
+  en: {
+    title: "AI receptionists that never miss a call",
+    subtitle:
+      "FrontDesk Agents answers, qualifies, and routes your calls 24/7 so you stop losing money every time the phone rings.",
+    ctaPrimary: "Start with a live demo",
+    ctaSecondary: "Talk to our team",
+  },
+  es: {
+    title: "Recepcionistas de IA que nunca pierden una llamada",
+    subtitle:
+      "FrontDesk Agents responde, califica y enruta tus llamadas 24/7 para que dejes de perder dinero cada vez que suena el teléfono.",
+    ctaPrimary: "Comenzar con una demo en vivo",
+    ctaSecondary: "Hablar con nuestro equipo",
   },
 };
 
-export const pricingCopyEs = {
-  title: "Precios simples y transparentes",
-  subtitle: "Elige el plan que mejor se adapta a tu negocio.",
-  plans: {
-    starter: {
-      name: "Starter",
-      price: "$399/mes",
-      description: "Consultorios pequeños y profesionales",
-    },
-    pro: {
-      name: "Professional",
-      price: "$899/mes",
-      description: "Negocios, bufetes y varias sedes",
-    },
-    enterprise: {
-      name: "Enterprise",
-      price: "$1,799/mes",
-      description: "Organizaciones grandes y alto volumen",
-    },
+// ---------------- DEMO PAGE ----------------
+
+export const demoCopy: Record<Lang, DemoCopyBlock> = {
+  en: {
+    heroTitle: "See FrontDesk Agents in action",
+    heroSubtitle:
+      "Book a live demo and watch our AI receptionist handle real calls, in real time.",
+    ctaPrimary: "Request a live demo",
+    ctaSecondary: "Talk to sales",
   },
-};
-
-// ---------- DEMO PAGE ----------
-export const demoCopy = {
-  heroTitle: "See FrontDesk Agents in action",
-  heroSubtitle:
-    "Book a live demo and watch our AI receptionist handle real calls, in real time.",
-  ctaPrimary: "Request a live demo",
-  ctaSecondary: "Talk to sales",
-};
-
-export const demoCopyEs = {
-  heroTitle: "Mira a FrontDesk Agents en acción",
-  heroSubtitle:
-    "Agenda una demo en vivo y mira cómo nuestra recepcionista de IA atiende llamadas reales, en tiempo real.",
-  ctaPrimary: "Solicitar demo en vivo",
-  ctaSecondary: "Hablar con ventas",
+  es: {
+    heroTitle: "Mira a FrontDesk Agents en acción",
+    heroSubtitle:
+      "Agenda una demo en vivo y mira cómo nuestra recepcionista de IA atiende llamadas reales, en tiempo real.",
+    ctaPrimary: "Solicitar demo en vivo",
+    ctaSecondary: "Hablar con ventas",
+  },
 };
