@@ -10,43 +10,44 @@ export async function POST(req: Request) {
       name,
       email,
       phone,
-      businessType,
-      companyName,
+      company,
+      plan, // starter / pro / enterprise
       notes,
-    } = body ?? {};
+    } = body || {};
 
-    if (!name || !email) {
+    if (!email) {
       return NextResponse.json(
-        { ok: false, error: "Name and email are required" },
+        { ok: false, error: "Missing email" },
         { status: 400 }
       );
     }
 
     const supabase = createServerSupabase();
 
-    const { error } = await supabase.from("demo_leads").insert({
-      name,
-      email,
-      phone,
-      business_type: businessType ?? null,
-      company_name: companyName ?? null,
-      notes: notes ?? null,
-      source: "website-demo",
-    });
+    const { error } = await supabase.from("demo_requests").insert([
+      {
+        name: name ?? null,
+        email,
+        phone: phone ?? null,
+        company: company ?? null,
+        plan: plan ?? null,
+        notes: notes ?? null,
+      },
+    ]);
 
     if (error) {
-      console.error("Supabase insert error:", error);
+      console.error("Supabase insert error", error);
       return NextResponse.json(
-        { ok: false, error: "DB_ERROR" },
+        { ok: false, error: error.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error("Demo request API error:", err);
+  } catch (err: any) {
+    console.error("Demo request error", err);
     return NextResponse.json(
-      { ok: false, error: "INTERNAL_ERROR" },
+      { ok: false, error: "Unexpected error" },
       { status: 500 }
     );
   }
