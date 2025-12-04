@@ -10,15 +10,17 @@ export default function HomePage() {
   const t = homeCopy[lang];
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 md:flex-row">
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10 md:flex-row md:items-center">
       <section className="flex-1 space-y-6">
         <p className="text-xs tracking-[0.25em] text-sky-400">
           AI RECEPTIONIST • 24/7
         </p>
-        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
           {t.heroTitle}
         </h1>
-        <p className="max-w-xl text-slate-300">{t.heroSubtitle}</p>
+        <p className="max-w-xl text-sm text-slate-300 md:text-base">
+          {t.heroSubtitle}
+        </p>
 
         <div className="flex flex-wrap gap-3">
           <button className="rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-slate-950">
