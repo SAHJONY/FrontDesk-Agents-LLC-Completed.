@@ -1,10 +1,10 @@
-// app/components/MainNav.tsx
+// components/top-nav.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLanguage } from "../providers/LanguageProvider";
-import { ThemeToggle } from "./ThemeToggle";
+import { useLanguage } from "@/app/providers/LanguageProvider";
+import ThemeToggle from "./ThemeToggle";
 
 const links = [
   { href: "/", label: { en: "Home", es: "Inicio" } },
@@ -14,7 +14,7 @@ const links = [
   { href: "/support", label: { en: "Support", es: "Soporte" } },
 ];
 
-export function MainNav() {
+export default function TopNav() {
   const pathname = usePathname();
   const { lang, setLang } = useLanguage();
 
@@ -34,7 +34,9 @@ export function MainNav() {
                 href={link.href}
                 className={
                   "transition-colors " +
-                  (isActive ? "text-sky-400" : "text-slate-300 hover:text-white")
+                  (isActive
+                    ? "text-sky-400"
+                    : "text-slate-300 hover:text-white")
                 }
               >
                 {link.label[lang]}
@@ -44,12 +46,13 @@ export function MainNav() {
         </nav>
 
         <div className="flex items-center gap-3">
-          {/* Language switch */}
+          {/* EN / ES */}
           <div className="flex items-center rounded-full border border-slate-700 bg-slate-900 px-1 text-xs">
             <button
+              type="button"
               onClick={() => setLang("en")}
               className={
-                "px-2 py-1 rounded-full " +
+                "rounded-full px-2 py-1 " +
                 (lang === "en"
                   ? "bg-sky-500 text-slate-900"
                   : "text-slate-300")
@@ -58,9 +61,10 @@ export function MainNav() {
               EN
             </button>
             <button
+              type="button"
               onClick={() => setLang("es")}
               className={
-                "px-2 py-1 rounded-full " +
+                "rounded-full px-2 py-1 " +
                 (lang === "es"
                   ? "bg-sky-500 text-slate-900"
                   : "text-slate-300")
@@ -70,7 +74,7 @@ export function MainNav() {
             </button>
           </div>
 
-          {/* Theme toggle */}
+          {/* Theme */}
           <ThemeToggle />
         </div>
       </div>
