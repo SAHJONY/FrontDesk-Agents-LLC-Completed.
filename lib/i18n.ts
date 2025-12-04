@@ -10,6 +10,7 @@ type HomeCopyBlock = {
   heroSubtitle: string;
   ctaPrimary: string;
   ctaSecondary: string;
+  bullets: string[];
 };
 
 type DemoCopyBlock = {
@@ -19,8 +20,6 @@ type DemoCopyBlock = {
   ctaSecondary: string;
 };
 
-// Lo dejamos flexible para que pricing/page.tsx pueda usar
-// lo que necesite sin pelear con tipos.
 type PricingCopyBlock = any;
 
 // --------- HOME PAGE ---------
@@ -32,6 +31,11 @@ export const homeCopy: Record<Lang, HomeCopyBlock> = {
       "FrontDesk Agents answers, qualifies, and routes your calls 24/7 so you stop losing money every time the phone rings.",
     ctaPrimary: "Start with a live demo",
     ctaSecondary: "Talk to our team",
+    bullets: [
+      "24/7 coverage with human-level voice AI",
+      "No more missed calls or full voicemail boxes",
+      "Smart routing, qualification, and intake for every caller",
+    ],
   },
   es: {
     heroTitle: "Recepcionistas de IA que nunca pierden una llamada",
@@ -39,6 +43,11 @@ export const homeCopy: Record<Lang, HomeCopyBlock> = {
       "FrontDesk Agents responde, califica y enruta tus llamadas 24/7 para que dejes de perder dinero cada vez que suena el teléfono.",
     ctaPrimary: "Comenzar con una demo en vivo",
     ctaSecondary: "Hablar con nuestro equipo",
+    bullets: [
+      "Cobertura 24/7 con voz de IA a nivel humano",
+      "Nunca más llamadas perdidas ni buzones llenos",
+      "Enrutamiento, filtrado y registro inteligente de cada llamada",
+    ],
   },
 };
 
