@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/", label: "Dashboard" },
-  { href: "/calls", label: "Calls" },
-  { href: "/analytics", label: "Analytics" },
-  { href: "/settings", label: "Settings" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/demo", label: "Demo" },
+  { href: "/dashboard", label: "App" },
 ];
 
 export default function TopNav() {
@@ -52,9 +52,8 @@ export default function TopNav() {
           })}
         </nav>
 
-        {/* Right side (placeholder for future actions) */}
+        {/* Right side placeholder */}
         <div className="flex items-center gap-2">
-          {/* Aquí después podemos re-agregar ThemeToggle o LanguageSwitcher */}
           <span className="rounded-full border border-neutral-700 px-3 py-1 text-[11px] text-neutral-300">
             v1 · Enterprise Ready
           </span>
