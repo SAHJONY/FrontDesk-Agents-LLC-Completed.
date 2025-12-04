@@ -1,81 +1,36 @@
-// app/dashboard/page.tsx
-import { createServerSupabase } from "@/lib/supabase/server";
+import SidebarLayout from "../components/SidebarLayout";
 
-type DemoRequest = {
-  id: number;
-  created_at: string;
-  name: string | null;
-  email: string;
-  phone: string | null;
-  company: string | null;
-  plan: string | null;
-};
-
-export default async function DashboardPage() {
-  const supabase = createServerSupabase();
-
-  const { data, error } = await supabase
-    .from("demo_requests")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  const rows = (data ?? []) as DemoRequest[];
-
+export default function DashboardPage() {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-semibold text-white">
-        Owner Console – Demo Requests
-      </h1>
-
-      {error && (
-        <p className="text-sm text-red-400">
-          Error loading demo requests: {error.message}
+    <SidebarLayout title="Dashboard overview">
+      {/* Aquí va tu contenido actual de dashboard.
+          Si ahora no tienes nada, dejamos un placeholder. */}
+      <div className="space-y-4 text-sm">
+        <p className="text-slate-600 dark:text-slate-300">
+          Aquí verás el resumen de llamadas, demos agendadas y performance de tus
+          agentes ALEX / SARA.
         </p>
-      )}
-
-      <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-slate-800 bg-slate-900/80 text-slate-300">
-            <tr>
-              <th className="px-4 py-2">Created</th>
-              <th className="px-4 py-2">Name</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Plan</th>
-              <th className="px-4 py-2">Company</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-4 text-center text-slate-400"
-                >
-                  No demo requests yet.
-                </td>
-              </tr>
-            ) : (
-              rows.map((r) => (
-                <tr
-                  key={r.id}
-                  className="border-t border-slate-800 text-slate-200"
-                >
-                  <td className="px-4 py-2">
-                    {new Date(r.created_at).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-2">{r.name ?? "—"}</td>
-                  <td className="px-4 py-2">{r.email}</td>
-                  <td className="px-4 py-2">{r.phone ?? "—"}</td>
-                  <td className="px-4 py-2">{r.plan ?? "—"}</td>
-                  <td className="px-4 py-2">{r.company ?? "—"}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
+            <p className="text-[11px] text-slate-500 uppercase tracking-[0.18em]">
+              Today&apos;s calls
+            </p>
+            <p className="mt-2 text-2xl font-semibold">0</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
+            <p className="text-[11px] text-slate-500 uppercase tracking-[0.18em]">
+              Booked demos
+            </p>
+            <p className="mt-2 text-2xl font-semibold">0</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
+            <p className="text-[11px] text-slate-500 uppercase tracking-[0.18em]">
+              Missed calls
+            </p>
+            <p className="mt-2 text-2xl font-semibold">0</p>
+          </div>
+        </div>
       </div>
-    </main>
+    </SidebarLayout>
   );
 }
