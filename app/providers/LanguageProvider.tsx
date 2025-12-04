@@ -1,21 +1,40 @@
-// app/providers.tsx
+// app/providers/LanguageProvider.tsx
 "use client";
 
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
+import {
+  LanguageProvider as CoreLanguageProvider,
+  useLanguage as useCoreLanguage,
+} from "@/contexts/LanguageContext";
 
-// 🔴 IMPORTANTE:
-// Ajusta esta línea si tu LanguageProvider está en otra ruta o archivo.
-// Ejemplos posibles:
-// "@/contexts/LanguageContext"
-// "@/context/LanguageContext"
-// "@/providers/LanguageProvider"
-import { LanguageProvider } from "@/contexts/LanguageContext";
+/**
+ * Wrapper para mantener compatibilidad con el código existente.
+ * - Provee el provider global de idioma.
+ * - Expone useLanguage con ambas formas:
+ *   { lang, setLang }  (legacy)
+ *   { language, setLanguage } (nueva)
+ */
 
-type AppProvidersProps = {
+type Props = {
   children: ReactNode;
 };
 
-export default function AppProviders({ children }: AppProvidersProps) {
-  // Aquí envuelves TODA la app con tu LanguageProvider existente
-  return <LanguageProvider>{children}</LanguageProvider>;
+export function LanguageProvider({ children }: Props) {
+  return <CoreLanguageProvider>{children}</CoreLanguageProvider>;
 }
+
+export function useLanguage() {
+  const { language, setLanguage } = useCoreLanguage();
+
+  return {
+    // API legacy esperada por Footer, page.tsx, etc.
+    lang: language,
+    setLang: setLanguage,
+    // API nueva directa por si la usas en nuevos componentes
+    language,
+    setLanguage,
+  };
+}
+
+// Default export por si en algún lugar usan `import useLanguage from "..."`
+export default useLanguage;
