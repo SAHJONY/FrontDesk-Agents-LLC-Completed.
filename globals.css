@@ -1,0 +1,25 @@
+/* globals.css */
+:root {
+  color-scheme: dark;
+}
+
+body[data-theme="light"],
+.theme-light {
+  --bg: #f8fafc;
+  --fg: #020617;
+  --card: #ffffff;
+}
+
+body[data-theme="dark"],
+.theme-dark {
+  --bg: #020617;
+  --fg: #e2e8f0;
+  --card: #020617;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+/* Ajusta componentes a usar var(--bg), var(--card) en vez de hardcodear */
