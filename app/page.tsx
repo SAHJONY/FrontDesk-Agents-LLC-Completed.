@@ -1,119 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "./providers/LanguageProvider";
 
 const copy = {
   en: {
-    badge: "AI RECEPTIONIST • 24/7",
-    heroTitle: "FrontDesk Agents answers, qualifies, and routes your calls 24/7.",
-    heroSubtitle:
-      "Stop losing money every time the phone rings. Our AI receptionists cover your phones day and night, qualify callers, and route them to the right place.",
+    kpi: "AI RECEPTIONIST • 24/7",
+    title:
+      "Never miss a profitable call again. Your AI receptionist covers the phones 24/7.",
+    subtitle:
+      "FrontDesk Agents answers, qualifies, and routes your calls so every ring turns into booked appointments and new revenue.",
     primaryCta: "Start with a live demo",
     secondaryCta: "Talk to our team",
     bullets: [
-      "24/7 coverage with human-level voice AI",
-      "No more missed calls or full voicemail boxes",
-      "Smart routing, qualification, and intake for every caller",
+      "Works with your existing numbers (Twilio, Bland.ai, etc.)",
+      "Human-level conversations in English & Spanish",
+      "Instant intake, routing, and CRM-ready data for every caller",
     ],
-    langToggle: "ES",
   },
   es: {
-    badge: "RECEPCIONISTA IA • 24/7",
-    heroTitle:
-      "FrontDesk Agents atiende, califica y enruta tus llamadas las 24/7.",
-    heroSubtitle:
-      "Deja de perder dinero cada vez que suena el teléfono. Nuestros recepcionistas de IA cubren tus llamadas día y noche, califican a los clientes y los envían al lugar correcto.",
+    kpi: "RECEPCIONISTA IA • 24/7",
+    title:
+      "Nunca vuelvas a perder una llamada rentable. Tu recepcionista IA cubre el teléfono 24/7.",
+    subtitle:
+      "FrontDesk Agents atiende, califica y enruta tus llamadas para convertir cada timbre en citas agendadas y nuevos ingresos.",
     primaryCta: "Comienza con una demo en vivo",
     secondaryCta: "Habla con nuestro equipo",
     bullets: [
-      "Cobertura 24/7 con voz IA a nivel humano",
-      "Nunca más llamadas perdidas ni buzones llenos",
-      "Enrutamiento inteligente, calificación e intake de cada llamada",
+      "Funciona con tus números actuales (Twilio, Bland.ai, etc.)",
+      "Conversaciones a nivel humano en inglés y español",
+      "Intake, enrutamiento y datos listos para tu CRM en cada llamada",
     ],
-    langToggle: "EN",
   },
 };
 
-type Theme = "light" | "dark";
-
 export default function HomePage() {
-  const { lang, setLang } = useLanguage();
+  const { lang } = useLanguage();
   const t = copy[lang];
 
-  const [theme, setTheme] = useState<Theme>("light");
-
-  // Inicializa tema desde localStorage o preferencia del sistema
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("theme") as Theme | null;
-    const prefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    const initial: Theme =
-      stored === "dark" || (!stored && prefersDark) ? "dark" : "light";
-
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
-  }, []);
-
-  // Aplica cambios cuando el usuario cambia el tema
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    window.localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  const isDark = theme === "dark";
-
   return (
-    <main className="min-h-screen flex flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors">
-      {/* Top bar with brand, language + theme toggles */}
-      <header className="w-full border-b border-slate-100 dark:border-slate-800">
-        <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-sky-500" />
-            <span className="text-sm font-semibold tracking-tight">
-              FrontDesk Agents
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Theme toggle */}
-            <button
-              type="button"
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              className="text-xs font-medium px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-100 shadow-sm"
-            >
-              {isDark ? "☀️ Light" : "🌙 Dark"}
-            </button>
-
-            {/* Language toggle */}
-            <button
-              type="button"
-              onClick={() => setLang(lang === "en" ? "es" : "en")}
-              className="text-xs font-medium px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 bg-white dark:bg-slate-900"
-            >
-              {t.langToggle}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* HERO */}
-      <section className="flex-1 w-full">
-        <div className="max-w-5xl mx-auto px-4 pt-6 pb-12 flex flex-col gap-6">
-          <p className="text-[11px] tracking-[0.25em] text-sky-500 font-semibold uppercase">
-            {t.badge}
+    <main className="min-h-[calc(100vh-56px)] bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
+      <div className="max-w-6xl mx-auto px-4 pt-10 pb-16 grid gap-10 md:grid-cols-2 items-center">
+        {/* Columna texto */}
+        <div className="space-y-5">
+          <p className="text-[11px] font-semibold tracking-[0.22em] text-sky-500 uppercase">
+            {t.kpi}
           </p>
-
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight">
-            {t.heroTitle}
+            {t.title}
           </h1>
-
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xl">
-            {t.heroSubtitle}
+            {t.subtitle}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
@@ -123,27 +61,62 @@ export default function HomePage() {
             >
               {t.primaryCta}
             </Link>
-
             <Link
               href="/support"
-              className="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-100 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-100 bg-white/80 dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               {t.secondaryCta}
             </Link>
           </div>
 
-          <ul className="mt-1 space-y-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+          <ul className="mt-2 space-y-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
             {t.bullets.map((b, idx) => (
               <li key={idx} className="flex items-start gap-2">
-                <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-sky-500" />
+                <span className="mt-[7px] h-1.5 w-1.5 rounded-full bg-sky-500" />
                 <span>{b}</span>
               </li>
             ))}
           </ul>
         </div>
-      </section>
 
-      <div className="w-full border-t border-slate-100 dark:border-slate-800" />
+        {/* Columna imágenes premium */}
+        <div className="relative">
+          <div className="relative rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 shadow-xl overflow-hidden">
+            <Image
+              src="/images/premium/frontdesk-dashboard-main.jpg"
+              alt="FrontDesk Agents AI receptionist dashboard"
+              width={900}
+              height={600}
+              className="w-full h-auto object-cover"
+              priority
+            />
+          </div>
+
+          <div className="absolute -bottom-6 -right-4 hidden sm:block w-40">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg overflow-hidden">
+              <Image
+                src="/images/premium/frontdesk-multilingual-inbox.jpg"
+                alt="Multilingual inbox preview"
+                width={400}
+                height={260}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          </div>
+
+          <div className="absolute -top-6 -left-6 hidden sm:block w-32">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg overflow-hidden">
+              <Image
+                src="/images/premium/frontdesk-analytics-retention.jpg"
+                alt="Call analytics and retention"
+                width={320}
+                height={220}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
