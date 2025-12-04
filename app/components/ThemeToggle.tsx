@@ -1,19 +1,14 @@
-// app/components/ThemeToggle.tsx
-"use client";
+"use server";
 
-import { useTheme } from "../providers/ThemeProvider";
+import { createClient } from "@supabase/supabase-js";
 
-export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+export function createServerSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-medium text-slate-100 hover:border-sky-500 hover:text-sky-400 transition-colors"
-      aria-label="Toggle theme"
-    >
-      {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
-    </button>
-  );
+  return createClient(url, key, {
+    auth: { persistSession: false },
+  });
 }
