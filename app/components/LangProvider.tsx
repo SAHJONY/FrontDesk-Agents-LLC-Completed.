@@ -10,39 +10,37 @@ import React, {
 type Language = "en" | "es";
 
 type LanguageContextValue = {
-  lang: Language;
-  setLang: (lang: Language) => void;
+  language: Language;
+  setLanguage: (lang: Language) => void;
 };
 
-const LanguageContext = createContext<LanguageContextValue | undefined>(
-  undefined
-);
+// Fallback seguro para prerender / sin provider
+const LanguageContext = createContext<LanguageContextValue>({
+  language: "en",
+  setLanguage: () => {
+    // no-op
+  },
+});
 
-export function useLanguage(): LanguageContextValue {
-  const ctx = useContext(LanguageContext);
-
-  // ✅ Fallback seguro: si NO hay Provider, no rompemos el build
-  if (!ctx) {
-    return {
-      lang: "en",
-      setLang: () => {
-        // no-op en SSR / fuera de Provider
-      },
-    };
-  }
-
-  return ctx;
+export function useLanguage() {
+  // NUNCA lanza error: siempre hay un valor por defecto
+  return useContext(LanguageContext);
 }
 
-type Props = {
+type LangProviderProps = {
   children: ReactNode;
 };
 
-export default function LangProvider({ children }: Props) {
-  const [lang, setLang] = useState<Language>("en");
+export default function LangProvider({ children }: LangProviderProps) {
+  const [language, setLanguage] = useState<Language>("en");
+
+  const value: LanguageContextValue = {
+    language,
+    setLanguage,
+  };
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
