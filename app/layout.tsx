@@ -1,13 +1,11 @@
-// app/layout.tsx
-import "./globals.css";
 import type { Metadata } from "next";
+import "./globals.css";
 import MainNav from "./components/MainNav";
-import LangProvider from "./components/LangProvider";
+import { LanguageProvider } from "./components/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents",
-  description:
-    "AI Receptionists and Phone Agents that answer, qualify and book for your business 24/7.",
+  description: "AI Receptionist SaaS platform",
 };
 
 export default function RootLayout({
@@ -17,15 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-50 text-slate-900">
-        {/* Language context for the whole app */}
-        <LangProvider>
-          {/* Top navigation bar */}
+      <body>
+        <LanguageProvider>
           <MainNav />
-
-          {/* Page content */}
-          <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
-        </LangProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );
