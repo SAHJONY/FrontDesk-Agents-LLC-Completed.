@@ -47,11 +47,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext);
 
-  // 🚫 NUNCA lanzar error en build/SSR
+  // IMPORTANTE: NADA DE "throw" AQUÍ
   if (!ctx) {
     return {
       lang: "en",
-      // no-op en SSR si no hay provider
       setLang: () => {},
     };
   }
