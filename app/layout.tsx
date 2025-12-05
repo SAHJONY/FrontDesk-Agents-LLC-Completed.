@@ -1,28 +1,24 @@
 // app/layout.tsx
 import "./globals.css";
-import type { Metadata } from "next";
-import React from "react";
-import ThemeProvider from "./providers/ThemeProvider";
-import LanguageProvider from "./providers/LanguageProvider";
-import { BRAND } from "./config/branding";
+import type { ReactNode } from "react";
+import { MainNav } from "@/components/MainNav";
 
-export const metadata: Metadata = {
-  title: `${BRAND.name} • AI Voice Receptionist`,
-  description:
-    "24/7 AI voice receptionists that answer, qualify, and schedule calls so you never miss a high-value customer again.",
+export const metadata = {
+  title: "FrontDesk Agents – AI Receptionists",
+  description: "24/7 AI phone receptionists that answer, qualify and book your clients automatically.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-foreground antialiased">
-        <ThemeProvider>
-          <LanguageProvider>{children}</LanguageProvider>
-        </ThemeProvider>
+    <html lang="en">
+      <body className="bg-slate-950 text-slate-50">
+        {/* Global navigation bar */}
+        <MainNav />
+
+        {/* Main content wrapper */}
+        <main className="min-h-screen mx-auto max-w-6xl px-4 py-10 lg:px-8">
+          {children}
+        </main>
       </body>
     </html>
   );
