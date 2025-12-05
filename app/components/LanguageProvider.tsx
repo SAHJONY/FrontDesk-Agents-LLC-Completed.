@@ -1,11 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
 type Language = "en" | "es";
 
@@ -14,34 +9,22 @@ type LanguageContextValue = {
   setLanguage: (lang: Language) => void;
 };
 
-// Contexto con valor por defecto seguro para prerender
-const LanguageContext = createContext<LanguageContextValue>({
-  language: "en",
-  setLanguage: () => {
-    // no-op para entornos sin provider (build, prerender)
-  },
-});
+const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
-export function useLanguage() {
-  // NUNCA lanza error: siempre devuelve algo
-  return useContext(LanguageContext);
-}
-
-type LanguageProviderProps = {
-  children: ReactNode;
-};
-
-export function LanguageProvider({ children }: LanguageProviderProps) {
+export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
 
-  const value: LanguageContextValue = {
-    language,
-    setLanguage,
-  };
-
   return (
-    <LanguageContext.Provider value={value}>
+    <LanguageContext.Provider value={{ language, setLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
+}
+
+export function useLanguage() {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) {
+    throw new Error("useLanguage must be used within a LanguageProvider");
+  }
+  return ctx;
 }
