@@ -1,8 +1,11 @@
+// app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import MainNav from "@/app/components/MainNav";
-import LangProvider from "@/app/components/LangProvider";
+import React from "react";
+
+import MainNav from "./components/MainNav";
+import LangProvider from "./components/LangProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
