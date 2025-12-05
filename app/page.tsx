@@ -4,7 +4,6 @@ import Image from "next/image";
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-50">
-      {/* Top nav */}
       <header className="w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-8">
           <div className="flex items-center gap-2">
@@ -53,9 +52,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero section */}
       <section className="mx-auto flex max-w-7xl flex-col gap-10 px-4 pb-20 pt-10 md:flex-row md:items-center md:justify-between md:px-8 md:pt-16">
-        {/* Left column */}
         <div className="max-w-xl space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-500/10 px-3 py-1 text-[11px] font-medium text-sky-200">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -111,7 +108,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Right column – premium visual */}
         <div className="relative mt-8 w-full max-w-md md:mt-0 md:max-w-lg">
           <div className="absolute -inset-8 -z-10 rounded-3xl bg-sky-500/20 blur-3xl" />
           <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-950/80 shadow-2xl shadow-sky-900/40">
@@ -155,7 +151,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trust strip */}
       <section className="border-t border-slate-800/80 bg-slate-950/90">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-[11px] text-slate-500 md:flex-row md:items-center md:justify-between md:px-8">
           <div className="uppercase tracking-[0.22em] text-slate-500">
