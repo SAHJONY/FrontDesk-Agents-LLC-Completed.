@@ -1,172 +1,197 @@
-import LanguageProvider, { useLanguage } from "./providers/LanguageProvider";
-import { FRONTDESK_BRAND } from "./config/branding";
+// app/page.tsx
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { BRAND } from "./config/branding";
+import { useLanguage } from "./providers/LanguageProvider";
+import { useTheme } from "./providers/ThemeProvider";
+
+const copy = {
+  en: {
+    heroKicker: "AI RECEPTIONIST • 24/7",
+    heroTitle: "Never miss a billable call again.",
+    heroSubtitle:
+      "FrontDesk Agents answers, qualifies, and routes your calls 24/7 so you stop losing money every time the phone rings.",
+    ctaPrimary: "Start with a live demo",
+    ctaSecondary: "Talk to our team",
+    bullets: [
+      "24/7 coverage with human-level voice AI",
+      "No more missed calls or full voicemail boxes",
+      "Smart routing, qualification, and intake for every caller",
+    ],
+    menu: {
+      demo: "Demo",
+      pricing: "Pricing",
+      industries: "Industries",
+      support: "Support",
+      login: "Login",
+      signup: "Get started",
+    },
+  },
+  es: {
+    heroKicker: "RECEPCIONISTA VIRTUAL • 24/7",
+    heroTitle: "Nunca más pierdas una llamada de dinero.",
+    heroSubtitle:
+      "FrontDesk Agents atiende, califica y enruta tus llamadas 24/7 para que dejes de perder clientes cada vez que suena el teléfono.",
+    ctaPrimary: "Comienza con una demo en vivo",
+    ctaSecondary: "Habla con nuestro equipo",
+    bullets: [
+      "Cobertura 24/7 con voz IA a nivel humano",
+      "Sin llamadas perdidas ni buzones llenos",
+      "Enrutamiento, calificación e intake inteligente en cada llamada",
+    ],
+    menu: {
+      demo: "Demo",
+      pricing: "Precios",
+      industries: "Industrias",
+      support: "Soporte",
+      login: "Acceder",
+      signup: "Crear cuenta",
+    },
+  },
+};
 
 export default function HomePage() {
+  const { lang, setLang } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
+  const t = copy[lang];
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-50">
-      <header className="w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-8">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-xl bg-sky-500/20 ring-1 ring-sky-500/40 flex items-center justify-center text-sky-300 text-sm font-bold">
-              FA
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50">
+      {/* Top nav */}
+      <header className="w-full border-b border-white/5 bg-slate-950/70 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <div className="flex items-center gap-3">
+            <div className="relative h-8 w-8 overflow-hidden rounded-xl border border-cyan-400/40 bg-slate-900/80">
+              <Image
+                src={theme === "dark" ? BRAND.logoDark : BRAND.logoLight}
+                alt={BRAND.name}
+                fill
+                className="object-contain p-1.5"
+              />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold leading-tight">
-                FrontDesk <span className="text-sky-400">Agents</span>
+              <span className="text-sm font-semibold tracking-tight">
+                {BRAND.name}
               </span>
-              <span className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
-                AI Voice Receptionist • 24/7
+              <span className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/80">
+                {BRAND.tagline}
               </span>
             </div>
           </div>
 
-          <nav className="hidden items-center gap-6 text-xs font-medium text-slate-300 md:flex">
-            <Link href="/industries" className="hover:text-white">
-              Industries
+          <nav className="hidden items-center gap-6 text-sm text-slate-200/80 md:flex">
+            <Link href="/demo" className="hover:text-white">
+              {t.menu.demo}
             </Link>
             <Link href="/pricing" className="hover:text-white">
-              Pricing
+              {t.menu.pricing}
+            </Link>
+            <Link href="/industries" className="hover:text-white">
+              {t.menu.industries}
             </Link>
             <Link href="/support" className="hover:text-white">
-              Support
-            </Link>
-            <Link href="/login" className="text-slate-300 hover:text-white">
-              Log in
-            </Link>
-            <Link
-              href="/setup"
-              className="rounded-full bg-sky-500 px-4 py-1.5 text-xs font-semibold text-slate-950 hover:bg-sky-400"
-            >
-              Get started
+              {t.menu.support}
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2 md:hidden">
-            <Link
-              href="/login"
-              className="rounded-full border border-slate-700 px-3 py-1 text-[11px]"
+          <div className="flex items-center gap-2">
+            {/* Language toggle */}
+            <button
+              onClick={() => setLang(lang === "en" ? "es" : "en")}
+              className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-xs font-medium text-slate-200 hover:border-cyan-400/70 hover:text-white"
             >
-              Log in
-            </Link>
+              {lang === "en" ? "ES" : "EN"}
+            </button>
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="rounded-full border border-slate-700 bg-slate-900/80 p-1.5 text-slate-200 hover:border-cyan-400/70 hover:text-white"
+              aria-label="Toggle light/dark mode"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+
+            <div className="hidden items-center gap-2 md:flex">
+              <Link
+                href="/login"
+                className="rounded-full px-3 py-1 text-xs font-medium text-slate-200 hover:text-white"
+              >
+                {t.menu.login}
+              </Link>
+              <Link
+                href="/setup"
+                className="rounded-full bg-cyan-500 px-4 py-1.5 text-xs font-semibold text-slate-950 shadow-lg shadow-cyan-500/40 hover:bg-cyan-400"
+              >
+                {t.menu.signup}
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      <section className="mx-auto flex max-w-7xl flex-col gap-10 px-4 pb-20 pt-10 md:flex-row md:items-center md:justify-between md:px-8 md:pt-16">
-        <div className="max-w-xl space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-500/10 px-3 py-1 text-[11px] font-medium text-sky-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Live 24/7 AI Receptionist • Phone, SMS & WhatsApp
-          </div>
+      {/* Hero */}
+      <main className="flex flex-1 items-center">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-10 md:grid-cols-2 md:py-16">
+          <section className="flex flex-col justify-center gap-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
+              {t.heroKicker}
+            </p>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl md:text-5xl">
+              {t.heroTitle}
+            </h1>
+            <p className="max-w-xl text-sm text-slate-300">
+              {t.heroSubtitle}
+            </p>
 
-          <h1 className="text-balance text-3xl font-semibold tracking-tight text-slate-50 md:text-4xl lg:text-5xl">
-            Turn every missed call into{" "}
-            <span className="text-sky-400">revenue</span>, not lost business.
-          </h1>
-
-          <p className="text-sm leading-relaxed text-slate-300 md:text-base">
-            FrontDesk Agents answers, qualifies and schedules every lead{" "}
-            <span className="text-sky-200 font-medium">in real time</span>.
-            Your clients speak with a natural AI receptionist that never sleeps,
-            never forgets, and speaks their language.
-          </p>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link
-              href="/setup"
-              className="inline-flex items-center justify-center rounded-full bg-sky-500 px-6 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/30 hover:bg-sky-400"
-            >
-              Launch my AI receptionist
-            </Link>
-            <Link
-              href="/demo"
-              className="inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-900/60 px-5 py-2 text-sm text-slate-100 hover:border-sky-500 hover:text-sky-200"
-            >
-              Watch 2-minute demo →
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 pt-4 text-xs text-slate-400 md:grid-cols-3">
-            <div>
-              <div className="text-sm font-semibold text-sky-200">
-                24/7 coverage
-              </div>
-              <div>Never miss another lead, even at 2:00 AM.</div>
+            <div className="mt-2 flex flex-wrap gap-3">
+              <Link
+                href="/demo"
+                className="rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/40 hover:bg-cyan-400"
+              >
+                {t.ctaPrimary}
+              </Link>
+              <Link
+                href="/support"
+                className="rounded-full border border-slate-600 bg-slate-900/60 px-5 py-2 text-sm font-medium text-slate-100 hover:border-cyan-400/60"
+              >
+                {t.ctaSecondary}
+              </Link>
             </div>
-            <div>
-              <div className="text-sm font-semibold text-sky-200">
-                Multilingual
-              </div>
-              <div>English & Spanish out of the box.</div>
+
+            <ul className="mt-3 space-y-1 text-xs text-slate-300">
+              {t.bullets.map((b) => (
+                <li key={b} className="flex items-start gap-2">
+                  <span className="mt-[3px] h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Premium hero image */}
+          <section className="relative h-72 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60 shadow-[0_0_80px_rgba(56,189,248,0.35)] md:h-96">
+            <Image
+              src={BRAND.heroImage}
+              alt="AI receptionists routing calls"
+              fill
+              priority
+              className="object-cover"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+            <div className="absolute bottom-4 left-4 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-2 text-xs text-slate-100 backdrop-blur">
+              <p className="font-semibold">
+                Live AI reception in under 24 hours.
+              </p>
+              <p className="text-[11px] text-slate-300">
+                Plug-and-play with your existing phone numbers and CRMs.
+              </p>
             </div>
-            <div>
-              <div className="text-sm font-semibold text-sky-200">
-                Plug & play
-              </div>
-              <div>Connect your number and start in minutes.</div>
-            </div>
-          </div>
+          </section>
         </div>
-
-        <div className="relative mt-8 w-full max-w-md md:mt-0 md:max-w-lg">
-          <div className="absolute -inset-8 -z-10 rounded-3xl bg-sky-500/20 blur-3xl" />
-          <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-950/80 shadow-2xl shadow-sky-900/40">
-            <div className="border-b border-slate-800 bg-slate-900/80 px-4 py-3 text-xs text-slate-300">
-              Live call dashboard • ALEX (AI Agent) is active
-            </div>
-            <div className="relative aspect-[4/3]">
-              <Image
-                src="/images/premium/frontdesk-dashboard-hero.jpg"
-                alt="FrontDesk Agents AI call dashboard"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3 text-[11px] text-slate-300">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3">
-              <div className="text-[10px] uppercase tracking-[0.16em] text-slate-500">
-                Sample call
-              </div>
-              <div className="mt-1 text-slate-100">
-                “Hi, this is ALEX from FrontDesk Agents. I can help you book an
-                appointment right now…”
-              </div>
-            </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3">
-              <div className="text-[10px] uppercase tracking-[0.16em] text-slate-500">
-                Owner console
-              </div>
-              <div className="mt-1 text-slate-100">
-                See every call, every transcript and every booked appointment in
-                one place.
-              </div>
-              <div className="mt-2 text-[10px] text-sky-300">
-                Your login: <span className="font-mono">/owner</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-slate-800/80 bg-slate-950/90">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-[11px] text-slate-500 md:flex-row md:items-center md:justify-between md:px-8">
-          <div className="uppercase tracking-[0.22em] text-slate-500">
-            BUILT FOR SERVICE BUSINESSES THAT LIVE ON THE PHONE
-          </div>
-          <div className="flex flex-wrap gap-3 text-[11px] text-slate-400">
-            <span>Law firms</span>
-            <span className="h-3 w-px bg-slate-700" />
-            <span>Medical & dental clinics</span>
-            <span className="h-3 w-px bg-slate-700" />
-            <span>Home services & contractors</span>
-            <span className="h-3 w-px bg-slate-700" />
-            <span>Real estate & property management</span>
-          </div>
-        </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }
