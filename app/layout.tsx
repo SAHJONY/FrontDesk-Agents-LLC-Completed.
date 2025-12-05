@@ -1,11 +1,10 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import MainNav from "@/components/MainNav";
-import LanguageProvider from "./components/LanguageProvider";
+import type { Metadata } from "next";
+import LangProvider from "./components/LangProvider";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents",
-  description: "AI Receptionist SaaS platform",
+  description: "AI Receptionist SaaS",
 };
 
 export default function RootLayout({
@@ -16,10 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LanguageProvider>
-          <MainNav />
+        <LangProvider>
           {children}
-        </LanguageProvider>
+        </LangProvider>
       </body>
     </html>
   );
