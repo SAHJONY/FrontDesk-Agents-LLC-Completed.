@@ -1,7 +1,7 @@
 "use client";
 
 import React, {
-  createContext,    
+  createContext,
   useContext,
   useState,
   ReactNode,
@@ -14,17 +14,16 @@ type LanguageContextValue = {
   setLanguage: (lang: Language) => void;
 };
 
-// Valor por defecto para que NUNCA reviente si no hay Provider
-const defaultValue: LanguageContextValue = {
+// Contexto con valor por defecto seguro para prerender
+const LanguageContext = createContext<LanguageContextValue>({
   language: "en",
   setLanguage: () => {
-    // no-op en prerender / sin provider
+    // no-op para entornos sin provider (build, prerender)
   },
-};
-
-const LanguageContext = createContext<LanguageContextValue>(defaultValue);
+});
 
 export function useLanguage() {
+  // NUNCA lanza error: siempre devuelve algo
   return useContext(LanguageContext);
 }
 
@@ -32,7 +31,7 @@ type LanguageProviderProps = {
   children: ReactNode;
 };
 
-export default function LanguageProvider({ children }: LanguageProviderProps) {
+export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguage] = useState<Language>("en");
 
   const value: LanguageContextValue = {
