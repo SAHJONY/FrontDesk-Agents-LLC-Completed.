@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import LangProvider from "./components/LangProvider";
+import { LanguageProvider } from "./components/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents",
@@ -15,9 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LangProvider>
+        <LanguageProvider>
           {children}
-        </LangProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
