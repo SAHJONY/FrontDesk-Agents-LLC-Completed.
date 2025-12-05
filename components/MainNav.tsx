@@ -1,4 +1,4 @@
-// components/MainNav.tsx
+// app/components/MainNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -14,22 +14,20 @@ const navLinks = [
   { href: "/admin", label: "Admin" },
 ];
 
-function NavItem({
-  href,
-  label,
-  isActive,
-}: {
+type NavItemProps = {
   href: string;
   label: string;
   isActive: boolean;
-}) {
+};
+
+function NavItem({ href, label, isActive }: NavItemProps) {
   return (
     <Link
       href={href}
-      className={`text-sm font-medium px-3 py-2 rounded-md transition-colors ${
+      className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
         isActive
-          ? "bg-sky-500 text-slate-950"
-          : "text-slate-200 hover:bg-slate-800 hover:text-white"
+          ? "border-blue-600 text-blue-600"
+          : "border-transparent text-gray-600 hover:text-blue-600 hover:border-blue-300"
       }`}
     >
       {label}
@@ -37,27 +35,16 @@ function NavItem({
   );
 }
 
-export function MainNav() {
+export default function MainNav() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
-        {/* Logo / Brand */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="h-8 w-8 rounded-lg bg-sky-500" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold tracking-wide text-slate-100">
-              FrontDesk Agents
-            </span>
-            <span className="text-xs text-slate-400">
-              AI Phone Receptionists 24/7
-            </span>
-          </div>
-        </Link>
-
-        {/* Desktop Nav */}
-        <nav className="hidden items-center gap-1 md:flex">
+    <header className="w-full border-b bg-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+        <div className="text-lg font-bold tracking-tight">
+          FrontDesk Agents
+        </div>
+        <nav className="flex gap-2">
           {navLinks.map((link) => (
             <NavItem
               key={link.href}
@@ -67,19 +54,6 @@ export function MainNav() {
             />
           ))}
         </nav>
-
-        {/* Placeholder para botón de acción (ej: Login) */}
-        <div className="hidden md:flex">
-          <Link
-            href="/demo"
-            className="rounded-md bg-sky-500 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-400"
-          >
-            Agenda una demo
-          </Link>
-        </div>
-
-        {/* En mobile por ahora solo logo (si quieres luego metemos menú hamburguesa) */}
-        <div className="md:hidden" />
       </div>
     </header>
   );
