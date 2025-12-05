@@ -1,17 +1,13 @@
 // app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import React from "react";
-
 import MainNav from "./components/MainNav";
 import LangProvider from "./components/LangProvider";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
   title: "FrontDesk Agents",
-  description: "AI Receptionist SaaS",
+  description:
+    "AI Receptionists and Phone Agents that answer, qualify and book for your business 24/7.",
 };
 
 export default function RootLayout({
@@ -21,10 +17,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className="min-h-screen bg-slate-50 text-slate-900">
+        {/* Language context for the whole app */}
         <LangProvider>
+          {/* Top navigation bar */}
           <MainNav />
-          {children}
+
+          {/* Page content */}
+          <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
         </LangProvider>
       </body>
     </html>
