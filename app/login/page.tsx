@@ -1,131 +1,193 @@
+// app/login/page.tsx
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
 import { useLanguage } from "../providers/LanguageProvider";
+import { useTheme } from "../providers/ThemeProvider";
+import { BRAND } from "../config/branding";
 
 export default function LoginPage() {
-  const { lang } = useLanguage();
+  const { lang, setLang } = useLanguage();
+  const { toggleTheme } = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  // ✅ Corrección principal: searchParams puede ser null
+  const redirectTo = searchParams?.get("redirectTo") ?? "/dashboard";
 
   const isEn = lang === "en";
 
-  const copy = {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const t = {
     title: isEn ? "Welcome back" : "Bienvenido de nuevo",
     subtitle: isEn
-      ? "Sign in to your FrontDesk Agents console."
-      : "Inicia sesión en tu consola de FrontDesk Agents.",
+      ? "Sign in to your FrontDesk Agents control panel."
+      : "Inicia sesión en tu panel de control de FrontDesk Agents.",
     emailLabel: isEn ? "Work email" : "Correo de trabajo",
     passwordLabel: isEn ? "Password" : "Contraseña",
-    rememberMe: isEn ? "Remember me" : "Recordarme",
-    forgotPassword: isEn ? "Forgot your password?" : "¿Olvidaste tu contraseña?",
-    button: isEn ? "Sign in" : "Iniciar sesión",
-    noAccount: isEn ? "No account yet?" : "¿Aún no tienes cuenta?",
-    goSignup: isEn ? "Create your account" : "Crear cuenta",
-    privacy: isEn
-      ? "By signing in you agree to our Terms and Privacy Policy."
-      : "Al iniciar sesión aceptas nuestros Términos y Política de Privacidad.",
+    rememberMe: isEn ? "Remember me" : "Recuérdame",
+    forgot: isEn ? "Forgot your password?" : "¿Olvidaste tu contraseña?",
+    loginButton: isEn ? "Log in" : "Iniciar sesión",
+    noAccount: isEn ? "Don't have an account?" : "¿No tienes cuenta?",
+    signup: isEn ? "Create your account" : "Crear tu cuenta",
+    ownerBadge: isEn
+      ? "OWNER ACCESS • FULL CONTROL"
+      : "ACCESO OWNER • CONTROL TOTAL",
+    errorRequired: isEn
+      ? "Email and password are required."
+      : "Correo y contraseña son obligatorios.",
   };
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!email || !password) {
+      setError(t.errorRequired);
+      return;
+    }
+
     setLoading(true);
 
-    // TODO: conectar a tu backend de autenticación real.
-    // De momento, simulamos un login exitoso y redirigimos:
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // ⚠️ Aquí luego conectamos tu backend de Auth real.
+      // Por ahora, login “dummy” para que la UI y el redirect funcionen.
       router.push(redirectTo);
-    }, 800);
-  }
+    } catch (err) {
+      setError(
+        isEn
+          ? "There was a problem signing in."
+          : "Hubo un problema al iniciar sesión."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md">
-        <div className="mb-6 text-center">
-          <p className="text-[11px] font-semibold tracking-[0.2em] text-sky-400 uppercase">
-            {isEn ? "AI RECEPTIONIST PLATFORM" : "PLATAFORMA DE RECEPCIONISTA IA"}
-          </p>
-          <h1 className="mt-3 text-2xl md:text-3xl font-semibold text-white tracking-tight">
-            {copy.title}
-          </h1>
-          <p className="mt-2 text-sm text-slate-300">{copy.subtitle}</p>
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-950/70 p-8 shadow-[0_0_60px_rgba(56,189,248,0.35)] backdrop-blur">
+        {/* Logo + owner badge */}
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-2xl border border-cyan-400/60 bg-slate-900/80 shadow-[0_0_25px_rgba(34,211,238,0.7)]" />
+            <div>
+              <p className="text-sm font-semibold tracking-tight">
+                {BRAND.name}
+              </p>
+              <p className="text-[10px] uppercase tracking-[0.22em] text-cyan-300/90">
+                {BRAND.tagline}
+              </p>
+            </div>
+          </div>
+
+          <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-amber-200">
+            {t.ownerBadge}
+          </span>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/70 backdrop-blur-xl shadow-[0_20px_80px_rgba(15,23,42,0.8)] p-5 md:p-6">
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-200">
-                {copy.emailLabel}
-              </label>
+        {/* Título */}
+        <h1 className="text-xl font-semibold tracking-tight text-slate-50">
+          {t.title}
+        </h1>
+        <p className="mt-1 text-xs text-slate-300">{t.subtitle}</p>
+
+        {/* Controles arriba del formulario */}
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => setLang(isEn ? "es" : "en")}
+            className="rounded-full border border-white/10 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:border-cyan-400/60"
+          >
+            {isEn ? "EN · ES" : "ES · EN"}
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="rounded-full border border-cyan-400/40 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-cyan-200 hover:border-cyan-300"
+          >
+            Theme
+          </button>
+        </div>
+
+        {/* Mensaje de error */}
+        {error && (
+          <div className="mt-4 rounded-2xl border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-[11px] text-rose-100">
+            {error}
+          </div>
+        )}
+
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-200">
+              {t.emailLabel}
+            </label>
+            <input
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 outline-none ring-0 focus:border-cyan-400/70"
+              placeholder={isEn ? "you@clinic.com" : "tu@negocio.com"}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-200">
+              {t.passwordLabel}
+            </label>
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 outline-none ring-0 focus:border-cyan-400/70"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div className="flex items-center justify-between text-[11px] text-slate-300">
+            <label className="inline-flex items-center gap-2">
               <input
-                type="email"
-                required
-                placeholder="you@clinic.com"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/70 focus:border-sky-500/70"
+                type="checkbox"
+                className="h-3 w-3 rounded border border-slate-500/70 bg-slate-900/80"
               />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-200">
-                {copy.passwordLabel}
-              </label>
-              <input
-                type="password"
-                required
-                className="w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/70 focus:border-sky-500/70"
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-slate-300">
-              <label className="inline-flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 rounded border-slate-600 bg-slate-950 text-sky-500 focus:ring-sky-500"
-                />
-                <span>{copy.rememberMe}</span>
-              </label>
-              <Link
-                href="/forgot-password"
-                className="font-medium text-sky-400 hover:text-sky-300"
-              >
-                {copy.forgotPassword}
-              </Link>
-            </div>
-
-            {error && (
-              <p className="text-xs text-rose-400 bg-rose-950/40 border border-rose-800 rounded-lg px-3 py-2">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full inline-flex items-center justify-center rounded-lg bg-sky-500 text-sm font-medium text-white py-2.5 mt-1 transition hover:bg-sky-400 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loading ? (isEn ? "Signing in..." : "Iniciando sesión...") : copy.button}
-            </button>
-
-            <p className="mt-2 text-[11px] text-slate-400">{copy.privacy}</p>
-          </form>
-
-          <div className="mt-4 border-t border-slate-800 pt-3 text-xs text-slate-300 text-center">
-            <span>{copy.noAccount} </span>
+              <span>{t.rememberMe}</span>
+            </label>
             <Link
-              href="/signup"
-              className="font-semibold text-sky-400 hover:text-sky-300"
+              href="/forgot-password"
+              className="text-cyan-300 hover:text-cyan-200"
             >
-              {copy.goSignup}
+              {t.forgot}
             </Link>
           </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 w-full rounded-full bg-cyan-500 px-4 py-2.5 text-xs font-semibold text-slate-950 shadow-[0_0_35px_rgba(34,211,238,0.7)] hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {loading ? (isEn ? "Signing in..." : "Entrando...") : t.loginButton}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <div className="mt-5 flex items-center justify-between text-[11px] text-slate-300">
+          <span>{t.noAccount}</span>
+          <Link
+            href="/owner/onboarding"
+            className="font-semibold text-cyan-300 hover:text-cyan-200"
+          >
+            {t.signup}
+          </Link>
         </div>
       </div>
     </div>
