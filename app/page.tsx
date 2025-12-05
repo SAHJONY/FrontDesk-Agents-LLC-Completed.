@@ -1,5 +1,5 @@
-import Link from "next/link";
-import Image from "next/image";
+import LanguageProvider, { useLanguage } from "./providers/LanguageProvider";
+import { FRONTDESK_BRAND } from "./config/branding";
 
 export default function HomePage() {
   return (
