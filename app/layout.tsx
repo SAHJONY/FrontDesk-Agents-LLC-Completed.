@@ -1,23 +1,15 @@
-// app/layout.tsx
-import "./globals.css";
-import type { Metadata } from "next";
-import { ThemeProvider } from "@/core/ui/ThemeProvider";
+import React from "react";
+import { AppShell } from "@/core/ui/AppShell";
+import { OwnerGuard } from "@/core/auth/OwnerGuard";
 
-export const metadata: Metadata = {
-  title: "FrontDesk Agents",
-  description: "AI Voice Receptionist for modern businesses.",
-};
-
-export default function RootLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="bg-slate-950 text-slate-50">
-        <ThemeProvider>{children}</ThemeProvider>
-      </body>
-    </html>
+    <OwnerGuard>
+      <AppShell>{children}</AppShell>
+    </OwnerGuard>
   );
 }
