@@ -1,24 +1,28 @@
-// app/layout.tsx
 import "./globals.css";
-import type { ReactNode } from "react";
-import { MainNav } from "@/components/MainNav";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import MainNav from "@/app/components/MainNav";
+import LangProvider from "@/app/components/LangProvider";
 
-export const metadata = {
-  title: "FrontDesk Agents – AI Receptionists",
-  description: "24/7 AI phone receptionists that answer, qualify and book your clients automatically.",
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "FrontDesk Agents",
+  description: "AI Receptionist SaaS",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="bg-slate-950 text-slate-50">
-        {/* Global navigation bar */}
-        <MainNav />
-
-        {/* Main content wrapper */}
-        <main className="min-h-screen mx-auto max-w-6xl px-4 py-10 lg:px-8">
+      <body className={inter.className}>
+        <LangProvider>
+          <MainNav />
           {children}
-        </main>
+        </LangProvider>
       </body>
     </html>
   );
