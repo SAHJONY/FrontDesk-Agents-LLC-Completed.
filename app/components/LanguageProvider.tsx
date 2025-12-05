@@ -2,52 +2,46 @@
 
 import React, {
   createContext,
-  useContext,    
+  useContext,
   useState,
   ReactNode,
-  Dispatch,
-  SetStateAction,
 } from "react";
 
 type Language = "en" | "es";
 
 type LanguageContextValue = {
   language: Language;
-  setLanguage: Dispatch<SetStateAction<Language>>;
+  setLanguage: (lang: Language) => void;
 };
 
-// Contexto puede ser null durante el prerender
-const LanguageContext = createContext<LanguageContextValue | null>(null);
+// Valor por defecto para que NUNCA reviente si no hay Provider
+const defaultValue: LanguageContextValue = {
+  language: "en",
+  setLanguage: () => {
+    // no-op en prerender / sin provider
+  },
+};
 
-/**
- * Hook de idioma con FALLBACK SEGURO.
- * - Si NO hay Provider (prerender en Vercel), devuelve "en" y un setLanguage vacío.
- * - En runtime del browser, cuando sí hay <LanguageProvider>, usa el contexto real.
- */
-export function useLanguage(): LanguageContextValue {
-  const ctx = useContext(LanguageContext);
+const LanguageContext = createContext<LanguageContextValue>(defaultValue);
 
-  if (!ctx) {
-    // Fallback para build/prerender: no rompe el render estático
-    return {
-      language: "en",
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      setLanguage: () => {},
-    };
-  }
-
-  return ctx;
+export function useLanguage() {
+  return useContext(LanguageContext);
 }
 
-type Props = {
+type LanguageProviderProps = {
   children: ReactNode;
 };
 
-export default function LanguageProvider({ children }: Props) {
+export default function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguage] = useState<Language>("en");
 
+  const value: LanguageContextValue = {
+    language,
+    setLanguage,
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
