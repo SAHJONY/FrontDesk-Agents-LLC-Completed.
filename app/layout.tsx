@@ -1,10 +1,15 @@
-import LanguageProvider from "./providers/LanguageProvider";
+// app/layout.tsx
 import "./globals.css";
+import type { Metadata } from "next";
+import React from "react";
+import ThemeProvider from "./providers/ThemeProvider";
+import LanguageProvider from "./providers/LanguageProvider";
+import { BRAND } from "./config/branding";
 
 export const metadata: Metadata = {
-  title: "FrontDesk Agents • AI Voice Receptionist",
+  title: `${BRAND.name} • AI Voice Receptionist`,
   description:
-    "24/7 AI voice receptionists that answer, qualify and schedule calls for your business.",
+    "24/7 AI voice receptionists that answer, qualify, and schedule calls so you never miss a high-value customer again.",
 };
 
 export default function RootLayout({
@@ -13,9 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full bg-slate-950">
-      <body className="min-h-screen bg-slate-950 text-slate-50 antialiased">
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <ThemeProvider>
+          <LanguageProvider>{children}</LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
