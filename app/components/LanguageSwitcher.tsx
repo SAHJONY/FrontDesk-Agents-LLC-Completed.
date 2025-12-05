@@ -3,29 +3,28 @@
 import { useLanguage } from "./LanguageProvider";
 
 export default function LanguageSwitcher() {
-  const { lang, setLang } = useLanguage();
+  const { language, setLanguage } = useLanguage();
 
   return (
     <div className="flex items-center gap-1">
       <button
         type="button"
-        onClick={() => setLang("en")}
-        className={`text-xs font-medium px-2 py-1 rounded-full border transition ${
-          lang === "en"
-            ? "bg-sky-500 text-white border-sky-400"
-            : "bg-transparent text-slate-400 border-slate-600 hover:text-slate-100"
+        onClick={() => setLanguage("en")}
+        className={`px-2 py-1 text-xs rounded border ${
+          language === "en"
+            ? "bg-blue-600 text-white border-blue-500"
+            : "bg-gray-800 text-gray-300 border-gray-700"
         }`}
       >
         EN
       </button>
-
       <button
         type="button"
-        onClick={() => setLang("es")}
-        className={`text-xs font-medium px-2 py-1 rounded-full border transition ${
-          lang === "es"
-            ? "bg-sky-500 text-white border-sky-400"
-            : "bg-transparent text-slate-400 border-slate-600 hover:text-slate-100"
+        onClick={() => setLanguage("es")}
+        className={`px-2 py-1 text-xs rounded border ${
+          language === "es"
+            ? "bg-blue-600 text-white border-blue-500"
+            : "bg-gray-800 text-gray-300 border-gray-700"
         }`}
       >
         ES
