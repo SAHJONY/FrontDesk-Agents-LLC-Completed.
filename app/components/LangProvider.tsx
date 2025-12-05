@@ -8,7 +8,7 @@ import React, {
   ReactNode,
 } from "react";
 
-type Language = "en" | "es";
+export type Language = "en" | "es";
 
 type LanguageContextValue = {
   language: Language;
@@ -23,10 +23,9 @@ type LanguageProviderProps = {
   children: ReactNode;
 };
 
-export function LanguageProvider({ children }: LanguageProviderProps) {
+export function LangProvider({ children }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>("en");
 
-  // Cargar idioma guardado (si existe) solo en el cliente
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saved = window.localStorage.getItem("fd-language");
@@ -49,20 +48,18 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   );
 }
 
+// HOOK SEGURO: SIN THROW
 export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext);
 
-  // 🔐 Cambio importante:
-  // No lanzamos error en build/SSR si no hay Provider.
-  // Devolvemos valores por defecto seguros.
   if (!ctx) {
     return {
       language: "en",
-      setLanguage: () => {
-        // no-op cuando no hay provider (build estático, SSR, etc.)
-      },
+      setLanguage: () => {},
     };
   }
 
   return ctx;
 }
+
+export default LangProvider;
