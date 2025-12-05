@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import LanguageProvider from "./providers/LanguageProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
