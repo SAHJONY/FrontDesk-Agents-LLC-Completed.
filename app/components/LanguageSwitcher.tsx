@@ -1,4 +1,3 @@
-// app/components/LanguageSwitcher.tsx
 "use client";
 
 import { useLanguage } from "./LanguageProvider";
