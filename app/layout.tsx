@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import MainNav from "@/components/MainNav";
-import { LanguageProvider } from "./components/LanguageProvider";
+import LanguageProvider from "./components/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents",
