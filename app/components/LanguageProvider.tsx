@@ -22,30 +22,18 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
 
-  // Load from localStorage or browser language on first client render
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem("fd-lang");
-      if (stored === "en" || stored === "es") {
-        setLangState(stored);
-        return;
-      }
-
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith("es")) {
-        setLangState("es");
-      }
-    } catch {
-      // ignore
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem("fd-language");
+    if (saved === "en" || saved === "es") {
+      setLangState(saved);
     }
   }, []);
 
-  const setLang = (value: Lang) => {
-    setLangState(value);
-    try {
-      window.localStorage.setItem("fd-lang", value);
-    } catch {
-      // ignore
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("fd-language", l);
     }
   };
 
@@ -58,8 +46,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
 export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext);
+
+  // 🔒 IMPORTANTE: No lanzar error si no hay Provider (SSR/build)
   if (!ctx) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
+    return {
+      lang: "en",
+      setLang: () => {},
+    };
   }
+
   return ctx;
 }
+
+export default LanguageProvider;
