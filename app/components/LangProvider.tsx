@@ -1,7 +1,11 @@
-// app/components/LangProvider.tsx
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+} from "react";
 
 type Language = "en" | "es";
 
@@ -16,14 +20,27 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(
 
 export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext);
+
+  // ✅ Fallback seguro: si NO hay Provider, no rompemos el build
   if (!ctx) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
+    return {
+      lang: "en",
+      setLang: () => {
+        // no-op en SSR / fuera de Provider
+      },
+    };
   }
+
   return ctx;
 }
 
-export default function LangProvider({ children }: { children: ReactNode }) {
+type Props = {
+  children: ReactNode;
+};
+
+export default function LangProvider({ children }: Props) {
   const [lang, setLang] = useState<Language>("en");
+
   return (
     <LanguageContext.Provider value={{ lang, setLang }}>
       {children}
