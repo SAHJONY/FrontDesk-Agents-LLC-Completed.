@@ -1,25 +1,28 @@
-import "./globals.css";
+// app/layout.tsx
 import type { Metadata } from "next";
-
+import "./globals.css";
 import { LanguageProvider } from "./components/LanguageProvider";
 import MainNav from "./components/MainNav";
-import Footer from "./components/Footer";
 
 export const metadata: Metadata = {
-  title: "FrontDesk Agents",
-  description: "AI Receptionist SaaS",
+  title: "FrontDesk Agents · AI Receptionists 24/7",
+  description:
+    "AI receptionists that answer every call, qualify leads and book appointments for your business, 24/7.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen bg-slate-950 text-slate-50 antialiased">
         <LanguageProvider>
           <MainNav />
-          <div className="min-h-screen w-full">
+          <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
             {children}
-          </div>
-          <Footer />
+          </main>
         </LanguageProvider>
       </body>
     </html>
