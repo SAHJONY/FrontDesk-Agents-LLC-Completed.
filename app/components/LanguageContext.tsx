@@ -1,7 +1,13 @@
 // contexts/LanguageContext.tsx
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+} from "react";
 
 type Language = "en" | "es";
 
@@ -15,21 +21,24 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(
   undefined
 );
 
-export function LanguageProviderRoot({ children }: { children: ReactNode }) {
+export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
 
   const toggleLanguage = () => {
     setLanguage((prev) => (prev === "en" ? "es" : "en"));
   };
 
+  const value = useMemo(
+    () => ({
+      language,
+      toggleLanguage,
+      setLanguage,
+    }),
+    [language]
+  );
+
   return (
-    <LanguageContext.Provider
-      value={{
-        language,
-        toggleLanguage,
-        setLanguage,
-      }}
-    >
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
@@ -38,7 +47,7 @@ export function LanguageProviderRoot({ children }: { children: ReactNode }) {
 export function useLanguage() {
   const ctx = useContext(LanguageContext);
   if (!ctx) {
-    throw new Error("useLanguage must be used within a LanguageProviderRoot");
+    throw new Error("useLanguage must be used within a LanguageProvider");
   }
   return ctx;
 }
