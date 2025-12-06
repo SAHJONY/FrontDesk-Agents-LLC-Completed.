@@ -1,20 +1,20 @@
 "use client";
 
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "./LanguageProvider";
 
-export default function LanguageSwitcher() {
-  const { language, setLanguage } = useLanguage();
+export function LanguageSwitcher() {
+  const { language, toggleLanguage } = useLanguage();
 
-  const toggle = () => {
-    setLanguage(language === "en" ? "es" : "en");
-  };
+  const isSpanish = language === "es";
+  const label = isSpanish ? "ES" : "EN";
 
   return (
     <button
-      onClick={toggle}
-      className="px-3 py-1 rounded-md bg-gray-200 dark:bg-gray-700"
+      type="button"
+      onClick={toggleLanguage}
+      className="inline-flex items-center justify-center rounded-md border border-slate-600 px-3 py-1 text-xs font-semibold tracking-wide uppercase"
     >
-      {language.toUpperCase()}
+      {label}
     </button>
   );
 }
