@@ -1,30 +1,49 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+} from "react";
+
+type Language = "en" | "es";
 
 type LanguageContextValue = {
-  lang: string;
-  setLang: (value: string) => void;
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  toggleLanguage: () => void;
 };
 
-const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextValue | undefined>(
+  undefined
+);
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState("en");
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const [language, setLanguage] = useState<Language>("en");
+
+  const value = useMemo(
+    () => ({
+      language,
+      setLanguage,
+      toggleLanguage: () =>
+        setLanguage((prev) => (prev === "en" ? "es" : "en")),
+    }),
+    [language]
+  );
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
-}
+};
 
-export function useLanguage() {
-  const context = useContext(LanguageContext);
-
-  if (!context) {
+export const useLanguage = () => {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) {
     throw new Error("useLanguage must be used within a LanguageProvider");
   }
-
-  return context;
-}
+  return ctx;
+};
