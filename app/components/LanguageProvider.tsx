@@ -11,5 +11,5 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   return <ContextLanguageProvider>{children}</ContextLanguageProvider>;
 }
 
-// Re-export the hook so all other components can import from here
+// Re-export para que otros componentes puedan importar desde aquí
 export { useLanguage };
