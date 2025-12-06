@@ -22,12 +22,12 @@ type MainNavProps = React.HTMLAttributes<HTMLElement> & {
   brandName?: string;
 };
 
-export default function MainNav({
+const MainNav: React.FC<MainNavProps> = ({
   className,
   items,
   brandName = "FrontDesk Agents",
   ...rest
-}: MainNavProps) {
+}) => {
   const pathname = usePathname();
   const navItems = items ?? DEFAULT_ITEMS;
 
@@ -83,4 +83,6 @@ export default function MainNav({
       </div>
     </nav>
   );
-}
+};
+
+export default MainNav;
