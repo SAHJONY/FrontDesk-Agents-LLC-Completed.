@@ -1,14 +1,41 @@
-"use client";
+'use client';
 
-import { ReactNode } from "react";
-import {
-  LanguageProvider as ContextLanguageProvider,
-  useLanguage,
-} from "@/contexts/LanguageContext";
+import { createContext, useContext, useState, ReactNode } from 'react';
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  return <ContextLanguageProvider>{children}</ContextLanguageProvider>;
+// 1. Define the shape of the context value
+interface LanguageContextValue {
+  language: 'en' | 'es';
+  toggleLanguage: () => void; // Added toggleLanguage to the type
 }
 
-// Re-export del hook para que otros componentes lo usen desde aquí
-export { useLanguage };
+// 2. Create the context with a default value
+const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
+
+// 3. Create the Provider component
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguage] = useState<'en' | 'es'>('en');
+
+  const toggleLanguage = () => {
+    setLanguage((prev) => (prev === 'en' ? 'es' : 'en'));
+  };
+
+  const value: LanguageContextValue = {
+    language,
+    toggleLanguage, // Included toggleLanguage in the value
+  };
+
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+// 4. Create the custom hook
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+}
