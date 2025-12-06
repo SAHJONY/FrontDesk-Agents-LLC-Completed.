@@ -1,13 +1,15 @@
-// app/layout.tsx
-import type { Metadata } from "next";
+// app/layout.tsx (SOLO LA PARTE RELEVANTE)
 import "./globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { LanguageProvider } from "./components/LanguageProvider";
-import MainNav from "./components/MainNav";
+// ... otros imports
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FrontDesk Agents · AI Receptionists 24/7",
-  description:
-    "AI receptionists that answer every call, qualify leads and book appointments for your business, 24/7.",
+  title: "FrontDesk Agents",
+  description: "AI Receptionist SaaS",
 };
 
 export default function RootLayout({
@@ -17,12 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-slate-950 text-slate-50 antialiased">
+      <body className={inter.className}>
         <LanguageProvider>
-          <MainNav />
-          <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
-            {children}
-          </main>
+          {children}
         </LanguageProvider>
       </body>
     </html>
