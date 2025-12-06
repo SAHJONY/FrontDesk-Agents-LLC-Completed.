@@ -22,6 +22,7 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(
 );
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
+  // Idioma por defecto: inglés
   const [language, setLanguage] = useState<Language>("en");
 
   const toggleLanguage = () => {
