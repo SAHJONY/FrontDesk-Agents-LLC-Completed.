@@ -2,60 +2,78 @@
 "use client";
 
 import Link from "next/link";
-import LanguageSwitcher from "./LanguageSwitcher";
 import { usePathname } from "next/navigation";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { ThemeToggle } from "./ThemeToggle"; // si no existe, borra esta línea y el componente de abajo
 
-export default function MainNav() {
+const mainLinks = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/demo", label: "Live Demo" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/support", label: "Support" },
+];
+
+export function MainNav() {
   const pathname = usePathname();
 
-  const isMarketing = [
-    "/",
-    "/demo",
-    "/pricing",
-    "/industries",
-    "/support",
-  ].includes(pathname);
-
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/85 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-900 font-black">
-            FD
-          </div>
-          <span className="text-sm font-semibold text-slate-100">
-            FrontDesk Agents
-          </span>
-        </Link>
+    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+        {/* Left: Logo / Brand */}
+        <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg border text-xs font-bold">
+              FD
+            </span>
+            <span className="text-sm font-semibold tracking-tight">
+              FrontDesk Agents
+            </span>
+          </Link>
+        </div>
 
-        <div className="flex items-center gap-3">
-          {isMarketing && (
-            <>
+        {/* Center: Nav links (desktop) */}
+        <nav className="hidden gap-4 text-xs font-medium sm:flex">
+          {mainLinks.map((link) => {
+            const active = pathname === link.href;
+            return (
               <Link
-                href="/pricing"
-                className="hidden text-xs font-medium text-slate-300 hover:text-white sm:inline-block"
+                key={link.href}
+                href={link.href}
+                className={
+                  "rounded-full px-3 py-1 transition " +
+                  (active
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground")
+                }
               >
-                Pricing
+                {link.label}
               </Link>
-              <Link
-                href="/demo"
-                className="hidden text-xs font-medium text-slate-300 hover:text-white sm:inline-block"
-              >
-                Live demo
-              </Link>
-            </>
-          )}
+            );
+          })}
+        </nav>
 
+        {/* Right: Language + Theme + Auth */}
+        <div className="flex items-center gap-2">
           <LanguageSwitcher />
+          {/* Elimina ThemeToggle si no existe ese componente */}
+          <ThemeToggle />
 
           <Link
             href="/login"
-            className="hidden rounded-lg border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-100 hover:bg-slate-900 sm:inline-block"
+            className="hidden rounded-full border px-3 py-1 text-xs font-medium hover:bg-accent hover:text-accent-foreground sm:inline-flex"
           >
-            Login
+            Log in
+          </Link>
+          <Link
+            href="/signup"
+            className="inline-flex rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Get Started
           </Link>
         </div>
       </div>
     </header>
   );
 }
+
+export default MainNav;
