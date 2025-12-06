@@ -1,3 +1,4 @@
+// app/components/LanguageProvider.tsx
 "use client";
 
 import { ReactNode } from "react";
@@ -10,4 +11,5 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   return <ContextLanguageProvider>{children}</ContextLanguageProvider>;
 }
 
+// Re-export the hook so other components can import it from here
 export { useLanguage };
