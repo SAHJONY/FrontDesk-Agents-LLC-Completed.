@@ -1,28 +1,53 @@
+// contexts/LanguageContext.tsx
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
-// 1. Tipo del valor del contexto
-interface LanguageContextValue {
-  language: "en" | "es";
+type Language = "en" | "es";
+
+type LanguageContextValue = {
+  language: Language;
+  setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
-}
+};
 
-// 2. Crear el contexto
 const LanguageContext = createContext<LanguageContextValue | undefined>(
   undefined
 );
 
-// 3. Provider del contexto
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<"en" | "es">("en");
+  const [language, setLanguageState] = useState<Language>("en");
+
+  // Leer idioma guardado en localStorage (si existe)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const stored = window.localStorage.getItem("fda_language");
+    if (stored === "en" || stored === "es") {
+      setLanguageState(stored);
+    }
+  }, []);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("fda_language", lang);
+    }
+  };
 
   const toggleLanguage = () => {
-    setLanguage((prev) => (prev === "en" ? "es" : "en"));
+    setLanguage(language === "en" ? "es" : "en");
   };
 
   const value: LanguageContextValue = {
     language,
+    setLanguage,
     toggleLanguage,
   };
 
@@ -33,11 +58,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// 4. Hook para consumir el contexto
 export function useLanguage() {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) {
     throw new Error("useLanguage must be used within a LanguageProvider");
   }
-  return context;
+  return ctx;
 }
