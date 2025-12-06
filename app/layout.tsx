@@ -1,28 +1,22 @@
-// app/layout.tsx (SOLO LA PARTE RELEVANTE)
 import "./globals.css";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { LanguageProvider } from "./components/LanguageProvider";
-// ... otros imports
-
-const inter = Inter({ subsets: ["latin"] });
+import { ThemeProvider } from "next-themes";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "FrontDesk Agents",
-  description: "AI Receptionist SaaS",
+  description: "AI Receptionists 24/7 Multilingual",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <LanguageProvider>
-          {children}
-        </LanguageProvider>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
