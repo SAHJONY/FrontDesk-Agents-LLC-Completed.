@@ -1,4 +1,8 @@
-// app/components/LanguageProvider.tsx
 "use client";
 
-export { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { ReactNode } from "react";
+import { LanguageProvider as RootProvider } from "@/contexts/LanguageContext";
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  return <RootProvider>{children}</RootProvider>;
+}
