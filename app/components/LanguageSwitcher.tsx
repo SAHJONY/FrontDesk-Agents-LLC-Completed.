@@ -1,20 +1,32 @@
+// app/components/LanguageSwitcher.tsx
 "use client";
 
 import { useLanguage } from "./LanguageProvider";
 
-export function LanguageSwitcher() {
-  const { language, toggleLanguage } = useLanguage();
+const labels = {
+  en: "EN",
+  es: "ES",
+};
 
-  const isSpanish = language === "es";
-  const label = isSpanish ? "ES" : "EN";
+export function LanguageSwitcher() {
+  const { language, setLanguage } = useLanguage();
+
+  const nextLanguage = language === "en" ? "es" : "en";
+
+  const handleToggle = () => {
+    setLanguage(nextLanguage);
+  };
 
   return (
     <button
       type="button"
-      onClick={toggleLanguage}
-      className="inline-flex items-center justify-center rounded-md border border-slate-600 px-3 py-1 text-xs font-semibold tracking-wide uppercase"
+      onClick={handleToggle}
+      className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium hover:bg-accent hover:text-accent-foreground transition"
     >
-      {label}
+      <span className="uppercase tracking-wide">
+        {labels[language] ?? language.toUpperCase()}
+      </span>
+      <span className="text-[10px] opacity-70">Switch</span>
     </button>
   );
 }
