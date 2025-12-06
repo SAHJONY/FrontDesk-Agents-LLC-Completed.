@@ -1,79 +1,86 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLanguage } from "./LangProvider";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
-type NavLink = {
+type MainNavItem = {
   href: string;
-  label: {
-    en: string;
-    es: string;
-  };
+  label: string;
 };
 
-const navLinksBase: NavLink[] = [
-  {
-    href: "/dashboard",
-    label: {
-      en: "Dashboard",
-      es: "Panel",
-    },
-  },
-  {
-    href: "/settings/numbers",
-    label: {
-      en: "Phone Numbers",
-      es: "Números",
-    },
-  },
-  {
-    href: "/demo",
-    label: {
-      en: "Live Demo",
-      es: "Demo en Vivo",
-    },
-  },
+const DEFAULT_ITEMS: MainNavItem[] = [
+  { href: "/", label: "Home" },
+  { href: "/demo", label: "Demo" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/signup", label: "Sign up" },
 ];
 
-function isActive(pathname: string, href: string) {
-  if (href === "/") {
-    return pathname === "/";
-  }
-  return pathname === href || pathname.startsWith(href + "/");
-}
+type MainNavProps = React.HTMLAttributes<HTMLElement> & {
+  items?: MainNavItem[];
+  brandName?: string;
+};
 
-export default function MainNav() {
+export default function MainNav({
+  className,
+  items,
+  brandName = "FrontDesk Agents",
+  ...rest
+}: MainNavProps) {
   const pathname = usePathname();
-  const { lang } = useLanguage(); // <- AHORA usa lang desde el contexto
-
-  const navLinks = navLinksBase.map((link) => {
-    const label = lang === "es" ? link.label.es : link.label.en;
-    return {
-      ...link,
-      text: label,
-    };
-  });
+  const navItems = items ?? DEFAULT_ITEMS;
 
   return (
-    <nav className="flex items-center gap-4">
-      {navLinks.map((link) => {
-        const active = isActive(pathname ?? "", link.href);
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={[
-              "text-sm font-medium transition-colors",
-              active
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground hover:text-primary",
-            ].join(" ")}
-          >
-            {link.text}
-          </Link>
-        );
-      })}
+    <nav
+      className={`flex items-center justify-between gap-6 py-3 px-4 md:px-8 ${className ?? ""}`}
+      {...rest}
+    >
+      {/* LOGO / BRAND */}
+      <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold">
+            FD
+          </span>
+          <span className="text-base md:text-lg font-semibold tracking-tight">
+            {brandName}
+          </span>
+        </Link>
+      </div>
+
+      {/* NAV LINKS + LANGUAGE SWITCHER */}
+      <div className="flex items-center gap-4 md:gap-6">
+        <div className="hidden md:flex items-center gap-4 md:gap-6">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={[
+                  "text-sm font-medium transition-colors",
+                  isActive
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                ].join(" ")}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Language switcher (ES / EN) */}
+        <LanguageSwitcher />
+
+        {/* CTA principal */}
+        <Link
+          href="/signup"
+          className="hidden md:inline-flex items-center rounded-md border border-primary bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+        >
+          Get started
+        </Link>
+      </div>
     </nav>
   );
 }
