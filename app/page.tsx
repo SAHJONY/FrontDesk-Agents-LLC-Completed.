@@ -1,86 +1,78 @@
-import React from "react";
-import MainNav from "./components/MainNav";
-import Footer from "./components/Footer";
+// app/page.tsx
+import Image from "next/image";
+import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function HomePage() {
+function HeroContent() {
+  const { language } = useLanguage();
+
+  const copy =
+    language === "en"
+      ? {
+          badge: "AI RECEPTIONISTS · 24/7 · MULTILINGUAL",
+          title: "Turn every missed call into a booked appointment.",
+          body: "FrontDesk Agents answers every call, books appointments, qualifies leads and sends summaries by SMS and email. Works with your existing numbers and connects to your CRM.",
+          primary: "Start free onboarding",
+          secondary: "Watch live demo",
+        }
+      : {
+          badge: "RECEPCIONISTAS IA · 24/7 · MULTILINGÜES",
+          title: "Convierte cada llamada perdida en una cita agendada.",
+          body: "FrontDesk Agents responde todas tus llamadas, agenda citas, califica leads y envía resúmenes por SMS y email. Funciona con tus números actuales y se integra con tu CRM.",
+          primary: "Comenzar onboarding gratis",
+          secondary: "Ver demo en vivo",
+        };
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-50">
-      {/* NAV */}
-      <MainNav />
+    <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+      <div className="space-y-6">
+        <p className="text-xs font-semibold tracking-[0.25em] text-emerald-400">
+          {copy.badge}
+        </p>
+        <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+          {copy.title}
+        </h1>
+        <p className="max-w-xl text-sm text-slate-300 sm:text-base">
+          {copy.body}
+        </p>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1">
-        <section className="mx-auto flex max-w-5xl flex-col gap-6 px-4 pb-16 pt-10 md:flex-row md:items-center md:justify-between md:pt-16">
-          <div className="max-w-xl space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
-              AI RECEPTIONISTS · 24/7 · MULTILINGUAL
-            </p>
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-              Turn every missed call into a booked appointment.
-            </h1>
-            <p className="text-sm text-slate-300 md:text-base">
-              FrontDesk Agents responde todas tus llamadas, agenda citas,
-              califica leads y envía resúmenes por SMS y email. Funciona con
-              tus números actuales y se integra con tu CRM.
-            </p>
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <a
-                href="/signup"
-                className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
-              >
-                Start free onboarding
-              </a>
-              <a
-                href="/demo"
-                className="inline-flex items-center rounded-md border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-50 hover:bg-slate-900/60"
-              >
-                Watch live demo
-              </a>
-              <span className="text-xs text-slate-400">
-                No engineers needed · You control the script.
-              </span>
-            </div>
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/signup"
+            className="inline-flex items-center justify-center rounded-xl bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/40 hover:bg-emerald-300"
+          >
+            {copy.primary}
+          </Link>
+          <Link
+            href="/demo"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-100 hover:bg-slate-900"
+          >
+            {copy.secondary}
+          </Link>
+        </div>
 
-          <div className="mt-8 w-full max-w-md md:mt-0">
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/60">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  LIVE CALL SNAPSHOT
-                </span>
-                <span className="inline-flex items-center rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
-                  ● AI Agent ALEX · Online
-                </span>
-              </div>
-              <div className="space-y-3 text-xs text-slate-200">
-                <div className="rounded-lg bg-slate-800/80 p-2">
-                  <p className="text-[11px] text-slate-400">Caller</p>
-                  <p className="font-semibold">New patient — Houston, TX</p>
-                </div>
-                <div className="rounded-lg bg-slate-800/80 p-2">
-                  <p className="text-[11px] text-slate-400">Intent</p>
-                  <p className="font-semibold">
-                    Book an appointment · Tooth pain · Spanish
-                  </p>
-                </div>
-                <div className="rounded-lg bg-slate-800/80 p-2">
-                  <p className="text-[11px] text-slate-400">Action</p>
-                  <p className="font-semibold">
-                    Slot reserved · SMS confirmation sent · Lead pushed to CRM.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <p className="mt-3 text-[11px] text-slate-500">
-              Designed for clinics, law firms, real estate teams and any
-              business that can’t afford to miss calls.
-            </p>
-          </div>
-        </section>
-      </main>
+        <p className="text-xs text-slate-400">
+          No engineers needed · You control the script.
+        </p>
+      </div>
 
-      {/* FOOTER */}
-      <Footer />
+      <div className="relative">
+        <div className="absolute -inset-4 rounded-3xl bg-emerald-500/10 blur-2xl" />
+        <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60">
+          <Image
+            src="/images/premium/frontdesk-hero-main.png"
+            alt="FrontDesk Agents AI receptionist dashboard"
+            width={900}
+            height={700}
+            className="h-full w-full object-cover"
+            priority
+          />
+        </div>
+      </div>
     </div>
   );
+}
+
+export default function HomePage() {
+  return <HeroContent />;
 }
