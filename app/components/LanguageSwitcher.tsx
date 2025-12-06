@@ -1,31 +1,20 @@
 "use client";
 
-import React from "react";
-import { useLanguage } from "./LanguageProvider";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const LanguageSwitcherBase: React.FC = () => {
-  const { language, toggleLanguage } = useLanguage();
+export default function LanguageSwitcher() {
+  const { language, setLanguage } = useLanguage();
 
-  const nextLabel = language === "en" ? "ES" : "EN";
-  const title =
-    language === "en"
-      ? "Switch language to Spanish"
-      : "Cambiar idioma a inglés";
+  const toggle = () => {
+    setLanguage(language === "en" ? "es" : "en");
+  };
 
   return (
     <button
-      type="button"
-      onClick={toggleLanguage}
-      className="inline-flex items-center rounded-md border border-slate-600/60 bg-slate-900/40 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-50 hover:bg-slate-800/80"
-      title={title}
+      onClick={toggle}
+      className="px-3 py-1 rounded-md bg-gray-200 dark:bg-gray-700"
     >
-      {nextLabel}
+      {language.toUpperCase()}
     </button>
   );
-};
-
-// Named export (lo que espera MainNav y otros)
-export const LanguageSwitcher = LanguageSwitcherBase;
-
-// Default export por si en algún lado usan `import LanguageSwitcher from`
-export default LanguageSwitcherBase;
+}
