@@ -40,10 +40,18 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useLanguage = () => {
+// Versión tolerante: nunca rompe aunque falte el Provider
+export const useLanguage = (): LanguageContextValue => {
   const ctx = useContext(LanguageContext);
+
   if (!ctx) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
+    // Fallback seguro para SSR / páginas sin provider (no rompe el build)
+    return {
+      language: "en",
+      setLanguage: () => {},
+      toggleLanguage: () => {},
+    };
   }
+
   return ctx;
 };
