@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LanguageSwitcher } from "./LanguageSwitcher";
+import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 
 const mainLinks = [
   { href: "/", label: "Home" },
@@ -24,8 +24,7 @@ export function MainNav() {
         {mainLinks.map((link) => {
           const active =
             pathname === link.href ||
-            (link.href !== "/" &&
-              pathname?.startsWith(link.href));
+            (link.href !== "/" && pathname?.startsWith(link.href));
 
           return (
             <Link
@@ -52,7 +51,7 @@ export function MainNav() {
         <span aria-hidden="true">☰</span>
       </button>
 
-      {/* Switch de idioma */}
+      {/* Switch de idioma (versión simple de /components) */}
       <LanguageSwitcher />
     </nav>
   );
