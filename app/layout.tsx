@@ -1,23 +1,11 @@
-import "./globals.css";
-import { LanguageProvider } from "./components/LanguageProvider";
-import { ThemeProvider } from "next-themes";
-import type { Metadata } from "next";
+// app/layout.tsx
+// import TopNav from '@/components/top-nav'; // Comment this out for now
 
-export const metadata: Metadata = {
-  title: "FrontDesk Agents",
-  description: "AI Receptionists 24/7 Multilingual",
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <LanguageProvider>
-            {children}
-          </LanguageProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <div>
+      {/* <TopNav /> */} {/* Remove this line */}
+      {children}
+    </div>
   );
 }
