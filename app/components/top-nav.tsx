@@ -1,9 +1,9 @@
+// components/top-nav.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -19,6 +19,14 @@ function isActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
+function IconMenu() {
+  return <span className="text-xl leading-none">☰</span>;
+}
+
+function IconClose() {
+  return <span className="text-xl leading-none">✕</span>;
+}
+
 export default function TopNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -26,7 +34,7 @@ export default function TopNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
-        {/* Logo + badge */}
+        {/* Logo / badge */}
         <Link href="/" className="flex items-center gap-3">
           <span className="rounded-full bg-cyan-500 px-3 py-1 text-xs font-semibold text-slate-950">
             24/7 AI Reception • FrontDesk Agents
@@ -77,7 +85,7 @@ export default function TopNav() {
             onClick={() => setOpen((v) => !v)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-700 bg-slate-900 text-slate-50"
           >
-            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {open ? <IconClose /> : <IconMenu />}
           </button>
         </div>
       </div>
