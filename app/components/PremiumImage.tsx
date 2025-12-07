@@ -78,4 +78,4 @@ export const premiumImages: Record<PremiumImageKey, PremiumImageConfig> = {
 };
 
 export function getPremiumImage(key: PremiumImageKey): PremiumImageConfig {
-  return premiumImages
+  return premiumImages 
