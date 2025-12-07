@@ -1,6 +1,6 @@
 // lib/premiumImages.ts
-// Mapa centralizado de imágenes premium para FrontDesk Agents
-// IMPORTANTE: las rutas src deben coincidir con los archivos en /public/images
+// Mapa centralizado de imágenes premium para todo el sitio.
+// IMPORTANTE: las rutas src asumen archivos dentro de /public/images/premium.
 
 export type PremiumImageKey =
   | "home-hero"
@@ -22,58 +22,61 @@ export interface PremiumImageConfig {
   alt: string;
 }
 
-// ⚠️ Todas estas rutas asumen archivos en: public/images/xxx.jpg
-export const PREMIUM_IMAGES: Record<PremiumImageKey, PremiumImageConfig> = {
+export const premiumImages: Record<PremiumImageKey, PremiumImageConfig> = {
   "home-hero": {
-    src: "/images/home-hero-4k.jpg",
-    alt: "FrontDesk Agents – AI receptionist answering calls and booking appointments",
+    src: "/images/premium/home-hero.jpg",
+    alt: "FrontDesk Agents AI receptionist and live dashboard",
   },
   "industries-hero": {
-    src: "/images/industries-hero-4k.jpg",
-    alt: "Different industries like healthcare, legal and real estate using FrontDesk Agents",
+    src: "/images/premium/industries-hero.jpg",
+    alt: "Professionals in different industries using FrontDesk Agents",
   },
   "pricing-hero": {
-    src: "/images/pricing-hero-4k.jpg",
-    alt: "Pricing plans for FrontDesk Agents AI receptionist platform",
+    src: "/images/premium/pricing-hero.jpg",
+    alt: "Pricing tiers for FrontDesk Agents AI receptionists",
   },
   "demo-hero": {
-    src: "/images/demo-hero-4k.jpg",
-    alt: "Live demo of FrontDesk Agents AI phone agent in action",
+    src: "/images/premium/demo-hero.jpg",
+    alt: "Live AI reception demo call in progress",
   },
   "ai-agents-hero": {
-    src: "/images/ai-agents-hero-4k.jpg",
-    alt: "Team of AI agents handling calls, SMS and WhatsApp for clients",
+    src: "/images/premium/ai-agents-hero.jpg",
+    alt: "AI agents console for FrontDesk Agents",
   },
   "client-dashboard": {
-    src: "/images/client-dashboard-4k.jpg",
-    alt: "Client dashboard showing calls, leads and booked appointments metrics",
+    src: "/images/premium/client-dashboard.jpg",
+    alt: "Client analytics dashboard",
   },
   "owner-console": {
-    src: "/images/owner-console-4k.jpg",
-    alt: "Owner command center with high-level MRR and usage metrics",
+    src: "/images/premium/owner-console.jpg",
+    alt: "Business owner control console",
   },
   "setup-hero": {
-    src: "/images/setup-hero-4k.jpg",
-    alt: "Onboarding setup flow for a new FrontDesk Agents client",
+    src: "/images/premium/setup-hero.jpg",
+    alt: "Fast setup of AI receptionist",
   },
   "login-hero": {
-    src: "/images/login-hero-4k.jpg",
-    alt: "Login screen for FrontDesk Agents secure access",
+    src: "/images/premium/login-hero.jpg",
+    alt: "Secure login to FrontDesk Agents",
   },
   "support-hero": {
-    src: "/images/support-hero-4k.jpg",
-    alt: "Support and success team helping clients with their AI receptionist",
+    src: "/images/premium/support-hero.jpg",
+    alt: "Support team helping customers",
   },
   "legal-hero": {
-    src: "/images/legal-hero-4k.jpg",
-    alt: "Legal and compliance professionals using FrontDesk Agents",
+    src: "/images/premium/legal-hero.jpg",
+    alt: "Law firm using FrontDesk Agents",
   },
   "outbound-dashboard": {
-    src: "/images/outbound-dashboard-4k.jpg",
-    alt: "Outbound reactivation campaign metrics dashboard",
+    src: "/images/premium/outbound-dashboard.jpg",
+    alt: "Outbound calls performance dashboard",
   },
   "retention-dashboard": {
-    src: "/images/retention-dashboard-4k.jpg",
-    alt: "Retention and reactivation performance dashboard for calls and SMS",
+    src: "/images/premium/retention-dashboard.jpg",
+    alt: "Client retention metrics dashboard",
   },
 };
+
+export function getPremiumImage(key: PremiumImageKey): PremiumImageConfig {
+  return premiumImages[key];
+}
