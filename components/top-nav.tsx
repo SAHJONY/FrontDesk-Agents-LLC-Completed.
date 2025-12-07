@@ -116,7 +116,7 @@ const TopNav = () => {
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            {/* Logo + botón móvil */}
+            {/* Logo + botón menú móvil */}
             <div className="flex items-center">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -129,7 +129,7 @@ const TopNav = () => {
               <div className="flex-shrink-0">
                 <Link href="/" className="flex items-center">
                   <div className="relative h-8 w-8">
-                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-blue-600">
+                    <div className="flex h-full w-full items-center justify-center rounded-lg bg-blue-600">
                       <span className="text-lg font-bold text-white">F</span>
                     </div>
                   </div>
@@ -159,9 +159,9 @@ const TopNav = () => {
               </div>
             </div>
 
-            {/* Zona derecha */}
+            {/* Lado derecho */}
             <div className="flex items-center space-x-4">
-              {/* Buscador desktop */}
+              {/* Search desktop */}
               <div className="relative hidden md:block">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <SearchIcon />
@@ -179,7 +179,7 @@ const TopNav = () => {
                 <span className="absolute right-1 top-1 block h-2 w-2 rounded-full bg-red-500" />
               </button>
 
-              {/* Usuario */}
+              {/* Menú usuario */}
               <div className="relative">
                 <button className="flex items-center space-x-3 rounded-lg p-1 hover:bg-gray-100">
                   <div className="relative h-8 w-8">
@@ -221,7 +221,7 @@ const TopNav = () => {
         )}
       </nav>
 
-      {/* Buscador móvil */}
+      {/* Barra de búsqueda móvil */}
       <div className="border-b border-gray-200 bg-white px-4 py-3 md:hidden">
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
