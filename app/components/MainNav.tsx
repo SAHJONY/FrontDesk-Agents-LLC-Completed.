@@ -1,79 +1,61 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LanguageSwitcher } from './LanguageSwitcher';
-import { Menu } from 'lucide-react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const mainLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/agents', label: 'Agents' },
-  { href: '/reports', label: 'Reports' },
-  { href: '/settings', label: 'Settings' },
+  { href: "/", label: "Home" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/industries", label: "Industries" },
+  { href: "/demo", label: "Live Demo" },
+  { href: "/owner/onboarding", label: "Onboarding" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/ai-command-center", label: "AI Command Center" },
 ];
 
-export default function MainNav() {
+export function MainNav() {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="font-bold text-xl">FrontDesk Agents</span>
-          </Link>
-          
-          <nav className="hidden md:flex items-center space-x-6">
-            {mainLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === link.href
-                    ? 'text-foreground'
-                    : 'text-foreground/60'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+    <nav className="flex items-center gap-4">
+      {/* Links desktop */}
+      <div className="hidden md:flex items-center gap-4">
+        {mainLinks.map((link) => {
+          const active =
+            pathname === link.href ||
+            (link.href !== "/" &&
+              pathname?.startsWith(link.href));
 
-        <div className="flex items-center gap-4">
-          <LanguageSwitcher />
-          <button
-            className="md:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={
+                active
+                  ? "text-sky-400 font-medium"
+                  : "text-slate-300 hover:text-white transition"
+              }
+            >
+              {link.label}
+            </Link>
+          );
+        })}
       </div>
 
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t">
-          <div className="container py-4">
-            {mainLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`block py-2 text-sm font-medium ${
-                  pathname === link.href
-                    ? 'text-foreground'
-                    : 'text-foreground/60'
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-    </header>
+      {/* Botón menú móvil simple */}
+      <button
+        type="button"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-600 bg-slate-900/40 text-slate-100 md:hidden"
+        aria-label="Open navigation menu"
+      >
+        <span aria-hidden="true">☰</span>
+      </button>
+
+      {/* Switch de idioma */}
+      <LanguageSwitcher />
+    </nav>
   );
 }
+
+export default MainNav;
