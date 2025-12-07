@@ -4,7 +4,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -62,11 +61,12 @@ export default function MainNav() {
         {/* Mobile hamburger */}
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/60 p-2 text-slate-100 md:hidden"
+          className="inline-flex items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/60 px-3 py-2 text-slate-100 text-xl md:hidden"
           onClick={() => setOpen(true)}
           aria-label="Open menu"
         >
-          <Menu className="h-5 w-5" />
+          {/* Icono tipo hamburger */}
+          <span className="leading-none">☰</span>
         </button>
       </header>
 
@@ -94,11 +94,12 @@ export default function MainNav() {
               </Link>
               <button
                 type="button"
-                className="rounded-full border border-slate-700/80 bg-slate-900/60 p-2 text-slate-100"
+                className="rounded-full border border-slate-700/80 bg-slate-900/60 px-3 py-2 text-slate-100 text-xl"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
               >
-                <X className="h-5 w-5" />
+                {/* Icono de cerrar */}
+                <span className="leading-none">×</span>
               </button>
             </div>
 
