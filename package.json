@@ -7,6 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
+    {
+  "dependencies": {
+    // ... your existing dependencies
+  },
+  "browser": {
+    "lucide-react": "./components/lucide-react-stub.js"
+  }
+}
   },
   "dependencies": {
     "next": "14.2.4",
