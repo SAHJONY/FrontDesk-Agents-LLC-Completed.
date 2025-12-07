@@ -1,30 +1,28 @@
 "use client";
 
 import React from "react";
-import { useLanguage } from "./LanguageProvider";
 
-export function LanguageSwitcher() {
-  const { language, setLanguage } = useLanguage();
+type LanguageSwitcherProps = {
+  className?: string;
+};
 
-  const current = language ?? "EN";
-  const next = current === "EN" ? "ES" : "EN";
-
-  const handleClick = () => {
-    setLanguage(next);
-  };
-
+export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
+  // Versión simple: solo muestra EN / ES (sin contexto global)
   return (
     <button
       type="button"
-      onClick={handleClick}
+      className={
+        className ??
+        "inline-flex items-center gap-1 rounded-full border border-slate-600 px-3 py-1 text-xs font-medium text-slate-100 hover:bg-slate-900/60 transition"
+      }
       aria-label="Change language"
-      className="inline-flex items-center gap-1 rounded-full border border-slate-600 px-3 py-1 text-xs font-medium text-slate-100 hover:bg-slate-900/60 transition"
     >
-      <span>{current}</span>
+      <span>EN</span>
       <span className="opacity-50">/</span>
-      <span>{next}</span>
+      <span>ES</span>
     </button>
   );
 }
 
+// Soporta import tanto por default como nombrado
 export default LanguageSwitcher;
