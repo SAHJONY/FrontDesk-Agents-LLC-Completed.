@@ -1,132 +1,241 @@
 // components/top-nav.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { ThemeToggle } from "./ThemeToggle";
 
-const mainLinks = [
-  { href: "/", label: "Home" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/industries", label: "Industries" },
-  { href: "/demo", label: "Demo" },
-];
+const TopNav = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname() || "";
 
-function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname.startsWith(href);
-}
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-function IconMenu() {
-  return <span className="text-xl leading-none">☰</span>;
-}
+  const navLinks = [
+    { name: "Dashboard", href: "/" },
+    { name: "Bookings", href: "/bookings" },
+    { name: "Guests", href: "/guests" },
+    { name: "Rooms", href: "/rooms" },
+    { name: "Staff", href: "/staff" },
+    { name: "Reports", href: "/reports" },
+  ];
 
-function IconClose() {
-  return <span className="text-xl leading-none">✕</span>;
-}
+  const MenuIcon = () => (
+    <svg
+      className="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 6h16M4 12h16M4 18h16"
+      />
+    </svg>
+  );
 
-export default function TopNav() {
-  const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const CloseIcon = () => (
+    <svg
+      className="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
+  );
+
+  const SearchIcon = () => (
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      />
+    </svg>
+  );
+
+  const BellIcon = () => (
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+      />
+    </svg>
+  );
+
+  const ChevronDownIcon = () => (
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 20 20"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  );
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
-        {/* Logo / badge */}
-        <Link href="/" className="flex items-center gap-3">
-          <span className="rounded-full bg-cyan-500 px-3 py-1 text-xs font-semibold text-slate-950">
-            24/7 AI Reception • FrontDesk Agents
-          </span>
-        </Link>
+    <>
+      <nav
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          scrolled ? "bg-white shadow-md" : "bg-white"
+        }`}
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo + botón móvil */}
+            <div className="flex items-center">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
+              >
+                <span className="sr-only">Open main menu</span>
+                {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
+              </button>
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 md:flex">
-          {mainLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm font-medium transition ${
-                isActive(pathname, link.href)
-                  ? "text-slate-50"
-                  : "text-slate-400 hover:text-slate-100"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+              <div className="flex-shrink-0">
+                <Link href="/" className="flex items-center">
+                  <div className="relative h-8 w-8">
+                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-blue-600">
+                      <span className="text-lg font-bold text-white">F</span>
+                    </div>
+                  </div>
+                  <span className="ml-3 hidden text-xl font-bold text-gray-900 sm:block">
+                    FrontDesk<span className="text-blue-600">Agents</span>
+                  </span>
+                </Link>
+              </div>
 
-          <Link
-            href="/pricing"
-            className="rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
-          >
-            Book a live demo
-          </Link>
+              {/* Navegación desktop */}
+              <div className="hidden lg:ml-10 lg:block">
+                <div className="flex space-x-4">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                        pathname === link.href
+                          ? "bg-blue-100 text-blue-700"
+                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-          <Link
-            href="/login"
-            className="text-sm font-medium text-slate-300 hover:text-slate-50"
-          >
-            Log in
-          </Link>
+            {/* Zona derecha */}
+            <div className="flex items-center space-x-4">
+              {/* Buscador desktop */}
+              <div className="relative hidden md:block">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <SearchIcon />
+                </div>
+                <input
+                  type="search"
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Search..."
+                />
+              </div>
 
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </nav>
+              {/* Notificaciones */}
+              <button className="relative rounded-full p-2 text-gray-700 hover:bg-gray-100">
+                <BellIcon />
+                <span className="absolute right-1 top-1 block h-2 w-2 rounded-full bg-red-500" />
+              </button>
 
-        {/* Mobile controls */}
-        <div className="flex items-center gap-2 md:hidden">
-          <LanguageSwitcher />
-          <ThemeToggle />
-          <button
-            type="button"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-700 bg-slate-900 text-slate-50"
-          >
-            {open ? <IconClose /> : <IconMenu />}
-          </button>
+              {/* Usuario */}
+              <div className="relative">
+                <button className="flex items-center space-x-3 rounded-lg p-1 hover:bg-gray-100">
+                  <div className="relative h-8 w-8">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" />
+                  </div>
+                  <div className="hidden text-left md:block">
+                    <p className="text-sm font-medium text-gray-900">
+                      John Doe
+                    </p>
+                    <p className="text-xs text-gray-500">Admin</p>
+                  </div>
+                  <ChevronDownIcon />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Menú móvil */}
+        {isMenuOpen && (
+          <div className="lg:hidden">
+            <div className="space-y-1 border-t border-gray-200 px-2 pb-3 pt-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`block rounded-md px-3 py-2 text-base font-medium ${
+                    pathname === link.href
+                      ? "bg-blue-100 text-blue-700"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Buscador móvil */}
+      <div className="border-b border-gray-200 bg-white px-4 py-3 md:hidden">
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <SearchIcon />
+          </div>
+          <input
+            type="search"
+            className="block w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Search bookings, guests, rooms..."
+          />
         </div>
       </div>
-
-      {/* Mobile drawer */}
-      {open && (
-        <div className="border-b border-slate-800/60 bg-slate-950/95 md:hidden">
-          <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 pb-4">
-            {mainLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className={`rounded-lg px-3 py-2 text-sm font-medium ${
-                  isActive(pathname, link.href)
-                    ? "bg-slate-800 text-slate-50"
-                    : "text-slate-200 hover:bg-slate-900"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            <Link
-              href="/pricing"
-              onClick={() => setOpen(false)}
-              className="mt-3 rounded-full bg-cyan-500 px-4 py-2 text-center text-sm font-semibold text-slate-950 hover:bg-cyan-400"
-            >
-              Book a live demo
-            </Link>
-
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="mt-1 text-center text-sm font-medium text-slate-300 hover:text-slate-50"
-            >
-              Log in
-            </Link>
-          </nav>
-        </div>
-      )}
-    </header>
+    </>
   );
-}
+};
+
+export default TopNav;
