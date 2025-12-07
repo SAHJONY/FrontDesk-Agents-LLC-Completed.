@@ -1,9 +1,14 @@
+import Image from "next/image";
+
 export default function Home() {
+  const year = new Date().getFullYear();
+
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
       {/* Hero */}
       <section className="border-b border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900">
         <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-16 md:flex-row md:items-center md:justify-between">
+          {/* Left column - copy */}
           <div className="max-w-xl space-y-6">
             <p className="inline-flex items-center rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-300">
               24/7 AI Reception • FrontDesk Agents
@@ -14,7 +19,7 @@ export default function Home() {
             <p className="text-sm text-slate-300 sm:text-base">
               FrontDesk Agents answers, qualifies, and books your best leads
               24/7 so your team only talks to people ready to buy. No missed
-              calls, no lost cases, no “sorry, we’re closed”.
+              calls, no lost cases, no “sorry, we&apos;re closed”.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <a
@@ -36,33 +41,54 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900/60 p-4 shadow-xl shadow-slate-900/60">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">
-                Live AI Reception Dashboard
-              </span>
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 border border-emerald-500/30">
-                ONLINE · 24/7
-              </span>
+          {/* Right column - hero image + stats overlay */}
+          <div className="w-full max-w-md">
+            <div className="relative h-72 w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 shadow-xl shadow-slate-900/60 md:h-80">
+              {/* Background hero image */}
+              <Image
+                src="/images/premium/hero-main.jpg"
+                alt="AI receptionist command center dashboard"
+                fill
+                priority
+                sizes="(min-width: 1024px) 420px, (min-width: 768px) 360px, 100vw"
+                className="object-cover opacity-70"
+              />
+
+              {/* Gradient overlay */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-slate-900/10" />
+
+              {/* Stats card overlay */}
+              <div className="relative z-10 flex h-full flex-col justify-between p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-300">
+                    Live AI Reception Dashboard
+                  </span>
+                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 border border-emerald-500/30">
+                    ONLINE · 24/7
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-950/70 px-3 py-2 border border-slate-800">
+                    <span className="text-slate-300">Calls today</span>
+                    <span className="font-semibold text-sky-300">37</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg bg-slate-950/70 px-3 py-2 border border-slate-800">
+                    <span className="text-slate-300">Booked appointments</span>
+                    <span className="font-semibold text-emerald-300">19</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg bg-slate-950/70 px-3 py-2 border border-slate-800">
+                    <span className="text-slate-300">Missed calls</span>
+                    <span className="font-semibold text-rose-300">0</span>
+                  </div>
+                </div>
+
+                <p className="mt-3 text-[11px] text-slate-400">
+                  FrontDesk Agents integrates with your existing phone numbers
+                  and calendars. No hardware, no long-term contracts.
+                </p>
+              </div>
             </div>
-            <div className="space-y-3 text-xs">
-              <div className="flex items-center justify-between rounded-lg bg-slate-950/60 px-3 py-2 border border-slate-800">
-                <span className="text-slate-300">Calls today</span>
-                <span className="font-semibold text-sky-300">37</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-slate-950/60 px-3 py-2 border border-slate-800">
-                <span className="text-slate-300">Booked appointments</span>
-                <span className="font-semibold text-emerald-300">19</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-slate-950/60 px-3 py-2 border border-slate-800">
-                <span className="text-slate-300">Missed calls</span>
-                <span className="font-semibold text-rose-300">0</span>
-              </div>
-            </div>
-            <p className="mt-4 text-[11px] text-slate-500">
-              FrontDesk Agents integrates with your existing phone numbers and
-              calendars. No hardware, no long-term contracts.
-            </p>
           </div>
         </div>
       </section>
@@ -85,12 +111,13 @@ export default function Home() {
                 Starter
               </div>
               <div className="mt-1 text-lg font-bold text-slate-50">
-                $399<span className="text-xs font-normal text-slate-400">
+                $399
+                <span className="text-xs font-normal text-slate-400">
                   /mo
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-slate-400">
-                Solo owners & single-location clinics.
+                Solo owners &amp; single-location clinics.
               </p>
             </div>
             <div className="rounded-xl border border-sky-500/60 bg-sky-950/40 p-3">
@@ -98,12 +125,13 @@ export default function Home() {
                 Professional
               </div>
               <div className="mt-1 text-lg font-bold text-slate-50">
-                $899<span className="text-xs font-normal text-slate-400">
+                $899
+                <span className="text-xs font-normal text-slate-400">
                   /mo
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-slate-400">
-                Law firms, multi-location practices & agencies.
+                Law firms, multi-location practices &amp; agencies.
               </p>
             </div>
             <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
@@ -111,12 +139,13 @@ export default function Home() {
                 Enterprise
               </div>
               <div className="mt-1 text-lg font-bold text-slate-50">
-                $1,799<span className="text-xs font-normal text-slate-400">
+                $1,799
+                <span className="text-xs font-normal text-slate-400">
                   /mo
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-slate-400">
-                Large groups & national brands with complex routing.
+                Large groups &amp; national brands with complex routing.
               </p>
             </div>
           </div>
@@ -126,7 +155,7 @@ export default function Home() {
       {/* Footer mini */}
       <footer className="border-t border-slate-900 bg-slate-950">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 text-[11px] text-slate-500">
-          <span>© {new Date().getFullYear()} FrontDesk Agents. All rights reserved.</span>
+          <span>© {year} FrontDesk Agents. All rights reserved.</span>
           <div className="flex gap-4">
             <a href="/legal/privacy" className="hover:text-slate-300">
               Privacy
