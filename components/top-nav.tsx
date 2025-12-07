@@ -1,117 +1,130 @@
+// components/top-nav.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { ThemeToggle } from "./ThemeToggle";
 
-const links = [
+const mainLinks = [
   { href: "/", label: "Home" },
   { href: "/pricing", label: "Pricing" },
   { href: "/industries", label: "Industries" },
   { href: "/demo", label: "Demo" },
-  { href: "/login", label: "Login" },
-  { href: "/signup", label: "Signup" },
 ];
+
+function isActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname.startsWith(href);
+}
+
+function IconMenu() {
+  return <span className="text-xl leading-none">☰</span>;
+}
+
+function IconClose() {
+  return <span className="text-xl leading-none">✕</span>;
+}
 
 export default function TopNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const isActive = (href: string) =>
-    href === "/"
-      ? pathname === "/"
-      : pathname?.startsWith(href);
-
-  const close = () => setOpen(false);
-
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800/70 bg-slate-950/80 backdrop-blur">
-      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        {/* Logo / Brand */}
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-sm font-semibold tracking-tight text-white"
-        >
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-xl bg-sky-500 text-xs font-bold text-slate-950">
-            FD
-          </span>
-          <span className="hidden sm:inline">
-            FrontDesk Agents
+    <header className="sticky top-0 z-40 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
+        {/* Logo / badge */}
+        <Link href="/" className="flex items-center gap-3">
+          <span className="rounded-full bg-cyan-500 px-3 py-1 text-xs font-semibold text-slate-950">
+            24/7 AI Reception • FrontDesk Agents
           </span>
         </Link>
 
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-6 text-sm">
-          {links.map((link) => (
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-6 md:flex">
+          {mainLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={
-                "transition-colors " +
-                (isActive(link.href)
-                  ? "text-sky-400"
-                  : "text-slate-300 hover:text-white")
-              }
+              className={`text-sm font-medium transition ${
+                isActive(pathname, link.href)
+                  ? "text-slate-50"
+                  : "text-slate-400 hover:text-slate-100"
+              }`}
             >
               {link.label}
             </Link>
           ))}
-        </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-3">
-          <a
-            href="tel:+12164804413"
-            className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-100 hover:border-sky-500 transition"
+          <Link
+            href="/pricing"
+            className="rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
           >
-            Call sales · (216) 480-4413
-          </a>
-        </div>
+            Book a live demo
+          </Link>
 
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900 p-2 text-slate-100 hover:border-sky-500 md:hidden"
-          aria-label="Toggle navigation menu"
-        >
-          {open ? (
-            <X className="h-4 w-4" />
-          ) : (
-            <Menu className="h-4 w-4" />
-          )}
-        </button>
-      </nav>
+          <Link
+            href="/login"
+            className="text-sm font-medium text-slate-300 hover:text-slate-50"
+          >
+            Log in
+          </Link>
+
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </nav>
+
+        {/* Mobile controls */}
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageSwitcher />
+          <ThemeToggle />
+          <button
+            type="button"
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((v) => !v)}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-700 bg-slate-900 text-slate-50"
+          >
+            {open ? <IconClose /> : <IconMenu />}
+          </button>
+        </div>
+      </div>
 
       {/* Mobile drawer */}
       {open && (
-        <div className="md:hidden border-t border-slate-800 bg-slate-950/95">
-          <div className="mx-auto max-w-6xl px-4 py-3 space-y-1 text-sm">
-            {links.map((link) => (
+        <div className="border-b border-slate-800/60 bg-slate-950/95 md:hidden">
+          <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 pb-4">
+            {mainLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={close}
-                className={
-                  "block rounded-xl px-3 py-2 " +
-                  (isActive(link.href)
-                    ? "bg-slate-900 text-sky-400"
-                    : "text-slate-200 hover:bg-slate-900")
-                }
+                onClick={() => setOpen(false)}
+                className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                  isActive(pathname, link.href)
+                    ? "bg-slate-800 text-slate-50"
+                    : "text-slate-200 hover:bg-slate-900"
+                }`}
               >
                 {link.label}
               </Link>
             ))}
 
-            <a
-              href="tel:+12164804413"
-              onClick={close}
-              className="mt-2 block rounded-xl bg-sky-500 px-3 py-2 text-center text-xs font-semibold text-slate-950 hover:bg-sky-400"
+            <Link
+              href="/pricing"
+              onClick={() => setOpen(false)}
+              className="mt-3 rounded-full bg-cyan-500 px-4 py-2 text-center text-sm font-semibold text-slate-950 hover:bg-cyan-400"
             >
-              Call sales · (216) 480-4413
-            </a>
-          </div>
+              Book a live demo
+            </Link>
+
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="mt-1 text-center text-sm font-medium text-slate-300 hover:text-slate-50"
+            >
+              Log in
+            </Link>
+          </nav>
         </div>
       )}
     </header>
