@@ -1,54 +1,65 @@
-// app/components/top-nav.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { ThemeToggle } from "./ThemeToggle";
 
 const links = [
-  { href: "/", labelEn: "Home", labelEs: "Inicio" },
-  { href: "/pricing", labelEn: "Pricing", labelEs: "Precios" },
-  { href: "/demo", labelEn: "Live Demo", labelEs: "Demo en vivo" },
-  { href: "/industries", labelEn: "Industries", labelEs: "Industrias" },
-  { href: "/support", labelEn: "Support", labelEs: "Soporte" },
+  { href: "/", label: "Home" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/industries", label: "Industries" },
+  { href: "/demo", label: "Live Demo" },
+  { href: "/owner/onboarding", label: "Onboarding" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/ai-command-center", label: "AI Command Center" },
 ];
 
 export default function TopNav() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 gap-4">
-        <Link href="/" className="font-semibold text-sky-400">
-          FrontDesk Agents
-        </Link>
+    <header className="w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        {/* Logo / Brand */}
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-sky-500 flex items-center justify-center text-xs font-bold text-slate-950">
+            FD
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-semibold text-slate-50">
+              FrontDesk Agents
+            </span>
+            <span className="text-[11px] text-slate-400">
+              AI Reception • 24/7 Coverage
+            </span>
+          </div>
+        </div>
 
-        <nav className="hidden md:flex gap-6 text-sm">
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-6 md:flex">
           {links.map((link) => {
-            const active = pathname === link.href;
+            const active =
+              pathname === link.href ||
+              (link.href !== "/" && pathname?.startsWith(link.href));
+
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={
-                  "transition-colors " +
-                  (active
-                    ? "text-sky-400"
-                    : "text-slate-300 hover:text-white")
+                  active
+                    ? "text-sky-400 text-sm font-medium"
+                    : "text-slate-300 text-sm hover:text-white transition"
                 }
               >
-                {/* El LanguageSwitcher decide EN/ES visualmente */}
-                <span className="inline md:hidden">{link.labelEn}</span>
-                <span className="hidden md:inline">{link.labelEn}</span>
+                {link.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher />
-          <ThemeToggle />
+        {/* Right side placeholder (no theme/language here) */}
+        <div className="flex items-center gap-2 text-xs text-slate-400">
+          <span>Production Nav</span>
         </div>
       </div>
     </header>
