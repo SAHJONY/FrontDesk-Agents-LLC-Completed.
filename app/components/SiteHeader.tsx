@@ -2,83 +2,45 @@
 "use client";
 
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 
 export default function SiteHeader() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = theme === "dark";
-
   return (
-    <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md dark:bg-slate-950/80">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        {/* Logo + Brand */}
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-xs font-bold text-slate-950 shadow-lg">
-            FD
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold text-slate-50">
-              FrontDesk Agents
+    <header className="sticky top-0 z-50 w-full border-b bg-white">
+      <div className="container mx-auto flex h-16 items-center px-4">
+        <div className="flex items-center space-x-8">
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+              <span className="text-white font-bold">F</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900">
+              FrontDesk<span className="text-blue-600">Agents</span>
             </span>
-            <span className="text-[11px] text-slate-400">
-              AI Receptionist Command Center
-            </span>
-          </div>
-        </div>
-
-        {/* Nav + Theme toggle */}
-        <div className="flex items-center gap-4">
-          <nav className="hidden items-center gap-4 text-xs font-medium text-slate-300 md:flex">
-            <Link
-              href="/"
-              className="hover:text-cyan-400 transition-colors"
-            >
-              Overview
+          </Link>
+          
+          <nav className="hidden md:flex space-x-6">
+            <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 font-medium">
+              Dashboard
             </Link>
-            <Link
-              href="/dashboard"
-              className="hover:text-cyan-400 transition-colors"
-            >
-              Command Center
+            <Link href="/bookings" className="text-gray-700 hover:text-blue-600 font-medium">
+              Bookings
             </Link>
-            <Link
-              href="/setup"
-              className="hover:text-cyan-400 transition-colors"
-            >
-              Setup
+            <Link href="/guests" className="text-gray-700 hover:text-blue-600 font-medium">
+              Guests
             </Link>
-            <Link
-              href="/pricing"
-              className="hover:text-cyan-400 transition-colors"
-            >
-              Pricing
+            <Link href="/rooms" className="text-gray-700 hover:text-blue-600 font-medium">
+              Rooms
             </Link>
-            <Link
-              href="/industries"
-              className="hover:text-cyan-400 transition-colors"
-            >
-              Industries
+            <Link href="/staff" className="text-gray-700 hover:text-blue-600 font-medium">
+              Staff
             </Link>
           </nav>
-
-          {/* Theme toggle */}
-          {mounted && (
-            <button
-              type="button"
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-100 shadow-sm hover:border-cyan-400 hover:text-cyan-300"
-              aria-label="Toggle theme"
-            >
-              {isDark ? "☀️" : "🌙"}
-            </button>
-          )}
+        </div>
+        
+        <div className="ml-auto flex items-center space-x-4">
+          <button className="p-2 rounded-full hover:bg-gray-100">
+            <div className="w-5 h-5 border-2 border-gray-400 rounded-full"></div>
+          </button>
+          <div className="w-8 h-8 rounded-full bg-blue-500"></div>
         </div>
       </div>
     </header>
