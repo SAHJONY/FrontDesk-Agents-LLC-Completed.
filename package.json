@@ -19,6 +19,7 @@
     "@supabase/supabase-js": "^2.30.0"
   },
   "devDependencies": {
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@types/react": "^18.0.28"
   }
 }
