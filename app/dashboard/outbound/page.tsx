@@ -4,7 +4,7 @@ import React from "react";
 import {
   LanguageProvider,
   useLanguage,
-} from "../components/LanguageProvider";
+} from "../../components/LanguageProvider"; // FIX: Corrected relative path
 
 function DashboardContent() {
   const { language, setLanguage } = useLanguage();
