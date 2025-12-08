@@ -1,4 +1,3 @@
-// app/admin/page.tsx
 import Image from "next/image";
 import { getPageHero } from "@/lib/siteImages";
 import Link from "next/link";
@@ -34,7 +33,7 @@ export default function AdminPage() {
 
       <Image
         src={hero.src}
-        alt={hero.alt}
+        alt={hero.alt || "Admin dashboard overview"}  {/* FIXED HERE */}
         width={1600}
         height={900}
         className="h-auto w-full rounded-xl border border-slate-800 object-cover"
