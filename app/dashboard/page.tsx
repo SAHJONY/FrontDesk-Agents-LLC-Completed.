@@ -56,7 +56,8 @@ function DashboardContent() {
           <p className="text-sm text-slate-600">
             {isEnglish
               ? "Show total calls, answered, missed, and booked appointments."
-              : "Muestra total de llamadas, atendidas, perdidas y citas agendadas."}
+              : "Muestra total de llamadas, atendidas, perdidas y citas agendadas."
+            }
           </p>
         </div>
         <div className="border rounded-lg p-4">
@@ -66,7 +67,8 @@ function DashboardContent() {
           <p className="text-sm text-slate-600">
             {isEnglish
               ? "Placeholder card for your core KPIs."
-              : "Tarjeta de ejemplo para tus KPIs principales."}
+              : "Tarjeta de ejemplo para tus KPIs principales."
+            }
           </p>
         </div>
       </section>
