@@ -1,5 +1,5 @@
 // lib/siteImages.ts
-export type PageHeroKey = "home" | "pricing" | "dashboard" | "admin" | "demo" | "ai-agents";
+export type PageHeroKey = "home" | "pricing" | "dashboard" | "admin" | "demo" | "ai-agents" | "setup";
 
 export interface PageHero {
   src: string;
@@ -20,6 +20,8 @@ const pageHeroes: Record<PageHeroKey, PageHero> = {
   admin: { src: "/images/premium/admin.jpg", alt: "Admin hero", width: 1600, height: 900 },
   demo: { src: "/images/premium/demo.jpg", alt: "Demo hero", width: 1600, height: 900 },
   "ai-agents": { src: "/images/premium/feature1.jpg", alt: "AI Agents", width: 1600, height: 900 },
+  // FIX: Added 'setup' key to resolve TypeScript error in app/setup/page.tsx
+  setup: { src: "/images/premium/dashboard.jpg", alt: "Setup hero", width: 1600, height: 900 },
 };
 
 export function getPageHero(key: PageHeroKey): PageHero {
