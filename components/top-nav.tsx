@@ -4,8 +4,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { ThemeToggle } from "./ThemeToggle";
 
 const TopNav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -95,7 +93,7 @@ const TopNav = () => {
               </div>
             </div>
 
-            {/* Right section */}
+            {/* Right section: Search, notifications, user menu */}
             <div className="flex items-center space-x-4">
               {/* Search */}
               <div className="relative hidden md:block">
@@ -121,11 +119,15 @@ const TopNav = () => {
                 />
               </div>
 
-              {/* Language Switcher */}
-              <LanguageSwitcher />
-              
-              {/* Theme Toggle */}
-              <ThemeToggle />
+              {/* Simple Language Switcher Button */}
+              <button className="px-3 py-2 text-sm rounded-md hover:bg-gray-100">
+                🌐 EN
+              </button>
+
+              {/* Simple Theme Toggle Button */}
+              <button className="p-2 rounded-md hover:bg-gray-100">
+                🌙
+              </button>
 
               {/* Notifications */}
               <button className="relative rounded-full p-2 text-gray-700 hover:bg-gray-100">
