@@ -17,12 +17,12 @@
     "react-dom": "18.3.1",
     "lucide-react": "^0.263.0",
     "@supabase/supabase-js": "^2.30.0",
-    "next-themes": "^0.2.1",
-    "airtable": "^0.12.2"  // <-- ADDED: The Airtable library
+    "next-themes": "^0.2.1",  // <--- ENSURE THIS COMMA IS PRESENT
+    "airtable": "^0.12.2"
   },
   "devDependencies": {
     "typescript": "^5.2.2",
     "@types/react": "^18.0.28",
-    "@types/airtable": "^0.10.0" // <-- ADDED: The TypeScript types for Airtable
+    "@types/airtable": "^0.10.0"
   }
 }
