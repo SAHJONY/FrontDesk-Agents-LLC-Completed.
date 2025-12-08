@@ -1,35 +1,18 @@
-"use client";
-
-import React from "react";
-
-type TopNavProps = {
-  language?: "EN" | "ES";
-  onLanguageChange?: (lang: string) => void;
-  theme?: "light" | "dark";
-  onThemeToggle?: () => void;
-};
-
-export default function TopNav({
-  language = "EN",
-  onLanguageChange,
-  theme = "light",
-  onThemeToggle,
-}: TopNavProps) {
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        className="px-3 py-2 text-sm rounded-md hover:bg-gray-100"
-        onClick={() => onLanguageChange?.(language === "EN" ? "ES" : "EN")}
-      >
-        🌐 {language}
-      </button>
-      <button
-        className="p-2 rounded-md hover:bg-gray-100"
-        onClick={onThemeToggle}
-        aria-label="Toggle theme"
-      >
-        {theme === "light" ? "🌙" : "☀️"}
-      </button>
+export default function TopNav() {
+  return `
+    <div class="flex items-center gap-2">
+      <button id="lang-btn" class="px-3 py-2 text-sm rounded-md hover:bg-gray-100">🌐 EN</button>
+      <button id="theme-btn" class="p-2 rounded-md hover:bg-gray-100">🌙</button>
     </div>
-  );
+    <script>
+      const langBtn = document.getElementById('lang-btn');
+      const themeBtn = document.getElementById('theme-btn');
+      langBtn.addEventListener('click', () => {
+        langBtn.textContent = langBtn.textContent.includes('EN') ? '🌐 ES' : '🌐 EN';
+      });
+      themeBtn.addEventListener('click', () => {
+        themeBtn.textContent = themeBtn.textContent === '🌙' ? '☀️' : '🌙';
+      });
+    </script>
+  `;
 }
