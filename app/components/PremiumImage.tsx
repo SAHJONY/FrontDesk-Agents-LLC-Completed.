@@ -19,7 +19,7 @@ export type PremiumImageKey =
 
 export interface PremiumImageConfig {
   src: string;
-  alt: string;
+  alt: string;  
 }
 
 export const premiumImages: Record<PremiumImageKey, PremiumImageConfig> = {
