@@ -1,7 +1,8 @@
 // app/pricing/page.tsx
 "use client"; 
 
-import PremiumImage from "../components/PremiumImage";
+// FIX: Changed import from custom component to standard Next.js Image
+import Image from "next/image"; 
 import { pricingCopy } from "@/lib/i18n";
 import { useLanguage } from "@/lib/use-language";
 
@@ -58,9 +59,12 @@ export default function PricingPage() {
 
       {/* Columna derecha: imagen premium */}
       <section className="flex-1">
-        <PremiumImage
+        {/* FIX: Replaced PremiumImage with standard Next.js Image and added required width/height */}
+        <Image
           src="/premium/pricing-enterprise-dashboard-4k.png"
           alt="FrontDesk Agents pricing and analytics dashboard"
+          width={1600} // Added a reasonable width
+          height={900} // Added a reasonable height
           className="h-full w-full rounded-3xl border border-slate-800 object-cover"
         />
       </section>
