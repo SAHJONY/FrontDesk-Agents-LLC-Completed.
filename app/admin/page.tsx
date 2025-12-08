@@ -33,7 +33,7 @@ export default function AdminPage() {
 
       <Image
         src={hero.src}
-        alt={hero.alt || "Admin dashboard overview"}  {/* FIXED HERE */}
+        alt={hero.alt || "Admin dashboard overview"}
         width={1600}
         height={900}
         className="h-auto w-full rounded-xl border border-slate-800 object-cover"
