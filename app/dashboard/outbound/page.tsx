@@ -1,58 +1,85 @@
-// app/dashboard/outbound/page.tsx
-import { getPageHero } from "@/lib/siteImages";
-import Image from "next/image";
+"use client";
 
-export default function OutboundDashboardPage() {
-  const hero = getPageHero("outbound");
+import React from "react";
+import {
+  LanguageProvider,
+  useLanguage,
+} from "../components/LanguageProvider";
+
+function DashboardContent() {
+  const { language, setLanguage } = useLanguage();
+  const isEnglish = language === "en";
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-2">
-        <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
-          OUTBOUND ENGINE
-        </p>
-        <h1 className="text-2xl font-bold text-slate-50 sm:text-3xl">
-          Outbound campaigns & reactivation
+    <main className="min-h-screen px-4 py-8 flex flex-col gap-6">
+      <header className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">
+          {isEnglish
+            ? "FrontDesk Agents – Control Center"
+            : "FrontDesk Agents – Centro de Control"}
         </h1>
-        <p className="max-w-2xl text-sm text-slate-300">
-          Configure your AI agents to reactivate old leads, missed calls and
-          no-shows with structured campaigns.
-        </p>
+        <div className="flex gap-2">
+          <button
+            className={`px-3 py-1 rounded border <LaTex>${
+              isEnglish ? "font-semibold" : ""
+            }`}
+            onClick={() => setLanguage("en")}
+          >
+            EN
+          </button>
+          <button
+            className={`px-3 py-1 rounded border $</LaTex>{
+              !isEnglish ? "font-semibold" : ""
+            }`}
+            onClick={() => setLanguage("es")}
+          >
+            ES
+          </button>
+        </div>
       </header>
 
-      <Image
-        src={hero.src}
-        alt={hero.alt}
-        width={1600}
-        height={900}
-        className="h-auto w-full rounded-xl border border-slate-800 object-cover"
-      />
-
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-          <h2 className="text-sm font-semibold text-slate-50">
-            Active campaigns
+      <section className="grid gap-4 md:grid-cols-3">
+        <div className="border rounded-lg p-4">
+          <h2 className="font-semibold mb-1">
+            {isEnglish ? "Active phone agents" : "Agentes telefónicos activos"}
           </h2>
-          <p className="mt-1 text-xs text-slate-400">
-            Coming soon: real data pulled from Supabase / Bland.ai events.
+          <p className="text-sm text-slate-600">
+            {isEnglish
+              ? "Metrics widget placeholder. Later you can connect to Bland.ai / Twilio stats."
+              : "Widget de métricas de ejemplo. Luego puedes conectarlo a las estadísticas de Bland.ai / Twilio."}
           </p>
-          <ul className="mt-3 space-y-1.5 text-[11px] text-slate-400">
-            <li>• No-show reactivation</li>
-            <li>• Old leads reactivation</li>
-            <li>• Missed call follow-up</li>
-          </ul>
         </div>
-
-        <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-          <h2 className="text-sm font-semibold text-slate-50">
-            Quick configuration
+        <div className="border rounded-lg p-4">
+          <h2 className="font-semibold mb-1">
+            {isEnglish ? "Today’s calls" : "Llamadas de hoy"}
           </h2>
-          <p className="mt-1 text-xs text-slate-400">
-            For now this section is UI-only. Real configuration can be wired to
-            your existing pipelines.
+          <p className="text-sm text-slate-600">
+            {isEnglish
+              ? "Show total calls, answered, missed, and booked appointments."
+              : "Muestra total de llamadas, atendidas, perdidas y citas agendadas."
+            }
+          </p>
+        </div>
+        <div className="border rounded-lg p-4">
+          <h2 className="font-semibold mb-1">
+            {isEnglish ? "Conversion summary" : "Resumen de conversión"}
+          </h2>
+          <p className="text-sm text-slate-600">
+            {isEnglish
+              ? "Placeholder card for your core KPIs."
+              : "Tarjeta de ejemplo para tus KPIs principales."
+            }
           </p>
         </div>
       </section>
-    </div>
+    </main>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <LanguageProvider>
+      <DashboardContent />
+    </LanguageProvider>
   );
 }
