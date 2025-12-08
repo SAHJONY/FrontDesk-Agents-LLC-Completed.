@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
-import TopNav from "@/components/top-nav"; // Assuming TopNav is a component that should be included
+import PremiumImage from "@/components/PremiumImage"; // Import the new component
+// import TopNav from "@/components/top-nav"; // Keep this if you need it
 
 export default function HomePage() {
   return (
@@ -51,14 +51,11 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Hero image - Using the selected premium dashboard image */}
+          {/* Hero image - NOW USING PremiumImage component */}
           <div className="relative w-full aspect-[16/10] rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-2xl shadow-sky-900/50">
-            <Image
-              src="/images/premium/hero-dashboard.png"
-              alt="FrontDesk Agents live AI reception dashboard"
-              fill
-              className="object-cover"
-              priority
+            <PremiumImage 
+              imageKey="home-hero" 
+              className="h-full" // Ensure the container has a height
             />
           </div>
         </section>
@@ -82,7 +79,7 @@ export default function HomePage() {
           
           {/* Placeholder for a second, smaller image or a chart */}
           <div className="relative w-full aspect-[16/6] rounded-2xl border border-slate-700 bg-slate-900 overflow-hidden">
-             {/* You can add a second image here, or a placeholder for a chart */}
+             {/* You can use another PremiumImage here, e.g., imageKey="client-dashboard" */}
              <div className="flex items-center justify-center h-full text-slate-500 text-xl font-medium">
                 [Placeholder for Live Dashboard Chart/Screenshot]
              </div>
