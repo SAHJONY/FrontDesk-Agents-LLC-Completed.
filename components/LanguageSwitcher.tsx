@@ -1,23 +1,13 @@
+// components/LanguageSwitcher.tsx
 "use client";
 
-import { useState } from "react";
-
-const LanguageSwitcher = () => {
-  const [lang, setLang] = useState("en");
-
+export default function LanguageSwitcher() {
   return (
-    <div className="inline-flex items-center">
-      <select
-        value={lang}
-        onChange={(e) => setLang(e.target.value)}
-        className="rounded-md border border-gray-200 bg-white py-1 px-2 text-sm"
-        aria-label="Seleccionar idioma"
-      >
-        <option value="en">EN</option>
-        <option value="es">ES</option>
-      </select>
+    <div className="relative">
+      <button className="flex items-center space-x-1 px-3 py-2 text-sm rounded-md hover:bg-gray-100">
+        <span>🌐</span>
+        <span>EN</span>
+      </button>
     </div>
   );
-};
-
-export default LanguageSwitcher;
+}
