@@ -20,7 +20,7 @@ function DashboardContent() {
         </h1>
         <div className="flex gap-2">
           <button
-            className={`px-3 py-1 rounded border ${
+            className={`px-3 py-1 rounded border <LaTex>${
               isEnglish ? "font-semibold" : ""
             }`}
             onClick={() => setLanguage("en")}
@@ -28,7 +28,7 @@ function DashboardContent() {
             EN
           </button>
           <button
-            className={`px-3 py-1 rounded border ${
+            className={`px-3 py-1 rounded border $</LaTex>{
               !isEnglish ? "font-semibold" : ""
             }`}
             onClick={() => setLanguage("es")}
