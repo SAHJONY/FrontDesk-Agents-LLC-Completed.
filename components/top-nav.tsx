@@ -3,7 +3,7 @@
 import React from "react";
 
 type TopNavProps = {
-  language?: string;
+  language?: "EN" | "ES";
   onLanguageChange?: (lang: string) => void;
   theme?: "light" | "dark";
   onThemeToggle?: () => void;
