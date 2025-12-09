@@ -20,7 +20,6 @@ const LanguageContext = createContext<LanguageContextValue>(DEFAULT);
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en');
 
-  // Persistencia mínima en localStorage
   useEffect(() => {
     try {
       const stored = typeof window !== 'undefined' ? localStorage.getItem('site_language') : null;
