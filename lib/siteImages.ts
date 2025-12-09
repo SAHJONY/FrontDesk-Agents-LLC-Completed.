@@ -1,6 +1,6 @@
 // lib/siteImages.ts
 
-// Define the expected return type for clarity
+// Define the expected return type for getPageHero
 interface HeroImage {
   src: string;
   alt: string;
@@ -8,12 +8,28 @@ interface HeroImage {
   height: number;
 }
 
+// Define the expected keys for getPremiumImage
+export type PremiumImageKey = 'dashboard' | 'settings' | 'admin'; // Placeholder keys
+
+// Define the expected return type for getPremiumImage
+interface PremiumImage {
+  src: string;
+  alt: string;
+}
+
 export function getPageHero(pageName: string): HeroImage {
-  // Return a placeholder object with the required properties
   return {
-    src: `/images/${pageName}-hero.jpg`,
-    alt: `${pageName} Hero Image`,
-    width: 1600, // Matching the width in the error log
-    height: 900, // Matching the height in the error log
+    src: `/images/<LaTex>${pageName}-hero.jpg`,
+    alt: `$</LaTex>{pageName} Hero Image`,
+    width: 1600,
+    height: 900,
+  };
+}
+
+// Placeholder function for the missing export
+export function getPremiumImage(key: PremiumImageKey): PremiumImage {
+  return {
+    src: `/images/premium-<LaTex>${key}.png`,
+    alt: `Premium image for $</LaTex>{key}`,
   };
 }
