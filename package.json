@@ -24,6 +24,5 @@
     "typescript": "^5.2.2",
     "@types/react": "^18.0.28",
     "@types/airtable": "^0.10.0"
-    // REMOVED: @types/next-themes
   }
 }
