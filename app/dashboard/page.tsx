@@ -1,3 +1,4 @@
+// app/dashboard/page.tsx
 "use client";
 
 import React from "react";
@@ -11,25 +12,32 @@ function DashboardContent() {
   const isEnglish = language === "en";
 
   return (
-    <main className="min-h-screen px-4 py-8 flex flex-col gap-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">
+    // Applied premium dark mode styling to main container
+    <main className="min-h-screen bg-slate-950 text-slate-50 px-4 py-10 flex flex-col gap-8">
+      <header className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <h1 className="text-3xl font-extrabold text-white">
           {isEnglish
             ? "FrontDesk Agents – Control Center"
             : "FrontDesk Agents – Centro de Control"}
         </h1>
         <div className="flex gap-2">
           <button
-            className={`px-3 py-1 rounded border <LaTex>${
-              isEnglish ? "font-semibold" : ""
+            // Fixed syntax error and applied premium button styling
+            className={`px-4 py-2 rounded-lg border-2 text-sm font-semibold transition ${
+              isEnglish 
+                ? "border-sky-500 bg-sky-500 text-slate-950 shadow-md" 
+                : "border-slate-700 text-slate-400 hover:border-sky-500"
             }`}
             onClick={() => setLanguage("en")}
           >
             EN
           </button>
           <button
-            className={`px-3 py-1 rounded border $</LaTex>{
-              !isEnglish ? "font-semibold" : ""
+            // Fixed syntax error and applied premium button styling
+            className={`px-4 py-2 rounded-lg border-2 text-sm font-semibold transition ${
+              !isEnglish 
+                ? "border-sky-500 bg-sky-500 text-slate-950 shadow-md" 
+                : "border-slate-700 text-slate-400 hover:border-sky-500"
             }`}
             onClick={() => setLanguage("es")}
           >
@@ -38,33 +46,36 @@ function DashboardContent() {
         </div>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="border rounded-lg p-4">
-          <h2 className="font-semibold mb-1">
+      <section className="grid gap-6 md:grid-cols-3">
+        {/* Premium Card Styling */}
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+          <h2 className="text-xl font-bold mb-2 text-sky-300">
             {isEnglish ? "Active phone agents" : "Agentes telefónicos activos"}
           </h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-400">
             {isEnglish
               ? "Metrics widget placeholder. Later you can connect to Bland.ai / Twilio stats."
               : "Widget de métricas de ejemplo. Luego puedes conectarlo a las estadísticas de Bland.ai / Twilio."}
           </p>
         </div>
-        <div className="border rounded-lg p-4">
-          <h2 className="font-semibold mb-1">
+        {/* Premium Card Styling */}
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+          <h2 className="text-xl font-bold mb-2 text-sky-300">
             {isEnglish ? "Today’s calls" : "Llamadas de hoy"}
           </h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-400">
             {isEnglish
               ? "Show total calls, answered, missed, and booked appointments."
               : "Muestra total de llamadas, atendidas, perdidas y citas agendadas."
             }
           </p>
         </div>
-        <div className="border rounded-lg p-4">
-          <h2 className="font-semibold mb-1">
+        {/* Premium Card Styling */}
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
+          <h2 className="text-xl font-bold mb-2 text-sky-300">
             {isEnglish ? "Conversion summary" : "Resumen de conversión"}
           </h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-400">
             {isEnglish
               ? "Placeholder card for your core KPIs."
               : "Tarjeta de ejemplo para tus KPIs principales."
