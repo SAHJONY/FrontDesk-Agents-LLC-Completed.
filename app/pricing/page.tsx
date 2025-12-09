@@ -1,8 +1,7 @@
 // app/pricing/page.tsx
 "use client"; 
 
-// FIX: Changed import from custom component to standard Next.js Image
-import Image from "next/image"; 
+import PremiumImage from "@/components/PremiumImage"; // NEW: Import PremiumImage component
 import { pricingCopy } from "@/lib/i18n";
 import { useLanguage } from "@/lib/use-language";
 
@@ -11,45 +10,52 @@ export default function PricingPage() {
   const t = pricingCopy[lang];
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 md:flex-row">
-      {/* Columna izquierda: texto */}
-      <section className="flex-1 space-y-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-sky-400">
+    <main className="mx-auto flex max-w-7xl flex-col gap-16 px-4 py-16 md:flex-row">
+      {/* Columna izquierda: texto y planes */}
+      <section className="flex-1 space-y-6">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-400">
           Pricing
         </p>
-        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+        <h1 className="text-4xl font-extrabold tracking-tight text-white md:text-5xl">
           {t.title}
         </h1>
-        <p className="max-w-xl text-slate-300">{t.subtitle}</p>
+        <p className="max-w-xl text-lg text-slate-300">{t.subtitle}</p>
 
-        <div className="mt-6 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-8 md:grid-cols-3">
           {t.plans.map((plan: any) => (
             <div
               key={plan.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-900/60 p-5"
+              // Premium Card Styling
+              className="flex flex-col justify-between rounded-2xl border border-slate-700 bg-slate-900/70 p-6 shadow-xl hover:border-sky-500 transition duration-300"
             >
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <h2 className="text-lg font-semibold text-white">
+                  <h2 className="text-xl font-bold text-white">
                     {plan.name}
                   </h2>
                   {plan.badge && (
-                    <span className="rounded-full bg-sky-500/10 px-2 py-0.5 text-xs font-medium text-sky-400">
+                    <span className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-400 border border-sky-500/30">
                       {plan.badge}
                     </span>
                   )}
                 </div>
-                <p className="text-2xl font-bold text-white">{plan.price}</p>
-                <p className="text-xs text-slate-400">{plan.description}</p>
+                <p className="text-3xl font-extrabold text-white">{plan.price}</p>
+                <p className="text-sm text-slate-400">{plan.description}</p>
               </div>
 
-              <ul className="mt-4 space-y-1 text-sm text-slate-300">
+              <ul className="mt-6 space-y-2 text-sm text-slate-300">
                 {plan.features?.map((feature: string) => (
-                  <li key={feature}>• {feature}</li>
+                  <li key={feature} className="flex items-start">
+                    <svg className="w-5 h-5 mr-2 text-sky-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                    {feature}
+                  </li>
                 ))}
               </ul>
 
-              <button className="mt-5 w-full rounded-lg bg-sky-500 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-400">
+              <button 
+                // Premium Button Styling
+                className="mt-8 w-full rounded-xl bg-sky-500 px-4 py-3 text-base font-bold text-slate-950 shadow-sky-500/50 shadow-lg hover:bg-sky-400 transition transform hover:scale-[1.01]"
+              >
                 Get started with {plan.name}
               </button>
             </div>
@@ -58,14 +64,10 @@ export default function PricingPage() {
       </section>
 
       {/* Columna derecha: imagen premium */}
-      <section className="flex-1">
-        {/* FIX: Replaced PremiumImage with standard Next.js Image and added required width/height */}
-        <Image
-          src="/premium/pricing-enterprise-dashboard-4k.png"
-          alt="FrontDesk Agents pricing and analytics dashboard"
-          width={1600} // Added a reasonable width
-          height={900} // Added a reasonable height
-          className="h-full w-full rounded-3xl border border-slate-800 object-cover"
+      <section className="flex-1 relative h-[400px] md:h-auto md:min-h-[600px]">
+        <PremiumImage
+          imageKey="pricing-hero"
+          className="h-full w-full rounded-3xl border border-slate-800 shadow-2xl shadow-sky-900/50"
         />
       </section>
     </main>
