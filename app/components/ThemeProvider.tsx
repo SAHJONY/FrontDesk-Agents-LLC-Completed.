@@ -1,4 +1,3 @@
-// app/components/ThemeProvider.tsx
 "use client";
 
 import * as React from "react";
@@ -6,17 +5,23 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 export interface ThemeProviderProps {
   children: React.ReactNode;
-  attribute?: string;
+  attribute?: "class" | "data-theme";
   defaultTheme?: string;
   enableSystem?: boolean;
 }
 
 export function ThemeProvider({
   children,
-  ...props
+  attribute = "class",
+  defaultTheme = "system",
+  enableSystem = true,
 }: ThemeProviderProps) {
   return (
-    <NextThemesProvider {...props}>
+    <NextThemesProvider
+      attribute={attribute}
+      defaultTheme={defaultTheme}
+      enableSystem={enableSystem}
+    >
       {children}
     </NextThemesProvider>
   );
