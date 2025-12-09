@@ -1,58 +1,46 @@
 // contexts/LanguageContext.tsx
-"use client";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+export type Language = 'en' | 'es';
 
-type Language = "en" | "es";
-
-type LanguageContextValue = {
+export type LanguageContextValue = {
   language: Language;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
 };
 
-const LanguageContext = createContext<LanguageContextValue | undefined>(
-  undefined
-);
+const DEFAULT: LanguageContextValue = {
+  language: 'en',
+  setLanguage: () => {},
+  toggleLanguage: () => {}
+};
+
+const LanguageContext = createContext<LanguageContextValue>(DEFAULT);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
+  const [language, setLanguageState] = useState<Language>('en');
 
-  // Leer idioma guardado en localStorage (si existe)
+  // Persistencia mínima en localStorage
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const stored = window.localStorage.getItem("fda_language");
-    if (stored === "en" || stored === "es") {
-      setLanguageState(stored);
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('site_language') : null;
+      if (stored === 'en' || stored === 'es') setLanguageState(stored);
+    } catch (e) {
+      // ignore
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("fda_language", lang);
-    }
+    try {
+      if (typeof window !== 'undefined') localStorage.setItem('site_language', lang);
+    } catch (e) {}
   };
 
-  const toggleLanguage = () => {
-    setLanguage(language === "en" ? "es" : "en");
-  };
-
-  const value: LanguageContextValue = {
-    language,
-    setLanguage,
-    toggleLanguage,
-  };
+  const toggleLanguage = () => setLanguage(language === 'en' ? 'es' : 'en');
 
   return (
-    <LanguageContext.Provider value={value}>
+    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -61,7 +49,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 export function useLanguage() {
   const ctx = useContext(LanguageContext);
   if (!ctx) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
+    throw new Error('useLanguage must be used within LanguageProvider');
   }
   return ctx;
 }
+
+export default LanguageContext;
