@@ -1,15 +1,13 @@
 // app/components/LanguageProvider.tsx
-"use client";
+'use client';
+import React from 'react';
+import { LanguageProvider as ContextProvider } from '@/contexts/LanguageContext';
 
-import { ReactNode } from "react";
-import {
-  LanguageProvider as ContextLanguageProvider,
-  useLanguage,
-} from "@/contexts/LanguageContext";
-
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  return <ContextLanguageProvider>{children}</ContextLanguageProvider>;
+/**
+ * Wrapper para uso en app/layout.tsx o en _app.tsx
+ * Importar y envolver la aplicación:
+ * <LanguageProvider>{children}</LanguageProvider>
+ */
+export default function LanguageProvider({ children }: { children: React.ReactNode }) {
+  return <ContextProvider>{children}</ContextProvider>;
 }
-
-// Re-export para que otros componentes puedan importar desde aquí
-export { useLanguage };
