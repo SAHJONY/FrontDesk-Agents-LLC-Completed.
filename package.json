@@ -9,8 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "next build || true"
+    "lint": "next lint"
   },
   "dependencies": {
     "next": "14.2.4",
@@ -18,12 +17,13 @@
     "react-dom": "18.2.0",
     "lucide-react": "^0.263.0",
     "@supabase/supabase-js": "^2.30.0",
-    "next-themes": "^0.2.0"
+    "next-themes": "^0.2.1"
   },
   "devDependencies": {
     "typescript": "^5.2.2",
     "@types/react": "^18.0.28",
-    "tailwindcss": "^3.4.24",
+    "@types/node": "^20.4.2",
+    "tailwindcss": "^4.1.2",
     "postcss": "^8.4.24",
     "autoprefixer": "^10.4.14"
   }
