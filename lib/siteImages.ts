@@ -1,34 +1,38 @@
 // lib/siteImages.ts
-export type PageHeroKey = "home" | "pricing" | "dashboard" | "admin" | "demo" | "ai-agents" | "setup";
+export type PremiumImageKey =
+  | 'hero-cinematic'
+  | 'command-center-dark'
+  | 'command-center-light'
+  | 'industry-construction'
+  | 'industry-healthcare'
+  | 'industry-law'
+  | 'industry-logistics'
+  | 'industry-medical'
+  | 'ai-agent-grid'
+  | 'team-composite'
+  | 'marketing-banner-1'
+  | 'marketing-banner-2';
 
-export interface PageHero {
+export type PremiumImageConfig = {
   src: string;
-  alt?: string;
-  width?: number;
-  height?: number;
-  priority?: boolean;
-}
-
-/**
- * Map de imágenes hero por página.
- * Asegúrate de que los archivos existen en /public/images/premium/
- */
-const pageHeroes: Record<PageHeroKey, PageHero> = {
-  home: { src: "/images/premium/hero.jpg", alt: "Home hero", width: 2400, height: 1400, priority: true },
-  pricing: { src: "/images/premium/pricing.jpg", alt: "Pricing hero", width: 1600, height: 900 },
-  dashboard: { src: "/images/premium/dashboard.jpg", alt: "Dashboard hero", width: 1600, height: 900 },
-  admin: { src: "/images/premium/admin.jpg", alt: "Admin hero", width: 1600, height: 900 },
-  demo: { src: "/images/premium/demo.jpg", alt: "Demo hero", width: 1600, height: 900 },
-  "ai-agents": { src: "/images/premium/feature1.jpg", alt: "AI Agents", width: 1600, height: 900 },
-  // FIX: Added 'setup' key to resolve TypeScript error in app/setup/page.tsx
-  setup: { src: "/images/premium/dashboard.jpg", alt: "Setup hero", width: 1600, height: 900 },
+  alt: string;
 };
 
-export function getPageHero(key: PageHeroKey): PageHero {
-  return pageHeroes[key];
-}
-
-/** Exporta todo por compatibilidad */
-export default {
-  getPageHero,
+const premiumImages: Record<PremiumImageKey, PremiumImageConfig> = {
+  'hero-cinematic': { src: '/images/hero-cinematic.jpg', alt: 'Hero cinematic background' },
+  'command-center-dark': { src: '/images/command-center-dark.jpg', alt: 'Command center dark' },
+  'command-center-light': { src: '/images/command-center-light.jpg', alt: 'Command center light' },
+  'industry-construction': { src: '/images/industries/construction.jpg', alt: 'Construction industry' },
+  'industry-healthcare': { src: '/images/industries/healthcare.jpg', alt: 'Healthcare industry' },
+  'industry-law': { src: '/images/industries/law.jpg', alt: 'Legal industry' },
+  'industry-logistics': { src: '/images/industries/logistics.jpg', alt: 'Logistics industry' },
+  'industry-medical': { src: '/images/industries/medical.jpg', alt: 'Medical industry' },
+  'ai-agent-grid': { src: '/images/premium/ai-agent-grid.jpg', alt: 'AI agents' },
+  'team-composite': { src: '/images/premium/team-composite.jpg', alt: 'Team composite' },
+  'marketing-banner-1': { src: '/images/premium/banners/banner-1.jpg', alt: 'Marketing banner 1' },
+  'marketing-banner-2': { src: '/images/premium/banners/banner-2.jpg', alt: 'Marketing banner 2' }
 };
+
+export function getPremiumImage(key: PremiumImageKey): PremiumImageConfig {
+  return premiumImages[key];
+}
