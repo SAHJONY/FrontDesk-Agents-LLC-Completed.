@@ -1,23 +1,15 @@
-// app/layout.tsx
-// TEMPORARILY COMMENT OUT THIS IMPORT
-// import TopNav from '@/components/top-nav';
+import "./globals.css";
+import type { Metadata } from "next";
 
-export default function RootLayout({ children }) {
+export const metadata: Metadata = {
+  title: "FrontDesk Agents",
+  description: "24/7 AI Reception - FrontDesk Agents",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        {/* TEMPORARILY COMMENT OUT THE COMPONENT */}
-        {/* <TopNav /> */}
-        
-        {/* Add a simple header instead */}
-        <div className="bg-blue-600 text-white p-4">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-xl font-bold">FrontDesk Agents</h1>
-          </div>
-        </div>
-        
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
