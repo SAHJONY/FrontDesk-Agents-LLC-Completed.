@@ -2,24 +2,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Reset / base adjustments */
-html, body, #__next {
-  height: 100%;
-}
-
-body {
-  @apply bg-white text-slate-900 antialiased;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Small helpers usados por la UI */
-.container {
-  @apply mx-auto px-4 sm:px-6 lg:px-8;
-}
-
-/* Example component styles */
-.btn {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 font-medium;
-}
