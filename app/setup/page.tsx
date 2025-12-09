@@ -1,11 +1,20 @@
 // app/setup/page.tsx
 import Image from "next/image";
 import TopNav from "@/components/top-nav";
-import { getPageHero } from "@/lib/siteImages";
+// FIX: Removed import { getPageHero } from "@/lib/siteImages";
 
 export default function SetupPage() {
-  // Hero como any para evitar errores de TypeScript con title/description
-  const hero: any = getPageHero("setup");
+  // FIX: Removed const hero: any = getPageHero("setup");
+
+  // Hardcoded values based on the original fallbacks
+  const title = "Configura tu AI Receptionist Command Center";
+  const description = "Sigue estos pasos para conectar tu número, pagos y CRM y empezar a cobrar hoy mismo.";
+  // Placeholder for the image, as the dynamic hero.image is removed
+  const hasImage = false; 
+  const placeholderImage = {
+    src: "/placeholder-setup.png", // Placeholder path
+    alt: "Setup FrontDesk Agents",
+  };
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
@@ -17,20 +26,20 @@ export default function SetupPage() {
             Setup · Onboarding
           </p>
           <h1 className="text-3xl font-bold sm:text-4xl">
-            {hero?.title ?? "Configura tu AI Receptionist Command Center"}
+            {title}
           </h1>
           <p className="text-sm text-slate-300 sm:text-base">
-            {hero?.description ??
-              "Sigue estos pasos para conectar tu número, pagos y CRM y empezar a cobrar hoy mismo."}
+            {description}
           </p>
         </header>
 
-        {/* Hero image si existe */}
-        {hero?.image && (
+        {/* Hero image is replaced with a static placeholder or removed */}
+        {/* The original logic was: {hero?.image && (...) } */}
+        {hasImage && (
           <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-2xl border border-slate-800">
             <Image
-              src={hero.image.src}
-              alt={hero.image.alt ?? "Setup FrontDesk Agents"}
+              src={placeholderImage.src}
+              alt={placeholderImage.alt}
               fill
               className="object-cover"
             />
