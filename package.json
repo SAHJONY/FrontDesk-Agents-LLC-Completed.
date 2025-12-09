@@ -27,4 +27,9 @@
     "postcss": "^8.4.24",
     "autoprefixer": "^10.4.14"
   }
-}
+}evDependencies": {
+    // ... other dependencies ...
+    "tailwindcss": "3.4.4",
+    "@tailwindcss/postcss": "^4.0.0",  <-- ADD THIS LINE
+    "typescript": "^5"
+
