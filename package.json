@@ -13,13 +13,17 @@
   },
   "dependencies": {
     "next": "14.2.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "lucide-react": "^0.263.0",
-    "@supabase/supabase-js": "^2.30.0"
+    "@supabase/supabase-js": "^2.30.0",
+    "next-themes": "^0.2.1",
+    "airtable": "^0.12.2"
   },
   "devDependencies": {
     "typescript": "^5.2.2",
-    "@types/react": "^18.0.28"
+    "@types/react": "^18.0.28",
+    "@types/airtable": "^0.10.0",
+    "@types/next-themes": "^0.2.0"  // <-- ADDED: Fixes the latest TypeScript error
   }
 }
