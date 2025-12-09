@@ -1,19 +1,19 @@
 // lib/siteImages.ts
 
-// This is a placeholder function to satisfy the import in your page components.
-// You will need to replace the return value with your actual image data or logic.
-export function getPageHero(pageName: string) {
-  // Return a placeholder object that matches what your components expect
-  // For example, if it returns a string URL:
-  return `/images/<LaTex>${pageName}-hero.jpg`;
-  
-  // If it returns an object with src, alt, etc., use this structure:
-  /*
+// Define the expected return type for clarity
+interface HeroImage {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+export function getPageHero(pageName: string): HeroImage {
+  // Return a placeholder object with the required properties
   return {
-    src: `/images/$</LaTex>{pageName}-hero.jpg`,
+    src: `/images/${pageName}-hero.jpg`,
     alt: `${pageName} Hero Image`,
-    width: 1920,
-    height: 1080,
+    width: 1600, // Matching the width in the error log
+    height: 900, // Matching the height in the error log
   };
-  */
 }
