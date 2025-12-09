@@ -1,173 +1,25 @@
-/* app/globals.css */
-
+/* app/globals.css - importar en layout o _app */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --fd-primary: #00C7B7; /* Corporate Teal */
-  --fd-primary-soft: #00C7B7; /* Corporate Teal */
-  --fd-bg: #FFFFFF; /* White */
-  --fd-card: #FFFFFF;
-  --fd-card-soft: #F5F5F5;
-}
-
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Inter", sans-serif;
-  background-color: var(--fd-bg);
-  color: #0A192F;
-}
-
-/* Hero background helpers */
-.hero-wrapper {
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-      circle at top left,
-      rgba(0, 199, 183, 0.1),
-      transparent 55%
-    ),
-    radial-gradient(
-      circle at bottom right,
-      rgba(0, 199, 183, 0.1),
-      transparent 55%
-    );
-  pointer-events: none;
-}
-
-/* Blur glow */
-.hero-glow {
-  position: absolute;
-  inset: auto;
-  bottom: -120px;
-  left: 50%;
-  width: 520px;
-  height: 520px;
-  transform: translateX(-50%);
-  background: radial-gradient(
-    circle,
-    rgba(0, 199, 183, 0.2),
-    transparent 70%
-  );
-  filter: blur(40px);
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-/* Simple card style */
-.fd-card {
-  border-radius: 1rem;
-  border: 1px solid #E0E0E0;
-  background: radial-gradient(circle at top left, #FFFFFF, #FFFFFF)
-      padding-box,
-    linear-gradient(
-        135deg,
-        rgba(0, 199, 183, 0.2),
-        rgba(0, 199, 183, 0.1)
-      )
-      border-box;
-}
-
-/* Inputs */
-.form-input {
-  width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.55);
-  background-color: #FFFFFF;
-  padding: 0.75rem 1rem;
-  font-size: 0.95rem;
-  color: #0A192F;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.form-input::placeholder {
-  color: #6b7280;
-}
-
-.form-input:focus {
-  border-color: #00C7B7;
-  box-shadow: 0 0 0 1px rgba(0, 199, 183, 0.2);
-  background-color: #F5F5F5;
-}
-
-/* Buttons */
-.fd-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  padding: 0.8rem 1.6rem;
-  font-weight: 600;
-  font-size: 0.98rem;
-  background: #00C7B7;
-  color: #FFFFFF;
-  box-shadow: 0 8px 16px rgba(0, 199, 183, 0.2);
-  border: none;
-  cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
-}
-
-.fd-btn-primary:hover {
-  transform: translateY(-1px);
-  filter: none;
-  box-shadow: 0 12px 24px rgba(0, 199, 183, 0.3);
-}
-
-.fd-btn-primary:active {
-  transform: translateY(0px) scale(0.98);
-  box-shadow: 0 6px 18px rgba(0, 199, 183, 0.2);
-}
-
-/* Lang toggle */
-.lang-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 0.2rem 0.85rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(148, 163, 184, 0.5);
-  background-color: #F5F5F5;
-  font-size: 0.8rem;
-}
-
-.lang-pill {
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  opacity: 0.55;
-}
-
-.lang-pill-active {
-  opacity: 1;
-  color: #00C7B7;
-}
-
-/* Responsive image container so text never cuts */
-.premium-image-container {
-  position: relative;
-  width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
-  aspect-ratio: 16 / 9;
-  border-radius: 1.5rem;
-  overflow: hidden;
-  background-color: #FFFFFF;
-}
-
-.premium-image {
-  width: 100%;
+/* Reset / base adjustments */
+html, body, #__next {
   height: 100%;
-  object-fit: cover;
-  object-position: center;
+}
+
+body {
+  @apply bg-white text-slate-900 antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Small helpers usados por la UI */
+.container {
+  @apply mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Example component styles */
+.btn {
+  @apply inline-flex items-center justify-center rounded-md px-4 py-2 font-medium;
 }
