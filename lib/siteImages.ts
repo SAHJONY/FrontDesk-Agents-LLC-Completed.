@@ -5,14 +5,14 @@ export type PageName =
   | 'dashboard'
   | 'pricing'
   | 'industries'
-  | string; // fall-back para páginas no listadas
+  | string; // fallback
 
 export interface HeroImage {
-  // campos que usan tus componentes
-  srcAvif?: string;
-  srcWebp?: string;
-  srcJpg: string;
-  src?: string; // alias para compatibilidad
+  // aseguremos que los campos usados por los componentes son siempre strings cuando se devuelven
+  srcAvif: string;
+  srcWebp: string;
+  srcJpg: string; // img src principal para <img> / Image
+  src: string;    // alias para compatibilidad con componentes Next/Image
   alt: string;
   width: number;
   height: number;
@@ -33,18 +33,17 @@ export type PremiumImageKey =
   | string;
 
 export interface PremiumImage {
-  srcAvif?: string;
-  srcWebp?: string;
-  srcJpg?: string;
-  src?: string;
+  srcAvif: string;
+  srcWebp: string;
+  srcJpg: string;
+  src: string;
   alt: string;
   width?: number;
   height?: number;
 }
 
 /**
- * Map local filenames (canonical). Actual files live in /public/
- * Update these entries if you rename any file in public/.
+ * Canonical registries. Si renombraste archivos en public/, actualiza las rutas aquí.
  */
 const HERO_REGISTRY: Record<PageName, HeroImage> = {
   home: {
@@ -92,13 +91,8 @@ const HERO_REGISTRY: Record<PageName, HeroImage> = {
     width: 1600,
     height: 900,
   },
-  // fallback minimal entry (evita undefined)
-  // puedes añadir más keys si tus páginas usan nombres distintos
 };
 
-/**
- * Premium images registry (by logical key)
- */
 const PREMIUM_REGISTRY: Record<PremiumImageKey, PremiumImage> = {
   heroCinematic: {
     srcAvif: '/images/premium/hero-cinematic.avif',
@@ -201,27 +195,31 @@ const PREMIUM_REGISTRY: Record<PremiumImageKey, PremiumImage> = {
   },
 };
 
-/**
- * Public API
- */
 export function getPageHero(pageName: PageName): HeroImage {
-  return HERO_REGISTRY[pageName] ?? {
-    // fallback neutral image (evita undefined y errores de compilación)
-    srcAvif: '/images/premium/hero-cinematic.avif',
-    srcWebp: '/images/premium/hero-cinematic.webp',
-    srcJpg: '/images/premium/hero-cinematic.jpg',
-    src: '/images/premium/hero-cinematic.jpg',
-    alt: `${pageName} hero`,
-    width: 1600,
-    height: 900,
-  };
+  // devuelve un objeto con todos los campos no-undefined
+  return (
+    HERO_REGISTRY[pageName] ?? {
+      srcAvif: '/images/premium/hero-cinematic.avif',
+      srcWebp: '/images/premium/hero-cinematic.webp',
+      srcJpg: '/images/premium/hero-cinematic.jpg',
+      src: '/images/premium/hero-cinematic.jpg',
+      alt: `${pageName} hero`,
+      width: 1600,
+      height: 900,
+    }
+  );
 }
 
 export function getPremiumImage(key: PremiumImageKey): PremiumImage {
-  return PREMIUM_REGISTRY[key] ?? {
-    src: '/images/premium/hero-cinematic.jpg',
-    alt: `${key} premium image`,
-    width: 1600,
-    height: 900,
-  };
+  return (
+    PREMIUM_REGISTRY[key] ?? {
+      srcAvif: '/images/premium/hero-cinematic.avif',
+      srcWebp: '/images/premium/hero-cinematic.webp',
+      srcJpg: '/images/premium/hero-cinematic.jpg',
+      src: '/images/premium/hero-cinematic.jpg',
+      alt: `${key} premium image`,
+      width: 1600,
+      height: 900,
+    }
+  );
 }
