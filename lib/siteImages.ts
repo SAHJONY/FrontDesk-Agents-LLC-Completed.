@@ -94,6 +94,15 @@ const pageHeroes: Record<string, HeroImage> = {
     width: 1600,
     height: 900,
   },
+  support: {
+    srcAvif: `${premiumBase}/support/index.jpg`,
+    srcWebp: `${premiumBase}/support/index.jpg`,
+    srcJpg: `${premiumBase}/support/index.jpg`,
+    src: `${premiumBase}/support/index.jpg`,
+    alt: 'Support - Customer Assistance',
+    width: 1600,
+    height: 900,
+  },
 };
 
 export function getPageHero(pageName: string): HeroImage {
@@ -213,7 +222,7 @@ export const getPremiumImage = (key: PremiumImageKey): PremiumImage => {
 
     // Support & Team
     support: {
-      src: `${premiumBase}/demo/index.jpg`,
+      src: `${premiumBase}/support/index.jpg`,
       alt: 'Customer Support - 24/7 Assistance',
       width: 1200,
       height: 600,
