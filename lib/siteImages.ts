@@ -33,62 +33,64 @@ export type PremiumImageKey =
   | 'clientDashboard'
   | 'legal'
   | 'retention'
-  | 'industries';
+  | 'industries'
+  | 'aiAgents'
+  | 'homeHero';
 
 const premiumBase = '/premium';
 
 const pageHeroes: Record<string, HeroImage> = {
   home: {
-    srcAvif: `${premiumBase}/hero-cinematic.avif`,
-    srcWebp: `${premiumBase}/hero-cinematic.webp`,
-    srcJpg: `${premiumBase}/hero-cinematic.jpg`,
-    src: `${premiumBase}/hero-cinematic.jpg`,
-    alt: 'FrontDesk Agents — Hero Cinematic - AI Communications',
+    srcAvif: `${premiumBase}/home-hero-4k.jpg`,
+    srcWebp: `${premiumBase}/home-hero-4k.jpg`,
+    srcJpg: `${premiumBase}/home-hero-4k.jpg`,
+    src: `${premiumBase}/home-hero-4k.jpg`,
+    alt: 'FrontDesk Agents — AI Communications Hero',
     width: 1600,
     height: 900,
   },
   admin: {
-    srcAvif: `${premiumBase}/command-center-dark.avif`,
-    srcWebp: `${premiumBase}/command-center-dark.webp`,
-    srcJpg: `${premiumBase}/command-center-dark.jpg`,
-    src: `${premiumBase}/command-center-dark.jpg`,
-    alt: 'Admin Command Center - AI Agents Dashboard',
+    srcAvif: `${premiumBase}/admin/index.jpg`,
+    srcWebp: `${premiumBase}/admin/index.jpg`,
+    srcJpg: `${premiumBase}/admin/index.jpg`,
+    src: `${premiumBase}/admin/index.jpg`,
+    alt: 'Admin Command Center Dashboard',
     width: 1600,
     height: 900,
   },
   pricing: {
-    srcAvif: `${premiumBase}/hero-cinematic.avif`,
-    srcWebp: `${premiumBase}/hero-cinematic.webp`,
-    srcJpg: `${premiumBase}/hero-cinematic.jpg`,
-    src: `${premiumBase}/hero-cinematic.jpg`,
-    alt: 'Pricing Plans - FrontDesk Agents Cinematic',
+    srcAvif: `${premiumBase}/pricing/index.jpg`,
+    srcWebp: `${premiumBase}/pricing/index.jpg`,
+    srcJpg: `${premiumBase}/pricing/index.jpg`,
+    src: `${premiumBase}/pricing/index.jpg`,
+    alt: 'Pricing Plans - Scalable Solutions',
     width: 1600,
     height: 900,
   },
   demo: {
-    srcAvif: `${premiumBase}/hero-cinematic.avif`,
-    srcWebp: `${premiumBase}/hero-cinematic.webp`,
-    srcJpg: `${premiumBase}/hero-cinematic.jpg`,
-    src: `${premiumBase}/hero-cinematic.jpg`,
-    alt: 'Live Demo - FrontDesk Agents',
+    srcAvif: `${premiumBase}/demo/index.jpg`,
+    srcWebp: `${premiumBase}/demo/index.jpg`,
+    srcJpg: `${premiumBase}/demo/index.jpg`,
+    src: `${premiumBase}/demo/index.jpg`,
+    alt: 'Live Demo - See FrontDesk Agents in Action',
     width: 1600,
     height: 900,
   },
   login: {
-    srcAvif: `${premiumBase}/login.avif`,
-    srcWebp: `${premiumBase}/login.webp`,
-    srcJpg: `${premiumBase}/login.jpg`,
-    src: `${premiumBase}/login.jpg`,
-    alt: 'Login - Secure Access',
+    srcAvif: `${premiumBase}/login/index.jpg`,
+    srcWebp: `${premiumBase}/login/index.jpg`,
+    srcJpg: `${premiumBase}/login/index.jpg`,
+    src: `${premiumBase}/login/index.jpg`,
+    alt: 'Secure Login - FrontDesk Agents',
     width: 1600,
     height: 900,
   },
   setup: {
-    srcAvif: `${premiumBase}/setup.avif`,
-    srcWebp: `${premiumBase}/setup.webp`,
-    srcJpg: `${premiumBase}/setup.jpg`,
-    src: `${premiumBase}/setup.jpg`,
-    alt: 'Setup Process - Configuration',
+    srcAvif: `${premiumBase}/setup/index.jpg`,
+    srcWebp: `${premiumBase}/setup/index.jpg`,
+    srcJpg: `${premiumBase}/setup/index.jpg`,
+    src: `${premiumBase}/setup/index.jpg`,
+    alt: 'Setup Process - Get Started',
     width: 1600,
     height: 900,
   },
@@ -101,124 +103,140 @@ export function getPageHero(pageName: string): HeroImage {
 
 export const getPremiumImage = (key: PremiumImageKey): PremiumImage => {
   const mapping: Record<PremiumImageKey, PremiumImage> = {
+    // Home & Main Hero
+    homeHero: {
+      src: `${premiumBase}/home-hero-4k.jpg`,
+      alt: 'FrontDesk Agents - AI Communications',
+      width: 1600,
+      height: 900,
+    },
+
+    // AI Agents Page
+    aiAgents: {
+      src: `${premiumBase}/ai-agents/index.jpg`,
+      alt: 'AI Agents - Intelligent Communications',
+      width: 1200,
+      height: 600,
+    },
+
     // Dashboard & Main Pages
     dashboard: {
-      src: `${premiumBase}/client-dashboard.jpg`,
+      src: `${premiumBase}/dashboard/index.jpg`,
       alt: 'Client Dashboard - Performance Metrics',
       width: 1200,
       height: 600,
     },
+    clientDashboard: {
+      src: `${premiumBase}/client-dashboard-4k.jpg`,
+      alt: 'Client Dashboard - Revenue & Analytics',
+      width: 1200,
+      height: 600,
+    },
+
+    // Pricing
     pricing: {
-      src: `${premiumBase}/hero-cinematic.jpg`,
+      src: `${premiumBase}/pricing/index.jpg`,
       alt: 'Pricing Plans - Scalable Solutions',
       width: 1200,
       height: 600,
     },
+
+    // Admin
     admin: {
-      src: `${premiumBase}/command-center-dark.jpg`,
+      src: `${premiumBase}/admin/index.jpg`,
       alt: 'Admin Command Center',
       width: 1200,
       height: 600,
     },
-    
-    // Command Center Variants
     commandCenterDark: {
-      src: `${premiumBase}/command-center-dark.jpg`,
-      alt: 'Command Center Dark Theme - AI Dashboard',
+      src: `${premiumBase}/admin/index.jpg`,
+      alt: 'Command Center - Dark Theme',
       width: 1200,
       height: 600,
     },
     commandCenterLight: {
-      src: `${premiumBase}/command-center-light.jpg`,
-      alt: 'Command Center Light Theme',
+      src: `${premiumBase}/premium/index.jpg`,
+      alt: 'Command Center - Light Theme',
       width: 1200,
       height: 600,
     },
 
-    // Team & People
-    agentsGrid: {
-      src: `${premiumBase}/team/agents-grid.jpg`,
-      alt: 'Team Agents - Professional Team',
-      width: 1200,
-      height: 600,
-    },
-    teamPortrait: {
-      src: `${premiumBase}/team-portrait.jpg`,
-      alt: 'Team Portrait - FrontDesk Agents',
-      width: 1200,
-      height: 600,
-    },
-
-    // Marketing & Banners
-    marketingBanner: {
-      src: `${premiumBase}/banners/marketing-banner.jpg`,
-      alt: 'Marketing Banner - AI Communications',
-      width: 1200,
-      height: 300,
-    },
-
-    // Specific Features
+    // Outbound Calls
     outboundCalls: {
-      src: `${premiumBase}/outbound-calls.jpg`,
+      src: `${premiumBase}/outbound/index.jpg`,
       alt: 'Outbound Calls - 981 Calls Analytics',
       width: 1200,
       height: 600,
     },
+
+    // Retention Dashboard
     retentionDashboard: {
-      src: `${premiumBase}/retention-dashboard.jpg`,
+      src: `${premiumBase}/retention/index.jpg`,
       alt: 'Retention Dashboard - 86% Retention Rate',
       width: 1200,
       height: 600,
     },
-    clientDashboard: {
-      src: `${premiumBase}/client-dashboard.jpg`,
-      alt: 'Client Dashboard - Revenue & Metrics',
+    retention: {
+      src: `${premiumBase}/retention/index.jpg`,
+      alt: 'Retention Strategy - Customer Focus',
       width: 1200,
       height: 600,
     },
 
-    // Authentication & Setup
-    login: {
-      src: `${premiumBase}/login.jpg`,
-      alt: 'Secure Login Interface',
-      width: 1200,
-      height: 600,
-    },
+    // Setup & Authentication
     setup: {
-      src: `${premiumBase}/setup.jpg`,
+      src: `${premiumBase}/setup/index.jpg`,
       alt: 'Setup Process - 4 Easy Steps',
       width: 1200,
       height: 600,
     },
-
-    // Support & Information
-    support: {
-      src: `${premiumBase}/support.jpg`,
-      alt: 'Customer Support Team - 24/7 Assistance',
+    login: {
+      src: `${premiumBase}/login/index.jpg`,
+      alt: 'Secure Login Interface',
       width: 1200,
       height: 600,
     },
 
-    // Legal & Compliance
+    // Legal & Industries
     legal: {
-      src: `${premiumBase}/legal.jpg`,
-      alt: 'Legal - Terms of Service & Privacy Policy',
+      src: `${premiumBase}/legal/index.jpg`,
+      alt: 'Legal - Terms of Service & Privacy',
       width: 1200,
       height: 600,
     },
-
-    // Industries
     industries: {
-      src: `${premiumBase}/industries.jpg`,
+      src: `${premiumBase}/industries-hero-4k.jpg`,
       alt: 'Industries - Healthcare, Legal, Real Estate',
       width: 1200,
       height: 600,
     },
 
-    // Retention
-    retention: {
-      src: `${premiumBase}/retention.jpg`,
-      alt: 'Retention Strategy - Customer Retention Focus',
+    // Support & Team
+    support: {
+      src: `${premiumBase}/demo/index.jpg`,
+      alt: 'Customer Support - 24/7 Assistance',
+      width: 1200,
+      height: 600,
+    },
+    teamPortrait: {
+      src: `${premiumBase}/premium/index.jpg`,
+      alt: 'Team Portrait - Professional Team',
+      width: 1200,
+      height: 600,
+    },
+
+    // Marketing Banner
+    marketingBanner: {
+      src: `${premiumBase}/premium/index.jpg`,
+      alt: 'Marketing Banner - AI Communications',
+      width: 1200,
+      height: 300,
+    },
+
+    // Agents Grid
+    agentsGrid: {
+      src: `${premiumBase}/ai-agents/index.jpg`,
+      alt: 'Agents Grid - AI Team',
       width: 1200,
       height: 600,
     },
