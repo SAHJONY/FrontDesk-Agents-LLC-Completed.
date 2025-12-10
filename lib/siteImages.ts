@@ -1,6 +1,4 @@
 // lib/siteImages.ts
-// Reemplazar completamente el archivo existente con este contenido.
-
 export type PremiumImageKey =
   | 'heroCinematic'
   | 'commandCenterDark'
@@ -16,7 +14,9 @@ export type PremiumImageKey =
   | 'banner2';
 
 export interface HeroImage {
-  src: string;
+  src: string;            // fallback (jpg/png)
+  srcWebp?: string;       // optional webp (srcset)
+  srcAvif?: string;       // optional avif (srcset)
   alt: string;
   width: number;
   height: number;
@@ -24,110 +24,113 @@ export interface HeroImage {
 
 export interface PremiumImage {
   src: string;
+  srcWebp?: string;
+  srcAvif?: string;
   alt: string;
   width?: number;
   height?: number;
 }
 
-/**
- * NOTE:
- * - The repo contains images at root `public/` like: home-hero-4k.jpg, client-dashboard-4k.jpg,
- *   industries-hero-4k.jpg and a `public/premium/` folder.
- * - Prefer to standardize into `public/images/...` later. For now we point to the actual files found.
- */
-
-/* -- Hero map: pages -> hero image -- */
+/* Hero images mapping — ajustar rutas si mueves/renombras archivos */
 const heroMap: Record<string, HeroImage> = {
   home: {
-    // try the semantic path first (if you later add it), else fallback to existing file names
-    src: '/images/hero-cinematic.jpg', // preferred semantic path (create file to use this)
+    src: '/public/premium/hero-cinematic.jpg', // si prefieres /images/hero-cinematic.jpg mueve/copialo luego
+    srcWebp: '/public/premium/hero-cinematic.webp',
+    srcAvif: '/public/premium/hero-cinematic.avif',
     alt: 'FrontDesk Agents — Hero Cinematic',
     width: 1600,
     height: 900,
   },
   admin: {
-    src: '/client-dashboard-4k.jpg', // file present in repo root public/
+    src: '/client-dashboard-4k.jpg',
+    srcWebp: '/client-dashboard-4k.webp',
     alt: 'Owner Dashboard — Command Center',
     width: 1600,
     height: 900,
   },
   demo: {
-    src: '/home-hero-4k.jpg', // existing file
+    src: '/home-hero-4k.jpg',
+    srcWebp: '/home-hero-4k.webp',
     alt: 'Demo — Home Hero',
     width: 1600,
     height: 900,
   },
   industries: {
-    src: '/industries-hero-4k.jpg', // existing file
+    src: '/industries-hero-4k.jpg',
+    srcWebp: '/industries-hero-4k.webp',
     alt: 'Industries Hero',
     width: 1600,
     height: 900,
   },
 };
 
-/* -- Premium assets map -- */
+/* Premium assets mapping */
 const premiumMap: Record<PremiumImageKey, PremiumImage> = {
   heroCinematic: {
-    src: '/images/hero-cinematic.jpg', // semantic expected
-    alt: 'Hero cinematic image',
+    src: '/public/premium/hero-cinematic.jpg',
+    srcWebp: '/public/premium/hero-cinematic.webp',
+    srcAvif: '/public/premium/hero-cinematic.avif',
+    alt: 'Hero cinematic',
     width: 1600,
     height: 900,
   },
   commandCenterDark: {
-    src: '/images/command-center-dark.jpg',
-    alt: 'Command Center Dark',
+    src: '/public/premium/command-center-dark.jpg',
+    srcWebp: '/public/premium/command-center-dark.webp',
+    srcAvif: '/public/premium/command-center-dark.avif',
+    alt: 'Command center dark',
     width: 1600,
     height: 900,
   },
   commandCenterLight: {
-    src: '/images/command-center-light.jpg',
-    alt: 'Command Center Light',
+    src: '/public/premium/command-center-light.jpg',
+    srcWebp: '/public/premium/command-center-light.webp',
+    srcAvif: '/public/premium/command-center-light.avif',
+    alt: 'Command center light',
     width: 1600,
     height: 900,
   },
   industriesConstruction: {
-    src: '/images/industries/construction.jpg',
-    alt: 'Construction industry',
+    src: '/public/premium/industries/construction.jpg',
+    alt: 'Construction',
   },
   industriesHealthcare: {
-    src: '/images/industries/healthcare.jpg',
-    alt: 'Healthcare industry',
+    src: '/public/premium/industries/healthcare.jpg',
+    alt: 'Healthcare',
   },
   industriesLaw: {
-    src: '/images/industries/law.jpg',
-    alt: 'Law industry',
+    src: '/public/premium/industries/law.jpg',
+    alt: 'Law',
   },
   industriesLogistics: {
-    src: '/images/industries/logistics.jpg',
-    alt: 'Logistics industry',
+    src: '/public/premium/industries/logistics.jpg',
+    alt: 'Logistics',
   },
   industriesMedical: {
-    src: '/images/industries/medical.jpg',
-    alt: 'Medical industry',
+    src: '/public/premium/industries/medical.jpg',
+    alt: 'Medical',
   },
   aiAgentGrid: {
-    src: '/images/premium/ai-agent-grid.jpg',
-    alt: 'AI agent grid',
+    src: '/public/premium/team/agents-grid.avif',
+    srcWebp: '/public/premium/team/agents-grid.webp',
+    alt: 'AI agents grid',
   },
   teamComposite: {
-    src: '/images/premium/team-composite.jpg',
+    src: '/public/premium/team/agents-grid.avif',
     alt: 'Team composite',
   },
   banner1: {
-    src: '/images/premium/banners/banner-1.jpg',
-    alt: 'Marketing banner 1',
+    src: '/public/premium/banners/marketing-banner.avif',
+    alt: 'Marketing banner',
   },
   banner2: {
-    src: '/images/premium/banners/banner-2.jpg',
+    src: '/public/premium/banners/marketing-banner.avif',
     alt: 'Marketing banner 2',
   },
 };
 
-/* Exports ------------------------------------------------- */
 export function getPageHero(pageName: string): HeroImage {
-  // normalize key
   const key = (pageName || 'home').toLowerCase();
-  // default to home if not found
   return heroMap[key] ?? heroMap['home'];
 }
 
