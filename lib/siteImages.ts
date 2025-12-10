@@ -10,6 +10,13 @@ export interface HeroImage {
   height?: number;
 }
 
+export interface PremiumImage {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+}
+
 export type PremiumImageKey =
   | 'dashboard'
   | 'pricing'
@@ -57,15 +64,50 @@ export function getPageHero(pageName: string): HeroImage {
   return pageHeroes[key] ?? pageHeroes['home'];
 }
 
-export const getPremiumImage = (key: PremiumImageKey) => {
-  const mapping: Record<PremiumImageKey, { src: string; alt: string }> = {
-    dashboard: { src: `${premiumBase}/hero-cinematic.jpg`, alt: 'Dashboard cinematic' },
-    pricing: { src: `${premiumBase}/hero-cinematic.jpg`, alt: 'Pricing cinematic' },
-    admin: { src: `${premiumBase}/command-center-dark.avif`, alt: 'Command center dark' },
-    commandCenterDark: { src: `${premiumBase}/command-center-dark.avif`, alt: 'Command center dark' },
-    commandCenterLight: { src: `${premiumBase}/command-center-light.avif`, alt: 'Command center light' },
-    agentsGrid: { src: `${premiumBase}/team/agents-grid.avif`, alt: 'Agents grid' },
-    marketingBanner: { src: `${premiumBase}/banners/marketing-banner.avif`, alt: 'Marketing banner' },
+export const getPremiumImage = (key: PremiumImageKey): PremiumImage => {
+  const mapping: Record<PremiumImageKey, PremiumImage> = {
+    dashboard: {
+      src: `${premiumBase}/hero-cinematic.jpg`,
+      alt: 'Dashboard cinematic',
+      width: 1200,
+      height: 600,
+    },
+    pricing: {
+      src: `${premiumBase}/hero-cinematic.jpg`,
+      alt: 'Pricing cinematic',
+      width: 1200,
+      height: 600,
+    },
+    admin: {
+      src: `${premiumBase}/command-center-dark.avif`,
+      alt: 'Command center dark',
+      width: 1200,
+      height: 600,
+    },
+    commandCenterDark: {
+      src: `${premiumBase}/command-center-dark.avif`,
+      alt: 'Command center dark',
+      width: 1200,
+      height: 600,
+    },
+    commandCenterLight: {
+      src: `${premiumBase}/command-center-light.avif`,
+      alt: 'Command center light',
+      width: 1200,
+      height: 600,
+    },
+    agentsGrid: {
+      src: `${premiumBase}/team/agents-grid.avif`,
+      alt: 'Agents grid',
+      width: 1200,
+      height: 600,
+    },
+    marketingBanner: {
+      src: `${premiumBase}/banners/marketing-banner.avif`,
+      alt: 'Marketing banner',
+      width: 1200,
+      height: 300,
+    },
   };
   return mapping[key];
 };
