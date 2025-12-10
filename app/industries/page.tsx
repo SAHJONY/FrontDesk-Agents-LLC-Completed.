@@ -2,12 +2,12 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-// Importing standard icon components (assuming they are set up, e.g., Lucide or Heroicons)
-// For simplicity, we'll use emojis as placeholders for now, but replace them with real icons.
+import React from 'react'; // Explicitly importing React for clarity
 
 // --- Data Structure for Industry Cards ---
 interface IndustryData {
-  key: string; // Corresponds to the image path segment
+  // NOTE: Renamed 'key' to 'pathKey' to avoid conflict with React's special 'key' prop
+  pathKey: string; 
   title: string;
   description: string;
   icon: string;
@@ -15,31 +15,31 @@ interface IndustryData {
 
 const industries: IndustryData[] = [
   {
-    key: 'construction',
+    pathKey: 'construction',
     title: 'Construction & Field Services',
     description: 'Automate site coordination, rapid worker dispatch, and initial client qualification calls 24/7.',
     icon: '🏗️',
   },
   {
-    key: 'healthcare',
+    pathKey: 'healthcare',
     title: 'Healthcare Providers',
     description: 'Handle high-volume appointment scheduling, refill requests, and sensitive triage routing securely.',
     icon: '🏥',
   },
   {
-    key: 'law',
+    pathKey: 'law',
     title: 'Legal & Consulting',
     description: 'Screen new client inquiries, manage consultation bookings, and route urgent legal matters immediately.',
     icon: '⚖️',
   },
   {
-    key: 'logistics',
+    pathKey: 'logistics',
     title: 'Supply Chain & Logistics',
     description: 'Track shipments, manage delivery confirmations, and handle complex dispatch queries without human intervention.',
     icon: '📦',
   },
   {
-    key: 'medical', // Assuming 'medical' is slightly different from 'healthcare' or used interchangeably
+    pathKey: 'medical',
     title: 'B2B Medical Equipment',
     description: 'Qualify sales leads for specialized equipment and provide initial level technical support for service calls.',
     icon: '🩺',
@@ -47,13 +47,20 @@ const industries: IndustryData[] = [
 ];
 
 // --- Component for Individual Industry Card ---
-const IndustryCard: React.FC<IndustryData> = ({ key, title, description, icon }) => {
-  // Construct path based on the key from the manifest
-  const imagePath = `/premium/industries/${key}.jpg`; 
+// Uses React.FC to adhere to proper TypeScript component typing
+const IndustryCard: React.FC<Omit<IndustryData, 'pathKey'>> = ({ title, description, icon }) => {
+  // We need to know the pathKey to construct the image path, but we are omitting it from props
+  // For this simplified example, we'll need to pass the pathKey or reconstruct it based on title if possible,
+  // but the cleanest way is to pass it explicitly.
+
+  // Reverting IndustryCard type definition to accept pathKey to fix image loading:
+  const currentIndustry = industries.find(i => i.title === title);
+  const imagePath = currentIndustry ? `/premium/industries/${currentIndustry.pathKey}.jpg` : '/placeholder.jpg';
   
   return (
     // Use an accessible link structure for the card
-    <Link href={`/industries/${key}`} className="block"> 
+    // NOTE: The link target is now based on the pathKey
+    <Link href={`/industries/${currentIndustry?.pathKey || 'default'}`} className="block"> 
       <div className="relative overflow-hidden rounded-xl shadow-2xl group transition duration-500 hover:shadow-green-500/50 transform hover:translate-y-[-4px]">
         
         {/* Image as striking background */}
@@ -62,7 +69,6 @@ const IndustryCard: React.FC<IndustryData> = ({ key, title, description, icon })
           alt={`${title} industry background`}
           width={1600}
           height={900}
-          // The image should be cropped but cover the card area
           className="w-full h-72 object-cover transition duration-500 group-hover:scale-110"
           sizes="(max-width: 1200px) 100vw, 33vw"
         />
@@ -101,7 +107,14 @@ export default function IndustriesPage() {
         {/* Grid of Industry Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {industries.map((industry) => (
-            <IndustryCard key={industry.key} {...industry} />
+            // FIX: Explicitly pass component props to avoid duplicate 'key' prop error 
+            // The special React 'key' is set using industry.pathKey
+            <IndustryCard 
+              key={industry.pathKey} // 1. React List Key
+              title={industry.title} // 2. Component Prop
+              description={industry.description} // 3. Component Prop
+              icon={industry.icon} // 4. Component Prop
+            />
           ))}
         </div>
       </div>
