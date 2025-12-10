@@ -1,10 +1,14 @@
+// app/page.tsx
+
 import Image from 'next/image';
 import Link from 'next/link';
-// Assuming you import the manifest data (named 'imageManifest' here)
+// Import any other components used here (e.g., Header, Footer)
 
-const HomePageHero = () => {
-  // Use the JPEG path for simplicity in the src prop
-  const heroImageSrc = '/premium/hero-cinematic.jpg';
+// --- Define the main Page Component ---
+// Use the recommended function declaration for clean typing
+export default function HomePage() {
+  // Use the JPEG path for simplicity
+  const heroImageSrc = '/premium/hero-cinematic.jpg'; 
   
   return (
     <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
@@ -51,4 +55,6 @@ const HomePageHero = () => {
       </div>
     </section>
   );
-};
+}
+
+// NOTE: No need for an extra `export default HomePage;` if the export is on the function line.
