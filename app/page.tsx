@@ -1,59 +1,54 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
+// Assuming you import the manifest data (named 'imageManifest' here)
 
-export default function Home() {
+const HomePageHero = () => {
+  // Use the JPEG path for simplicity in the src prop
+  const heroImageSrc = '/premium/hero-cinematic.jpg';
+  
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50">
-      {/* Hero Section - Restored with placeholder for the cinematic image */}
-      <section className="relative flex h-[60vh] items-center justify-center overflow-hidden">
-        {/* Placeholder for the cinematic image */}
-        <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center">
-          <span className="text-xl font-semibold text-slate-400">
-            Hero Cinematic Image Placeholder
-          </span>
-        </div>
-        
-        <div className="relative z-10 text-center p-4">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            FrontDesk Agents – AI Communications
-          </h1>
-          <p className="mt-4 max-w-3xl text-lg text-slate-300">
-            Enterprise-grade front desk automation. Turn every call into revenue with human-like AI.
-          </p>
-          <div className="mt-8 flex justify-center space-x-4">
-            <Link href="/demo" className="rounded-full bg-sky-500 px-6 py-3 text-lg font-semibold text-slate-950 hover:bg-sky-400 transition">
-              See demo
-            </Link>
-            <Link href="/pricing" className="rounded-full border border-slate-700 px-6 py-3 text-lg font-semibold text-slate-50 hover:bg-slate-800 transition">
-              Pricing
-            </Link>
-          </div>
-        </div>
-      </section>
+    <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* 1. Background Image using next/image with fill */}
+      <div className="absolute inset-0">
+        <Image
+          src={heroImageSrc}
+          alt="Hero cinematic — FrontDesk Agents"
+          fill
+          priority
+          sizes="(max-width: 1600px) 100vw, 1600px"
+          style={{ objectFit: 'cover' }}
+          className="z-0 transition duration-1000 ease-in-out"
+        />
+        {/* 2. Gradient/Dark Overlay for text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/50 to-transparent z-10"></div>
+      </div>
 
-      {/* Features Section - Restored with basic structure */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <h2 className="text-center text-3xl font-bold text-white mb-10">
-          Features
-        </h2>
-        <div className="mx-auto max-w-6xl grid grid-cols-1 gap-8 md:grid-cols-3">
-          {/* Feature Card 1 */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3">
-            <h3 className="text-xl font-semibold text-sky-400">24/7 Availability</h3>
-            <p className="text-slate-400">Never miss a call or a booking opportunity, even outside business hours.</p>
-          </div>
-          {/* Feature Card 2 */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3">
-            <h3 className="text-xl font-semibold text-sky-400">Bilingual Support</h3>
-            <p className="text-slate-400">Seamlessly handle calls in both English and Spanish with native fluency.</p>
-          </div>
-          {/* Feature Card 3 */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3">
-            <h3 className="text-xl font-semibold text-sky-400">CRM Integration</h3>
-            <p className="text-slate-400">Connects with your existing systems for a smooth workflow.</p>
-          </div>
+      {/* 3. High-Impact Content */}
+      <div className="relative z-20 text-center max-w-5xl px-6 py-12 text-white">
+        <span className="text-sm font-semibold uppercase tracking-widest text-green-400 mb-3 block">
+          The Future of Front Desk
+        </span>
+        <h1 className="text-7xl font-extrabold tracking-tight mb-6">
+          Seamlessly <span className="text-green-400">Integrate</span>, Never Miss a Lead.
+        </h1>
+        <p className="text-2xl mb-10 font-light max-w-3xl mx-auto opacity-90">
+          Our advanced AI agents handle every call, inquiry, and booking with human-level intelligence, 24/7.
+        </p>
+        
+        {/* 4. Premium CTA Buttons */}
+        <div className="flex justify-center space-x-4">
+          <Link href="/demo">
+            <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-lg transition duration-300 shadow-2xl shadow-green-500/50 text-xl transform hover:scale-105">
+              Book a Demo
+            </button>
+          </Link>
+          <Link href="/pricing">
+            <button className="bg-transparent border-2 border-white/50 hover:border-white hover:bg-white/10 text-white font-semibold py-4 px-10 rounded-lg transition duration-300 text-xl transform hover:scale-105">
+              View Plans
+            </button>
+          </Link>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
   );
-}
+};
