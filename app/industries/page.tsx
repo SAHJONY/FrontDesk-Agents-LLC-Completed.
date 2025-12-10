@@ -1,68 +1,46 @@
-import Image from "next/image";
-
-export default function IndustriesPage() {
+const IndustryCard = ({ industryKey, title, description }) => {
+  // Example path for Construction
+  const imagePath = `/premium/industries/${industryKey}.jpg`; 
+  
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="max-w-6xl mx-auto px-4 pb-16 pt-10 space-y-10">
-        <p className="text-xs font-semibold tracking-[0.25em] uppercase text-sky-400">
-          Industries
-        </p>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold max-w-3xl">
-          Built for revenue-driven service businesses.
-        </h1>
-        <p className="text-base text-slate-300 max-w-2xl">
-          FrontDesk Agents is optimized for any business where every missed call
-          is real money: clinics, law firms, agencies, real estate, home
-          services, and more.
-        </p>
-
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-4 sm:p-6">
-          <div className="relative w-full aspect-[16/10] overflow-hidden rounded-2xl bg-slate-950">
-            <Image
-              src="/images/premium/industries-dashboard.png"
-              alt="FrontDesk Agents dashboard across different industries"
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 text-sm text-slate-200">
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
-            <p className="font-semibold mb-1">Law firms</p>
-            <p className="text-xs text-slate-400">
-              Intake scripts that qualify cases and book with the right
-              attorney.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
-            <p className="font-semibold mb-1">Clinics & med spas</p>
-            <p className="text-xs text-slate-400">
-              Insurance capture, appointment booking, and reschedule handling.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
-            <p className="font-semibold mb-1">Real estate</p>
-            <p className="text-xs text-slate-400">
-              Answer sign calls, qualify buyers/sellers, and send leads to your
-              CRM instantly.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
-            <p className="font-semibold mb-1">Home services</p>
-            <p className="text-xs text-slate-400">
-              Dispatch-ready bookings with address, issue, and time window.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
-            <p className="font-semibold mb-1">Agencies</p>
-            <p className="text-xs text-slate-400">
-              Never miss a discovery call or inbound referral again.
-            </p>
-          </div>
+    <div className="relative overflow-hidden rounded-xl shadow-2xl group cursor-pointer transform hover:scale-[1.02] transition duration-500">
+      {/* Image as background */}
+      <Image
+        src={imagePath}
+        alt={`${title} industry`}
+        width={1600}
+        height={900}
+        className="w-full h-72 object-cover transition duration-500 group-hover:scale-110"
+      />
+      
+      {/* Overlay and Text Content */}
+      <div className="absolute inset-0 bg-black/50 group-hover:bg-black/70 transition duration-500 flex items-end p-6">
+        <div>
+          <h3 className="text-3xl font-bold text-white mb-2">
+            {title}
+          </h3>
+          <p className="text-gray-200 text-base">
+            {description}
+          </p>
         </div>
       </div>
-    </main>
+    </div>
   );
-}
+};
+
+// Example usage in the Industries page:
+const IndustriesPage = () => (
+  <div className="grid md:grid-cols-3 gap-8 p-10">
+    <IndustryCard 
+      industryKey="construction" 
+      title="Construction" 
+      description="Automating site coordination and client inquiry routing."
+    />
+    <IndustryCard 
+      industryKey="healthcare" 
+      title="Healthcare" 
+      description="Managing appointment scheduling and urgent triage calls."
+    />
+    {/* ... other cards using the 'medical', 'law', 'logistics' keys */}
+  </div>
+);
