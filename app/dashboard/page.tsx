@@ -1,96 +1,37 @@
-// app/dashboard/page.tsx
-"use client";
-
-import React from "react";
-import {
-  LanguageProvider,
-  useLanguage,
-} from "../components/LanguageProvider";
-
-function DashboardContent() {
-  const { language, setLanguage } = useLanguage();
-  const isEnglish = language === "en";
-
+// Within a Feature section, after the text description
+const CommandCenterFeature = () => {
+  const imageSrc = '/premium/command-center-dark.jpg';
+  
   return (
-    // Applied premium dark mode styling to main container
-    <main className="min-h-screen bg-slate-950 text-slate-50 px-4 py-10 flex flex-col gap-8">
-      <header className="flex items-center justify-between border-b border-slate-800 pb-4">
-        <h1 className="text-3xl font-extrabold text-white">
-          {isEnglish
-            ? "FrontDesk Agents – Control Center"
-            : "FrontDesk Agents – Centro de Control"}
-        </h1>
-        <div className="flex gap-2">
-          <button
-            // Fixed syntax error and applied premium button styling
-            className={`px-4 py-2 rounded-lg border-2 text-sm font-semibold transition ${
-              isEnglish 
-                ? "border-sky-500 bg-sky-500 text-slate-950 shadow-md" 
-                : "border-slate-700 text-slate-400 hover:border-sky-500"
-            }`}
-            onClick={() => setLanguage("en")}
-          >
-            EN
-          </button>
-          <button
-            // Fixed syntax error and applied premium button styling
-            className={`px-4 py-2 rounded-lg border-2 text-sm font-semibold transition ${
-              !isEnglish 
-                ? "border-sky-500 bg-sky-500 text-slate-950 shadow-md" 
-                : "border-slate-700 text-slate-400 hover:border-sky-500"
-            }`}
-            onClick={() => setLanguage("es")}
-          >
-            ES
-          </button>
-        </div>
-      </header>
-
-      <section className="grid gap-6 md:grid-cols-3">
-        {/* Premium Card Styling */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
-          <h2 className="text-xl font-bold mb-2 text-sky-300">
-            {isEnglish ? "Active phone agents" : "Agentes telefónicos activos"}
+    <div className="py-20 bg-gray-900">
+      <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+        {/* Text Content */}
+        <div>
+          <h2 className="text-4xl font-extrabold text-white mb-4">
+            Total Control, Unprecedented Visibility.
           </h2>
-          <p className="text-sm text-slate-400">
-            {isEnglish
-              ? "Metrics widget placeholder. Later you can connect to Bland.ai / Twilio stats."
-              : "Widget de métricas de ejemplo. Luego puedes conectarlo a las estadísticas de Bland.ai / Twilio."}
+          <p className="text-gray-400 text-lg mb-6">
+            Access your AI Agent Command Center to view real-time call logs, monitor performance metrics, and adjust scripts instantly.
           </p>
+          <ul className="text-gray-300 space-y-3">
+            <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Live Call Transcripts</li>
+            <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> ROI Tracking per Agent</li>
+            <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Drag-and-Drop Script Editor</li>
+          </ul>
         </div>
-        {/* Premium Card Styling */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
-          <h2 className="text-xl font-bold mb-2 text-sky-300">
-            {isEnglish ? "Today’s calls" : "Llamadas de hoy"}
-          </h2>
-          <p className="text-sm text-slate-400">
-            {isEnglish
-              ? "Show total calls, answered, missed, and booked appointments."
-              : "Muestra total de llamadas, atendidas, perdidas y citas agendadas."
-            }
-          </p>
+        
+        {/* Image Preview */}
+        <div className="shadow-2xl rounded-xl overflow-hidden border border-gray-700">
+          <Image
+            src={imageSrc}
+            alt="Command center dark"
+            width={1600}
+            height={900}
+            className="w-full h-auto"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
         </div>
-        {/* Premium Card Styling */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl">
-          <h2 className="text-xl font-bold mb-2 text-sky-300">
-            {isEnglish ? "Conversion summary" : "Resumen de conversión"}
-          </h2>
-          <p className="text-sm text-slate-400">
-            {isEnglish
-              ? "Placeholder card for your core KPIs."
-              : "Tarjeta de ejemplo para tus KPIs principales."
-            }
-          </p>
-        </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
-}
-
-export default function DashboardPage() {
-  return (
-    <LanguageProvider>
-      <DashboardContent />
-    </LanguageProvider>
-  );
-}
+};
