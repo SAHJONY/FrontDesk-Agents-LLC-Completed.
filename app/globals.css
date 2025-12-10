@@ -3,11 +3,16 @@
 @tailwind utilities;
 
 /* 
-  You can add any custom global styles below this line.
-  For example, setting a dark background for the entire body.
+  Global styles to ensure the dark background and light text 
+  are applied to the entire application body.
 */
 
 body {
-  background-color: #020617; /* Slate-950 for a dark background */
-  color: #f8fafc; /* Slate-50 for light text */
+  background-color: #020617; /* Tailwind's slate-950 */
+  color: #f8fafc; /* Tailwind's slate-50 */
 }
+
+/* 
+  Optional: If you have a custom font or other global resets, 
+  they would go here.
+*/
