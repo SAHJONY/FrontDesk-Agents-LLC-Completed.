@@ -1,4 +1,23 @@
 // lib/siteImages.ts
+export type PageName =
+  | 'home'
+  | 'admin'
+  | 'dashboard'
+  | 'pricing'
+  | 'industries'
+  | string; // fall-back para páginas no listadas
+
+export interface HeroImage {
+  // campos que usan tus componentes
+  srcAvif?: string;
+  srcWebp?: string;
+  srcJpg: string;
+  src?: string; // alias para compatibilidad
+  alt: string;
+  width: number;
+  height: number;
+}
+
 export type PremiumImageKey =
   | 'heroCinematic'
   | 'commandCenterDark'
@@ -10,130 +29,199 @@ export type PremiumImageKey =
   | 'industriesMedical'
   | 'aiAgentGrid'
   | 'teamComposite'
-  | 'banner1'
-  | 'banner2';
-
-export interface HeroImage {
-  src: string;            // fallback (jpg/png)
-  srcWebp?: string;       // optional webp (srcset)
-  srcAvif?: string;       // optional avif (srcset)
-  alt: string;
-  width: number;
-  height: number;
-}
+  | 'marketingBanner'
+  | string;
 
 export interface PremiumImage {
-  src: string;
-  srcWebp?: string;
   srcAvif?: string;
+  srcWebp?: string;
+  srcJpg?: string;
+  src?: string;
   alt: string;
   width?: number;
   height?: number;
 }
 
-/* Hero images mapping — ajustar rutas si mueves/renombras archivos */
-const heroMap: Record<string, HeroImage> = {
+/**
+ * Map local filenames (canonical). Actual files live in /public/
+ * Update these entries if you rename any file in public/.
+ */
+const HERO_REGISTRY: Record<PageName, HeroImage> = {
   home: {
-    src: '/public/premium/hero-cinematic.jpg', // si prefieres /images/hero-cinematic.jpg mueve/copialo luego
-    srcWebp: '/public/premium/hero-cinematic.webp',
-    srcAvif: '/public/premium/hero-cinematic.avif',
-    alt: 'FrontDesk Agents — Hero Cinematic',
+    srcAvif: '/images/premium/hero-cinematic.avif',
+    srcWebp: '/images/premium/hero-cinematic.webp',
+    srcJpg: '/images/premium/hero-cinematic.jpg',
+    src: '/images/premium/hero-cinematic.jpg',
+    alt: 'FrontDesk Agents — Hero cinematic',
     width: 1600,
     height: 900,
   },
   admin: {
-    src: '/client-dashboard-4k.jpg',
-    srcWebp: '/client-dashboard-4k.webp',
-    alt: 'Owner Dashboard — Command Center',
+    srcAvif: '/images/premium/command-center-dark.avif',
+    srcWebp: '/images/premium/command-center-dark.webp',
+    srcJpg: '/images/premium/command-center-dark.jpg',
+    src: '/images/premium/command-center-dark.jpg',
+    alt: 'Command center (dark)',
     width: 1600,
     height: 900,
   },
-  demo: {
-    src: '/home-hero-4k.jpg',
-    srcWebp: '/home-hero-4k.webp',
-    alt: 'Demo — Home Hero',
+  dashboard: {
+    srcAvif: '/images/premium/command-center-light.avif',
+    srcWebp: '/images/premium/command-center-light.webp',
+    srcJpg: '/images/premium/command-center-light.jpg',
+    src: '/images/premium/command-center-light.jpg',
+    alt: 'Command center (light)',
     width: 1600,
     height: 900,
+  },
+  pricing: {
+    srcAvif: '/images/premium/banners/marketing-banner.avif',
+    srcWebp: '/images/premium/banners/marketing-banner.webp',
+    srcJpg: '/images/premium/banners/marketing-banner.jpg',
+    src: '/images/premium/banners/marketing-banner.jpg',
+    alt: 'Pricing — marketing banner',
+    width: 1600,
+    height: 420,
   },
   industries: {
-    src: '/industries-hero-4k.jpg',
-    srcWebp: '/industries-hero-4k.webp',
-    alt: 'Industries Hero',
+    srcAvif: '/images/premium/industries/construction.avif',
+    srcWebp: '/images/premium/industries/construction.webp',
+    srcJpg: '/images/premium/industries/construction.jpg',
+    src: '/images/premium/industries/construction.jpg',
+    alt: 'Industries hero',
     width: 1600,
     height: 900,
   },
+  // fallback minimal entry (evita undefined)
+  // puedes añadir más keys si tus páginas usan nombres distintos
 };
 
-/* Premium assets mapping */
-const premiumMap: Record<PremiumImageKey, PremiumImage> = {
+/**
+ * Premium images registry (by logical key)
+ */
+const PREMIUM_REGISTRY: Record<PremiumImageKey, PremiumImage> = {
   heroCinematic: {
-    src: '/public/premium/hero-cinematic.jpg',
-    srcWebp: '/public/premium/hero-cinematic.webp',
-    srcAvif: '/public/premium/hero-cinematic.avif',
-    alt: 'Hero cinematic',
+    srcAvif: '/images/premium/hero-cinematic.avif',
+    srcWebp: '/images/premium/hero-cinematic.webp',
+    srcJpg: '/images/premium/hero-cinematic.jpg',
+    src: '/images/premium/hero-cinematic.jpg',
+    alt: 'Hero cinematic — FrontDesk Agents',
     width: 1600,
     height: 900,
   },
   commandCenterDark: {
-    src: '/public/premium/command-center-dark.jpg',
-    srcWebp: '/public/premium/command-center-dark.webp',
-    srcAvif: '/public/premium/command-center-dark.avif',
+    srcAvif: '/images/premium/command-center-dark.avif',
+    srcWebp: '/images/premium/command-center-dark.webp',
+    srcJpg: '/images/premium/command-center-dark.jpg',
+    src: '/images/premium/command-center-dark.jpg',
     alt: 'Command center dark',
     width: 1600,
     height: 900,
   },
   commandCenterLight: {
-    src: '/public/premium/command-center-light.jpg',
-    srcWebp: '/public/premium/command-center-light.webp',
-    srcAvif: '/public/premium/command-center-light.avif',
+    srcAvif: '/images/premium/command-center-light.avif',
+    srcWebp: '/images/premium/command-center-light.webp',
+    srcJpg: '/images/premium/command-center-light.jpg',
+    src: '/images/premium/command-center-light.jpg',
     alt: 'Command center light',
     width: 1600,
     height: 900,
   },
   industriesConstruction: {
-    src: '/public/premium/industries/construction.jpg',
-    alt: 'Construction',
+    srcAvif: '/images/premium/industries/construction.avif',
+    srcWebp: '/images/premium/industries/construction.webp',
+    srcJpg: '/images/premium/industries/construction.jpg',
+    src: '/images/premium/industries/construction.jpg',
+    alt: 'Construction industry',
+    width: 1600,
+    height: 900,
   },
   industriesHealthcare: {
-    src: '/public/premium/industries/healthcare.jpg',
-    alt: 'Healthcare',
+    srcAvif: '/images/premium/industries/healthcare.avif',
+    srcWebp: '/images/premium/industries/healthcare.webp',
+    srcJpg: '/images/premium/industries/healthcare.jpg',
+    src: '/images/premium/industries/healthcare.jpg',
+    alt: 'Healthcare industry',
+    width: 1600,
+    height: 900,
   },
   industriesLaw: {
-    src: '/public/premium/industries/law.jpg',
-    alt: 'Law',
+    srcAvif: '/images/premium/industries/law.avif',
+    srcWebp: '/images/premium/industries/law.webp',
+    srcJpg: '/images/premium/industries/law.jpg',
+    src: '/images/premium/industries/law.jpg',
+    alt: 'Law industry',
+    width: 1600,
+    height: 900,
   },
   industriesLogistics: {
-    src: '/public/premium/industries/logistics.jpg',
-    alt: 'Logistics',
+    srcAvif: '/images/premium/industries/logistics.avif',
+    srcWebp: '/images/premium/industries/logistics.webp',
+    srcJpg: '/images/premium/industries/logistics.jpg',
+    src: '/images/premium/industries/logistics.jpg',
+    alt: 'Logistics industry',
+    width: 1600,
+    height: 900,
   },
   industriesMedical: {
-    src: '/public/premium/industries/medical.jpg',
-    alt: 'Medical',
+    srcAvif: '/images/premium/industries/medical.avif',
+    srcWebp: '/images/premium/industries/medical.webp',
+    srcJpg: '/images/premium/industries/medical.jpg',
+    src: '/images/premium/industries/medical.jpg',
+    alt: 'Medical industry',
+    width: 1600,
+    height: 900,
   },
   aiAgentGrid: {
-    src: '/public/premium/team/agents-grid.avif',
-    srcWebp: '/public/premium/team/agents-grid.webp',
+    srcAvif: '/images/premium/team/agents-grid.avif',
+    srcWebp: '/images/premium/team/agents-grid.webp',
+    srcJpg: '/images/premium/team/agents-grid.jpg',
+    src: '/images/premium/team/agents-grid.jpg',
     alt: 'AI agents grid',
+    width: 1600,
+    height: 900,
   },
   teamComposite: {
-    src: '/public/premium/team/agents-grid.avif',
+    srcAvif: '/images/premium/team/agents-grid.avif',
+    srcWebp: '/images/premium/team/agents-grid.webp',
+    srcJpg: '/images/premium/team/agents-grid.jpg',
+    src: '/images/premium/team/agents-grid.jpg',
     alt: 'Team composite',
+    width: 1600,
+    height: 900,
   },
-  banner1: {
-    src: '/public/premium/banners/marketing-banner.avif',
+  marketingBanner: {
+    srcAvif: '/images/premium/banners/marketing-banner.avif',
+    srcWebp: '/images/premium/banners/marketing-banner.webp',
+    srcJpg: '/images/premium/banners/marketing-banner.jpg',
+    src: '/images/premium/banners/marketing-banner.jpg',
     alt: 'Marketing banner',
-  },
-  banner2: {
-    src: '/public/premium/banners/marketing-banner.avif',
-    alt: 'Marketing banner 2',
+    width: 1600,
+    height: 420,
   },
 };
 
-export function getPageHero(pageName: string): HeroImage {
-  const key = (pageName || 'home').toLowerCase();
-  return heroMap[key] ?? heroMap['home'];
+/**
+ * Public API
+ */
+export function getPageHero(pageName: PageName): HeroImage {
+  return HERO_REGISTRY[pageName] ?? {
+    // fallback neutral image (evita undefined y errores de compilación)
+    srcAvif: '/images/premium/hero-cinematic.avif',
+    srcWebp: '/images/premium/hero-cinematic.webp',
+    srcJpg: '/images/premium/hero-cinematic.jpg',
+    src: '/images/premium/hero-cinematic.jpg',
+    alt: `${pageName} hero`,
+    width: 1600,
+    height: 900,
+  };
 }
 
 export function getPremiumImage(key: PremiumImageKey): PremiumImage {
-  return premiumMap[key];
+  return PREMIUM_REGISTRY[key] ?? {
+    src: '/images/premium/hero-cinematic.jpg',
+    alt: `${key} premium image`,
+    width: 1600,
+    height: 900,
+  };
 }
