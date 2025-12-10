@@ -1,5 +1,7 @@
 // lib/siteImages.ts
 export interface HeroImage {
+  // backwards-compatible alias (src) for existing code that expects hero.src
+  src: string;
   srcAvif?: string;
   srcWebp?: string;
   srcJpg: string;
@@ -24,6 +26,8 @@ const pageHeroes: Record<string, HeroImage> = {
     srcAvif: `${premiumBase}/hero-cinematic.avif`,
     srcWebp: `${premiumBase}/hero-cinematic.webp`,
     srcJpg: `${premiumBase}/hero-cinematic.jpg`,
+    // src must be set (alias) to keep compatibility with hero.src usages
+    src: `${premiumBase}/hero-cinematic.jpg`,
     alt: 'FrontDesk Agents — Hero Cinematic',
     width: 1600,
     height: 900,
@@ -32,6 +36,7 @@ const pageHeroes: Record<string, HeroImage> = {
     srcAvif: `${premiumBase}/command-center-dark.avif`,
     srcWebp: `${premiumBase}/command-center-dark.webp`,
     srcJpg: `${premiumBase}/command-center-dark.jpg`,
+    src: `${premiumBase}/command-center-dark.jpg`,
     alt: 'Admin Command Center',
     width: 1600,
     height: 900,
@@ -40,6 +45,7 @@ const pageHeroes: Record<string, HeroImage> = {
     srcAvif: `${premiumBase}/hero-cinematic.avif`,
     srcWebp: `${premiumBase}/hero-cinematic.webp`,
     srcJpg: `${premiumBase}/hero-cinematic.jpg`,
+    src: `${premiumBase}/hero-cinematic.jpg`,
     alt: 'Pricing hero',
     width: 1600,
     height: 900,
