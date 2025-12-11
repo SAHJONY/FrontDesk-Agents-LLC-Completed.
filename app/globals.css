@@ -2,17 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 
-  Global styles to ensure the dark background and light text 
-  are applied to the entire application body.
-*/
-
-body {
-  background-color: #020617; /* Tailwind's slate-950 */
-  color: #f8fafc; /* Tailwind's slate-50 */
+/* Premium tokens */
+:root{
+  --brand-500: #2b6ef6;
+  --brand-700: #1f4bd8;
+  --bg-elev: rgba(15,23,42,0.02);
 }
 
-/* 
-  Optional: If you have a custom font or other global resets, 
-  they would go here.
-*/
+/* Basic premium utilities */
+.premium-hero {
+  background: linear-gradient(180deg, rgba(255,255,255,0.00), rgba(0,0,0,0.02));
+}
+.card-premium {
+  @apply rounded-xl p-6 shadow-soft-xl bg-white/95 backdrop-blur-sm border border-slate-100;
+}
+.btn-premium {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-white;
+  background: linear-gradient(90deg,var(--brand-500),var(--brand-700));
+  box-shadow: 0 6px 18px rgba(43,110,246,0.14);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn-premium:active { transform: translateY(1px); }
