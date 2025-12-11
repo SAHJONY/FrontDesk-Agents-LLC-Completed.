@@ -1,35 +1,10 @@
-{
-  "name": "frontdesk-agents-llc-completed",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.43.5",
-    "next": "14.2.4",
-    "react": "^18",
-    "react-dom": "^18",
-    "zustand": "^4.5.2"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.4",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
-  },
-  "engines": {
-    "node": "22.x"  <-- THIS IS THE CRITICAL CHANGE
-  }
+// ... other entries in "devDependencies"
+"devDependencies": {
+    // ... all dev dependencies listed
+    "typescript": "^5" // <-- THERE MUST NOT BE A COMMA HERE (since it's the last item in devDependencies)
+}, // <-- THERE MUST BE A COMMA HERE (to separate devDependencies from the next object, engines)
+
+"engines": {
+  "node": "22.x"
 }
+// ...
