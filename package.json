@@ -9,20 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
-    // FIX 1: Supabase client (previously missing)
-    "@supabase/supabase-js": "^2.43.4", 
-    
-    // FIX 2: Lucide icons (previously missing)
-    "lucide-react": "^0.395.0", 
-    
+    "@supabase/supabase-js": "^2.43.4",
+    "lucide-react": "^0.395.0",
     "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
-    // FIX 3: Autoprefixer (previously missing, needed for CSS/PostCSS)
     "autoprefixer": "^10.4.19",
-    
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
