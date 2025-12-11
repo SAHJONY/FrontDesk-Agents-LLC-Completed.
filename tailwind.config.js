@@ -1,17 +1,28 @@
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
-  // CRITICAL FIX: Ensure these paths cover all your source files
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}', // This path is crucial for Next.js 14 App Router
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./lib/**/*.{js,ts}"
   ],
   theme: {
     extend: {
-      // ... rest of your theme
-    },
+      colors: {
+        brand: {
+          50: "#f5f7ff",
+          100: "#eef2ff",
+          500: "#2b6ef6",
+          700: "#1f4bd8"
+        }
+      },
+      backgroundImage: {
+        'premium-gradient': 'linear-gradient(90deg, rgba(43,110,246,0.06), rgba(31,75,216,0.04))'
+      },
+      boxShadow: {
+        'soft-xl': '0 10px 30px rgba(15,23,42,0.10)'
+      }
+    }
   },
-  plugins: [],
-}
-export default config
+  plugins: []
+};
