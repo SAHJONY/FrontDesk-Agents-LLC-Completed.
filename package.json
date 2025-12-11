@@ -1,32 +1,10 @@
-{
-  "name": "frontdesk-agents-llc-completed",
-  "version": "1.0.0",
-  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start", // <-- Check for a comma here if it's the last script
+    "lint": "next lint"    // <-- The error is likely here or around the next brace
+  }, // <-- Check for an extraneous comma BEFORE this closing brace
+  "dependencies": { // <-- The error might be right after this brace
+    // ...
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.43.4",
-    "lucide-react": "^0.395.0",
-    "next": "14.2.4",
-    "react": "^18",
-    "react-dom": "^18"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.19",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.4",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
-}
+  // ...
