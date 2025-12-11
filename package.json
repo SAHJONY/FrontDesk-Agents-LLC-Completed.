@@ -9,12 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    // This is the dependency that was previously missing:
-    "@supabase/supabase-js": "^2.43.4", 
+    "@supabase/supabase-js": "^2.43.4",
     "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18"
-    // IMPORTANT: No comma after the last entry ("react-dom": "^18")
   },
   "devDependencies": {
     "@types/node": "^20",
