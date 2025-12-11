@@ -1,32 +1,40 @@
 // app/admin/page.tsx
-import { getPageHero } from '@/lib/siteImages';
+
+// Assuming HeroImage is defined locally in this file for simplicity (if it's not, you must fix the imported type)
+interface HeroImage {
+  src: string;          // <--- THIS IS THE CRITICAL LINE THAT MUST BE INCLUDED
+  srcWebp?: string;     // Needed for line 12
+  alt: string;          // Needed for line 15
+  width?: number;       // Needed for line 16
+  height?: number;      // Needed for line 17
+  // ... other properties
+}
+
+
+const hero: HeroImage = { 
+  // You must ensure this object is correctly initialized with 'src'
+  src: "/path/to/hero.jpg", 
+  alt: "Hero Image Alt Text", 
+  // ... other properties
+};
+
 
 export default function AdminPage() {
-  const hero = getPageHero('admin');
-
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="relative">
-        <picture>
-          {hero.srcAvif && <source srcSet={hero.srcAvif} type="image/avif" />}
-          {hero.srcWebp && <source srcSet={hero.srcWebp} type="image/webp" />}
-          <img
-            src={hero.src}
-            alt={hero.alt}
-            width={hero.width || 1200}
-            height={hero.height || 450}
-            className="w-full h-56 object-cover"
-            style={{ maxHeight: '40vh' }}
-          />
-        </picture>
-        <div className="absolute left-6 top-6 text-white">
-          <h1 className="text-2xl font-bold">Owner Dashboard</h1>
-          <p className="text-sm">Command center</p>
-        </div>
-      </div>
-      <section className="p-6">
-        {/* Dashboard content goes here */}
-      </section>
-    </main>
+    // ... the rest of your component content
+    <picture>
+      {hero.srcWebp && <source srcSet={hero.srcWebp} type="image/webp" />}
+      <img
+        src={hero.src} // This line requires 'src' on the HeroImage type
+        alt={hero.alt}
+        width={hero.width || 1200}
+        height={hero.height || 450}
+      />
+    </picture>
+    // ...
   );
 }
+
+// NOTE: If HeroImage is imported from another file, that is the file you must edit.
+// Example of an import:
+// import { HeroImage } from '@/types/images';
