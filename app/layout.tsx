@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import TopNav from "@/components/top-nav"; // Assuming TopNav is now fixed and available
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Header from '@/components/Header'; // <-- IMPORT THE NEW HEADER
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "FrontDesk Agents - AI Communications",
-  description: "Enterprise-grade front desk automation. Turn every call into revenue with human-like AI.",
+  title: 'FrontDesk Agents LLC',
+  description: 'AI-Powered Front Desk Agents for Seamless Operations.',
 };
 
 export default function RootLayout({
@@ -18,8 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <TopNav />
+        <Header /> {/* <-- ADD THE HEADER HERE */}
         {children}
+        {/* You may want to add a Footer component here too! */}
       </body>
     </html>
   );
