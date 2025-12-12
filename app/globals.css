@@ -1,26 +1,18 @@
 /* app/globals.css */
 
-/* Standard Tailwind CSS Layer Directives */
+/* 1. Base Tailwind Directives (MUST stay at the top) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* * ----------------------------------------------------------------
- * CUSTOM UTILITY CLASSES FOR FORTUNE 500 AESTHETIC
- * ----------------------------------------------------------------
- * These classes enforce the look across the application.
- */
-
-/* Premium Card Style (used in Solutions, Mission, etc.) */
+/* 2. Custom Component Classes */
 @layer components {
+  /* Premium Card Style (Existing) */
   .card-premium {
-    /* FIX: Replaced invalid shadow-soft-xl with the defined shadow-premium */
     @apply rounded-xl p-6 shadow-premium bg-white/95 backdrop-blur-sm border border-gray-200 transition-all duration-300;
   }
-}
 
-/* Premium Primary Button Style (used for CTAs like 'Schedule a Consultation') */
-@layer components {
+  /* Premium Primary Button Style (Existing) */
   .btn-primary-premium {
     @apply inline-flex items-center justify-center 
            px-8 py-4 text-lg font-medium rounded-lg 
@@ -29,15 +21,20 @@
            duration-300 ease-in-out transform 
            hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary-500 focus:ring-opacity-50;
   }
-}
 
-/* Premium Secondary Button Style (used for less aggressive CTAs like 'Learn More') */
-@layer components {
+  /* Premium Secondary Button Style (Existing) */
   .btn-secondary-premium {
     @apply inline-flex items-center justify-center 
            px-6 py-3 text-base font-medium rounded-lg 
            border border-primary-700 text-primary-700 
            hover:bg-primary-50 transition 
            duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500;
+  }
+  
+  /* 🌟 NEW: Premium Input Field Style (Add the code here!) */
+  .input-premium {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg 
+           focus:ring-2 focus:ring-primary-500 focus:border-primary-500 
+           shadow-sm transition duration-150 ease-in-out text-base text-gray-900;
   }
 }
