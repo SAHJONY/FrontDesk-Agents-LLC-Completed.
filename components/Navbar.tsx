@@ -1,39 +1,57 @@
 // components/Navbar.tsx
-
-"use client"; // Essential if your Navbar has any interaction (like a mobile menu)
-
 import Link from 'next/link';
-// Adjust your imports as necessary (e.g., for icons)
 
-export const Navbar = () => {
-    return (
-        // 🌟 CRITICAL: Fixed dark header with high z-index
-        <header className="fixed top-0 left-0 w-full z-50 bg-primary-900 shadow-xl transition-all duration-300">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
-                
-                    {/* Logo/Brand Name: White text for high contrast */}
-                    <Link href="/" className="text-xl font-extrabold text-white tracking-tight hover:text-primary-300 transition-colors">
-                        FrontDesk Agents
-                    </Link>
+// New navigation links based on the review
+const navLinks = [
+  { name: 'Product & Features', href: '/product' },       // New Product Page (Priority 2)
+  { name: 'Pricing', href: '/pricing' },
+  { name: 'Case Studies', href: '/cases' },               // New Case Studies Page (Priority 1)
+  { name: 'About Us', href: '/about' },                   // New About Us Page (Priority 2)
+  { name: 'Contact Sales', href: '/contact-sales' },
+];
 
-                    {/* Desktop Navigation Links */}
-                    <nav className="hidden md:flex space-x-8">
-                        <Link href="/solutions" className="text-gray-300 hover:text-white font-medium transition duration-150">Solutions</Link>
-                        <Link href="/pricing" className="text-gray-300 hover:text-white font-medium transition duration-150">Pricing</Link>
-                        <Link href="/dashboard" className="text-gray-300 hover:text-white font-medium transition duration-150">Dashboard</Link>
-                        {/* Final CTA Button - uses primary button styling with white border/text for the dark background */}
-                        <Link href="/login" className="btn-secondary-premium px-4 py-1.5 text-sm bg-transparent border-white text-white hover:bg-white/10">
-                            Login
-                        </Link>
-                    </nav>
-                    
-                    {/* Mobile Menu Icon (White) */}
-                    <button className="md:hidden text-white">
-                        {/* Actual Hamburger Icon code would go here */}
-                    </button>
-                </div>
+export default function Navbar() {
+  return (
+    // Fixed Navbar structure with dark aesthetic and z-index for visibility
+    <nav className="fixed top-0 left-0 w-full bg-primary-900/95 backdrop-blur-md shadow-lg z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          
+          {/* Logo / Home Link */}
+          <div className="flex-shrink-0">
+            <Link href="/" className="text-2xl font-bold text-white tracking-wider">
+              FrontDesk Agents<span className="text-primary-300">.</span>
+            </Link>
+          </div>
+
+          {/* Primary Navigation Links (Desktop) */}
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="text-gray-300 hover:bg-primary-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                >
+                  {link.name}
+                </Link>
+              ))}
             </div>
-        </header>
-    );
-};
+          </div>
+
+          {/* Auth & Consultation CTA (Right Side) */}
+          <div className="flex items-center space-x-4">
+            <Link href="/login" className="text-gray-300 hover:text-white text-sm font-medium transition duration-150 hidden sm:block">
+              Login
+            </Link>
+            <Link href="/demo" className="btn-primary-premium px-4 py-2 text-sm">
+              Book Consultation
+            </Link>
+          </div>
+
+        </div>
+      </div>
+      {/* Note: Mobile menu toggle/implementation omitted for brevity, but required for production UX */}
+    </nav>
+  );
+}
