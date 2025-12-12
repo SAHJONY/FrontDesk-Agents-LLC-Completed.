@@ -2,6 +2,8 @@
 "use client"; // CRITICAL: Enables form interactivity and event handlers
 
 import React, { useState } from 'react';
+// FIX APPLIED HERE: Added missing Link import
+import Link from 'next/link'; 
 
 export default function LoginForm() {
     // Placeholder state and logic for client-side interactivity
