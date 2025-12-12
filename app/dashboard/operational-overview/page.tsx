@@ -15,12 +15,13 @@ import {
     ArrowUpIcon,
     ArrowDownIcon,
     Cog6ToothIcon,
-    DocumentChartIcon,
+    // FIX APPLIED HERE: Corrected typo from DocumentChartIcon to DocumentChartBarIcon
+    DocumentChartBarIcon, 
     ShieldCheckIcon,
     MagnifyingGlassIcon,
     SignalIcon,
     
-    // FIX APPLIED HERE: ADD MISSING ICONS
+    // Missing Icons added in previous step
     SparklesIcon, 
     BoltIcon,
 } from '@heroicons/react/24/outline';
@@ -80,7 +81,7 @@ export default function OperationalOverviewPage() {
     // NEW: Hook para actualizar el idioma al cambiarlo en el selector
     useEffect(() => {
         const updateLang = () => {
-            // **FIX APPLIED HERE**: Check if window/localStorage is defined before accessing
+            // **CRITICAL FIX**: Check if window/localStorage is defined before accessing (Prevents Vercel pre-rendering crash)
             if (typeof window !== 'undefined' && window.localStorage) {
                 setCurrentLang(localStorage.getItem('appLang') || 'en');
             } else {
@@ -107,7 +108,7 @@ export default function OperationalOverviewPage() {
         trend: 'up',
         icon: PhoneIcon, 
         color: 'blue',
-        subtitle: t('currency_context'), // Ejemplo de uso
+        subtitle: t('currency_context'), 
         sparkline: [12, 15, 18, 22, 24]
       },
       { 
@@ -117,7 +118,7 @@ export default function OperationalOverviewPage() {
         trend: 'up',
         icon: SparklesIcon, 
         color: 'green',
-        subtitle: t('kpi_accuracy_subtitle'), // New key for localization
+        subtitle: t('kpi_accuracy_subtitle'), 
         sparkline: [95, 96, 97, 98, 98.5]
       },
       { 
@@ -127,7 +128,7 @@ export default function OperationalOverviewPage() {
         trend: 'down',
         icon: BoltIcon, 
         color: 'purple',
-        subtitle: t('kpi_response_subtitle'), // New key for localization
+        subtitle: t('kpi_response_subtitle'), 
         sparkline: [1.8, 1.6, 1.4, 1.3, 1.2]
       },
       { 
@@ -137,7 +138,7 @@ export default function OperationalOverviewPage() {
         trend: 'up',
         icon: BanknotesIcon, 
         color: 'emerald',
-        subtitle: `${t('currency_context')} (${USER_CURRENCY})`, // TRADUCIDO
+        subtitle: `${t('currency_context')} (${USER_CURRENCY})`,
         sparkline: [38, 40, 42, 43, 45.2]
       },
     ];
@@ -266,7 +267,7 @@ export default function OperationalOverviewPage() {
                 <div className="space-y-4">
                     {mgmtCenters.map((center, index) => {
                         const healthColor = center.health === 'good' ? 'bg-green-500' : center.health === 'warning' ? 'bg-yellow-500' : 'bg-red-500';
-                        const HealthIcon = center.health === 'good' ? ShieldCheckIcon : SignalIcon;
+                        // Icon logic assumed based on health status
 
                         return (
                             <div key={index} className="flex items-center p-6 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition">
@@ -319,4 +320,4 @@ export default function OperationalOverviewPage() {
         </div>
       </div>
     );
-                                        }
+}
