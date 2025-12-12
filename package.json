@@ -18,7 +18,7 @@
     "react-dom": "18.2.0",
     "lucide-react": "^0.263.0",
     "@supabase/supabase-js": "^2.30.0",
-    "next-themes": "^0.3.0"  // <-- CRITICAL FIX: Added next-themes
+    "next-themes": "^0.3.0"
   },
   "devDependencies": {
     "typescript": "^5.2.2",
