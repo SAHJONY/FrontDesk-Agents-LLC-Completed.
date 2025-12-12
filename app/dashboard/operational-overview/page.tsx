@@ -1,9 +1,9 @@
-// app/dashboard/operational-overview/page.tsx - ULTRA PREMIUM VERSION (LOCALIZATION/i18n UPDATE)
-"use client";
+// app/dashboard/operational-overview/page.tsx - COMPLETE & FIXED VERSION
+"use client"; // CRITICAL FIX 1: Enables Hooks and Client-side event handlers
 
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react'; // Importar Hooks
+import React, { useState, useEffect } from 'react'; 
 import { 
     // Existing Imports
     BanknotesIcon, 
@@ -15,7 +15,7 @@ import {
     ArrowUpIcon,
     ArrowDownIcon,
     Cog6ToothIcon,
-    // CORRECTED TYPO: DocumentChartIcon -> DocumentChartBarIcon
+    // FIX APPLIED: Corrected typo from DocumentChartIcon to DocumentChartBarIcon
     DocumentChartBarIcon, 
     ShieldCheckIcon,
     MagnifyingGlassIcon,
@@ -26,10 +26,9 @@ import {
     BoltIcon,
 } from '@heroicons/react/24/outline';
 
-// NEW IMPORTS
-// NOTE: These are assumed to exist in the project for the component to function
-import { getTranslation } from '@/lib/i18n/languages'; // Importamos el diccionario
-import { LanguageSelector } from '@/components/LanguageSelector'; // Importamos el selector
+// NEW IMPORTS (Assumed to exist)
+import { getTranslation } from '@/lib/i18n/languages'; 
+import { LanguageSelector } from '@/components/LanguageSelector'; 
 
 // --- Simulated User Settings ---
 const USER_CURRENCY = 'MXN'; 
@@ -49,7 +48,6 @@ const formatCurrency = (amount) => {
 
 // Utility function to format time using the user's timezone
 const formatLocalTime = (date, lang) => {
-    // Usamos el idioma del usuario para la localización de la hora también
     return new Date(date).toLocaleTimeString(lang === 'es' ? USER_LOCALE : 'en-US', {
         hour: '2-digit',
         minute: '2-digit',
@@ -57,9 +55,8 @@ const formatLocalTime = (date, lang) => {
     });
 };
 
-// Mock data for the sparkline component (Assuming a simple line component exists)
+// Mock data for the sparkline component
 const Sparkline = ({ data, color }) => {
-    // This is a mock component and just returns a placeholder div
     return (
         <div className={`h-8 w-full bg-${color}-100 rounded-lg flex items-center justify-center text-xs text-gray-500`}>
             Sparkline Chart
@@ -76,28 +73,28 @@ const miniStats = [
 ];
 
 export default function OperationalOverviewPage() {
-    const [currentLang, setCurrentLang] = useState('en'); // Estado del idioma
+    const [currentLang, setCurrentLang] = useState('en'); 
 
-    // NEW: Hook para actualizar el idioma al cambiarlo en el selector
+    // CRITICAL FIX 2: Hook for initializing language and handling updates safely
     useEffect(() => {
         const updateLang = () => {
-            // **CRITICAL FIX**: Check if window/localStorage is defined before accessing (Prevents Vercel pre-rendering crash)
+            // Check if window/localStorage is defined before accessing (Server-side check)
             if (typeof window !== 'undefined' && window.localStorage) {
                 setCurrentLang(localStorage.getItem('appLang') || 'en');
             } else {
-                setCurrentLang('en'); // Default to 'en' during server rendering
+                setCurrentLang('en'); // Default during server rendering
             }
         };
         
         // We only try to set up the listener if we are in the browser
         if (typeof window !== 'undefined') {
-            updateLang(); // Cargar el idioma inicial
+            updateLang(); // Load initial language
             window.addEventListener('languageChange', updateLang);
             return () => window.removeEventListener('languageChange', updateLang);
         }
     }, []);
 
-    const t = (key) => getTranslation(key, currentLang); // Helper de traducción
+    const t = (key) => getTranslation(key, currentLang); // Translation helper
 
     // Real-time KPIs with trend data - USANDO t()
     const kpis = [
@@ -132,7 +129,7 @@ export default function OperationalOverviewPage() {
         sparkline: [1.8, 1.6, 1.4, 1.3, 1.2]
       },
       { 
-        label: t('kpi_revenue'), // TRADUCIDO
+        label: t('kpi_revenue'), 
         value: formatCurrency(45.2), 
         change: '+18%', 
         trend: 'up',
@@ -223,7 +220,7 @@ export default function OperationalOverviewPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             {kpis.map((kpi, index) => {
                 const IconComponent = kpi.icon;
-                // FIX APPLIED HERE: trendIcon is now capitalized as TrendIcon
+                // FIX APPLIED 3: Variable for component rendering must be capitalized (TrendIcon)
                 const TrendIcon = kpi.trend === 'up' ? ArrowUpIcon : ArrowDownIcon;
                 const trendColor = kpi.trend === 'up' ? 'text-green-500 bg-green-100' : 'text-red-500 bg-red-100';
 
@@ -236,7 +233,7 @@ export default function OperationalOverviewPage() {
                             <div className="flex justify-between items-start mb-4">
                                 <IconComponent className={`w-6 h-6 text-${kpi.color}-600`} />
                                 <div className={`flex items-center text-xs font-bold px-3 py-1 rounded-full ${trendColor}`}>
-                                    {/* FIX APPLIED HERE: Use capitalized TrendIcon in JSX */}
+                                    {/* FIX APPLIED 3: Use capitalized TrendIcon in JSX */}
                                     <span className="mr-1"><TrendIcon className="w-3 h-3" /></span>
                                     {kpi.change}
                                 </div>
@@ -322,4 +319,5 @@ export default function OperationalOverviewPage() {
         </div>
       </div>
     );
-}
+                }
+          
