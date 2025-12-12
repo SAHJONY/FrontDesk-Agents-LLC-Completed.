@@ -1,63 +1,46 @@
-import Link from "next/link";
+// app/signup/page.tsx
+// This is a Server Component, handling the static background and layout.
+
+import React from 'react';
+import Image from 'next/image';
+import SignupForm from '../../components/SignupForm'; // Import the new Client Component
 
 export default function SignupPage() {
-  return (
-    <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-xl space-y-6">
-        <div>
-          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-sky-400">
-            Get started
-          </p>
-          <h1 className="mt-3 text-2xl font-semibold">
-            Create your FrontDesk Agents account
-          </h1>
-          <p className="mt-2 text-sm text-slate-300">
-            Start with your first AI receptionist and upgrade as call volume
-            grows.
-          </p>
+    
+    return (
+        <div className="relative min-h-screen flex items-center justify-center">
+            
+            {/* 🌟 1. Cinematic Background Image */}
+            <div className="absolute inset-0 z-0">
+                {/* NOTE: Place your cinematic signup image file (e.g., signup-bg.jpg) 
+                  in your 'public' directory.
+                */}
+                <Image
+                    src="/images/signup-bg-cinematic.jpg" // Replace with the actual path to your image
+                    alt="Group of professional advisors ready to partner"
+                    layout="fill"
+                    objectFit="cover"
+                    quality={90}
+                    priority 
+                    // Add a dark overlay class to ensure text visibility
+                    className="brightness-[0.35] contrast-[1.1]" 
+                />
+            </div>
+
+            {/* 🌟 2. Sign Up Form Container (z-10 ensures it's above the image) */}
+            <div className="relative z-10 w-full max-w-lg p-8 sm:p-10 mx-4 bg-gray-900/80 backdrop-blur-md rounded-xl shadow-2xl border border-gray-700">
+                
+                <h1 className="text-4xl font-extrabold text-white text-center mb-2 tracking-tight">
+                    CREATE ACCOUNT
+                </h1>
+                <p className="text-gray-400 text-center mb-6">
+                    Start your journey with FrontDesk Agents LLC
+                </p>
+
+                {/* 🌟 3. The Interactive Client Form */}
+                <SignupForm />
+                
+            </div>
         </div>
-
-        <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Full name</label>
-            <input
-              type="text"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Work email</label>
-            <input
-              type="email"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input
-              type="password"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition"
-          >
-            Create account
-          </button>
-        </form>
-
-        <div className="flex items-center justify-between text-xs text-slate-400">
-          <span>Already have an account?</span>
-          <Link
-            href="/login"
-            className="font-semibold text-sky-400 hover:text-sky-300"
-          >
-            Log in
-          </Link>
-        </div>
-      </div>
-    </main>
-  );
+    );
 }
