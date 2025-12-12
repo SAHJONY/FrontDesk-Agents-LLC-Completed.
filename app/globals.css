@@ -1,40 +1,56 @@
-/* app/globals.css */
+/*
+ * ---------------------------------------
+ * Custom Premium Utility Classes
+ * ---------------------------------------
+ */
 
-/* 1. Base Tailwind Directives (MUST stay at the top) */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Custom Color Definition (Crucial for the cinematic look) */
+/* You should also define these in your tailwind.config.js */
+.bg-primary-900 {
+    background-color: #0A1930; /* Deep, authoritative blue/grey */
+}
 
-/* 2. Custom Component Classes */
-@layer components {
-  /* Premium Card Style (Existing) */
-  .card-premium {
-    @apply rounded-xl p-6 shadow-premium bg-white/95 backdrop-blur-sm border border-gray-200 transition-all duration-300;
-  }
+.text-primary-300 {
+    color: #93C5FD; /* Light, bright blue for highlights */
+}
 
-  /* Premium Primary Button Style (Existing) */
-  .btn-primary-premium {
+/* Card and Shadow Styling */
+.shadow-premium {
+    /* Subtle, deep shadow for depth on light backgrounds */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 40px rgba(0, 0, 0, 0.05);
+}
+.card-premium {
+    /* Base style for content containers (Dashboards, Metrics) */
+    @apply rounded-xl shadow-premium transition duration-300;
+}
+
+
+/* Input Fields (Used on Forms) */
+.input-premium {
+    @apply block w-full px-4 py-2 text-base rounded-lg border 
+           focus:outline-none transition duration-150 ease-in-out;
+    /* Default style for light backgrounds (public pages) */
+    @apply border-gray-300 text-gray-900 bg-white; 
+}
+/* IMPORTANT: For DARK forms (Login, Signup), you MUST override these with specific classes
+   (e.g., bg-gray-700/50 border-gray-600 text-white) as seen in the Form components we created. 
+*/
+
+
+/* Button Styles - Primary CTA (High Contrast) */
+.btn-primary-premium {
     @apply inline-flex items-center justify-center 
-           px-8 py-4 text-lg font-medium rounded-lg 
-           shadow-lg text-white bg-primary-700 
-           hover:bg-primary-800 transition 
-           duration-300 ease-in-out transform 
-           hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary-500 focus:ring-opacity-50;
-  }
-
-  /* Premium Secondary Button Style (Existing) */
-  .btn-secondary-premium {
+           px-6 py-3 font-semibold text-white rounded-lg 
+           bg-primary-600 hover:bg-primary-700 
+           focus:outline-none focus:ring-4 focus:ring-primary-500/50 
+           transition duration-300 ease-in-out;
+}
+/* Button Styles - Secondary/Outline (For dark NavBar or secondary actions) */
+.btn-secondary-premium {
     @apply inline-flex items-center justify-center 
-           px-6 py-3 text-base font-medium rounded-lg 
-           border border-primary-700 text-primary-700 
-           hover:bg-primary-50 transition 
-           duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500;
-  }
-  
-  /* 🌟 NEW: Premium Input Field Style (Add the code here!) */
-  .input-premium {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg 
-           focus:ring-2 focus:ring-primary-500 focus:border-primary-500 
-           shadow-sm transition duration-150 ease-in-out text-base text-gray-900;
-  }
+           px-6 py-3 font-semibold rounded-lg border-2 
+           border-white text-white 
+           bg-transparent hover:bg-white/10 
+           focus:outline-none focus:ring-4 focus:ring-white/30 
+           transition duration-300 ease-in-out;
 }
