@@ -7,7 +7,7 @@ import { PhoneIcon, CheckCircleIcon, XCircleIcon, ArrowsRightLeftIcon } from '@h
 
 export default function TelephonyTrunkSettingsPage() {
     const [provider, setProvider] = useState('Voice Infrastructure Trunk (Twilio/Internal)');
-    const [trunkStatus, setTrunkStatus] = useState('active'); // 'active' | 'inactive'
+    const [trunkStatus, setTrunkStatus] = useState('active'); 
     const [lastTest, setLastTest] = useState('Hace 3 minutos');
     const [isTesting, setIsTesting] = useState(false);
 
@@ -15,7 +15,6 @@ export default function TelephonyTrunkSettingsPage() {
         setIsTesting(true);
         console.log("Iniciando prueba de troncal de voz...");
         
-        // Simulación de prueba de troncal exitosa (la métrica de éxito de llamada entrante)
         setTimeout(() => {
             alert("¡Prueba de Troncal Exitosa! Llamada entrante registrada y enrutada.");
             setTrunkStatus('active');
@@ -49,7 +48,6 @@ export default function TelephonyTrunkSettingsPage() {
 
                 <div className="bg-white p-8 rounded-xl shadow-premium border border-gray-100 space-y-8">
                     
-                    {/* Estado del Troncal */}
                     <div className="border-b pb-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-2xl font-bold text-gray-900">Estado del Troncal Principal</h2>
@@ -62,7 +60,6 @@ export default function TelephonyTrunkSettingsPage() {
                         <p className="text-sm text-gray-500 mt-1">Última prueba de conectividad: {lastTest}</p>
                     </div>
 
-                    {/* Enrutamiento de Llamadas */}
                     <div className="space-y-4">
                         <h3 className="text-xl font-semibold text-gray-800 flex items-center">
                             <ArrowsRightLeftIcon className="h-5 w-5 mr-2 text-primary-600" />
@@ -78,7 +75,6 @@ export default function TelephonyTrunkSettingsPage() {
                         </div>
                     </div>
 
-                    {/* Botón de Prueba - Métrica de Éxito de Llamada Entrante */}
                     <button
                         onClick={handleRunTrunkTest}
                         disabled={isTesting}
@@ -92,7 +88,6 @@ export default function TelephonyTrunkSettingsPage() {
                     </p>
                 </div>
                 
-                {/* Link to Phone Number Management (already created) */}
                 <div className="mt-8 text-center">
                     <Link href="/settings/numbers" className="text-sm font-medium text-primary-600 hover:text-primary-800">
                         Gestionar Números de Teléfono Individuales →
