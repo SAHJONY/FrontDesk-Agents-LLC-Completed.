@@ -20,7 +20,11 @@ export default function AnalyticsTracker() {
 
   useEffect(() => {
     // This hook runs on every page change (client-side navigation)
-    trackPageView(pathname);
+    
+    // FIX APPLIED HERE: Added null check for pathname
+    if (pathname) {
+      trackPageView(pathname);
+    }
     
     // Setup event listeners for click tracking on CTAs
     const setupEventTracking = () => {
@@ -38,6 +42,7 @@ export default function AnalyticsTracker() {
     // Re-run setup if the DOM changes dynamically (e.g., modals, though better handled locally)
     return () => {
         // Cleanup event listeners if needed
+        // Note: For a proper cleanup, you would need to store references to the event listeners added.
     };
   }, [pathname]);
 
