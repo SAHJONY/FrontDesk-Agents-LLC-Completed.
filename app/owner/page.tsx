@@ -1,146 +1,129 @@
 // app/owner/page.tsx
-import Link from "next/link";
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+// Assuming you have separate components for complex financial charts or tables:
+// import RevenueChart from '../components/owner/RevenueChart'; 
 
 export default function OwnerDashboardPage() {
   return (
-    <main className="min-h-screen px-4 py-10 lg:px-8 bg-slate-950 text-slate-50">
-      <section className="mx-auto max-w-6xl space-y-8">
-        <header className="space-y-3">
-          <p className="text-xs font-semibold tracking-[0.35em] text-sky-400 uppercase">
-            OWNER CONTROL CENTER
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-bold">
-            FrontDesk Agents – Owner Dashboard
-          </h1>
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl">
-            Desde aquí controlas todo: pagos, clientes, suscripciones,
-            demos y configuración del sistema. Este panel es solo para el
-            dueño de la aplicación.
-          </p>
-        </header>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {/* Pagos */}
-          <Link
-            href="/owner/payments"
-            className="group rounded-xl border border-slate-800 bg-slate-900/60 p-5 hover:border-sky-400 hover:bg-slate-900 transition-colors"
-          >
-            <p className="text-xs font-semibold text-sky-400 mb-1">
-              COBROS & SUSCRIPCIONES
-            </p>
-            <h2 className="text-lg font-semibold mb-2">
-              Payments Dashboard
-            </h2>
-            <p className="text-sm text-slate-300 mb-3">
-              Administra Stripe, Square, PayPal, Cash App, Zelle y
-              transferencias bancarias en un solo lugar.
-            </p>
-            <span className="text-xs text-slate-400 group-hover:text-sky-300">
-              Abrir panel de pagos →
-            </span>
-          </Link>
-
-          {/* Onboarding */}
-          <Link
-            href="/owner/onboarding"
-            className="group rounded-xl border border-slate-800 bg-slate-900/60 p-5 hover:border-emerald-400 hover:bg-slate-900 transition-colors"
-          >
-            <p className="text-xs font-semibold text-emerald-400 mb-1">
-              CLIENT ONBOARDING
-            </p>
-            <h2 className="text-lg font-semibold mb-2">
-              Onboarding Checklist
-            </h2>
-            <p className="text-sm text-slate-300 mb-3">
-              Checklist paso a paso para activar un nuevo negocio en menos
-              de 24 horas.
-            </p>
-            <span className="text-xs text-slate-400 group-hover:text-emerald-300">
-              Ver checklist →
-            </span>
-          </Link>
-
-          {/* Demo & Ventas */}
-          <Link
-            href="/demo"
-            className="group rounded-xl border border-slate-800 bg-slate-900/60 p-5 hover:border-violet-400 hover:bg-slate-900 transition-colors"
-          >
-            <p className="text-xs font-semibold text-violet-400 mb-1">
-              SALES PIPELINE
-            </p>
-            <h2 className="text-lg font-semibold mb-2">
-              Demo & Calendly
-            </h2>
-            <p className="text-sm text-slate-300 mb-3">
-              Revisa y prueba el flujo de agendamiento de demos en vivo con
-              tus prospectos.
-            </p>
-            <span className="text-xs text-slate-400 group-hover:text-violet-300">
-              Ir a la página de demo →
-            </span>
-          </Link>
-
-          {/* Dashboard cliente */}
-          <Link
-            href="/dashboard"
-            className="group rounded-xl border border-slate-800 bg-slate-900/60 p-5 hover:border-amber-400 hover:bg-slate-900 transition-colors"
-          >
-            <p className="text-xs font-semibold text-amber-400 mb-1">
-              CLIENT VIEW
-            </p>
-            <h2 className="text-lg font-semibold mb-2">
-              Client Dashboard
-            </h2>
-            <p className="text-sm text-slate-300 mb-3">
-              Mira cómo se ve el panel para un cliente activo: llamadas,
-              retención y performance.
-            </p>
-            <span className="text-xs text-slate-400 group-hover:text-amber-300">
-              Ver dashboard →
-            </span>
-          </Link>
-
-          {/* Admin general */}
-          <Link
-            href="/admin"
-            className="group rounded-xl border border-slate-800 bg-slate-900/60 p-5 hover:border-fuchsia-400 hover:bg-slate-900 transition-colors"
-          >
-            <p className="text-xs font-semibold text-fuchsia-400 mb-1">
-              SYSTEM CONTROL
-            </p>
-            <h2 className="text-lg font-semibold mb-2">
-              Admin & Settings
-            </h2>
-            <p className="text-sm text-slate-300 mb-3">
-              Acceso a configuraciones avanzadas, logs, webhooks y ajustes
-              internos del sistema.
-            </p>
-            <span className="text-xs text-slate-400 group-hover:text-fuchsia-300">
-              Ir a Admin →
-            </span>
-          </Link>
-
-          {/* AI Agents */}
-          <Link
-            href="/ai-agents"
-            className="group rounded-xl border border-slate-800 bg-slate-900/60 p-5 hover:border-cyan-400 hover:bg-slate-900 transition-colors"
-          >
-            <p className="text-xs font-semibold text-cyan-400 mb-1">
-              VOICE & AI
-            </p>
-            <h2 className="text-lg font-semibold mb-2">
-              AI Agents Overview
-            </h2>
-            <p className="text-sm text-slate-300 mb-3">
-              Ver el catálogo de agentes (Alex, Sara, etc.) y su rol en la
-              operación.
-            </p>
-            <span className="text-xs text-slate-400 group-hover:text-cyan-300">
-              Ver AI Agents →
-            </span>
-          </Link>
+    <div className="relative py-12 px-4 sm:px-6 lg:px-8">
+        
+        {/* 🌟 1. Cinematic Header Banner for Owner Authority */}
+        {/* Uses a dark, data-focused image to convey command and control. */}
+        <div className="absolute top-0 left-0 w-full h-[400px] z-0 overflow-hidden">
+            <Image
+                // NOTE: Use a highly executive, data-centric image here (e.g., control-center-bg.jpg)
+                src="/images/control-center-bg.jpg" 
+                alt="Executive control center with holographic displays"
+                layout="fill"
+                objectFit="cover"
+                quality={80}
+                // Deep dark overlay for contrast and dramatic effect
+                className="brightness-[0.25] contrast-[1.1]" 
+            />
         </div>
-      </section>
-    </main>
+
+        {/* 🌟 2. Content Container (Positioned Above the Image) */}
+        <div className="max-w-7xl mx-auto relative z-10 pt-28"> 
+            
+            <h1 className="text-5xl font-extrabold text-white mb-2 tracking-tight">
+                Owner Command Center
+            </h1>
+            <p className="text-primary-300 text-xl mb-12">
+                Unrestricted control and comprehensive financial oversight.
+            </p>
+            
+            {/* --- SYSTEM STATUS & ACCESS (High-Priority Cards) --- */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                
+                {/* Status Card: System Health */}
+                <div className="card-premium bg-green-600/10 p-6 shadow-2xl border-l-4 border-green-500">
+                    <h3 className="text-sm font-semibold text-green-300">SYSTEM HEALTH</h3>
+                    <p className="text-3xl font-bold text-white mt-1">Operational</p>
+                    <p className="text-green-500 text-sm mt-1">No incidents reported</p>
+                </div>
+                
+                {/* Status Card: Superuser Mode */}
+                <div className="card-premium bg-gray-800 p-6 shadow-2xl border-l-4 border-yellow-500">
+                    <h3 className="text-sm font-semibold text-yellow-400">ACCESS LEVEL</h3>
+                    <p className="text-3xl font-bold text-white mt-1">OWNER (Unrestricted)</p>
+                    <Link href="/owner/settings" className="text-sm text-primary-300 hover:text-white transition">Manage Global Settings →</Link>
+                </div>
+
+                {/* Status Card: Active Tenants */}
+                <div className="card-premium bg-gray-800 p-6 shadow-2xl">
+                    <h3 className="text-sm font-semibold text-gray-400">TOTAL TENANTS</h3>
+                    <p className="text-3xl font-bold text-white mt-1">87</p>
+                    <Link href="/admin/tenants" className="text-sm text-primary-300 hover:text-white transition">View All Tenants →</Link>
+                </div>
+                
+                {/* Status Card: Data Latency */}
+                <div className="card-premium bg-gray-800 p-6 shadow-2xl">
+                    <h3 className="text-sm font-semibold text-gray-400">DATA LATENCY</h3>
+                    <p className="text-3xl font-bold text-white mt-1">45 ms</p>
+                    <p className="text-gray-500 text-sm mt-1">Real-time sync</p>
+                </div>
+            </div>
+            
+            {/* --- FINANCIAL COMMAND CENTER --- */}
+            <h2 className="text-3xl font-extrabold text-white mb-6 border-b border-gray-700 pb-3">
+                Financial Command Center
+            </h2>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Financial Metric 1: MRR (Monthly Recurring Revenue) */}
+                <div className="card-premium bg-gray-900 p-6 shadow-2xl">
+                    <h3 className="text-sm font-semibold text-gray-400">CURRENT MRR</h3>
+                    <p className="text-4xl font-extrabold text-green-400 mt-2">$215,840</p>
+                    <p className="text-green-500 text-sm mt-2">+4.2% MoM</p>
+                </div>
+                
+                {/* Financial Metric 2: ARR (Annual Recurring Revenue) */}
+                <div className="card-premium bg-gray-900 p-6 shadow-2xl">
+                    <h3 className="text-sm font-semibold text-gray-400">PROJECTED ARR</h3>
+                    <p className="text-4xl font-extrabold text-white mt-2">$2.59 M</p>
+                    <p className="text-gray-500 text-sm mt-2">Annualized Projection</p>
+                </div>
+                
+                {/* Financial Metric 3: Churn Rate */}
+                <div className="card-premium bg-gray-900 p-6 shadow-2xl">
+                    <h3 className="text-sm font-semibold text-gray-400">NET CHURN RATE</h3>
+                    <p className="text-4xl font-extrabold text-red-400 mt-2">0.8%</p>
+                    <Link href="/owner/payments" className="text-sm text-primary-300 hover:text-white transition">Review Payment History →</Link>
+                </div>
+                
+                {/* Main Financial Chart Area */}
+                <div className="lg:col-span-3 bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-800">
+                    <h3 className="text-xl font-bold text-white mb-4">Revenue Trend Analysis</h3>
+                    {/* Placeholder for a complex chart library like Recharts or Nivo */}
+                    <div className="h-80 flex items-center justify-center text-gray-600">
+                        [Complex Chart Component: Revenue, Billing Cycles]
+                    </div>
+                </div>
+            </div>
+
+            {/* --- APPLICATION CONTROL --- */}
+            <h2 className="text-3xl font-extrabold text-white mt-12 mb-6 border-b border-gray-700 pb-3">
+                Application Control
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Control Panel Link: Onboarding */}
+                <Link href="/owner/onboarding" className="card-premium bg-gray-800 p-6 shadow-2xl hover:bg-gray-700/50 transition duration-200">
+                    <h3 className="text-2xl font-bold text-white">Manage Onboarding Flow</h3>
+                    <p className="text-gray-400 mt-1">Override default settings and review pending clients.</p>
+                </Link>
+
+                {/* Control Panel Link: Billing/Pricing */}
+                <Link href="/owner/pricing" className="card-premium bg-gray-800 p-6 shadow-2xl hover:bg-gray-700/50 transition duration-200">
+                    <h3 className="text-2xl font-bold text-white">Global Pricing & Tiers</h3>
+                    <p className="text-gray-400 mt-1">Adjust service pricing and subscription rules globally.</p>
+                </Link>
+            </div>
+            
+        </div>
+    </div>
   );
 }
