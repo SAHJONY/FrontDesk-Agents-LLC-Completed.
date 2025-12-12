@@ -1,42 +1,32 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    // Ensure all your file paths are listed here
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
+      // 🌟 CRITICAL: Define the custom 'primary' colors here
       colors: {
-        // Defining a primary corporate color: Deep Indigo/Navy
         primary: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca', // Ideal for authoritative buttons/backgrounds
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          50: '#F5F9FF',   // Very light blue/white
+          100: '#E0E7FF',
+          200: '#C3D0FF',
+          300: '#93C5FD',   // Bright blue highlight (e.g., text-primary-300)
+          400: '#60A5FA',
+          500: '#3B82F6',
+          600: '#2563EB',   // Main button/CTA blue (e.g., bg-primary-600)
+          700: '#1D4ED8',
+          800: '#1E40AF',
+          900: '#0A1930',   // Deep Corporate Blue/Grey (e.g., bg-primary-900 for Navbar)
         },
-        // Using a clean, professional grayscale
-        gray: {
-          50: '#f9fafb',
-          100: '#f3f4f6',
-          200: '#e5e7eb',
-          900: '#111827', // Black for primary text
-        },
+        // Optionally, you can define your secondary accent colors here as well
       },
-      fontFamily: {
-        // Setting a highly readable, modern font (like Inter)
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-      },
+      // Optional: Add custom shadow for the 'shadow-premium' class
       boxShadow: {
-        // Adding a subtle premium shadow for cards and buttons
-        'premium': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        premium: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 40px rgba(0, 0, 0, 0.05)',
       }
     },
   },
