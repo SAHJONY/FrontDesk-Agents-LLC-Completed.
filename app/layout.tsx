@@ -1,16 +1,35 @@
 // app/layout.tsx
 
-import type { Metadata } from 'next';
-import './globals.css';
-import { Inter } from 'next/font/google'; 
-// Ensure your Navbar component is imported here
-import { Navbar } from '../components/Navbar'; 
+// ... existing imports ...
 
-const inter = Inter({ subsets: ['latin'] });
+const jsonLdOrganization = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "FrontDesk Agents LLC",
+  "url": "https://www.frontdeskagents.com",
+  "logo": "https://www.frontdeskagents.com/logo.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+1-216-480-4413",
+    "contactType": "Sales"
+  }
+};
 
-export const metadata: Metadata = {
-  title: 'FrontDesk Agents LLC - Strategic Enterprise Solutions',
-  description: 'Elevating operational efficiency through AI-powered front-desk agents.',
+const jsonLdProduct = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "AI Agent Front Desk Solution",
+    "description": "Advanced AI agents handling calls, inquiries, and bookings 24/7 for B2B enterprises.",
+    "brand": {
+      "@type": "Brand",
+      "name": "FrontDesk Agents"
+    },
+    "offers": {
+        "@type": "Offer",
+        "priceCurrency": "USD",
+        "price": "299.00", // Starting Price
+        "availability": "https://schema.org/InStock"
+    }
 };
 
 export default function RootLayout({
@@ -19,21 +38,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}> 
-      {/* 🌟 CRITICAL: Set the clean, light background and base text color for the entire body */}
-      <body className="bg-gray-50 text-gray-800 antialiased min-h-screen">
+    <html lang="en">
+      <head>
+        {/* Basic SEO Metadata */}
+        <title>FrontDesk Agents | Enterprise AI for 24/7 Customer Service</title>
+        <meta name="description" content="Seamlessly Integrate, Never Miss a Lead. Advanced AI agents handle every call, inquiry, and booking with human-level intelligence, 24/7." />
         
-        {/* The consistent dark Navbar component */}
-        <Navbar /> 
+        {/* Structured Data (Organization) */}
+        <script 
+            type="application/ld+json" 
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }} 
+        />
+        {/* Structured Data (Product - applies to homepage/product page) */}
+         <script 
+            type="application/ld+json" 
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdProduct) }} 
+        />
         
-        {/* Main Content: Adds top padding (pt-16) equal to the Navbar's height (h-16) to prevent content being hidden */}
-        <div className="pt-16"> 
-          {children}
-        </div>
-        
-        {/* Add Footer here */}
-        {/* <Footer /> */} 
-
+        {/* ... other head elements ... */}
+      </head>
+      <body>
+        {/* ... Navbar, Children, Footer ... */}
+        {children}
       </body>
     </html>
   );
