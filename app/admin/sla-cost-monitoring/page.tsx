@@ -2,6 +2,9 @@
 "use client";
 
 import React, { useState } from 'react';
+// FIX APPLIED HERE: Link must be imported for Next.js routing components
+import Link from 'next/link'; 
+
 import { 
     ClockIcon, 
     BanknotesIcon, 
@@ -126,6 +129,7 @@ export default function SLACostMonitoringPage() {
                 </div>
 
                 <div className="mt-8 text-center">
+                    {/* Line 129 is now fixed with the import above */}
                     <Link href="/settings/subscription" className="text-sm font-medium text-primary-600 hover:text-primary-800 flex items-center justify-center">
                         <BanknotesIcon className="h-4 w-4 mr-1" />
                         Gestionar el Plan de Suscripción y Límites de Gasto →
@@ -134,4 +138,4 @@ export default function SLACostMonitoringPage() {
             </div>
         </div>
     );
-}
+                    }
