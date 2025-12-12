@@ -1,7 +1,7 @@
 // app/dashboard/operational-overview/page.tsx - ULTRA PREMIUM VERSION (LOCALIZATION/i18n UPDATE)
 "use client";
 
-import Image from 'next/image';
+import Image from 'next/image';  
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react'; // Importar Hooks
 import { 
