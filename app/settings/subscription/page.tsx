@@ -1,4 +1,4 @@
-// app/settings/subscription/page.tsx - ACTUALIZACIÓN DE PRECIOS CON DESCUENTO DEL 50%
+// app/settings/subscription/page.tsx - ACTUALIZACIÓN PARA DESCUENTO DEL 50% ABIERTO A TODOS
 "use client";
 
 import React, { useState } from 'react';
@@ -8,14 +8,14 @@ import {
     SparklesIcon,
     ArrowRightIcon,
     ClockIcon,
-    TrophyIcon // Nuevo ícono para la promoción
+    TrophyIcon,
+    CheckCircleIcon,
+    Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 
-// --- LÓGICA DE PROMOCIÓN DE LANZAMIENTO ---
-const TOTAL_PROMO_SLOTS = 100;
-const [slotsTaken, setSlotsTaken] = useState(32); // Simulación de contador de clientes
-const SLOTS_REMAINING = TOTAL_PROMO_SLOTS - slotsTaken;
-const IS_PROMO_ACTIVE = SLOTS_REMAINING > 0;
+// --- LÓGICA DE PROMOCIÓN DE LANZAMIENTO ABIERTO ---
+// La promoción ahora está siempre ACTIVA para todos los nuevos clientes.
+const IS_PROMO_ACTIVE = true; 
 // ------------------------------------------
 
 // Función para calcular el precio promocional
@@ -55,10 +55,8 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
     const priceDisplay = IS_PROMO_ACTIVE ? plan.promoPrice : plan.price;
     const oldPriceDisplay = plan.price;
 
-    // Función para manejar la selección del plan (simulación)
     const handleSelect = () => {
         if (!isCurrent) {
-            // Lógica para iniciar el trial de 14 días y el proceso de checkout
             alert(`Iniciando prueba de 14 días para el plan ${plan.name}. El precio con descuento es de $${priceDisplay.toFixed(2)}/mes después del trial.`);
             onSelect(plan.name);
         }
@@ -69,7 +67,7 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
             isCurrent ? 'border-indigo-600 ring-4 ring-indigo-100' : 'border-gray-200'
         }`}>
             
-            {/* Promo Badge */}
+            {/* Promo Badge: Se mantiene visible ya que la promo está activa */}
             {IS_PROMO_ACTIVE && (
                 <div className="flex items-center justify-center p-2 mb-3 bg-red-100 rounded-lg">
                     <TrophyIcon className="h-5 w-5 text-red-600 mr-2" />
@@ -103,7 +101,7 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
                 className={`w-full py-3 text-white font-bold rounded-lg transition-colors ${
                     isCurrent 
                         ? 'bg-gray-400 cursor-default' 
-                        : `bg-indigo-600 hover:bg-indigo-700` // Usamos indigo para todos los botones de acción principal
+                        : `bg-indigo-600 hover:bg-indigo-700`
                 }`}
             >
                 {isCurrent ? 'Plan Actual' : 'Comenzar Prueba de 14 Días'}
@@ -126,7 +124,6 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
 };
 
 export default function SubscriptionManagerPage() {
-    // Simulación del plan actual del usuario
     const [currentPlan, setCurrentPlan] = useState('Professional'); 
 
     return (
@@ -142,11 +139,11 @@ export default function SubscriptionManagerPage() {
                     </p>
                 </div>
                 
-                {/* --- PROMOTION BANNER --- */}
+                {/* --- PROMOTION BANNER SIMPLIFICADO --- */}
                 {IS_PROMO_ACTIVE && (
                     <div className="mb-10 p-4 text-center bg-red-500 rounded-xl text-white font-bold shadow-lg">
                         <TrophyIcon className="h-6 w-6 inline-block mr-2" />
-                        ¡OFERTA DE LANZAMIENTO! 50% OFF DE POR VIDA para los primeros 100 clientes. Quedan **{SLOTS_REMAINING}** cupos.
+                        ¡OFERTA ESPECIAL DE LANZAMIENTO! **50% OFF DE POR VIDA** para todos los nuevos clientes.
                     </div>
                 )}
                 {/* ------------------------- */}
