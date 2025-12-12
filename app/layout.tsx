@@ -1,10 +1,11 @@
-// app/layout.tsx (Example Structure)
+// app/layout.tsx
 
 import type { Metadata } from 'next';
 import './globals.css';
-import { Inter } from 'next/font/google'; // Import the correct font
+import { Inter } from 'next/font/google'; 
+// Ensure your Navbar component is imported here
+import { Navbar } from '../components/Navbar'; 
 
-// Initialize the Inter font (or whatever font you chose in tailwind.config.js)
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -19,20 +20,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.className}> 
-      {/* CRITICAL: Set a global, subtle background color and text color for all pages 
-        to ensure the entire body area has a clean, professional feel.
-      */}
+      {/* 🌟 CRITICAL: Set the clean, light background and base text color for the entire body */}
       <body className="bg-gray-50 text-gray-800 antialiased min-h-screen">
         
-        {/* Assume you have a Navbar component */}
-        {/* <Navbar /> */} 
+        {/* The consistent dark Navbar component */}
+        <Navbar /> 
         
-        {/* Main Content */}
+        {/* Main Content: Adds top padding (pt-16) equal to the Navbar's height (h-16) to prevent content being hidden */}
         <div className="pt-16"> 
           {children}
         </div>
         
-        {/* Assume you have a Footer component */}
+        {/* Add Footer here */}
         {/* <Footer /> */} 
 
       </body>
