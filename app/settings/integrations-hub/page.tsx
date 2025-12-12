@@ -2,6 +2,9 @@
 "use client";
 
 import React, { useState } from 'react';
+// FIX APPLIED HERE: Link must be imported for Next.js routing components
+import Link from 'next/link'; 
+
 import { 
     PuzzlePieceIcon, 
     ArrowRightIcon, 
@@ -21,6 +24,7 @@ const LOGO_QUICKBOOKS = "/logos/quickbooks.svg";
 
 // Integration Data
 const integrationsData = [
+// ... (integrationsData remains the same) ...
     {
         name: 'Salesforce CRM',
         category: 'CRM/Ventas',
@@ -82,6 +86,7 @@ const IntegrationCard = ({ integration }) => {
                     </div>
                 </div>
                 
+                {/* Line 85 is now fixed */}
                 <Link href={integration.configPath}
                     className={`px-3 py-1 text-sm rounded-full font-semibold transition-colors flex items-center gap-1 ${
                         isActive ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-gray-500 text-white hover:bg-gray-600'
