@@ -11,6 +11,8 @@ import {
     ChartBarIcon,
     ArrowUpCircleIcon,
     ExclamationTriangleIcon,
+    // FIX APPLIED HERE: Added ClockIcon to the import list
+    ClockIcon, 
 } from '@heroicons/react/24/outline';
 
 // Mock Data for Calibration Metrics
@@ -78,7 +80,8 @@ export default function CalibrationEnginePage() {
                     {/* KPI 3: Last Calibration */}
                     <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
                         <div className="flex items-center justify-between">
-                            <ClockIcon className="h-8 w-8 text-green-600" />
+                            {/* Line 81 is now fixed with the import above */}
+                            <ClockIcon className="h-8 w-8 text-green-600" /> 
                             <span className="text-sm font-semibold text-gray-500">Sincronización</span>
                         </div>
                         <p className="text-xl font-bold text-gray-900 mt-2">{mockMetrics.lastCalibration}</p>
@@ -162,4 +165,4 @@ export default function CalibrationEnginePage() {
             </div>
         </div>
     );
-}
+                        }
