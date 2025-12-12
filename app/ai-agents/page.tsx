@@ -1,7 +1,7 @@
 // app/ai-agents/page.tsx - Premium AI Agents Page
 import Image from 'next/image';
 import Link from 'next/link';
-import { Brain, MessageSquare, TrendingUp, Clock, Shield, Zap, CheckCircle, ArrowRight } from 'lucide-react';
+import { Brain, MessageSquare, TrendingUp, Clock, Shield, Zap, CheckCircle, ArrowRight, Calendar, Phone } from 'lucide-react';
 
 export default function AIAgentsPage() {
   return (
@@ -259,6 +259,3 @@ export default function AIAgentsPage() {
     </div>
   );
 }
-
-// Add missing imports
-import { Calendar, Phone } from 'lucide-react';
