@@ -1,49 +1,74 @@
 // app/legal/privacy/page.tsx
-import type { Metadata } from "next";
+import React from 'react';
+import Image from 'next/image';
 
-export const metadata: Metadata = {
-  title: "Política de privacidad | FrontDesk Agents",
-};
+export default function LegalPrivacyPage() {
+    return (
+        <div className="relative py-12 px-4 sm:px-6 lg:px-8">
+            
+            {/* 🌟 1. Cinematic Header Banner */}
+            <div className="relative mb-12 h-[200px] bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+                <Image
+                    // NOTE: Reuse the professional legal/trust image for consistency. 
+                    src="/images/legal-bg.jpg" 
+                    alt="Professionals maintaining data security and trust"
+                    layout="fill"
+                    objectFit="cover"
+                    quality={80}
+                    // Apply a dark overlay for dramatic effect and text contrast
+                    className="brightness-[0.35] contrast-[1.1]" 
+                />
+                
+                {/* Text Overlay for the Banner */}
+                <div className="absolute inset-0 flex items-center justify-center z-10 p-4 text-center">
+                    <h1 className="text-4xl font-extrabold text-white tracking-tight sm:text-5xl">
+                        Privacy Policy
+                    </h1>
+                </div>
+            </div>
 
-export default function PrivacyPage() {
-  return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 px-4 py-10 lg:px-8">
-      <section className="mx-auto max-w-3xl space-y-6">
-        <header className="space-y-2">
-          <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
-            Legal
-          </p>
-          <h1 className="text-2xl font-semibold">Política de privacidad</h1>
-          <p className="text-sm text-slate-400">
-            Resumen simplificado. Más adelante puedes reemplazar el texto con
-            tu versión revisada por abogado.
-          </p>
-        </header>
+            {/* 🌟 2. Document Content Container (Clean, readable white background) */}
+            <div className="max-w-4xl mx-auto bg-white p-8 sm:p-10 rounded-xl shadow-premium">
+                
+                <p className="text-sm text-gray-500 mb-6 border-b pb-4">
+                    Effective Date: December 12, 2025
+                </p>
 
-        <article className="space-y-4 text-sm text-slate-300">
-          <p>
-            FrontDesk Agents recopila información necesaria para operar el
-            servicio de AI Receptionist: datos de contacto del negocio, datos
-            básicos de llamadas, y respuestas de los leads que interactúan con
-            el sistema.
-          </p>
-          <p>
-            No vendemos tu información ni la de tus clientes a terceros. Usamos
-            proveedores de infraestructura y telecomunicaciones para poder
-            ofrecer el servicio (por ejemplo: voz, almacenamiento, analítica).
-          </p>
-          <p>
-            Puedes solicitar la corrección o eliminación de ciertos datos
-            escribiendo a support@frontdeskagents.com. Algunas obligaciones
-            legales pueden requerir que conservemos registros mínimos de
-            actividad.
-          </p>
-          <p className="text-xs text-slate-500">
-            * Este texto es genérico y no constituye asesoría legal. Debe ser
-            revisado y adaptado por un profesional según tu jurisdicción.
-          </p>
-        </article>
-      </section>
-    </main>
-  );
+                {/* Section 1 */}
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                    1. Information We Collect
+                </h2>
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                    We collect information that identifies, relates to, describes, or is capable of being associated with you ("Personal Information"). This includes operational data necessary for our AI agents to provide the service, such as call recordings, user names, and email addresses.
+                </p>
+
+                {/* Section 2 */}
+                <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">
+                    2. How We Use Your Information
+                </h2>
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                    We use the information we collect to operate, maintain, and provide all features of the Service. Specifically, call data is used to train and improve the performance of your assigned FrontDesk Agents and provide you with detailed analytics.
+                </p>
+
+                {/* Section 3 */}
+                <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">
+                    3. Data Security
+                </h2>
+                <p className="text-gray-700 leading-relaxed">
+                    We implement industry-standard security measures, including encryption and strict access controls, to protect your Personal Information from unauthorized access, disclosure, alteration, or destruction.
+                </p>
+                
+                {/* Contact Section */}
+                <div className="mt-10 pt-6 border-t border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        Questions Regarding This Policy
+                    </h3>
+                    <p className="text-gray-700">
+                        If you have any questions or concerns about our Privacy Policy, please contact our Data Protection Officer at privacy@frontdeskagents.com.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    );
 }
