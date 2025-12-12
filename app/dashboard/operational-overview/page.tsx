@@ -55,11 +55,20 @@ export default function OperationalOverviewPage() {
     // NEW: Hook para actualizar el idioma al cambiarlo en el selector
     useEffect(() => {
         const updateLang = () => {
-            setCurrentLang(localStorage.getItem('appLang') || 'en');
+            // FIX APPLIED HERE: Check if window/localStorage is defined before accessing
+            if (typeof window !== 'undefined' && window.localStorage) {
+                setCurrentLang(localStorage.getItem('appLang') || 'en');
+            } else {
+                setCurrentLang('en'); // Default to 'en' during server rendering
+            }
         };
-        updateLang(); // Cargar el idioma inicial
-        window.addEventListener('languageChange', updateLang);
-        return () => window.removeEventListener('languageChange', updateLang);
+        
+        // We only try to set up the listener if we are in the browser
+        if (typeof window !== 'undefined') {
+            updateLang(); // Cargar el idioma inicial
+            window.addEventListener('languageChange', updateLang);
+            return () => window.removeEventListener('languageChange', updateLang);
+        }
     }, []);
 
     const t = (key) => getTranslation(key, currentLang); // Helper de traducción
@@ -198,4 +207,4 @@ export default function OperationalOverviewPage() {
         </div>
       </div>
     );
-            }
+}
