@@ -1,4 +1,4 @@
-// app/admin/audit/page.tsx
+// app/admin/audit/page.tsx (LOCALIZATION UPDATE)
 "use client";
 
 import React, { useState } from 'react';
@@ -9,16 +9,35 @@ import {
     ClockIcon, 
     WrenchScrewdriverIcon, 
     ServerIcon, 
-    CreditCardIcon, 
     CheckCircleIcon, 
     ExclamationTriangleIcon 
 } from '@heroicons/react/24/outline';
 
-// Mock Audit Log Data
+// --- Simulated User Settings ---
+const USER_LOCALE = 'es-MX'; 
+const USER_TIMEZONE = 'America/Mexico_City'; 
+// -----------------------------
+
+// Utility function to format full date and time string
+const formatDateTime = (dateTimeString) => {
+    const date = new Date(dateTimeString + 'Z'); 
+    return date.toLocaleString(USER_LOCALE, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: USER_TIMEZONE,
+    });
+};
+
+
+// Mock Audit Log Data (Time represents UTC/Z)
 const mockLogs = [
     { 
         id: 101, 
-        time: '2025-12-12 09:30:15', 
+        time: '2025-12-12 15:30:15', // 9:30 AM CST (as of current date/time context)
         user: 'Owner (Alex M.)', 
         action: 'AURA™ Core API Webhook Endpoint Updated', 
         details: 'Changed from v1.2 to v1.3. Requires verification.', 
@@ -27,7 +46,7 @@ const mockLogs = [
     },
     { 
         id: 100, 
-        time: '2025-12-12 09:25:01', 
+        time: '2025-12-12 15:25:01', 
         user: 'System Bot', 
         action: 'Payment Gateway (Stripe) Connection Test', 
         details: 'Successful 200 response. Transaction verified.', 
@@ -36,7 +55,7 @@ const mockLogs = [
     },
     { 
         id: 99, 
-        time: '2025-12-12 09:20:45', 
+        time: '2025-12-12 15:20:45', 
         user: 'Admin (Sarah J.)', 
         action: 'New Agent Conversational Script Deployed', 
         details: 'Script ID: AURA-SCRIPT-924A-V4. Target region: US-West.', 
@@ -45,7 +64,7 @@ const mockLogs = [
     },
     { 
         id: 98, 
-        time: '2025-12-12 08:45:00', 
+        time: '2025-12-12 14:45:00', 
         user: 'Owner (Alex M.)', 
         action: 'MFA Disabled on User ID 45', 
         details: 'Security vulnerability detected. Contact compliance.', 
@@ -54,7 +73,7 @@ const mockLogs = [
     },
     { 
         id: 97, 
-        time: '2025-12-12 07:15:30', 
+        time: '2025-12-12 13:15:30', 
         user: 'System Bot', 
         action: 'Telephony Trunk Connection Test', 
         details: 'Successful connection to SIP endpoint. Latency 42ms.', 
@@ -144,7 +163,7 @@ export default function AuditLogDashboard() {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Local ({USER_TIMEZONE})</th> 
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
@@ -157,7 +176,9 @@ export default function AuditLogDashboard() {
                                     const CategoryIcon = getCategoryIcon(log.category);
                                     return (
                                         <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{log.time.split(' ')[1]}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {formatDateTime(log.time)}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{log.user}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                                 <div className="flex items-center gap-2">
