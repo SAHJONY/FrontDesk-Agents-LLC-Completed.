@@ -1,25 +1,43 @@
+/* app/globals.css */
+
+/* Standard Tailwind CSS Layer Directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Premium tokens */
-:root{
-  --brand-500: #2b6ef6;
-  --brand-700: #1f4bd8;
-  --bg-elev: rgba(15,23,42,0.02);
+/* * ----------------------------------------------------------------
+ * CUSTOM UTILITY CLASSES FOR FORTUNE 500 AESTHETIC
+ * ----------------------------------------------------------------
+ * These classes enforce the look across the application.
+ */
+
+/* Premium Card Style (used in Solutions, Mission, etc.) */
+@layer components {
+  .card-premium {
+    /* FIX: Replaced invalid shadow-soft-xl with the defined shadow-premium */
+    @apply rounded-xl p-6 shadow-premium bg-white/95 backdrop-blur-sm border border-gray-200 transition-all duration-300;
+  }
 }
 
-/* Basic premium utilities */
-.premium-hero {
-  background: linear-gradient(180deg, rgba(255,255,255,0.00), rgba(0,0,0,0.02));
+/* Premium Primary Button Style (used for CTAs like 'Schedule a Consultation') */
+@layer components {
+  .btn-primary-premium {
+    @apply inline-flex items-center justify-center 
+           px-8 py-4 text-lg font-medium rounded-lg 
+           shadow-lg text-white bg-primary-700 
+           hover:bg-primary-800 transition 
+           duration-300 ease-in-out transform 
+           hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary-500 focus:ring-opacity-50;
+  }
 }
-.card-premium {
-  @apply rounded-xl p-6 shadow-soft-xl bg-white/95 backdrop-blur-sm border border-slate-100;
+
+/* Premium Secondary Button Style (used for less aggressive CTAs like 'Learn More') */
+@layer components {
+  .btn-secondary-premium {
+    @apply inline-flex items-center justify-center 
+           px-6 py-3 text-base font-medium rounded-lg 
+           border border-primary-700 text-primary-700 
+           hover:bg-primary-50 transition 
+           duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500;
+  }
 }
-.btn-premium {
-  @apply inline-flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-white;
-  background: linear-gradient(90deg,var(--brand-500),var(--brand-700));
-  box-shadow: 0 6px 18px rgba(43,110,246,0.14);
-  transition: transform .12s ease, box-shadow .12s ease;
-}
-.btn-premium:active { transform: translateY(1px); }
