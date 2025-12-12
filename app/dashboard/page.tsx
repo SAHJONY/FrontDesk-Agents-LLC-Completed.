@@ -1,33 +1,44 @@
-// app/dashboard/page.tsx (Applying the PREMIUM Corporate Layout)
+// app/dashboard/page.tsx
 import React from 'react';
-
-// Assuming you have a component that renders the dashboard grid (or you will build it here)
+import Image from 'next/image';
 
 export default function DashboardPage() {
   return (
-    // 🌟 Step 1: The outer padding and container
-    <div className="py-12 px-4 sm:px-6 lg:px-8"> 
-      {/* py-12 creates vertical spacing from the top Navbar */}
-      
-      {/* 🌟 Step 2: The content max-width centered container */}
-      <div className="max-w-7xl mx-auto"> 
-        {/* max-w-7xl ensures content doesn't stretch too wide; mx-auto centers it. */}
+    <div className="relative py-12 px-4 sm:px-6 lg:px-8">
         
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">
-          Welcome to the Analytics Dashboard
-        </h2>
-        
-        {/* ------------------------------------------------------------- 
-           * IMPORTANT: KEEP YOUR EXISTING DASHBOARD CONTENT HERE 
-           * Replace only the surrounding DIVs and add the new classes.
-           * ------------------------------------------------------------- */}
-        
-        {/* Example of where your main dashboard charts, tables, and data goes */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Your existing charts and data components go inside this grid. */}
-          {/* They should now look premium if they use the 'card-premium' class. */}
+        {/* 🌟 OPTIONAL: Full-width background element for a cinematic banner look */}
+        <div className="absolute top-0 left-0 w-full h-[300px] z-0 overflow-hidden">
+            <Image
+                src="/images/dashboard-bg.jpg" // Add your cinematic dashboard image here
+                alt="Executive dashboard with real-time analytics"
+                layout="fill"
+                objectFit="cover"
+                quality={80}
+                // Apply a dark overlay for contrast against the text
+                className="brightness-[0.4] contrast-[1.1]" 
+            />
         </div>
-      </div>
+
+        {/* 🌟 Content Container: Use generous top padding and position content above the background (z-10) */}
+        <div className="max-w-7xl mx-auto relative z-10 pt-20"> 
+            
+            <h2 className="text-4xl font-extrabold text-white mb-2">
+                Client Analytics Dashboard
+            </h2>
+            <p className="text-primary-300 text-lg mb-8">
+                Executive overview of key operational metrics.
+            </p>
+            
+            {/* Main content grid starts here (your cards and charts) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Your content (e.g., FeatureCard components) goes here. 
+                    They will look great against the dark image background. 
+                */}
+                <div className="card-premium bg-white p-6 shadow-xl">... Card 1 Content ...</div>
+                <div className="card-premium bg-white p-6 shadow-xl">... Card 2 Content ...</div>
+                <div className="card-premium bg-white p-6 shadow-xl">... Card 3 Content ...</div>
+            </div>
+        </div>
     </div>
   );
 }
