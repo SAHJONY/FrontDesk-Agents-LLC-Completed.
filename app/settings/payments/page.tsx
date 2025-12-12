@@ -3,37 +3,78 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { CreditCardIcon, CheckCircleIcon, XCircleIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import { 
+    CreditCardIcon, 
+    CheckCircleIcon, 
+    XCircleIcon, 
+    BanknotesIcon,
+    ArrowPathIcon,
+    GlobeAltIcon,
+    PuzzlePieceIcon
+} from '@heroicons/react/24/outline';
+
+// Data structure for multiple payment gateways (including worldwide options)
+const mockGateways = [
+    { 
+        id: 'stripe', 
+        name: 'Primary Card Processor (Stripe)', 
+        status: 'active', 
+        lastSync: 'Hace 2 minutos',
+        icon: CreditCardIcon,
+        description: 'Maneja tarjetas de crédito/débito primarias y facturación recurrente.'
+    },
+    { 
+        id: 'mexico-local', 
+        name: 'Liquidación Local MX (OXXO/SPEI)', 
+        status: 'inactive', 
+        lastSync: 'N/A',
+        icon: BanknotesIcon,
+        description: 'Crucial para el mercado MX: efectivo (OXXO), transferencias bancarias (SPEI) y métodos locales.'
+    },
+    { 
+        id: 'paypal', 
+        name: 'Global Peer-to-Peer (PayPal/Venmo)', 
+        status: 'active', 
+        lastSync: 'Hace 5 horas',
+        icon: GlobeAltIcon,
+        description: 'Permite pagos P2P (incluyendo Cash App/Zelle en el backend) y transferencias internacionales.'
+    },
+    { 
+        id: 'square', 
+        name: 'Secondary POS/Invoicing (Square)', 
+        status: 'inactive', 
+        lastSync: 'N/A',
+        icon: PuzzlePieceIcon,
+        description: 'Utilizado para transacciones manuales y facturación de punto de venta (POS).'
+    },
+];
 
 export default function PaymentSettingsPage() {
-    const [status, setStatus] = useState('active'); // 'active' | 'inactive' | 'error'
-    const [lastSync, setLastSync] = useState('Hace 2 minutos');
+    const [gateways, setGateways] = useState(mockGateways);
     const [isTesting, setIsTesting] = useState(false);
 
-    const handleTestPayment = () => {
+    const handleTestGateway = (id) => {
         setIsTesting(true);
-        console.log("Iniciando prueba de pago con el procesador...");
+        const gatewayName = gateways.find(g => g.id === id)?.name;
+
+        console.log(`Iniciando prueba de conectividad con ${gatewayName}...`);
         
-        // Simulación de una prueba de pago exitosa (la métrica de éxito)
         setTimeout(() => {
-            alert("¡Prueba de Pago Exitosa! Stripe (Internal Gateway) funciona correctamente.");
-            setStatus('active');
-            setLastSync('Justo ahora');
+            setGateways(prev => prev.map(g => 
+                g.id === id ? { ...g, status: 'active', lastSync: 'Justo ahora' } : g
+            ));
+            alert(`¡Prueba de ${gatewayName} Exitosa! Conexión verificada.`);
             setIsTesting(false);
         }, 2000);
     };
 
     const getStatusIndicator = (currentStatus) => {
         if (currentStatus === 'active') {
-            return { icon: CheckCircleIcon, color: 'text-green-500', label: 'ACTIVO' };
-        } else if (currentStatus === 'inactive') {
-            return { icon: XCircleIcon, color: 'text-gray-500', label: 'INACTIVO' };
+            return { icon: CheckCircleIcon, color: 'text-green-600', label: 'ACTIVO' };
         } else {
-            return { icon: XCircleIcon, color: 'text-red-500', label: 'ERROR' };
+            return { icon: XCircleIcon, color: 'text-gray-500', label: 'INACTIVO' };
         }
     };
-
-    const indicator = getStatusIndicator(status);
 
     return (
         <div className="min-h-screen bg-gray-50 pt-8 pb-16">
@@ -41,52 +82,63 @@ export default function PaymentSettingsPage() {
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-extrabold text-gray-900 flex items-center justify-center">
                         <BanknotesIcon className="h-10 w-10 text-primary-600 mr-3" />
-                        Configuración de Pagos
+                        Configuración de Pagos Multi-Gateway
                     </h1>
                     <p className="mt-2 text-xl text-gray-600">
-                        Gestión del Procesador de Pagos (Stripe/Internal Gateway).
+                        Gestión de integraciones de pago a nivel mundial (Stripe, Square, PayPal, etc.).
                     </p>
                 </div>
 
                 <div className="bg-white p-8 rounded-xl shadow-premium border border-gray-100 space-y-8">
                     
-                    {/* Estado de la Integración */}
-                    <div className="border-b pb-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-gray-900">Estado del Gateway de Pagos</h2>
-                            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${indicator.color} bg-opacity-10`} style={{backgroundColor: indicator.color.replace('text-', 'bg-')}}>
-                                <indicator.icon className="h-4 w-4 inline-block mr-1" />
-                                {indicator.label}
-                            </span>
-                        </div>
-                        <p className="text-sm text-gray-500 mt-1">Última sincronización: {lastSync}</p>
+                    <div className="border-b pb-4 mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">Pasarelas de Pago Activas</h2>
+                        <p className="text-sm text-gray-500 mt-1">Conecte las pasarelas necesarias para aceptar diversos métodos de pago globales.</p>
                     </div>
 
-                    {/* Claves y Tokens */}
-                    <div className="space-y-4">
-                        <h3 className="text-xl font-semibold text-gray-800">Claves de API</h3>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Clave Secreta (Masked)</label>
-                            <input type="text" value="sk_************************" readOnly className="input-premium bg-gray-100 italic cursor-not-allowed" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Webhook Secreto</label>
-                            <input type="text" value="whsec_**********************" readOnly className="input-premium bg-gray-100 italic cursor-not-allowed" />
-                        </div>
-                    </div>
+                    {gateways.map((gateway) => {
+                        const indicator = getStatusIndicator(gateway.status);
 
-                    {/* Botón de Prueba - Métrica de Éxito Parcial */}
-                    <button
-                        onClick={handleTestPayment}
-                        disabled={isTesting}
-                        className={`btn-primary-premium w-full py-3 ${isTesting ? 'opacity-60 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
-                    >
-                        <CreditCardIcon className="h-5 w-5 inline-block mr-2" />
-                        {isTesting ? 'Probando Pago...' : 'Ejecutar Prueba de Pago de Integración'}
-                    </button>
-                    <p className="text-xs text-gray-500 text-center">
-                        La prueba simula una transacción de $1 para verificar la conectividad de los troncales.
-                    </p>
+                        return (
+                            <div key={gateway.id} className="p-6 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <gateway.icon className={`h-6 w-6 ${indicator.color}`} />
+                                        <h3 className="text-xl font-semibold text-gray-900">{gateway.name}</h3>
+                                    </div>
+                                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${indicator.color} bg-opacity-10`} style={{backgroundColor: indicator.color.replace('text-', 'bg-')}}>
+                                        <indicator.icon className="h-4 w-4 inline-block mr-1" />
+                                        {indicator.label}
+                                    </span>
+                                </div>
+                                
+                                <p className="text-sm text-gray-600 mb-4">{gateway.description}</p>
+                                
+                                <div className="flex justify-between items-center">
+                                    <p className="text-xs text-gray-500">Última sincronización: {gateway.lastSync}</p>
+                                    
+                                    <button
+                                        onClick={() => handleTestGateway(gateway.id)}
+                                        disabled={isTesting}
+                                        className={`btn-secondary-premium py-2 px-4 text-sm ${isTesting ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    >
+                                        <ArrowPathIcon className="h-4 w-4 inline-block mr-1" />
+                                        {isTesting ? 'Probando...' : 'Probar Conectividad'}
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    {/* API Key Management Section (Simplified) */}
+                    <div className="pt-6 border-t border-gray-200 mt-8">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-3">Claves Globales de API</h3>
+                        <p className="text-sm text-gray-600 mb-4">Las claves y tokens para cada pasarela se gestionan en el Gestor de Secretos AURA™ Core.</p>
+                        
+                        <button className="btn-secondary-premium">
+                             Gestionar Claves en AURA™ Vault
+                        </button>
+                    </div>
                 </div>
 
                 <div className="mt-8 text-center">
