@@ -1,7 +1,7 @@
 // app/dashboard/operational-overview/page.tsx - ULTRA PREMIUM VERSION (LOCALIZATION/i18n UPDATE)
 "use client";
 
-import Image from 'next/image';  
+import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react'; // Importar Hooks
 import { 
@@ -15,7 +15,7 @@ import {
     ArrowUpIcon,
     ArrowDownIcon,
     Cog6ToothIcon,
-    // FIX APPLIED HERE: Corrected typo from DocumentChartIcon to DocumentChartBarIcon
+    // CORRECTED TYPO: DocumentChartIcon -> DocumentChartBarIcon
     DocumentChartBarIcon, 
     ShieldCheckIcon,
     MagnifyingGlassIcon,
@@ -223,7 +223,8 @@ export default function OperationalOverviewPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             {kpis.map((kpi, index) => {
                 const IconComponent = kpi.icon;
-                const trendIcon = kpi.trend === 'up' ? ArrowUpIcon : ArrowDownIcon;
+                // FIX APPLIED HERE: trendIcon is now capitalized as TrendIcon
+                const TrendIcon = kpi.trend === 'up' ? ArrowUpIcon : ArrowDownIcon;
                 const trendColor = kpi.trend === 'up' ? 'text-green-500 bg-green-100' : 'text-red-500 bg-red-100';
 
                 return (
@@ -235,7 +236,8 @@ export default function OperationalOverviewPage() {
                             <div className="flex justify-between items-start mb-4">
                                 <IconComponent className={`w-6 h-6 text-${kpi.color}-600`} />
                                 <div className={`flex items-center text-xs font-bold px-3 py-1 rounded-full ${trendColor}`}>
-                                    <span className="mr-1"><trendIcon className="w-3 h-3" /></span>
+                                    {/* FIX APPLIED HERE: Use capitalized TrendIcon in JSX */}
+                                    <span className="mr-1"><TrendIcon className="w-3 h-3" /></span>
                                     {kpi.change}
                                 </div>
                             </div>
