@@ -1,7 +1,14 @@
 // app/layout.tsx
+import React from 'react';
+import Link from 'next/link';
+import './globals.css'; // Your global Tailwind styles
 
-// ... existing imports ...
+// Components
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import AnalyticsTracker from '@/components/AnalyticsTracker'; // New Import
 
+// --- SEO and Structured Data Definitions ---
 const jsonLdOrganization = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -32,6 +39,12 @@ const jsonLdProduct = {
     }
 };
 
+export const metadata = {
+  title: "FrontDesk Agents | Enterprise AI for 24/7 Customer Service",
+  description: "Seamlessly Integrate, Never Miss a Lead. Advanced AI agents handle every call, inquiry, and booking with human-level intelligence, 24/7.",
+};
+
+// --- Root Layout Component ---
 export default function RootLayout({
   children,
 }: {
@@ -40,10 +53,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Basic SEO Metadata */}
-        <title>FrontDesk Agents | Enterprise AI for 24/7 Customer Service</title>
-        <meta name="description" content="Seamlessly Integrate, Never Miss a Lead. Advanced AI agents handle every call, inquiry, and booking with human-level intelligence, 24/7." />
-        
         {/* Structured Data (Organization) */}
         <script 
             type="application/ld+json" 
@@ -54,12 +63,24 @@ export default function RootLayout({
             type="application/ld+json" 
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdProduct) }} 
         />
-        
-        {/* ... other head elements ... */}
       </head>
-      <body>
-        {/* ... Navbar, Children, Footer ... */}
-        {children}
+      
+      {/* Apply cinematic dark background to the whole site body */}
+      <body className="bg-gray-100 text-gray-900 min-h-screen antialiased">
+        
+        {/* The Navbar is fixed and persistent */}
+        <Navbar />
+        
+        {/* Main Content Area: Pushed down by the fixed Navbar */}
+        <main className="pt-16"> 
+            {children}
+        </main>
+        
+        {/* The Footer is persistent */}
+        <Footer />
+
+        {/* ANALYTICS TRACKER ADDED */}
+        <AnalyticsTracker />
       </body>
     </html>
   );
