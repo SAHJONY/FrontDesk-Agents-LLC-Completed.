@@ -1,4 +1,3 @@
-// app/page.tsx - Premium Homepage with Cinematic Images
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Phone, Brain, TrendingUp, Shield, Zap, Clock } from 'lucide-react';
