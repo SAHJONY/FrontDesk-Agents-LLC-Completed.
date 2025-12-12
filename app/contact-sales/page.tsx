@@ -3,13 +3,15 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { PhoneIcon, MailOpenIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+// FIX APPLIED HERE: Changed MailOpenIcon to EnvelopeOpenIcon
+import { PhoneIcon, EnvelopeOpenIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 
 // Data for Contact Options
 const contactOptions = [
     { title: "Book Sales Consultation", description: "Start here for pricing, ROI analysis, and a personalized demo.", icon: PhoneIcon, intent: "Sales" },
     { title: "Partnerships & Media", description: "Inquiries regarding integrations, channel partnerships, or press.", icon: UserGroupIcon, intent: "Partnership" },
-    { title: "Technical Support", description: "Existing clients: submit a ticket or view our documentation.", icon: MailOpenIcon, intent: "Support" },
+    // Usage updated: The component reference uses the new name
+    { title: "Technical Support", description: "Existing clients: submit a ticket or view our documentation.", icon: EnvelopeOpenIcon, intent: "Support" },
 ];
 
 export default function ContactSalesPage() {
@@ -48,7 +50,8 @@ export default function ContactSalesPage() {
                             }`}
                             onClick={() => setSelectedIntent(option.intent)}
                         >
-                            <option.icon className="h-8 w-8 text-primary-600 mb-3" />
+                            {/* The component reference uses the icon property from the contactOptions array, which is now EnvelopeOpenIcon for Support. */}
+                            <option.icon className="h-8 w-8 text-primary-600 mb-3" /> 
                             <h3 className="text-xl font-bold text-gray-900 mb-2">{option.title}</h3>
                             <p className="text-gray-600 text-sm">{option.description}</p>
                         </div>
