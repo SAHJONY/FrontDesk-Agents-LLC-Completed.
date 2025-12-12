@@ -163,6 +163,13 @@ export default function FeatureManagementConsole() {
 
     const handleToggle = (title) => {
         const featureToToggle = features.find(f => f.title === title);
+        
+        // FIX APPLIED HERE: Add check for undefined before accessing properties
+        if (!featureToToggle) {
+            console.error(`Feature not found: ${title}`);
+            return; // Exit the function to prevent crashing
+        }
+
         const newStatus = featureToToggle.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 
         // Confirmation and simulation
