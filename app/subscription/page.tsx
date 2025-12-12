@@ -6,15 +6,17 @@ import {
     // ... (existing imports) ...
     SparklesIcon,
     ArrowRightIcon,
-    TrophyIcon // Nuevo ícono para la promoción
+    TrophyIcon, // Nuevo ícono para la promoción
+    // FIXES: Adding missing icons for compilation
+    ClockIcon,
+    BanknotesIcon 
 } from '@heroicons/react/24/outline';
 
-// --- LÓGICA DE PROMOCIÓN DE LANZAMIENTO ---
+// --- LÓGICA DE PROMOCIÓN DE LANZAMIENTO (CONSTANTES) ---
 const TOTAL_PROMO_SLOTS = 100;
-const [slotsTaken, setSlotsTaken] = useState(32); // Simulación de contador de clientes
-const SLOTS_REMAINING = TOTAL_PROMO_SLOTS - slotsTaken;
-const IS_PROMO_ACTIVE = SLOTS_REMAINING > 0;
-// ------------------------------------------
+// Note: slotsTaken state must be managed inside the component. 
+// We will use a mock default value here, and manage the state inside the component.
+// --------------------------------------------------------
 
 const plans = [
     { 
@@ -43,17 +45,20 @@ const plans = [
     },
 ];
 
-const PlanCard = ({ plan, onSelect, currentPlanName }) => {
+// Note: This component is simplified to receive all necessary status props
+const PlanCard = ({ plan, onSelect, currentPlanName, isPromoActive, priceMultiplier = 1 }) => {
     const isCurrent = plan.name === currentPlanName;
-    const priceDisplay = IS_PROMO_ACTIVE ? plan.promoPrice : plan.price;
-    const oldPriceDisplay = plan.price;
+    
+    // Determine which price to display based on promo state
+    const price = isPromoActive ? plan.promoPrice : plan.price;
+    const oldPrice = plan.price;
 
     return (
         <div className={`p-6 rounded-xl shadow-lg border-2 ${
-            isCurrent ? 'border-primary-600 ring-4 ring-primary-100' : 'border-gray-200'
+            isCurrent ? 'border-indigo-600 ring-4 ring-indigo-100' : 'border-gray-200'
         }`}>
             {/* Promo Badge */}
-            {IS_PROMO_ACTIVE && (
+            {isPromoActive && (
                 <div className="flex items-center justify-center p-2 mb-3 bg-red-100 rounded-lg">
                     <TrophyIcon className="h-5 w-5 text-red-600 mr-2" />
                     <span className="text-sm font-bold text-red-600">¡50% OFF por Lanzamiento!</span>
@@ -65,12 +70,12 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
             {/* Price Display */}
             <div className="my-4">
                 <span className="text-4xl font-extrabold text-indigo-600">
-                    ${priceDisplay.toFixed(2)}
+                    ${price.toFixed(2)}
                 </span>
                 <span className="text-gray-500 ml-2">/ mes</span>
                 
-                {IS_PROMO_ACTIVE && (
-                    <p className="text-sm text-gray-500 mt-1 line-through">Precio original: ${oldPriceDisplay}</p>
+                {isPromoActive && (
+                    <p className="text-sm text-gray-500 mt-1 line-through">Precio original: ${oldPrice.toFixed(2)}</p>
                 )}
             </div>
 
@@ -83,6 +88,7 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
             <button
                 onClick={() => onSelect(plan.name)}
                 disabled={isCurrent}
+                // Use bracket notation for dynamic Tailwind classes to avoid lint warnings
                 className={`w-full py-3 text-white font-bold rounded-lg transition-colors ${
                     isCurrent 
                         ? 'bg-gray-400 cursor-default' 
@@ -92,15 +98,32 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
                 {isCurrent ? 'Plan Actual' : 'Comenzar Prueba de 14 Días'}
             </button>
             
-            {/* ... (Rest of the card with usage cost and features) ... */}
+            <div className="mt-4 pt-4 border-t border-gray-100">
+                <p className="text-sm font-semibold text-gray-700 mb-2">Características Clave:</p>
+                <ul className="space-y-2 text-sm text-gray-600">
+                    {plan.features.map((feature, i) => <li key={i} className="flex items-start">
+                        <ArrowRightIcon className="flex-shrink-0 h-4 w-4 mr-2 mt-0.5 text-gray-400" />
+                        {feature}
+                    </li>)}
+                </ul>
+                <p className="mt-3 text-xs text-gray-500">
+                    Costo por Minuto Extra: **${plan.usageCost}**
+                </p>
+            </div>
         </div>
     );
 };
 
+
 export default function SubscriptionManagerPage() {
+    // FIX APPLIED HERE: useState must be inside the functional component
+    const [slotsTaken, setSlotsTaken] = useState(32); 
     const [currentPlan, setCurrentPlan] = useState('Professional'); 
+
+    const SLOTS_REMAINING = TOTAL_PROMO_SLOTS - slotsTaken;
+    const IS_PROMO_ACTIVE = SLOTS_REMAINING > 0;
     
-    // ... (logic to handle plan selection) ...
+    // ... (logic to handle plan selection - assumed here) ...
 
     return (
         <div className="min-h-screen bg-gray-50 pt-8 pb-16">
@@ -131,11 +154,16 @@ export default function SubscriptionManagerPage() {
                             plan={plan} 
                             onSelect={setCurrentPlan} 
                             currentPlanName={currentPlan} 
+                            isPromoActive={IS_PROMO_ACTIVE} // Pass status down
                         />
                     ))}
                 </div>
                 
-                {/* ... (Footer link to payments settings) ... */}
+                <div className="mt-12 text-center">
+                    <a href="/settings/payments" className="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center justify-center">
+                        Gestionar Métodos de Pago y Facturación →
+                    </a>
+                </div>
             </div>
         </div>
     );
