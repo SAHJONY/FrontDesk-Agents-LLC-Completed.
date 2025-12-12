@@ -13,6 +13,10 @@ import {
     // ... (rest of imports) ...
     GlobeAltIcon, // Necesario para el selector si se mueve aquí
     ClockIcon,
+    
+    // FIX APPLIED HERE: ADD MISSING ICONS
+    SparklesIcon, 
+    BoltIcon, // Added because it's used in kpis array
 } from '@heroicons/react/24/outline';
 
 // NEW IMPORTS
@@ -77,6 +81,7 @@ export default function OperationalOverviewPage() {
         value: '98.5%', 
         change: '+2.3%', 
         trend: 'up',
+        // SparklesIcon is now imported and recognized
         icon: SparklesIcon, 
         color: 'green',
         subtitle: 'last 100 calls',
@@ -87,6 +92,7 @@ export default function OperationalOverviewPage() {
         value: '1.2s', 
         change: '-0.3s', 
         trend: 'down',
+        // BoltIcon is now imported and recognized
         icon: BoltIcon, 
         color: 'purple',
         subtitle: 'average',
@@ -192,4 +198,4 @@ export default function OperationalOverviewPage() {
         </div>
       </div>
     );
-}
+            }
