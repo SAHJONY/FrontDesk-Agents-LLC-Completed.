@@ -2,6 +2,8 @@
 "use client";
 
 import React, { useState } from 'react';
+// FIX APPLIED HERE: Link must be imported for Next.js routing components
+import Link from 'next/link';
 import { 
     ShieldCheckIcon, 
     LockClosedIcon, 
