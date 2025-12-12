@@ -1,98 +1,76 @@
 // app/setup/page.tsx
-import Image from "next/image";
-import TopNav from "@/components/top-nav";
-// FIX: Removed import { getPageHero } from "@/lib/siteImages";
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+// NOTE: For a real setup process, each step would likely be a separate, interactive 
+// Client Component, but here we focus on the visual wrapper.
+
+// Define the steps to show on the page
+const setupSteps = [
+    { id: 1, title: "Gather Information", description: "Collect necessary business details and API keys.", link: "#step-info" },
+    { id: 2, title: "Configure Settings", description: "Define scripting logic, call routing, and time zones.", link: "#step-config" },
+    { id: 3, title: "Add Users", description: "Invite team members and assign appropriate permissions.", link: "#step-users" },
+    { id: 4, title: "Launch System", description: "Activate your AI agents and start taking calls.", link: "#step-launch" },
+];
 
 export default function SetupPage() {
-  // FIX: Removed const hero: any = getPageHero("setup");
+    return (
+        <div className="relative py-12 px-4 sm:px-6 lg:px-8">
+            
+            {/* 🌟 1. Cinematic Header Banner */}
+            <div className="relative mb-12 h-[350px] bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+                <Image
+                    // NOTE: Place the professional setup image (e.g., setup-bg.jpg) 
+                    // in your 'public' directory.
+                    src="/images/setup-bg.jpg" 
+                    alt="Professionals reviewing holographic setup instructions"
+                    layout="fill"
+                    objectFit="cover"
+                    quality={80}
+                    // Apply a dark overlay for contrast against the text
+                    className="brightness-[0.3] contrast-[1.1]" 
+                />
+                
+                {/* Text Overlay for the Banner */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <h1 className="text-5xl font-extrabold text-white tracking-tight sm:text-6xl">
+                        System Setup
+                    </h1>
+                    <p className="mt-3 text-xl text-primary-300 sm:mt-4 max-w-2xl">
+                        Follow these steps to seamlessly integrate FrontDesk Agents into your enterprise workflow.
+                    </p>
+                </div>
+            </div>
 
-  // Hardcoded values based on the original fallbacks
-  const title = "Configura tu AI Receptionist Command Center";
-  const description = "Sigue estos pasos para conectar tu número, pagos y CRM y empezar a cobrar hoy mismo.";
-  // Placeholder for the image, as the dynamic hero.image is removed
-  const hasImage = false; 
-  const placeholderImage = {
-    src: "/placeholder-setup.png", // Placeholder path
-    alt: "Setup FrontDesk Agents",
-  };
+            {/* 🌟 2. Setup Steps Content Section */}
+            <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+                    Your Deployment Plan
+                </h2>
 
-  return (
-    <main className="min-h-screen bg-slate-950 text-slate-50">
-      <TopNav />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {setupSteps.map((step) => (
+                        // Card with premium styling
+                        <div key={step.id} className="bg-white p-6 rounded-xl shadow-premium hover:shadow-2xl transition duration-300 border-l-4 border-primary-600">
+                            <span className="text-sm font-semibold text-primary-600">STEP {step.id}</span>
+                            <h3 className="text-2xl font-bold text-gray-900 mt-1 mb-3">{step.title}</h3>
+                            <p className="text-gray-600">{step.description}</p>
+                            
+                            <Link href={step.link} className="mt-4 inline-flex items-center text-primary-600 hover:text-primary-800 font-medium transition duration-150">
+                                Start Step →
+                            </Link>
+                        </div>
+                    ))}
+                </div>
 
-      <section className="mx-auto max-w-5xl px-4 pb-16 pt-10 lg:px-8">
-        <header className="mb-8 space-y-3">
-          <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
-            Setup · Onboarding
-          </p>
-          <h1 className="text-3xl font-bold sm:text-4xl">
-            {title}
-          </h1>
-          <p className="text-sm text-slate-300 sm:text-base">
-            {description}
-          </p>
-        </header>
-
-        {/* Hero image is replaced with a static placeholder or removed */}
-        {/* The original logic was: {hero?.image && (...) } */}
-        {hasImage && (
-          <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-2xl border border-slate-800">
-            <Image
-              src={placeholderImage.src}
-              alt={placeholderImage.alt}
-              fill
-              className="object-cover"
-            />
-          </div>
-        )}
-
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-            <h2 className="mb-2 text-sm font-semibold text-sky-300">
-              Paso 1 · Conecta tu número de teléfono
-            </h2>
-            <p className="text-sm text-slate-300">
-              Usaremos Bland.ai / Twilio como troncal de voz. Desde el Owner
-              Command Center podrás elegir el país, prefijo y horario de
-              atención. Todas las llamadas quedarán registradas en el
-              dashboard de llamadas.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-            <h2 className="mb-2 text-sm font-semibold text-sky-300">
-              Paso 2 · Activa pagos (Stripe, Square, Zelle, Cash App, PayPal)
-            </h2>
-            <p className="text-sm text-slate-300">
-              En esta versión, conectaremos Stripe como pasarela principal. El
-              equipo puede añadir también Square, Zelle, Cash App, PayPal y
-              transferencias bancarias para cobrar depósitos y membresías
-              directamente desde las llamadas.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-            <h2 className="mb-2 text-sm font-semibold text-sky-300">
-              Paso 3 · Conecta tu CRM y calendarios
-            </h2>
-            <p className="text-sm text-slate-300">
-              El Command Center se integra con HubSpot, Google Sheets y otros
-              CRMs. Las citas confirmadas se enviarán automáticamente a tu
-              calendario y al paciente/cliente por SMS o WhatsApp.
-            </p>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <button className="rounded-full bg-sky-500 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-400">
-              Comenzar configuración guiada
-            </button>
-            <p className="text-xs text-slate-400">
-              Cuando completes estos pasos, tu cuenta estará lista para cobrar
-              y registrar llamadas en tiempo real.
-            </p>
-          </div>
+                {/* Final CTA/Next Action */}
+                <div className="mt-12 text-center">
+                    <Link href="/dashboard" className="btn-primary-premium text-lg px-8 py-3">
+                        Go to Dashboard After Setup
+                    </Link>
+                </div>
+            </div>
         </div>
-      </section>
-    </main>
-  );
+    );
 }
