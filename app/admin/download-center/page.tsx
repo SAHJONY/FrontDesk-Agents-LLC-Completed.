@@ -1,58 +1,69 @@
-// app/admin/download-center/page.tsx - MODIFICACIÓN PARA AÑADIR DOCUMENTO DE ARQUITECTURA
+import Link from 'next/link';
+import { ArrowDownTrayIcon, DocumentArrowDownIcon, CloudArrowDownIcon } from '@heroicons/react/24/outline';
 
-// ... (Resto de imports y el componente DocumentItem siguen igual) ...
-
-const documentCategories = [
+export default function DownloadCenterPage() {
+  const downloads = [
     {
-        name: 'Acuerdos Contractuales y Financieros',
-        icon: BanknotesIcon,
-        documents: [
-            // ... (Documentos SLA, TyC, Pricing siguen igual) ...
-        ]
+      title: 'API Documentation',
+      description: 'Complete API reference and integration guides',
+      icon: DocumentArrowDownIcon,
+      size: '2.5 MB',
+      format: 'PDF',
+      href: '#'
     },
     {
-        name: 'Cumplimiento y Gobernanza de Datos',
-        icon: ShieldCheckIcon,
-        documents: [
-            {
-                title: 'Certificado de Cumplimiento PCI DSS (Tokenización)',
-                description: 'Prueba de auditoría de la Capacidad #4, garantizando el manejo seguro de datos de pago.',
-                file: 'FRONTDESK_PCI_CERT_Q3_2025.pdf',
-                size: '5.1 MB',
-                category: 'Compliance'
-            },
-            {
-                title: 'Política de Privacidad y Retención de Datos (GDPR/CCPA)',
-                description: 'Detalla cómo la plataforma gestiona el Derecho al Olvido y la retención configurable.',
-                file: 'FRONTDESK_DATA_GOV_POLICY_V1.5.pdf',
-                size: '3.4 MB',
-                category: 'GDPR'
-            },
-            {
-                title: 'Informe de Auditoría de Acceso y Logs',
-                description: 'Documentación sobre la inmutabilidad y trazabilidad del Audit Log.',
-                file: 'FRONTDESK_AUDIT_LOG_SPEC_V1.0.pdf',
-                size: '1.9 MB',
-                category: 'Compliance'
-            },
-            // --- NUEVO DOCUMENTO AÑADIDO ---
-            {
-                title: 'Visión General de Arquitectura y Seguridad de AURA™ Core',
-                description: 'Diagramas de Flujo de Datos, Topología de IA, y Estrategia de Disaster Recovery (DR/BCP).',
-                file: 'AURA_ARCH_SECURITY_OVERVIEW_V1.0.pdf',
-                size: '8.5 MB',
-                category: 'Arquitectura'
-            },
-            // -------------------------------
-        ]
+      title: 'Client Libraries',
+      description: 'SDK packages for popular programming languages',
+      icon: CloudArrowDownIcon,
+      size: '15 MB',
+      format: 'ZIP',
+      href: '#'
     },
     {
-        name: 'Guías Técnicas y de Integración',
-        icon: DocumentTextIcon,
-        documents: [
-            // ... (Documentos de Integración y QuickStart Guide siguen igual) ...
-        ]
+      title: 'System Reports',
+      description: 'Monthly performance and analytics reports',
+      icon: ArrowDownTrayIcon,
+      size: '5.2 MB',
+      format: 'PDF',
+      href: '#'
     }
-];
+  ];
 
-// ... (El componente principal DownloadCenterPage sigue igual) ...
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Download Center</h1>
+          <p className="text-gray-600">Access documentation, reports, and resources</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {downloads.map((download, index) => (
+            <div key={index} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <download.icon className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-gray-500 uppercase">{download.format}</span>
+                  <p className="text-sm text-gray-600">{download.size}</p>
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{download.title}</h3>
+              <p className="text-gray-600 mb-4">{download.description}</p>
+              
+              <Link
+                href={download.href}
+                className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700"
+              >
+                <ArrowDownTrayIcon className="h-5 w-5" />
+                Download
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
