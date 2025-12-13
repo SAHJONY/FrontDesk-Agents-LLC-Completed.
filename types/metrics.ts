@@ -1,5 +1,8 @@
+export type MetricDirection = 'up' | 'down' | 'neutral';
+
 export interface MetricData {
-  value: number;
-  trend: number; // % change
-  label?: string;
+  value: string;      // ← CLAVE: string
+  trend: number;
+  unit?: string;
+  direction: MetricDirection;
 }
