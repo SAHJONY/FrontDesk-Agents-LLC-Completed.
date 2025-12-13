@@ -1,92 +1,210 @@
-// app/owner/onboarding/page.tsx
-import React from 'react';
-import Link from 'next/link';
+'use client';
 
-// Dummy Data for Tenants in Onboarding
-const onboardingTenants = [
-    { id: 45, company: 'Starlight Retail Group', status: 'Awaiting Script Approval', phase: 'P3', tier: 'Enterprise' },
-    { id: 46, company: 'Horizon Logistics Corp', status: 'Data Migration Failed', phase: 'P2', tier: 'Standard' },
-    { id: 47, company: 'Apex Consulting GmbH', status: 'Completed Setup', phase: 'P4', tier: 'Premium' },
-    { id: 48, company: 'Metro-East Healthcare', status: 'Payment Pending', phase: 'P1', tier: 'Enterprise' },
-];
+import { useState } from 'react';
+import { CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 
-export default function OwnerOnboardingPage() {
+export default function OnboardingPage() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    companyName: '',
+    industry: '',
+    phoneNumber: '',
+    businessHours: ''
+  });
+
+  const steps = [
+    { id: 1, name: 'Company Info', completed: false },
+    { id: 2, name: 'Phone Setup', completed: false },
+    { id: 3, name: 'AI Configuration', completed: false },
+    { id: 4, name: 'Complete', completed: false }
+  ];
+
+  const handleNext = () => {
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   return (
-    <div className="relative min-h-screen bg-gray-900 px-4 sm:px-6 lg:px-8">
-        
-        {/* Header Section */}
-        <div className="max-w-7xl mx-auto pt-10 pb-8 relative z-10">
-            <nav className="text-sm font-medium text-gray-500 mb-2">
-                <Link href="/owner" className="hover:text-primary-300">Command Center</Link> / 
-                <span className="text-white"> Onboarding Management</span>
-            </nav>
-            <h1 className="text-4xl font-extrabold text-white tracking-tight">
-                Client Onboarding Pipeline
-            </h1>
-            <p className="text-gray-400 mt-1">
-                Review and manually override the status of new tenant deployments.
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12">
+      <div className="max-w-4xl mx-auto px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to FrontDesk Agents</h1>
+          <p className="text-xl text-gray-600">Let's get your AI receptionist set up in minutes</p>
         </div>
 
-        {/* Content Section */}
-        <div className="max-w-7xl mx-auto pb-12 relative z-10">
-
-            {/* Global Control Panel */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-2xl mb-8 flex justify-between items-center border border-yellow-500/50">
-                <h3 className="text-xl font-bold text-white">Global Onboarding Overrides</h3>
-                <button className="btn-secondary-premium px-4 py-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500/10">
-                    Force Sync All Deployments
-                </button>
-            </div>
-            
-            {/* Tenants in Pipeline Table */}
-            <div className="bg-gray-800 p-8 rounded-xl shadow-2xl">
-                <h2 className="text-2xl font-bold text-white mb-6">Tenants in Pipeline</h2>
-                
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-700">
-                        <thead className="bg-gray-700">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Tenant ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Company</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Phase</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Tier</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-700">
-                            {onboardingTenants.map((tenant) => (
-                                <tr key={tenant.id} className="hover:bg-gray-700 transition duration-150">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">#{tenant.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-300">{tenant.company}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                            tenant.status.includes('Approved') || tenant.status.includes('Completed') ? 'bg-green-100 text-green-800' :
-                                            tenant.status.includes('Failed') ? 'bg-red-100 text-red-800' :
-                                            'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                            {tenant.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{tenant.phase}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{tenant.tier}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        {tenant.status === 'Completed Setup' ? (
-                                            <span className="text-green-500">Deployed</span>
-                                        ) : (
-                                            <button className="text-sm font-medium text-red-500 hover:text-red-300 transition" onClick={() => console.log(`Override for ${tenant.company}`)}>
-                                                Force Complete →
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+        {/* Progress Steps */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex items-center flex-1">
+                <div className="flex flex-col items-center flex-1">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    currentStep >= step.id ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}>
+                    {currentStep > step.id ? (
+                      <CheckCircleIcon className="h-6 w-6 text-white" />
+                    ) : (
+                      <span className={`text-lg font-bold ${
+                        currentStep >= step.id ? 'text-white' : 'text-gray-500'
+                      }`}>
+                        {step.id}
+                      </span>
+                    )}
+                  </div>
+                  <span className={`text-sm mt-2 ${
+                    currentStep >= step.id ? 'text-blue-600 font-semibold' : 'text-gray-500'
+                  }`}>
+                    {step.name}
+                  </span>
                 </div>
-            </div>
+                {index < steps.length - 1 && (
+                  <div className={`h-1 flex-1 ${
+                    currentStep > step.id ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}></div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Form Content */}
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {currentStep === 1 && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Company Information</h2>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Company Name *
+                </label>
+                <input
+                  type="text"
+                  name="companyName"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Acme Corporation"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Industry *
+                </label>
+                <select
+                  name="industry"
+                  value={formData.industry}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select your industry</option>
+                  <option value="healthcare">Healthcare</option>
+                  <option value="realestate">Real Estate</option>
+                  <option value="legal">Legal</option>
+                  <option value="automotive">Automotive</option>
+                  <option value="hospitality">Hospitality</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Phone Setup</h2>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Business Phone Number *
+                </label>
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Business Hours *
+                </label>
+                <input
+                  type="text"
+                  name="businessHours"
+                  value={formData.businessHours}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="9 AM - 5 PM, Monday - Friday"
+                />
+              </div>
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">AI Configuration</h2>
+              <div className="bg-blue-50 p-6 rounded-xl">
+                <p className="text-gray-700 mb-4">
+                  We'll configure your AI agent based on your industry and business needs.
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircleIcon className="h-5 w-5 text-blue-600" />
+                    <span>Natural conversation flow</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircleIcon className="h-5 w-5 text-blue-600" />
+                    <span>Appointment scheduling</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircleIcon className="h-5 w-5 text-blue-600" />
+                    <span>Lead qualification</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {currentStep === 4 && (
+            <div className="text-center py-8">
+              <CheckCircleIcon className="h-24 w-24 text-green-600 mx-auto mb-6" />
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">You're All Set!</h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Your AI receptionist is ready to handle calls
+              </p>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div className="flex justify-between mt-8 pt-8 border-t border-gray-200">
+            <button
+              onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+              disabled={currentStep === 1}
+              className="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Back
+            </button>
+            <button
+              onClick={handleNext}
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              {currentStep === steps.length ? 'Go to Dashboard' : 'Continue'}
+              <ArrowRightIcon className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
