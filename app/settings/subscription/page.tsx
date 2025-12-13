@@ -1,12 +1,10 @@
-// app/settings/subscription/page.tsx - ACTUALIZACIÓN PARA DESCUENTO DEL 50% ABIERTO A TODOS
+// app/settings/subscription/page.tsx
 "use client";
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
     BanknotesIcon, 
-    SparklesIcon,
-    ArrowRightIcon,
     ClockIcon,
     TrophyIcon,
     CheckCircleIcon,
@@ -14,7 +12,6 @@ import {
 } from '@heroicons/react/24/outline';
 
 // --- LÓGICA DE PROMOCIÓN DE LANZAMIENTO ABIERTO ---
-// La promoción ahora está siempre ACTIVA para todos los nuevos clientes.
 const IS_PROMO_ACTIVE = true; 
 // ------------------------------------------
 
@@ -67,7 +64,6 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
             isCurrent ? 'border-indigo-600 ring-4 ring-indigo-100' : 'border-gray-200'
         }`}>
             
-            {/* Promo Badge: Se mantiene visible ya que la promo está activa */}
             {IS_PROMO_ACTIVE && (
                 <div className="flex items-center justify-center p-2 mb-3 bg-red-100 rounded-lg">
                     <TrophyIcon className="h-5 w-5 text-red-600 mr-2" />
@@ -77,7 +73,6 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
 
             <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
             
-            {/* Price Display */}
             <div className="my-4">
                 <span className="text-4xl font-extrabold text-indigo-600">
                     ${priceDisplay.toFixed(2)}
@@ -89,14 +84,13 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
                 )}
             </div>
 
-            {/* Trial Info */}
             <p className="text-sm font-semibold text-green-600 mb-4 flex items-center">
                 <ClockIcon className="h-4 w-4 mr-1" />
                 **14 Días de Prueba Gratuita**
             </p>
 
             <button
-                onClick={handleSelect}
+                onClick={handleSelect} 
                 disabled={isCurrent}
                 className={`w-full py-3 text-white font-bold rounded-lg transition-colors ${
                     isCurrent 
@@ -123,7 +117,7 @@ const PlanCard = ({ plan, onSelect, currentPlanName }) => {
     );
 };
 
-export default function SubscriptionManagerPage() {
+export function SubscriptionManagerPage() {
     const [currentPlan, setCurrentPlan] = useState('Professional'); 
 
     return (
@@ -139,14 +133,12 @@ export default function SubscriptionManagerPage() {
                     </p>
                 </div>
                 
-                {/* --- PROMOTION BANNER SIMPLIFICADO --- */}
                 {IS_PROMO_ACTIVE && (
                     <div className="mb-10 p-4 text-center bg-red-500 rounded-xl text-white font-bold shadow-lg">
                         <TrophyIcon className="h-6 w-6 inline-block mr-2" />
                         ¡OFERTA ESPECIAL DE LANZAMIENTO! **50% OFF DE POR VIDA** para todos los nuevos clientes.
                     </div>
                 )}
-                {/* ------------------------- */}
 
                 <div className="grid md:grid-cols-3 gap-8">
                     {plans.map((plan) => (
@@ -169,3 +161,4 @@ export default function SubscriptionManagerPage() {
         </div>
     );
 }
+export default SubscriptionManagerPage;
