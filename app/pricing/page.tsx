@@ -1,3 +1,6 @@
+// app/pricing/page.tsx
+"use client"; // <--- ¡AÑADIDO PARA RESOLVER ERRORES DE SERIALIZACIÓN!
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Check, ArrowRight, Zap, Building2, Rocket } from 'lucide-react';
@@ -84,6 +87,7 @@ export default function PricingPage() {
           </p>
           <div className="flex items-center justify-center gap-4">
             <span className="text-gray-600">Monthly</span>
+            {/* El botón de toggle requiere 'use client' */}
             <button className="relative w-14 h-8 bg-blue-600 rounded-full transition-colors">
               <span className="absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition-transform"></span>
             </button>
