@@ -1,58 +1,39 @@
-// services/metrics.service.ts
+// services/metrics.service.ts - ACTUALIZADO con Series de Tiempo
 
-// Definición de tipos (Schema Real Simplificado)
-export interface MetricData {
-    value: string; // Valor principal (e.g., "1,200", "15.2%")
-    trend: number; // Cambio en el último período (e.g., 5, -0.5)
-    unit: string;  // Unidad del trend (e.g., "+", "%")
-    direction: 'up' | 'down'; // Dirección del ícono de tendencia
-}
+// ... (mantener MetricData, OperationalMetrics) ...
 
-export interface OperationalMetrics {
-    calls: MetricData;
-    conversion: MetricData;
-    satisfaction: MetricData;
-    error: MetricData;
+// NUEVA DEFINICIÓN: Estructura de datos para un punto en el tiempo
+export interface TimeSeriesPoint {
+    timeLabel: string; // Etiqueta del eje X (ej: 'Mon', '2025-11-20')
+    callsHandled: number;
+    bookingsMade: number;
+    // Puedes añadir más métricas aquí si es necesario
 }
 
 /**
- * Simula la obtención de métricas operacionales desde un backend.
- * En producción, esta función usaría 'fetch' para acceder a /api/metrics.
+ * NUEVA FUNCIÓN: Simula la obtención de datos en series de tiempo para gráficos.
  */
-export const fetchOperationalMetrics = (): Promise<OperationalMetrics> => {
-    // --- Datos de Simulación Premium ---
-    const simulatedData: OperationalMetrics = {
-        calls: {
-            value: "2,560", 
-            trend: 12.5, 
-            unit: "%", 
-            direction: 'up',
-        },
-        conversion: {
-            value: "18.1%", 
-            trend: 2.1, 
-            unit: "%", 
-            direction: 'up',
-        },
-        satisfaction: {
-            value: "97%", 
-            trend: -0.1, 
-            unit: "%", 
-            direction: 'down',
-        },
-        error: {
-            value: "0.5%", 
-            trend: -0.2, 
-            unit: "%", 
-            direction: 'up',
-        },
-    };
+export const fetchTimeSeriesMetrics = (): Promise<TimeSeriesPoint[]> => {
+    // --- Datos de Simulación Premium para Gráficos (últimos 7 días) ---
+    const simulatedTimeSeries: TimeSeriesPoint[] = [
+        { timeLabel: 'Lun', callsHandled: 150, bookingsMade: 22 },
+        { timeLabel: 'Mar', callsHandled: 185, bookingsMade: 30 },
+        { timeLabel: 'Mié', callsHandled: 160, bookingsMade: 25 },
+        { timeLabel: 'Jue', callsHandled: 210, bookingsMade: 35 },
+        { timeLabel: 'Vie', callsHandled: 245, bookingsMade: 42 },
+        { timeLabel: 'Sáb', callsHandled: 190, bookingsMade: 31 },
+        { timeLabel: 'Dom', callsHandled: 140, bookingsMade: 20 },
+    ];
     // ------------------------------------
 
-    // Simula una latencia de red para demostrar los 'Loading Skeletons' (1 segundo)
+    // Simula una latencia de red para demostrar la carga
     return new Promise(resolve => {
         setTimeout(() => {
-            resolve(simulatedData);
-        }, 1000); 
+            resolve(simulatedTimeSeries);
+        }, 1200); 
     });
 };
+
+
+// NOTA: Recuerda mantener la función fetchOperationalMetrics anterior
+// junto con esta nueva función en el mismo archivo.
