@@ -1,60 +1,60 @@
-// app/settings/scripts/page.tsx
-import React from 'react';
+'use client';
 
-export default function ScriptsSettingsPage() {
+import { useState } from 'react';
+import { DocumentTextIcon, PlusIcon } from '@heroicons/react/24/outline';
+
+export default function ScriptsPage() {
+  const [scripts, setScripts] = useState([
+    { id: 1, name: 'Greeting Script', content: 'Hello! Thank you for calling...', active: true },
+    { id: 2, name: 'Appointment Booking', content: 'I can help you schedule an appointment...', active: true },
+    { id: 3, name: 'After Hours', content: 'We are currently closed...', active: false }
+  ]);
+
   return (
-    <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-extrabold text-gray-900 mb-6">
-        AI Agent Script Management
-      </h1>
-      
-      <div className="bg-white p-6 rounded-xl shadow-premium border border-gray-100">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Active Script: FrontDesk-V4.2 (Standard)</h2>
-          <button className="btn-primary-premium px-4 py-2 text-sm">Deploy Changes</button>
-        </div>
-
-        {/* Script Editor Area - Cinematic Coding Aesthetic */}
-        <div className="bg-gray-900 p-6 rounded-lg text-white font-mono shadow-inner border border-gray-800">
-          
-          {/* Editor Header */}
-          <div className="flex justify-between items-center text-xs text-gray-500 pb-3 mb-3 border-b border-gray-700">
-            <span>agent_core_logic.yaml</span>
-            <span>Unsaved Changes: True</span>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Scripts</h1>
+            <p className="text-gray-600">Manage conversation scripts for your AI agents</p>
           </div>
-
-          {/* Code Content */}
-          <pre className="whitespace-pre-wrap text-sm leading-relaxed max-h-96 overflow-y-auto custom-scrollbar">
-            <code className="text-gray-300">
-{`# AI Agent Core Configuration Script
-# Version: 4.2 | Last Edit: 2025-12-12
-
-agent_name: "FrontDesk-Standard-Agent"
-default_language: "en-US"
-security_level: "HIGH"
-
-routing:
-  - intent: "SALES_INQUIRY"
-    action: "transfer_to_human(ext: 401)"
-  - intent: "SUPPORT_REQUEST"
-    action: "ticket_create(priority: MEDIUM)"
-  - intent: "BILLING_QUERY"
-    action: "data_lookup(db: finance)"
-
-# Fallback response for unhandled intents
-fallback_strategy: "transfer_to_support_queue"`}
-            </code>
-          </pre>
-        </div>
-        {/*  */}
-
-        {/* Settings for Script Versioning */}
-        <div className="mt-8 pt-6 border-t">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Script History & Versioning</h3>
-          <p className="text-gray-600">Review and revert to previous deployed scripts.</p>
-          <button className="btn-secondary-premium px-4 py-2 mt-4 text-sm border-gray-400 text-gray-700 hover:bg-gray-100">
-            View History
+          <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+            <PlusIcon className="h-5 w-5" />
+            New Script
           </button>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {scripts.map((script) => (
+            <div key={script.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <DocumentTextIcon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">{script.name}</h3>
+                  </div>
+                </div>
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  script.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                }`}>
+                  {script.active ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+
+              <p className="text-gray-600 mb-4 line-clamp-3">{script.content}</p>
+
+              <div className="flex gap-2">
+                <button className="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                  Edit
+                </button>
+                <button className="px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                  Test
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
