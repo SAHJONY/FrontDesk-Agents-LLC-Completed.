@@ -1,142 +1,111 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link"; // Added Link for professional navigation
-import {
-  LanguageProvider,
-  useLanguage,
-} from "../../components/LanguageProvider";
+import { useState } from 'react';
+import { PhoneIcon, PlusIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
-// --- Sub-Component for the Page Content (Cinematic Styling Applied) ---
-function NumbersSettingsContent() {
-  const { language, setLanguage } = useLanguage();
-  const isEnglish = language === "en";
+export default function NumbersPage() {
+  const [phoneNumbers, setPhoneNumbers] = useState([
+    { id: 1, number: '+1 (555) 123-4567', type: 'Main', status: 'active', calls: 1247 },
+    { id: 2, number: '+1 (555) 987-6543', type: 'Support', status: 'active', calls: 892 },
+    { id: 3, number: '+1 (555) 456-7890', type: 'Sales', status: 'inactive', calls: 0 }
+  ]);
 
   return (
-    // Use the maximum width container and padding consistent with other settings pages
-    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white p-8 rounded-xl shadow-premium border border-gray-100">
-        
-        {/* Header Section */}
-        <header className="flex items-center justify-between border-b pb-3 mb-6">
-          <h1 className="text-3xl font-extrabold text-gray-900">
-            {isEnglish
-              ? "Phone Numbers & Routing Settings"
-              : "Configuración de Números Telefónicos y Enrutamiento"}
-          </h1>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Phone Numbers</h1>
+            <p className="text-gray-600">Manage your business phone numbers</p>
+          </div>
+          <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+            <PlusIcon className="h-5 w-5" />
+            Add Number
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {phoneNumbers.map((phone) => (
+            <div key={phone.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                    phone.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
+                  }`}>
+                    <PhoneIcon className={`h-6 w-6 ${
+                      phone.status === 'active' ? 'text-green-600' : 'text-gray-400'
+                    }`} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">{phone.type}</p>
+                    <p className="text-lg font-bold text-gray-900">{phone.number}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Total Calls</span>
+                  <span className="text-lg font-bold text-gray-900">{phone.calls.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                  phone.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                }`}>
+                  {phone.status === 'active' ? (
+                    <span className="flex items-center gap-1">
+                      <CheckCircleIcon className="h-4 w-4" />
+                      Active
+                    </span>
+                  ) : (
+                    'Inactive'
+                  )}
+                </span>
+                <button className="text-blue-600 font-semibold hover:text-blue-700">
+                  Configure
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Number Details */}
+        <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Number Configuration</h2>
           
-          {/* Language Selector (Styled for polish) */}
-          <div className="flex gap-2">
-            <button
-              className={`px-3 py-1 text-sm rounded transition duration-150 ${
-                isEnglish
-                  ? "bg-primary-600 text-white font-semibold"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-              onClick={() => setLanguage("en")}
-            >
-              EN
-            </button>
-            <button
-              className={`px-3 py-1 text-sm rounded transition duration-150 ${
-                !isEnglish
-                  ? "bg-primary-600 text-white font-semibold"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-              onClick={() => setLanguage("es")}
-            >
-              ES
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Forward to Number
+              </label>
+              <input
+                type="tel"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="+1 (555) 000-0000"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Voicemail Email
+              </label>
+              <input
+                type="email"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="voicemail@company.com"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+              Save Settings
             </button>
           </div>
-        </header>
-
-        {/* Introduction / Info Section */}
-        <section className="space-y-4 mb-8">
-          <p className="text-gray-600">
-            {isEnglish
-              ? "Here you manage your Bland.ai and Twilio numbers, defining their function (inbound/outbound) and routing logic for specific lines (real estate, clinic, etc.)."
-              : "Aquí gestiona sus números de Bland.ai y Twilio, definiendo su función (entrante/saliente) y la lógica de enrutamiento para líneas específicas (inmobiliaria, clínica, etc.)."}
-          </p>
-          <button className="btn-primary-premium px-4 py-2 text-sm">
-            {isEnglish ? "Add New Phone Number" : "Agregar Nuevo Número"}
-          </button>
-        </section>
-
-        {/* Numbers List (Cinematic Data Table Style) */}
-        <section className="border rounded-xl overflow-hidden shadow-lg">
-          <h2 className="font-bold text-xl p-4 bg-gray-50 border-b text-gray-900">
-            {isEnglish ? "Active Numbers List" : "Lista de Números Activos"}
-          </h2>
-          
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {isEnglish ? "Number" : "Número"}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {isEnglish ? "Function / Label" : "Función / Etiqueta"}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {isEnglish ? "Provider" : "Proveedor"}
-                </th>
-                <th className="relative px-6 py-3">
-                  <span className="sr-only">{isEnglish ? "Edit" : "Editar"}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              
-              {/* Row 1 */}
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  +1 (346) 000-0000
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                    {isEnglish ? "Outbound ALEX" : "ALEX Saliente"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bland.ai</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link href="#" className="text-primary-600 hover:text-primary-800">
-                    {isEnglish ? "Edit Routing" : "Editar Enrutamiento"}
-                  </Link>
-                </td>
-              </tr>
-              
-              {/* Row 2 */}
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  +1 (216) 480-4413
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {isEnglish ? "Inbound Website" : "Entrante Website"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Twilio</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link href="#" className="text-primary-600 hover:text-primary-800">
-                    {isEnglish ? "Edit Routing" : "Editar Enrutamiento"}
-                  </Link>
-                </td>
-              </tr>
-              
-            </tbody>
-          </table>
-        </section>
-        
+        </div>
       </div>
     </div>
-  );
-}
-
-// --- Wrapper (Remains the same) ---
-export default function NumbersSettingsPage() {
-  return (
-    <LanguageProvider>
-      <NumbersSettingsContent />
-    </LanguageProvider>
   );
 }
