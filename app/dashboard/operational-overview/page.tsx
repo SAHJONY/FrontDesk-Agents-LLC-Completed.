@@ -1,96 +1,67 @@
-// app/dashboard/operational-overview/page.tsx - ACTUALIZADO CON DATA SIMULADA
+// app/dashboard/operational-overview/page.tsx - ACTUALIZADO con Data de Gráficos
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { TrendIcon } from '@/components/TrendIcon';
-import { LanguageSelector } from '@/components/LanguageSelector';
-// Importamos el servicio de datos simulado
-import { fetchOperationalMetrics, OperationalMetrics } from '@/services/metrics.service'; 
+// Importamos la nueva función y tipo de datos
+import { 
+    fetchOperationalMetrics, 
+    fetchTimeSeriesMetrics, // <-- NUEVO
+    OperationalMetrics, 
+    TimeSeriesPoint // <-- NUEVO
+} from '@/services/metrics.service'; 
+// ... (Importaciones de TrendIcon, LanguageSelector, etc.)
 
-// --- Mocks y Utilidades (mantener) ---
+// ... (Mantener Mock Translation Data y funciones getTranslation/getMetricLabel) ...
 
-// Mock Translation Data 
-const translations = {
-    en: {
-        title: "Operational Overview",
-        metrics: {
-            calls: "Calls Handled",
-            conversion: "Conversion Rate",
-            satisfaction: "Customer Satisfaction",
-            error: "Error Rate"
-        }
-    },
-    es: {
-        title: "Resumen Operacional",
-        metrics: {
-            calls: "Llamadas Atendidas",
-            conversion: "Tasa de Conversión",
-            satisfaction: "Satisfacción del Cliente",
-            error: "Tasa de Error"
-        }
-    }
-};
+// ... (Mantener MetricSkeleton) ...
 
-const getTranslation = (lang) => translations[lang] || translations.en;
-
-// Función para obtener la traducción de una métrica específica
-const getMetricLabel = (t, key) => t.metrics[key] || key;
-
-// Definición de un Skeleton Card simple
-const MetricSkeleton = () => (
-    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
-        <div className="h-10 bg-gray-300 rounded w-1/2"></div>
-        <div className="mt-2 h-4 bg-gray-200 rounded w-1/4"></div>
-    </div>
-);
 
 // --- Componente Principal ---
 
 export default function OperationalOverview() {
-    const [currentLang, setCurrentLang] = useState('en');
-    // Estado para almacenar los datos reales (o simulados)
-    const [metrics, setMetrics] = useState<OperationalMetrics | null>(null);
-    // Nuevo estado de carga para los skeletons
-    const [isLoading, setIsLoading] = useState(true); 
+    // ... (Mantener estados de currentLang, metrics, isLoading) ...
     
-    const t = getTranslation(currentLang);
+    // NUEVO ESTADO: Para los datos de series de tiempo
+    const [timeSeries, setTimeSeries] = useState<TimeSeriesPoint[]>([]); 
+    // NUEVO ESTADO: Para manejar la carga del gráfico por separado
+    const [isChartLoading, setIsChartLoading] = useState(true); 
 
-    // CRITICAL FIX (Language Loading)
-    useEffect(() => {
-        const updateLang = () => {
-            if (typeof window !== 'undefined' && window.localStorage) {
-                setCurrentLang(localStorage.getItem('appLang') || 'en');
-            }
-        };
+    // ... (Mantener useEffect para Language Loading) ...
 
-        if (typeof window !== 'undefined') {
-            updateLang();
-            window.addEventListener('languageChange', updateLang);
-            return () => window.removeEventListener('languageChange', updateLang);
-        }
-    }, []);
-
-    // NUEVO: Hook para cargar los datos simulados
+    // Hook para cargar los datos SIMULTÁNEAMENTE
     useEffect(() => {
         setIsLoading(true);
+        setIsChartLoading(true);
+
+        // Cargar KPIs (tarjetas)
         fetchOperationalMetrics()
             .then(data => {
                 setMetrics(data);
                 setIsLoading(false);
             })
             .catch(error => {
-                console.error("Error fetching metrics:", error);
-                // Aquí podrías establecer un estado de error
+                console.error("Error fetching operational metrics:", error);
                 setIsLoading(false);
             });
-    }, []); // Se ejecuta una sola vez al montar
+            
+        // Cargar Series de Tiempo (gráficos)
+        fetchTimeSeriesMetrics()
+            .then(data => {
+                setTimeSeries(data);
+                setIsChartLoading(false);
+            })
+            .catch(error => {
+                console.error("Error fetching time series metrics:", error);
+                setIsChartLoading(false);
+            });
+    }, []); 
 
-    // Convertir el objeto de métricas en un array iterable para el renderizado
     const metricKeys = ['calls', 'conversion', 'satisfaction', 'error'] as const;
 
     return (
         <div className="space-y-6 p-6">
+            {/* ... (Header y Métricas KPI - mantener el código anterior) ... */}
+            
             <header className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
                 <LanguageSelector /> 
@@ -98,39 +69,33 @@ export default function OperationalOverview() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {isLoading ? (
-                    // Muestra 4 skeletons mientras carga
                     metricKeys.map(key => <MetricSkeleton key={key} />)
                 ) : (
-                    // Muestra las métricas una vez cargadas
-                    metrics && metricKeys.map((key) => {
-                        const metric = metrics[key];
-                        const label = getMetricLabel(t, key);
-                        
-                        return (
-                            <div key={key} className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                                <p className="text-sm font-medium text-gray-500">{label}</p>
-                                <div className="mt-1 flex justify-between items-center">
-                                    <span className="text-4xl font-extrabold text-gray-900">
-                                        {metric.value}
-                                    </span>
-                                    <TrendIcon 
-                                        trend={metric.trend} 
-                                        unit={metric.unit} 
-                                        direction={metric.direction} 
-                                    />
-                                </div>
-                            </div>
-                        );
-                    })
+                    // ... (Métricas KPI renderizadas) ...
                 )}
             </div>
             
-            {/* Placeholder para Charts (ahora es más creíble porque espera datos) */}
-            <div className="h-96 bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex items-center justify-center text-gray-400">
-                {isLoading ? (
-                    <div className="h-full w-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">Cargando Gráficos...</div>
+            {/* NUEVA SECCIÓN: Charts Reales */}
+            <h2 className="text-2xl font-bold text-gray-900 pt-4">Performance: Last 7 Days</h2>
+            <div className="h-96 bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex flex-col justify-center">
+                {isChartLoading ? (
+                    // Skeleton de gráfico grande
+                    <div className="h-full w-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center text-gray-400">
+                        Cargando Series de Tiempo...
+                    </div>
                 ) : (
-                    `[Placeholder para Charts - Data ya cargada con ${metrics?.calls.value} llamadas]`
+                    <div className="h-full w-full">
+                        <p className="text-sm font-semibold mb-2">Datos listos para la librería de Gráficos</p>
+                        <div className="bg-gray-50 p-4 rounded-md h-[80%] overflow-auto text-xs font-mono">
+                            {/* Muestra los datos que usaría el gráfico */}
+                            {timeSeries.map((point, index) => (
+                                <pre key={index}>
+                                    {`{ timeLabel: '${point.timeLabel}', callsHandled: ${point.callsHandled}, bookingsMade: ${point.bookingsMade} }`}
+                                </pre>
+                            ))}
+                        </div>
+                        <p className="text-sm mt-2 text-green-600 font-medium">✅ Data Layer listo para renderizar Chart</p>
+                    </div>
                 )}
             </div>
         </div>
