@@ -1,42 +1,41 @@
-// components/BookingCallsChart.tsx
-
-"use client";
+'use client';
 
 import React from 'react';
 import { AreaChart, Card, Title, Text } from '@tremor/react';
-import { TimeSeriesPoint } from '@/services/metrics.service';
 
-interface BookingCallsChartProps {
-    data: TimeSeriesPoint[];
+// Define the type locally instead of importing
+interface TimeSeriesPoint {
+  date: string;
+  value: number;
+  [key: string]: string | number;
 }
 
-// Formateador simple para números grandes (e.g., 150 -> 150)
-const dataFormatter = (number: number) =>
-  Intl.NumberFormat('us').format(number).toString();
+interface BookingCallsChartProps {
+  data: TimeSeriesPoint[];
+}
 
-export const BookingCallsChart: React.FC<BookingCallsChartProps> = ({ data }) => {
-    if (!data || data.length === 0) {
-        return (
-            <Card className="h-full flex items-center justify-center">
-                <Text>No hay suficientes datos de series de tiempo para mostrar el gráfico.</Text>
-            </Card>
-        );
-    }
+export default function BookingCallsChart({ data }: BookingCallsChartProps) {
+  // Transform data for Tremor chart
+  const chartData = data.map(point => ({
+    date: new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    Calls: point.value
+  }));
 
-    return (
-        <Card className="h-full">
-            <Title>Performance de Agente (Últimos 7 Días)</Title>
-            <Text>Llamadas atendidas y reservas realizadas por día.</Text>
-            
-            <AreaChart
-                className="mt-6 h-80"
-                data={data}
-                index="timeLabel" // El eje X usa la etiqueta de tiempo
-                categories={['callsHandled', 'bookingsMade']} // Las series de datos
-                colors={['indigo', 'fuchsia']} // Colores para las dos series
-                valueFormatter={dataFormatter}
-                yAxisWidth={40}
-            />
-        </Card>
-    );
-};
+  return (
+    <Card>
+      <Title>Booking Calls Over Time</Title>
+      <Text>Track your daily call volume</Text>
+      <AreaChart
+        className="mt-4 h-72"
+        data={chartData}
+        index="date"
+        categories={["Calls"]}
+        colors={["blue"]}
+        valueFormatter={(value) => `${value} calls`}
+        showLegend={false}
+        showGridLines={true}
+        showAnimation={true}
+      />
+    </Card>
+  );
+}
