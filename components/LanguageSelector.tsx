@@ -1,10 +1,11 @@
-// components/LanguageSelector.tsx - CRITICAL FIX for localStorage
+// components/LanguageSelector.tsx - Corrected Logic
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
-// Utility functions MUST be safe for server/client
+// Safely wraps localStorage access
 const setAppLanguage = (langCode) => {
     if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem('appLang', langCode);
@@ -16,16 +17,16 @@ const getAppLanguage = () => {
     if (typeof window !== 'undefined' && window.localStorage) {
         return localStorage.getItem('appLang') || 'en';
     }
-    return 'en'; // Safe default for Server-Side Rendering
+    // Return a safe default value if running on the server
+    return 'en'; 
 };
 
 export const LanguageSelector = () => {
-    // FIX 1: Initialize to a safe default. The actual value is loaded in useEffect.
+    // FIX: Initialize to a safe default to avoid server-side localStorage call
     const [currentLang, setCurrentLang] = useState('en'); 
     
-    // FIX 2: Load the language from localStorage ONLY after mounting (Client-side)
+    // FIX: Load the actual stored language ONLY after mounting (client-side)
     useEffect(() => {
-        // Hydrate state with actual stored value
         setCurrentLang(getAppLanguage());
         
         const handleLanguageChange = () => {
@@ -47,7 +48,7 @@ export const LanguageSelector = () => {
             <GlobeAltIcon className="h-5 w-5 text-gray-500" />
             <select
                 value={currentLang}
-                onChange={handleChange} // This is the handler that was causing the serialization error if the component was missing "use client"
+                onChange={handleChange}
                 className="select-premium border-gray-300 py-1 pl-3 pr-8 text-sm rounded-md"
             >
                 <option value="en">🇺🇸 English</option>
