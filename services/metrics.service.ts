@@ -1,17 +1,13 @@
-import { MetricData } from '../types/metrics';
+import { MetricData } from '@/types/metrics';
 
-// Métricas operativas del dashboard premium
 export interface OperationalMetrics {
   calls: MetricData;
   conversion: MetricData;
   satisfaction: MetricData;
   error: MetricData;
-
-  // NUEVA MÉTRICA PREMIUM
   automationSuccess: MetricData;
 }
 
-// Simulación de datos (hasta conectar API real)
 export const fetchOperationalMetrics = (): Promise<OperationalMetrics> => {
   const simulatedData: OperationalMetrics = {
     calls: {
