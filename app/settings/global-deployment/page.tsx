@@ -1,161 +1,160 @@
-// app/settings/global-deployment/page.tsx
-"use client";
+'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { 
-    GlobeAltIcon, 
-    SignalIcon, 
-    LanguageIcon, 
-    ShieldExclamationIcon,
-    PlayIcon,
-    ArrowPathIcon
-} from '@heroicons/react/24/outline';
-
-// Mock data for regional deployment status
-const mockRegions = [
-    {
-        id: 'us-east-1',
-        name: 'United States (East)',
-        code: 'US',
-        status: 'OPERATIONAL',
-        language: 'en-US',
-        telephony: 'Trunk Active',
-        compliance: 'GDPR/CCPA Ready',
-        color: 'text-green-600',
-        active: true,
-    },
-    {
-        id: 'mx-central-1',
-        name: 'Mexico (Central)',
-        code: 'MX',
-        status: 'DEPLOYMENT PENDING',
-        language: 'es-MX',
-        telephony: 'Trunk Inactive',
-        compliance: 'Incompletos',
-        color: 'text-yellow-600',
-        active: false,
-    },
-    {
-        id: 'ca-central-1',
-        name: 'Canada (Central)',
-        code: 'CA',
-        status: 'FUTURE EXPANSION',
-        language: 'en-CA/fr-CA',
-        telephony: 'N/A',
-        compliance: 'N/A',
-        color: 'text-gray-500',
-        active: false,
-    },
-];
+import { useState } from 'react';
+import { GlobeAltIcon, CheckCircleIcon, SignalIcon } from '@heroicons/react/24/outline';
 
 export default function GlobalDeploymentPage() {
-    const [regions, setRegions] = useState(mockRegions);
-    const [isActivating, setIsActivating] = useState(false);
+  const [regions, setRegions] = useState([
+    { id: 1, name: 'US East (N. Virginia)', code: 'us-east-1', active: true, latency: '12ms', status: 'operational' },
+    { id: 2, name: 'US West (Oregon)', code: 'us-west-2', active: true, latency: '45ms', status: 'operational' },
+    { id: 3, name: 'EU West (Ireland)', code: 'eu-west-1', active: false, latency: '89ms', status: 'available' },
+    { id: 4, name: 'Asia Pacific (Tokyo)', code: 'ap-northeast-1', active: false, latency: '156ms', status: 'available' },
+    { id: 5, name: 'South America (São Paulo)', code: 'sa-east-1', active: false, latency: '178ms', status: 'available' }
+  ]);
 
-    const handleActivateMexico = () => {
-        setIsActivating(true);
-        console.log("Iniciando secuencia de despliegue en México...");
-        
-        setTimeout(() => {
-            setRegions(prev => prev.map(r => 
-                r.id === 'mx-central-1' ? { 
-                    ...r, 
-                    status: 'ACTIVATING TRUNK', 
-                    color: 'text-blue-600' 
-                } : r
-            ));
-        }, 1000);
+  const toggleRegion = (id: number) => {
+    setRegions(regions.map(region =>
+      region.id === id ? { ...region, active: !region.active } : region
+    ));
+  };
 
-        setTimeout(() => {
-            setRegions(prev => prev.map(r => 
-                r.id === 'mx-central-1' ? { 
-                    ...r, 
-                    status: 'OPERATIONAL', 
-                    telephony: 'Trunk Active (MX)',
-                    compliance: 'Certificado (LFPDPPP)',
-                    color: 'text-green-600',
-                    active: true, 
-                } : r
-            ));
-            alert("¡Despliegue en México (MX-Central) COMPLETADO! Telefonía y Modelo Español activados.");
-            setIsActivating(false);
-        }, 3500);
-    };
-
-    return (
-        <div className="min-h-screen bg-gray-50 pt-8 pb-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-extrabold text-gray-900 flex items-center justify-center">
-                        <GlobeAltIcon className="h-10 w-10 text-primary-600 mr-3" />
-                        Global Deployment Management Center
-                    </h1>
-                    <p className="mt-2 text-xl text-gray-600">
-                        Gestión de la infraestructura de **AURA™ Core** a nivel global y expansión regional.
-                    </p>
-                </div>
-
-                <div className="grid lg:grid-cols-3 gap-8">
-                    {regions.map((region) => (
-                        <div 
-                            key={region.id} 
-                            className={`bg-white p-6 rounded-2xl shadow-xl border-t-4 ${
-                                region.active ? 'border-green-500' : 
-                                region.id === 'mx-central-1' ? 'border-yellow-500' : 'border-gray-200'
-                            }`}
-                        >
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                    <GlobeAltIcon className={`h-6 w-6 ${region.color}`} />
-                                    {region.name} ({region.code})
-                                </h3>
-                                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${region.color.replace('text-', 'bg-')}/10`} style={{color: region.color}}>
-                                    {region.status}
-                                </span>
-                            </div>
-                            
-                            <p className="text-sm text-gray-600 mb-4">ID de Infraestructura: {region.id}</p>
-
-                            <div className="space-y-3 mb-6">
-                                <div className="flex items-center gap-3 text-sm text-gray-700">
-                                    <LanguageIcon className="h-5 w-5 text-purple-600" />
-                                    **Modelo de Lenguaje:** {region.language}
-                                </div>
-                                <div className="flex items-center gap-3 text-sm text-gray-700">
-                                    <SignalIcon className="h-5 w-5 text-blue-600" />
-                                    **Troncal de Telefonía:** {region.telephony}
-                                </div>
-                                <div className="flex items-center gap-3 text-sm text-gray-700">
-                                    <ShieldExclamationIcon className="h-5 w-5 text-red-600" />
-                                    **Cumplimiento Local:** {region.compliance}
-                                </div>
-                            </div>
-                            
-                            {/* Acción Específica para México */}
-                            {region.id === 'mx-central-1' && !region.active && (
-                                <button
-                                    onClick={handleActivateMexico}
-                                    disabled={isActivating}
-                                    className={`btn-primary-premium w-full py-2 bg-yellow-600 hover:bg-yellow-700 ${isActivating ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                >
-                                    <PlayIcon className="h-5 w-5 inline-block mr-2" />
-                                    {isActivating ? 'Desplegando Recursos MX...' : 'Activar Despliegue en México'}
-                                </button>
-                            )}
-
-                             {/* Configuración Adicional si está activo */}
-                             {region.active && (
-                                 <Link href="/settings/telephony-trunk" className="text-sm font-medium text-primary-600 hover:text-primary-800 flex items-center justify-center mt-3">
-                                     <ArrowPathIcon className="h-4 w-4 mr-1" />
-                                     Ajustar Routing Regional
-                                 </Link>
-                             )}
-
-                        </div>
-                    ))}
-                </div>
-            </div>
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Global Deployment</h1>
+          <p className="text-gray-600">Manage your global infrastructure and regional presence</p>
         </div>
-    );
+
+        {/* Overview Stats */}
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <GlobeAltIcon className="h-8 w-8 text-blue-600" />
+              <p className="text-sm text-gray-600">Active Regions</p>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">
+              {regions.filter(r => r.active).length}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <SignalIcon className="h-8 w-8 text-green-600" />
+              <p className="text-sm text-gray-600">Avg Latency</p>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">28ms</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <CheckCircleIcon className="h-8 w-8 text-purple-600" />
+              <p className="text-sm text-gray-600">Uptime</p>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">99.9%</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <GlobeAltIcon className="h-8 w-8 text-orange-600" />
+              <p className="text-sm text-gray-600">Total Requests</p>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">2.4M</p>
+          </div>
+        </div>
+
+        {/* Regions List */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Regions</h2>
+          
+          <div className="space-y-4">
+            {regions.map((region) => (
+              <div key={region.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    region.active ? 'bg-green-100' : 'bg-gray-200'
+                  }`}>
+                    <GlobeAltIcon className={`h-6 w-6 ${
+                      region.active ? 'text-green-600' : 'text-gray-400'
+                    }`} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-bold text-gray-900">{region.name}</h3>
+                      {region.active && (
+                        <CheckCircleIcon className="h-5 w-5 text-green-600" />
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600">{region.code}</p>
+                  </div>
+                  <div className="text-right mr-4">
+                    <p className="text-sm text-gray-600">Latency</p>
+                    <p className="text-lg font-bold text-gray-900">{region.latency}</p>
+                  </div>
+                  <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                    region.status === 'operational'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {region.status}
+                  </span>
+                </div>
+                <button
+                  onClick={() => toggleRegion(region.id)}
+                  className={`ml-4 px-6 py-2 font-semibold rounded-lg transition-colors ${
+                    region.active
+                      ? 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {region.active ? 'Deactivate' : 'Activate'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Load Balancing */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Load Balancing Settings</h2>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div>
+                <p className="font-semibold text-gray-900">Auto-scaling</p>
+                <p className="text-sm text-gray-600">Automatically scale based on demand</p>
+              </div>
+              <button className="w-12 h-6 bg-blue-600 rounded-full relative">
+                <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></span>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div>
+                <p className="font-semibold text-gray-900">Geographic routing</p>
+                <p className="text-sm text-gray-600">Route users to nearest region</p>
+              </div>
+              <button className="w-12 h-6 bg-blue-600 rounded-full relative">
+                <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></span>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div>
+                <p className="font-semibold text-gray-900">Failover protection</p>
+                <p className="text-sm text-gray-600">Automatic failover to backup regions</p>
+              </div>
+              <button className="w-12 h-6 bg-blue-600 rounded-full relative">
+                <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></span>
+              </button>
+            </div>
+          </div>
+
+          <button className="mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
