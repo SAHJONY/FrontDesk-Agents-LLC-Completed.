@@ -1,152 +1,147 @@
-// app/settings/payments/page.tsx
-"use client";
+'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { 
-    CreditCardIcon, 
-    CheckCircleIcon, 
-    XCircleIcon, 
-    BanknotesIcon,
-    ArrowPathIcon,
-    GlobeAltIcon,
-    PuzzlePieceIcon
-} from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { CreditCardIcon, BanknotesIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
-// Data structure for multiple payment gateways (including worldwide options)
-const mockGateways = [
-    { 
-        id: 'stripe', 
-        name: 'Primary Card Processor (Stripe)', 
-        status: 'active', 
-        lastSync: 'Hace 2 minutos',
-        icon: CreditCardIcon,
-        description: 'Maneja tarjetas de crédito/débito primarias y facturación recurrente.'
-    },
-    { 
-        id: 'mexico-local', 
-        name: 'Liquidación Local MX (OXXO/SPEI)', 
-        status: 'inactive', 
-        lastSync: 'N/A',
-        icon: BanknotesIcon,
-        description: 'Crucial para el mercado MX: efectivo (OXXO), transferencias bancarias (SPEI) y métodos locales.'
-    },
-    { 
-        id: 'paypal', 
-        name: 'Global Peer-to-Peer (PayPal/Venmo)', 
-        status: 'active', 
-        lastSync: 'Hace 5 horas',
-        icon: GlobeAltIcon,
-        description: 'Permite pagos P2P (incluyendo Cash App/Zelle en el backend) y transferencias internacionales.'
-    },
-    { 
-        id: 'square', 
-        name: 'Secondary POS/Invoicing (Square)', 
-        status: 'inactive', 
-        lastSync: 'N/A',
-        icon: PuzzlePieceIcon,
-        description: 'Utilizado para transacciones manuales y facturación de punto de venta (POS).'
-    },
-];
+export default function PaymentsPage() {
+  const [stripeConnected, setStripeConnected] = useState(true);
 
-export default function PaymentSettingsPage() {
-    const [gateways, setGateways] = useState(mockGateways);
-    const [isTesting, setIsTesting] = useState(false);
-
-    const handleTestGateway = (id) => {
-        setIsTesting(true);
-        const gatewayName = gateways.find(g => g.id === id)?.name;
-
-        console.log(`Iniciando prueba de conectividad con ${gatewayName}...`);
-        
-        setTimeout(() => {
-            setGateways(prev => prev.map(g => 
-                g.id === id ? { ...g, status: 'active', lastSync: 'Justo ahora' } : g
-            ));
-            alert(`¡Prueba de ${gatewayName} Exitosa! Conexión verificada.`);
-            setIsTesting(false);
-        }, 2000);
-    };
-
-    const getStatusIndicator = (currentStatus) => {
-        if (currentStatus === 'active') {
-            return { icon: CheckCircleIcon, color: 'text-green-600', label: 'ACTIVO' };
-        } else {
-            return { icon: XCircleIcon, color: 'text-gray-500', label: 'INACTIVO' };
-        }
-    };
-
-    return (
-        <div className="min-h-screen bg-gray-50 pt-8 pb-16">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-extrabold text-gray-900 flex items-center justify-center">
-                        <BanknotesIcon className="h-10 w-10 text-primary-600 mr-3" />
-                        Configuración de Pagos Multi-Gateway
-                    </h1>
-                    <p className="mt-2 text-xl text-gray-600">
-                        Gestión de integraciones de pago a nivel mundial (Stripe, Square, PayPal, etc.).
-                    </p>
-                </div>
-
-                <div className="bg-white p-8 rounded-xl shadow-premium border border-gray-100 space-y-8">
-                    
-                    <div className="border-b pb-4 mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Pasarelas de Pago Activas</h2>
-                        <p className="text-sm text-gray-500 mt-1">Conecte las pasarelas necesarias para aceptar diversos métodos de pago globales.</p>
-                    </div>
-
-                    {gateways.map((gateway) => {
-                        const indicator = getStatusIndicator(gateway.status);
-
-                        return (
-                            <div key={gateway.id} className="p-6 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center gap-3">
-                                        <gateway.icon className={`h-6 w-6 ${indicator.color}`} />
-                                        <h3 className="text-xl font-semibold text-gray-900">{gateway.name}</h3>
-                                    </div>
-                                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${indicator.color} bg-opacity-10`} style={{backgroundColor: indicator.color.replace('text-', 'bg-')}}>
-                                        <indicator.icon className="h-4 w-4 inline-block mr-1" />
-                                        {indicator.label}
-                                    </span>
-                                </div>
-                                
-                                <p className="text-sm text-gray-600 mb-4">{gateway.description}</p>
-                                
-                                <div className="flex justify-between items-center">
-                                    <p className="text-xs text-gray-500">Última sincronización: {gateway.lastSync}</p>
-                                    
-                                    <button
-                                        onClick={() => handleTestGateway(gateway.id)}
-                                        disabled={isTesting}
-                                        className={`btn-secondary-premium py-2 px-4 text-sm ${isTesting ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                    >
-                                        <ArrowPathIcon className="h-4 w-4 inline-block mr-1" />
-                                        {isTesting ? 'Probando...' : 'Probar Conectividad'}
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-
-                    {/* API Key Management Section (Simplified) */}
-                    <div className="pt-6 border-t border-gray-200 mt-8">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-3">Claves Globales de API</h3>
-                        <p className="text-sm text-gray-600 mb-4">Las claves y tokens para cada pasarela se gestionan en el Gestor de Secretos AURA™ Core.</p>
-                        
-                        <button className="btn-secondary-premium">
-                             Gestionar Claves en AURA™ Vault
-                        </button>
-                    </div>
-                </div>
-
-                <div className="mt-8 text-center">
-                    <Link href="/dashboard/operational-overview" className="text-sm font-medium text-primary-600 hover:text-primary-800">
-                        ← Volver a la Vista Operacional
-                    </Link>
-                </div>
-            </div>
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Gateway</h1>
+          <p className="text-gray-600">Manage Stripe integration and payment processing</p>
         </div>
-    );
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Stripe Status */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <CreditCardIcon className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Stripe Integration</h2>
+                <p className="text-sm text-gray-600">Payment processing status</p>
+              </div>
+            </div>
+
+            {stripeConnected ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <CheckCircleIcon className="h-6 w-6 text-green-600" />
+                  <div>
+                    <p className="font-semibold text-green-900">Connected</p>
+                    <p className="text-sm text-green-700">Stripe account is active</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">Processed Today</p>
+                    <p className="text-2xl font-bold text-gray-900">$12.5K</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">Success Rate</p>
+                    <p className="text-2xl font-bold text-gray-900">100%</p>
+                  </div>
+                </div>
+
+                <button className="w-full px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                  Disconnect Stripe
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="font-semibold text-yellow-900">Not Connected</p>
+                  <p className="text-sm text-yellow-700">Connect your Stripe account to accept payments</p>
+                </div>
+
+                <button className="w-full px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors">
+                  Connect Stripe Account
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Payment Settings */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <BanknotesIcon className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Payment Settings</h2>
+                <p className="text-sm text-gray-600">Configure payment options</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-semibold text-gray-900">Auto-charge enabled</p>
+                  <p className="text-sm text-gray-600">Automatically charge customers</p>
+                </div>
+                <button className="w-12 h-6 bg-blue-600 rounded-full relative">
+                  <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></span>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-semibold text-gray-900">Email receipts</p>
+                  <p className="text-sm text-gray-600">Send payment confirmations</p>
+                </div>
+                <button className="w-12 h-6 bg-blue-600 rounded-full relative">
+                  <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></span>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-semibold text-gray-900">Save payment methods</p>
+                  <p className="text-sm text-gray-600">Store cards for future use</p>
+                </div>
+                <button className="w-12 h-6 bg-blue-600 rounded-full relative">
+                  <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></span>
+                </button>
+              </div>
+            </div>
+
+            <button className="w-full mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+              Save Settings
+            </button>
+          </div>
+        </div>
+
+        {/* Recent Transactions */}
+        <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Transactions</h2>
+          
+          <div className="space-y-3">
+            {[
+              { id: 1, customer: 'Acme Corp', amount: '$999.00', status: 'success', date: '2 min ago' },
+              { id: 2, customer: 'Tech Solutions', amount: '$299.00', status: 'success', date: '1 hour ago' },
+              { id: 3, customer: 'Global Industries', amount: '$2,999.00', status: 'success', date: '3 hours ago' }
+            ].map((transaction) => (
+              <div key={transaction.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-semibold text-gray-900">{transaction.customer}</p>
+                  <p className="text-sm text-gray-600">{transaction.date}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-gray-900">{transaction.amount}</p>
+                  <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                    {transaction.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
