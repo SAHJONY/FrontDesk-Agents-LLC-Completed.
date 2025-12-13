@@ -1,36 +1,49 @@
-// components/LanguageSelector.tsx
+// components/LanguageSelector.tsx - CORRECTED VERSION
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
-// Mock de la función de traducción
+// Utility functions now only responsible for I/O, no longer called on init
 const setAppLanguage = (langCode) => {
-    localStorage.setItem('appLang', langCode);
-    window.dispatchEvent(new Event('languageChange'));
+    // CRITICAL FIX: Ensure localStorage is accessed only in the browser context
+    if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('appLang', langCode);
+        window.dispatchEvent(new Event('languageChange'));
+    }
 };
 
 const getAppLanguage = () => {
-    return localStorage.getItem('appLang') || 'en';
+    // CRITICAL FIX: Ensure localStorage is accessed only in the browser context
+    if (typeof window !== 'undefined' && window.localStorage) {
+        return localStorage.getItem('appLang') || 'en';
+    }
+    return 'en'; // Default for server rendering
 };
 
 export const LanguageSelector = () => {
-    const [currentLang, setCurrentLang] = useState(getAppLanguage());
+    // FIX: Initialize state to a safe default ('en') to avoid server crash.
+    const [currentLang, setCurrentLang] = useState('en'); 
+    
+    // FIX: Use useEffect to fetch the real, stored value only after mounting (in the browser).
+    useEffect(() => {
+        setCurrentLang(getAppLanguage());
+        
+        const handleLanguageChange = () => {
+            setCurrentLang(getAppLanguage());
+        };
+        
+        // This listener is also safe since useEffect only runs in the browser
+        window.addEventListener('languageChange', handleLanguageChange);
+        return () => window.removeEventListener('languageChange', handleLanguageChange);
+    }, []);
 
     const handleChange = (e) => {
         const newLang = e.target.value;
         setCurrentLang(newLang);
         setAppLanguage(newLang);
     };
-
-    // Sincronizar el estado con el evento global
-    useEffect(() => {
-        const handleLanguageChange = () => {
-            setCurrentLang(getAppLanguage());
-        };
-        window.addEventListener('languageChange', handleLanguageChange);
-        return () => window.removeEventListener('languageChange', handleLanguageChange);
-    }, []);
 
     return (
         <div className="flex items-center gap-2">
