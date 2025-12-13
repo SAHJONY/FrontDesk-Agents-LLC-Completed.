@@ -1,164 +1,135 @@
-// app/settings/subscription/page.tsx
-"use client";
+'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { 
-    BanknotesIcon, 
-    ClockIcon,
-    TrophyIcon,
-    CheckCircleIcon,
-    Cog6ToothIcon
-} from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 
-// --- LÓGICA DE PROMOCIÓN DE LANZAMIENTO ABIERTO ---
-const IS_PROMO_ACTIVE = true; 
-// ------------------------------------------
+export default function SubscriptionPage() {
+  const [currentPlan, setCurrentPlan] = useState('professional');
 
-// Función para calcular el precio promocional
-const calculatePromoPrice = (originalPrice) => {
-    return originalPrice * 0.50; // 50% de descuento
-};
-
-const plans = [
-    { 
-        name: 'Standard', 
-        price: 1299, 
-        promoPrice: calculatePromoPrice(1299),
-        usageCost: '0.05',
-        features: ['1 Agente Monolítico', 'Dashboard Básico', '5.000 Minutos de IA incluidos (Trial)'],
-        color: 'blue'
+  const plans = [
+    {
+      id: 'starter',
+      name: 'Starter',
+      price: 299,
+      features: ['1,000 minutes/month', '1 AI agent', 'Basic analytics', 'Email support']
     },
-    { 
-        name: 'Professional', 
-        price: 4199, 
-        promoPrice: calculatePromoPrice(4199),
-        usageCost: '0.04',
-        features: ['Integrations Hub Básico', 'Reportes de Calibración', '20.000 Minutos de IA incluidos (Trial)'],
-        color: 'green'
+    {
+      id: 'professional',
+      name: 'Professional',
+      price: 999,
+      features: ['5,000 minutes/month', '5 AI agents', 'Advanced analytics', 'Priority support']
     },
-    { 
-        name: 'Ultra Premium', 
-        price: 9499, 
-        promoPrice: calculatePromoPrice(9499),
-        usageCost: '0.03',
-        features: ['Orquestación Multi-RL', 'Data Governance (PCI/GDPR)', 'SLA Garantizado', 'Minutos ILIMITADOS de IA (Trial)'],
-        color: 'indigo'
-    },
-];
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      price: 'Custom',
+      features: ['Unlimited minutes', 'Unlimited agents', 'White-label', 'Dedicated support']
+    }
+  ];
 
-const PlanCard = ({ plan, onSelect, currentPlanName }) => {
-    const isCurrent = plan.name === currentPlanName;
-    const priceDisplay = IS_PROMO_ACTIVE ? plan.promoPrice : plan.price;
-    const oldPriceDisplay = plan.price;
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Subscription Management</h1>
+          <p className="text-gray-600">Manage your plan and billing</p>
+        </div>
 
-    const handleSelect = () => {
-        if (!isCurrent) {
-            alert(`Iniciando prueba de 14 días para el plan ${plan.name}. El precio con descuento es de $${priceDisplay.toFixed(2)}/mes después del trial.`);
-            onSelect(plan.name);
-        }
-    };
-
-    return (
-        <div className={`p-6 rounded-xl shadow-lg border-2 ${
-            isCurrent ? 'border-indigo-600 ring-4 ring-indigo-100' : 'border-gray-200'
-        }`}>
-            
-            {IS_PROMO_ACTIVE && (
-                <div className="flex items-center justify-center p-2 mb-3 bg-red-100 rounded-lg">
-                    <TrophyIcon className="h-5 w-5 text-red-600 mr-2" />
-                    <span className="text-sm font-bold text-red-600">¡50% OFF por Lanzamiento!</span>
-                </div>
-            )}
-
-            <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
-            
-            <div className="my-4">
-                <span className="text-4xl font-extrabold text-indigo-600">
-                    ${priceDisplay.toFixed(2)}
-                </span>
-                <span className="text-gray-500 ml-2">/ mes</span>
-                
-                {IS_PROMO_ACTIVE && (
-                    <p className="text-sm text-gray-500 mt-1 line-through">Precio original: ${oldPriceDisplay.toFixed(2)}</p>
-                )}
+        {/* Current Plan */}
+        <div className="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-8 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-100 mb-2">Current Plan</p>
+              <h2 className="text-4xl font-bold mb-2">Professional</h2>
+              <p className="text-blue-100">Renews on February 15, 2024</p>
             </div>
+            <div className="text-right">
+              <p className="text-5xl font-bold">$999</p>
+              <p className="text-blue-100">/month</p>
+            </div>
+          </div>
+        </div>
 
-            <p className="text-sm font-semibold text-green-600 mb-4 flex items-center">
-                <ClockIcon className="h-4 w-4 mr-1" />
-                **14 Días de Prueba Gratuita**
-            </p>
-
-            <button
-                onClick={handleSelect} 
-                disabled={isCurrent}
-                className={`w-full py-3 text-white font-bold rounded-lg transition-colors ${
-                    isCurrent 
-                        ? 'bg-gray-400 cursor-default' 
-                        : `bg-indigo-600 hover:bg-indigo-700`
-                }`}
+        {/* Available Plans */}
+        <div className="grid md:grid-cols-3 gap-8">
+          {plans.map((plan) => (
+            <div
+              key={plan.id}
+              className={`bg-white rounded-xl shadow-lg p-6 ${
+                currentPlan === plan.id ? 'ring-2 ring-blue-600' : ''
+              }`}
             >
-                {isCurrent ? 'Plan Actual' : 'Comenzar Prueba de 14 Días'}
-            </button>
-            
-            <div className="mt-4 text-xs text-gray-500">
-                + Costo por uso desde **${plan.usageCost} / Minuto de IA** (Excluido del descuento).
-            </div>
-
-            <ul className="mt-6 space-y-3 text-sm">
-                {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-gray-600">
-                        <CheckCircleIcon className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                        {feature}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-};
-
-export function SubscriptionManagerPage() {
-    const [currentPlan, setCurrentPlan] = useState('Professional'); 
-
-    return (
-        <div className="min-h-screen bg-gray-50 pt-8 pb-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-extrabold text-gray-900 flex items-center justify-center">
-                        <BanknotesIcon className="h-10 w-10 text-indigo-600 mr-3" />
-                        AURA™ Subscription Manager
-                    </h1>
-                    <p className="mt-2 text-xl text-gray-600">
-                        Gestiona tu plan de servicio y escala el poder de tu Agentic Workforce.
-                    </p>
+              {currentPlan === plan.id && (
+                <div className="mb-4">
+                  <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
+                    Current Plan
+                  </span>
                 </div>
-                
-                {IS_PROMO_ACTIVE && (
-                    <div className="mb-10 p-4 text-center bg-red-500 rounded-xl text-white font-bold shadow-lg">
-                        <TrophyIcon className="h-6 w-6 inline-block mr-2" />
-                        ¡OFERTA ESPECIAL DE LANZAMIENTO! **50% OFF DE POR VIDA** para todos los nuevos clientes.
-                    </div>
+              )}
+
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+              
+              <div className="mb-6">
+                {typeof plan.price === 'number' ? (
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
+                    <span className="text-gray-600">/month</span>
+                  </div>
+                ) : (
+                  <div className="text-4xl font-bold text-gray-900">{plan.price}</div>
                 )}
+              </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
-                    {plans.map((plan) => (
-                        <PlanCard 
-                            key={plan.name} 
-                            plan={plan} 
-                            onSelect={setCurrentPlan} 
-                            currentPlanName={currentPlan} 
-                        />
-                    ))}
-                </div>
-                
-                <div className="mt-10 text-center">
-                    <Link href="/settings/payments" className="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center justify-center">
-                        <Cog6ToothIcon className="h-4 w-4 mr-1" />
-                        Gestionar Métodos de Pago y Facturación →
-                    </Link>
-                </div>
+              <div className="space-y-3 mb-6">
+                {plan.features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                disabled={currentPlan === plan.id}
+                className={`w-full px-6 py-3 font-semibold rounded-lg transition-colors ${
+                  currentPlan === plan.id
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {currentPlan === plan.id ? 'Current Plan' : 'Upgrade'}
+              </button>
             </div>
+          ))}
         </div>
-    );
-}
-export default SubscriptionManagerPage;
+
+        {/* Usage Stats */}
+        <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Current Usage</h2>
+          
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-gray-700">Minutes Used</span>
+                <span className="text-sm font-bold text-gray-900">3,247 / 5,000</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="bg-blue-600 h-3 rounded-full" style={{ width: '65%' }}></div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-gray-700">AI Agents</span>
+                <span className="text-sm font-bold text-gray-900">3 / 5</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="bg-green-600 h-3 rounded-full" style={{ width: '60%' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+                }
