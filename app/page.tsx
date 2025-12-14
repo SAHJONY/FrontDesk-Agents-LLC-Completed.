@@ -397,9 +397,13 @@ export default function HomePage() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                {/* FINAL CLOSING TAGS ADDED HERE */}
+                <span className="text-white font-bold text-lg">FD</span>
               </div>
+              <span className="text-xl font-bold text-white">FrontDesk Agents LLC</span>
             </div>
+            <p className="text-gray-400 text-sm">
+              © {new Date().getFullYear()} FrontDesk Agents LLC. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
