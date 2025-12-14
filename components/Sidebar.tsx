@@ -1,18 +1,21 @@
+// ./components/Sidebar.tsx
+
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  ChartBarIcon,
-  PhoneIcon,
+  ChartBarSquareIcon,
   Cog6ToothIcon,
-  BookOpenIcon,
-  QuestionMarkCircleIcon,
-  UserCircleIcon,
-  ArrowRightOnRectangleIcon,
-  SparklesIcon
+  BoltIcon,
+  WalletIcon,
+  ShieldCheckIcon,
+  MicrophoneIcon, // <-- NEW ICON IMPORTED FOR VOICE AI
+  ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 
+// --- Navigation Item Component ---
 interface NavItemProps {
   href: string;
   icon: React.ElementType;
@@ -21,95 +24,95 @@ interface NavItemProps {
 }
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) => {
+  const baseClasses = "flex items-center p-3 rounded-lg transition-colors duration-200";
+  const activeClasses = "bg-[var(--color-primary)] text-[var(--color-navy-dark)] font-semibold shadow-premium-md";
+  const inactiveClasses = "text-gray-300 hover:bg-[var(--color-navy-light)] hover:text-white";
+
   return (
-    <Link
-      href={href}
-      className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-        isActive
-          ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/50 text-white shadow-lg shadow-cyan-500/20'
-          : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
-      }`}
-    >
-      <Icon
-        className={`w-5 h-5 transition-all ${
-          isActive ? 'text-cyan-400' : 'text-gray-500 group-hover:text-cyan-400'
-        }`}
-      />
-      <span>{label}</span>
-      {isActive && (
-        <div className="ml-auto w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-      )}
+    <Link href={href}>
+      <div className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}>
+        <Icon className="w-6 h-6 mr-3" />
+        <span className="text-sm">{label}</span>
+      </div>
     </Link>
   );
 };
 
+// --- Main Sidebar Component ---
+
 export default function Sidebar() {
   const pathname = usePathname();
 
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: ChartBarIcon },
-    { name: 'AI Automations', href: '/automations', icon: PhoneIcon },
-    { name: 'Client Settings', href: '/settings', icon: Cog6ToothIcon },
-    { name: 'Legal Center', href: '/legal/terms', icon: BookOpenIcon },
-    { name: 'Support & Help', href: '/support', icon: QuestionMarkCircleIcon },
+  const navItems = [
+    { 
+      href: '/dashboard', 
+      icon: ChartBarSquareIcon, 
+      label: 'Operational Dashboard', 
+      match: '/dashboard' 
+    },
+    // Updated: Automations now links to Voice AI config page and uses MicrophoneIcon
+    { 
+      href: '/automations', 
+      icon: MicrophoneIcon, 
+      label: 'AI Voice Receptionist', 
+      match: '/automations' 
+    },
+    // New page link for Client Integrity
+    { 
+      href: '/settings/integrity', 
+      icon: ShieldCheckIcon, 
+      label: 'Experience Integrity', 
+      match: '/settings/integrity' 
+    },
+    { 
+      href: '/settings/billing', 
+      icon: WalletIcon, 
+      label: 'Billing & Subscription', 
+      match: '/settings/billing' 
+    },
+    { 
+      href: '/settings', 
+      icon: Cog6ToothIcon, 
+      label: 'Account Settings', 
+      match: '/settings' 
+    },
   ];
 
-  const isActive = (path: string): boolean => {
-    if (!pathname) return false;
-    return pathname === path || pathname.startsWith(path + '/');
-  };
-
   return (
-    <aside className="fixed top-16 left-0 bottom-0 w-72 bg-[#0a1929]/95 backdrop-blur-xl border-r border-white/10">
-      <div className="flex flex-col h-full">
-        {/* SARA Status Card */}
-        <div className="p-6 border-b border-white/10">
-          <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-xl p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                <SparklesIcon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="text-white font-bold">SARA AI</div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-green-400">Active</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-xs text-gray-300">
-              Contact: <span className="text-cyan-400 font-medium">+1 (216) 480-4413</span>
-            </div>
+    <aside className="w-64 min-h-screen bg-[var(--color-navy)] text-white flex flex-col p-6 shadow-premium-xl">
+      
+      {/* Logo / Title */}
+      <div className="mb-10 pt-2">
+        <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-primary)]">
+            SARA.AI
+        </h2>
+        <p className="text-xs text-gray-500 mt-1">Command Center</p>
+      </div>
+
+      {/* Primary Navigation */}
+      <nav className="flex-grow space-y-2">
+        {navItems.map((item) => (
+          <NavItem
+            key={item.href}
+            href={item.href}
+            icon={item.icon}
+            label={item.label}
+            isActive={pathname.startsWith(item.match)}
+          />
+        ))}
+      </nav>
+
+      {/* Footer / Logout */}
+      <div className="border-t border-[var(--color-navy-light)] pt-6">
+        <Link href="/login">
+          <div className="flex items-center p-3 rounded-lg text-gray-400 hover:bg-red-900/30 hover:text-red-300 transition-colors duration-200">
+            <ArrowLeftOnRectangleIcon className="w-6 h-6 mr-3" />
+            <span className="text-sm">Logout</span>
           </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-          {navigation.map((item) => (
-            <NavItem
-              key={item.name}
-              href={item.href}
-              icon={item.icon}
-              label={item.name}
-              isActive={isActive(item.href)}
-            />
-          ))}
-        </nav>
-
-        {/* Bottom Section */}
-        <div className="p-4 border-t border-white/10 space-y-2">
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-          >
-            <UserCircleIcon className="w-5 h-5" />
-            <span className="font-medium">My Profile</span>
-          </Link>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all">
-            <ArrowRightOnRectangleIcon className="w-5 h-5" />
-            <span className="font-medium">Logout</span>
-          </button>
-        </div>
+        </Link>
+        <p className="text-xs text-gray-600 mt-4">
+            Version 1.0.0
+        </p>
       </div>
     </aside>
   );
