@@ -1,158 +1,242 @@
 'use client';
 
 import { useState } from 'react';
-import { CreditCardIcon, DocumentTextIcon, DownloadIcon } from '@heroicons/react/24/outline';
+import { CreditCardIcon, DocumentTextIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
+  const plans = [
+    {
+      name: 'Starter',
+      price: billingCycle === 'monthly' ? 29 : 290,
+      features: [
+        'Up to 100 conversations/month',
+        'Basic analytics',
+        'Email support',
+        '1 agent seat',
+      ],
+    },
+    {
+      name: 'Professional',
+      price: billingCycle === 'monthly' ? 99 : 990,
+      features: [
+        'Up to 1,000 conversations/month',
+        'Advanced analytics',
+        'Priority support',
+        '5 agent seats',
+        'Custom integrations',
+      ],
+      popular: true,
+    },
+    {
+      name: 'Enterprise',
+      price: billingCycle === 'monthly' ? 299 : 2990,
+      features: [
+        'Unlimited conversations',
+        'Enterprise analytics',
+        '24/7 dedicated support',
+        'Unlimited agent seats',
+        'Custom integrations',
+        'SLA guarantee',
+      ],
+    },
+  ];
+
   const invoices = [
-    { id: 'INV-2024-001', date: '2024-01-01', amount: '$999.00', status: 'paid' },
-    { id: 'INV-2023-012', date: '2023-12-01', amount: '$999.00', status: 'paid' },
-    { id: 'INV-2023-011', date: '2023-11-01', amount: '$999.00', status: 'paid' }
+    { id: 'INV-001', date: '2024-01-01', amount: 99, status: 'Paid' },
+    { id: 'INV-002', date: '2024-02-01', amount: 99, status: 'Paid' },
+    { id: 'INV-003', date: '2024-03-01', amount: 99, status: 'Pending' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Billing Settings</h1>
-          <p className="text-gray-600">Manage your subscription and billing preferences</p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Billing & Subscription</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Manage your subscription and billing information
+        </p>
+      </div>
+
+      {/* Current Plan */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <CreditCardIcon className="h-6 w-6 text-gray-400 mr-2" />
+            <h2 className="text-lg font-medium text-gray-900">Current Plan</h2>
+          </div>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            Active
+          </span>
+        </div>
+        <div className="space-y-2">
+          <p className="text-3xl font-bold text-gray-900">Professional</p>
+          <p className="text-gray-500">$99/month • Renews on April 1, 2024</p>
+          <button className="mt-4 text-indigo-600 hover:text-indigo-500 font-medium text-sm">
+            Change plan
+          </button>
+        </div>
+      </div>
+
+      {/* Billing Cycle Toggle */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Available Plans</h2>
+        <div className="flex items-center justify-center mb-6">
+          <span className={`mr-3 text-sm ${billingCycle === 'monthly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+            Monthly
+          </span>
+          <button
+            type="button"
+            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 ${
+              billingCycle === 'annual' ? 'bg-indigo-600' : 'bg-gray-200'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                billingCycle === 'annual' ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+          <span className={`ml-3 text-sm ${billingCycle === 'annual' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+            Annual <span className="text-green-600">(Save 20%)</span>
+          </span>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Billing Info */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Current Plan */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Current Plan</h2>
-              
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Professional Plan</h3>
-                  <p className="text-gray-600">$999.00 per month</p>
+        {/* Plans Grid */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {plans.map((plan) => (
+            <div
+              key={plan.name}
+              className={`relative rounded-lg border ${
+                plan.popular
+                  ? 'border-indigo-600 shadow-lg'
+                  : 'border-gray-200'
+              } bg-white p-6`}
+            >
+              {plan.popular && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex rounded-full bg-indigo-600 px-4 py-1 text-sm font-semibold text-white">
+                    Popular
+                  </span>
                 </div>
-                <button className="px-6 py-2 border border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors">
-                  Change Plan
-                </button>
-              </div>
-
-              <div className="flex items-center gap-4 mb-6">
-                <button
-                  onClick={() => setBillingCycle('monthly')}
-                  className={`flex-1 px-4 py-3 font-semibold rounded-lg transition-colors ${
-                    billingCycle === 'monthly'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Monthly
-                </button>
-                <button
-                  onClick={() => setBillingCycle('annual')}
-                  className={`flex-1 px-4 py-3 font-semibold rounded-lg transition-colors ${
-                    billingCycle === 'annual'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Annual <span className="text-sm">(Save 20%)</span>
-                </button>
-              </div>
-
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-900">
-                  <strong>Next billing date:</strong> February 15, 2024
-                </p>
-              </div>
-            </div>
-
-            {/* Payment Method */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Method</h2>
-              
-              <div className="flex items-center justify-between p-4 border-2 border-blue-600 rounded-lg bg-blue-50">
-                <div className="flex items-center gap-4">
-                  <CreditCardIcon className="h-8 w-8 text-blue-600" />
-                  <div>
-                    <p className="font-semibold text-gray-900">Visa ending in 4242</p>
-                    <p className="text-sm text-gray-600">Expires 12/2025</p>
-                  </div>
-                </div>
-                <button className="px-4 py-2 text-blue-600 font-semibold hover:bg-blue-100 rounded-lg transition-colors">
-                  Edit
-                </button>
-              </div>
-            </div>
-
-            {/* Billing History */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Billing History</h2>
-              
-              <div className="space-y-4">
-                {invoices.map((invoice) => (
-                  <div key={invoice.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <DocumentTextIcon className="h-8 w-8 text-gray-600" />
-                      <div>
-                        <p className="font-semibold text-gray-900">{invoice.id}</p>
-                        <p className="text-sm text-gray-600">{invoice.date}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="font-bold text-gray-900">{invoice.amount}</p>
-                        <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                          {invoice.status}
-                        </span>
-                      </div>
-                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <DownloadIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
+              )}
+              <h3 className="text-lg font-medium text-gray-900">{plan.name}</h3>
+              <p className="mt-4">
+                <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
+                <span className="text-gray-500">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
+              </p>
+              <ul className="mt-6 space-y-4">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start">
+                    <svg
+                      className="h-5 w-5 text-green-500 mr-2 flex-shrink-0"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-sm text-gray-700">{feature}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
+              <button
+                className={`mt-8 w-full rounded-md px-4 py-2 text-sm font-semibold ${
+                  plan.popular
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                }`}
+              >
+                {plan.popular ? 'Current Plan' : 'Upgrade'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Payment Method */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Payment Method</h2>
+        <div className="flex items-center justify-between border rounded-lg p-4">
+          <div className="flex items-center">
+            <CreditCardIcon className="h-8 w-8 text-gray-400 mr-3" />
+            <div>
+              <p className="text-sm font-medium text-gray-900">•••• •••• •••• 4242</p>
+              <p className="text-sm text-gray-500">Expires 12/2024</p>
             </div>
           </div>
+          <button className="text-indigo-600 hover:text-indigo-500 font-medium text-sm">
+            Update
+          </button>
+        </div>
+      </div>
 
-          {/* Usage Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Usage This Month</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">Minutes Used</span>
-                    <span className="text-sm font-bold text-gray-900">3,247 / 5,000</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '65%' }}></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">AI Agents</span>
-                    <span className="text-sm font-bold text-gray-900">3 / 5</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '60%' }}></div>
-                  </div>
-                </div>
-
-                <div className="pt-6 border-t border-gray-200">
-                  <p className="text-sm text-gray-600 mb-4">
-                    You're on track for this billing cycle
-                  </p>
-                  <button className="w-full px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors">
-                    View Detailed Usage
-                  </button>
-                </div>
-              </div>
-            </div>
+      {/* Billing History */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <DocumentTextIcon className="h-6 w-6 text-gray-400 mr-2" />
+            <h2 className="text-lg font-medium text-gray-900">Billing History</h2>
           </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Invoice
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {invoices.map((invoice) => (
+                <tr key={invoice.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {invoice.id}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {invoice.date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${invoice.amount}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        invoice.status === 'Paid'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}
+                    >
+                      {invoice.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <button className="text-indigo-600 hover:text-indigo-500 flex items-center">
+                      <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
+                      Download
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
