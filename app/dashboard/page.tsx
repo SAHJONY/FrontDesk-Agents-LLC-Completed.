@@ -7,6 +7,8 @@ import {
   CalendarDaysIcon,
   CheckCircleIcon,
   XCircleIcon,
+  // FIX APPLIED: ChartBarSquareIcon was missing from the imports
+  ChartBarSquareIcon, 
 } from '@heroicons/react/24/outline';
 
 // --- Components ---
