@@ -8,7 +8,6 @@ export default function RealtimeStatus() {
   const [callsToday, setCallsToday] = useState(0);
 
   useEffect(() => {
-    // Simulate real-time updates
     const interval = setInterval(() => {
       setCallsToday(prev => prev + Math.floor(Math.random() * 3));
     }, 5000);
@@ -28,8 +27,7 @@ export default function RealtimeStatus() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Active Agents */}
+      <div className="grid grid-cols-1 gap-4">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
           <div className="flex items-center justify-between">
             <div>
@@ -44,7 +42,6 @@ export default function RealtimeStatus() {
           </div>
         </div>
 
-        {/* Calls Today */}
         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
           <div className="flex items-center justify-between">
             <div>
@@ -59,7 +56,6 @@ export default function RealtimeStatus() {
           </div>
         </div>
 
-        {/* Response Time */}
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
           <div className="flex items-center justify-between">
             <div>
@@ -75,7 +71,6 @@ export default function RealtimeStatus() {
         </div>
       </div>
 
-      {/* Recent Activity */}
       <div className="mt-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-3">Recent Activity</h3>
         <div className="space-y-2">
