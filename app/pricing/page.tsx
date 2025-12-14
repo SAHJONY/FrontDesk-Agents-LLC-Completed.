@@ -1,304 +1,437 @@
-// app/pricing/page.tsx
-"use client"; // <--- ¡AÑADIDO PARA RESOLVER ERRORES DE SERIALIZACIÓN!
+'use client';
 
-import Image from 'next/image';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Check, ArrowRight, Zap, Building2, Rocket } from 'lucide-react';
+import Image from 'next/image';
+import { 
+  CheckCircleIcon, 
+  XMarkIcon,
+  SparklesIcon,
+  PhoneIcon,
+  ChatBubbleLeftRightIcon,
+  ClockIcon,
+  ShieldCheckIcon,
+  CurrencyDollarIcon,
+  ChartBarIcon,
+  ArrowRightIcon
+} from '@heroicons/react/24/solid';
 
-export default function PricingPage() {
+export default function PremiumPricingPage() {
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+
   const plans = [
     {
       name: 'Starter',
-      icon: Zap,
-      price: '299',
-      description: 'Perfect for small businesses getting started with AI',
-      features: [
-        '1,000 minutes/month',
-        '1 AI agent',
-        'Basic analytics',
-        'Email support',
-        'Standard voice quality',
-        'CRM integrations'
-      ],
+      tagline: 'Perfect for small practices',
+      monthlyPrice: 299,
+      annualPrice: 2990,
+      savings: 598,
+      icon: SparklesIcon,
+      color: 'from-blue-500 to-cyan-500',
+      features: {
+        included: [
+          'Up to 500 calls per month',
+          '24/7 AI receptionist',
+          'Basic appointment scheduling',
+          'Email & chat support',
+          'Multi-language support (3 languages)',
+          'Call recording & transcripts',
+          'Basic analytics dashboard',
+          'SMS notifications'
+        ],
+        excluded: [
+          'Custom voice & personality',
+          'CRM integrations',
+          'Advanced analytics',
+          'Priority support',
+          'White-label option',
+          'Custom workflows'
+        ]
+      },
       cta: 'Start Free Trial',
       popular: false
     },
     {
       name: 'Professional',
-      icon: Building2,
-      price: '999',
-      description: 'For growing companies scaling their operations',
-      features: [
-        '5,000 minutes/month',
-        '5 AI agents',
-        'Advanced analytics',
-        'Priority support',
-        'Premium voice quality',
-        'All integrations',
-        'Custom workflows',
-        'A/B testing'
-      ],
+      tagline: 'Most popular for growing practices',
+      monthlyPrice: 599,
+      annualPrice: 5990,
+      savings: 1198,
+      icon: ChatBubbleLeftRightIcon,
+      color: 'from-cyan-500 to-teal-500',
+      features: {
+        included: [
+          'Up to 2,000 calls per month',
+          '24/7 AI receptionist',
+          'Advanced appointment scheduling',
+          'Priority email & phone support',
+          'Multi-language support (10+ languages)',
+          'Call recording & transcripts',
+          'Advanced analytics & reporting',
+          'SMS & email notifications',
+          'Custom voice & personality',
+          'CRM integrations (Salesforce, HubSpot)',
+          'Custom call workflows',
+          'API access',
+          'Voicemail transcription',
+          'After-hours routing'
+        ],
+        excluded: [
+          'Unlimited calls',
+          'White-label option',
+          'Dedicated account manager',
+          'Custom SLA',
+          'On-premise deployment'
+        ]
+      },
       cta: 'Start Free Trial',
       popular: true
     },
     {
       name: 'Enterprise',
-      icon: Rocket,
-      price: 'Custom',
-      description: 'For organizations requiring maximum scale',
-      features: [
-        'Unlimited minutes',
-        'Unlimited agents',
-        'White-label solution',
-        'Dedicated support',
-        'Ultra HD voice',
-        'Custom integrations',
-        'SLA guarantee',
-        'Dedicated infrastructure',
-        'Annual planning'
-      ],
+      tagline: 'For large healthcare organizations',
+      monthlyPrice: 1499,
+      annualPrice: 14990,
+      savings: 3498,
+      icon: ShieldCheckIcon,
+      color: 'from-teal-500 to-emerald-500',
+      features: {
+        included: [
+          'Unlimited calls',
+          'Multiple AI agents',
+          '24/7 priority support',
+          'Unlimited languages',
+          'All Professional features',
+          'White-label solution',
+          'Dedicated success manager',
+          'Custom integrations',
+          'Advanced compliance (HIPAA, SOC 2)',
+          'Custom SLA guarantee',
+          'On-premise deployment option',
+          'Advanced security features',
+          'Custom reporting & analytics',
+          'Training & onboarding',
+          'Quarterly business reviews'
+        ],
+        excluded: []
+      },
       cta: 'Contact Sales',
       popular: false
     }
   ];
 
+  const comparisonFeatures = [
+    {
+      category: 'Core Features',
+      items: [
+        { name: '24/7 AI Receptionist', starter: true, pro: true, enterprise: true },
+        { name: 'Call Recording', starter: true, pro: true, enterprise: true },
+        { name: 'Monthly Calls', starter: '500', pro: '2,000', enterprise: 'Unlimited' },
+        { name: 'Multi-language Support', starter: '3', pro: '10+', enterprise: 'Unlimited' },
+        { name: 'Custom Voice & Personality', starter: false, pro: true, enterprise: true }
+      ]
+    },
+    {
+      category: 'Integrations',
+      items: [
+        { name: 'CRM Integration', starter: false, pro: true, enterprise: true },
+        { name: 'Calendar Sync', starter: true, pro: true, enterprise: true },
+        { name: 'Custom Integrations', starter: false, pro: false, enterprise: true },
+        { name: 'API Access', starter: false, pro: true, enterprise: true },
+        { name: 'Webhook Support', starter: false, pro: true, enterprise: true }
+      ]
+    },
+    {
+      category: 'Analytics & Reporting',
+      items: [
+        { name: 'Basic Analytics', starter: true, pro: true, enterprise: true },
+        { name: 'Advanced Reporting', starter: false, pro: true, enterprise: true },
+        { name: 'Custom Dashboards', starter: false, pro: false, enterprise: true },
+        { name: 'Export Reports', starter: false, pro: true, enterprise: true },
+        { name: 'Real-time Metrics', starter: false, pro: true, enterprise: true }
+      ]
+    },
+    {
+      category: 'Support & Services',
+      items: [
+        { name: 'Email Support', starter: true, pro: true, enterprise: true },
+        { name: 'Priority Support', starter: false, pro: true, enterprise: true },
+        { name: 'Dedicated Account Manager', starter: false, pro: false, enterprise: true },
+        { name: 'Custom Onboarding', starter: false, pro: false, enterprise: true },
+        { name: 'SLA Guarantee', starter: false, pro: false, enterprise: true }
+      ]
+    }
+  ];
+
+  const faqs = [
+    {
+      question: 'How does the 30-day free trial work?',
+      answer: 'Start using Sara immediately with full access to all features in your chosen plan. No credit card required. Cancel anytime during the trial period with no charges.'
+    },
+    {
+      question: 'Can I upgrade or downgrade my plan?',
+      answer: 'Yes! You can change your plan at any time. Upgrades take effect immediately, while downgrades apply at the start of your next billing cycle.'
+    },
+    {
+      question: 'What happens if I exceed my call limit?',
+      answer: 'You\'ll receive a notification when you reach 80% of your limit. You can upgrade your plan or purchase additional call credits at $0.50 per call.'
+    },
+    {
+      question: 'Is my data secure and HIPAA compliant?',
+      answer: 'Absolutely. All plans include enterprise-grade security with encryption at rest and in transit. Professional and Enterprise plans include full HIPAA compliance and BAA agreements.'
+    },
+    {
+      question: 'Can I cancel anytime?',
+      answer: 'Yes, you can cancel your subscription at any time. Your service will continue until the end of your current billing period.'
+    },
+    {
+      question: 'Do you offer custom enterprise pricing?',
+      answer: 'Yes! For organizations needing more than 2,000 calls per month or custom features, contact our sales team for a tailored solution.'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#0a1929] via-[#1a2332] to-[#000814]">
       {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80"
-            alt="Modern office"
-            fill
-            className="object-cover opacity-5"
-          />
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full mb-6">
-            <span className="text-sm font-semibold text-blue-900">Simple, Transparent Pricing</span>
-          </div>
-          <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            Plans That Scale With Your Business
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Start free, upgrade when you're ready. No hidden fees, no surprises.
-          </p>
-          <div className="flex items-center justify-center gap-4">
-            <span className="text-gray-600">Monthly</span>
-            {/* El botón de toggle requiere 'use client' */}
-            <button className="relative w-14 h-8 bg-blue-600 rounded-full transition-colors">
-              <span className="absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition-transform"></span>
-            </button>
-            <span className="text-gray-900 font-semibold">
-              Annual <span className="text-sm text-green-600">(Save 20%)</span>
-            </span>
-          </div>
-        </div>
-      </section>
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+          <div className="text-center max-w-4xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full mb-6">
+              <CurrencyDollarIcon className="w-5 h-5 text-cyan-400" />
+              <span className="text-sm font-medium text-white">Transparent Pricing</span>
+            </div>
 
-      {/* Pricing Cards */}
-      <section className="py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {plans.map((plan, index) => (
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+              Choose Your <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Perfect Plan</span>
+            </h1>
+            
+            <p className="text-xl text-gray-300 mb-8">
+              Start with a 30-day free trial. No credit card required. Cancel anytime.
+            </p>
+
+            {/* Billing Toggle */}
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <span className={`text-lg font-medium transition-colors ${billingCycle === 'monthly' ? 'text-white' : 'text-gray-500'}`}>
+                Monthly
+              </span>
+              <button
+                onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
+                className="relative w-16 h-8 bg-white/10 rounded-full border border-white/20 transition-all"
+              >
+                <div className={`absolute top-1 w-6 h-6 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all ${
+                  billingCycle === 'annual' ? 'left-9' : 'left-1'
+                }`} />
+              </button>
+              <span className={`text-lg font-medium transition-colors ${billingCycle === 'annual' ? 'text-white' : 'text-gray-500'}`}>
+                Annual
+              </span>
+              {billingCycle === 'annual' && (
+                <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/30">
+                  Save up to 20%
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {plans.map((plan, idx) => (
               <div
-                key={index}
-                className={`relative bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:scale-105 ${
-                  plan.popular ? 'ring-2 ring-blue-600' : ''
+                key={idx}
+                className={`relative bg-white/5 backdrop-blur-xl border rounded-3xl p-8 transition-all duration-500 ${
+                  plan.popular
+                    ? 'border-cyan-500 scale-105 shadow-2xl shadow-cyan-500/20 bg-white/10'
+                    : 'border-white/10 hover:border-cyan-500/50 hover:scale-105'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute top-0 right-0 bg-blue-600 text-white px-4 py-1 text-sm font-semibold rounded-bl-lg">
-                    Most Popular
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full text-sm font-bold text-white shadow-lg">
+                    MOST POPULAR
                   </div>
                 )}
 
-                <div className="p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <plan.icon className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                <div className="mb-8">
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-6`}>
+                    <plan.icon className="w-8 h-8 text-white" />
                   </div>
-
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-1">
-                      {plan.price !== 'Custom' && <span className="text-2xl text-gray-600">$</span>}
-                      <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
-                      {plan.price !== 'Custom' && <span className="text-gray-600">/month</span>}
+                  
+                  <h3 className="text-3xl font-bold text-white mb-2">{plan.name}</h3>
+                  <p className="text-gray-400 mb-6">{plan.tagline}</p>
+                  
+                  <div className="mb-4">
+                    <div className="flex items-baseline gap-2">
+                      {plan.name !== 'Enterprise' ? (
+                        <>
+                          <span className="text-5xl font-bold text-white">
+                            ${billingCycle === 'monthly' ? plan.monthlyPrice : Math.floor(plan.annualPrice / 12)}
+                          </span>
+                          <span className="text-gray-400">/month</span>
+                        </>
+                      ) : (
+                        <span className="text-5xl font-bold text-white">Custom</span>
+                      )}
                     </div>
-                    <p className="text-gray-600 mt-2">{plan.description}</p>
-                  </div>
-
-                  <Link
-                    href={plan.price === 'Custom' ? '/contact-sales' : '/signup'}
-                    className={`block w-full text-center px-6 py-3 rounded-lg font-semibold transition-all mb-8 ${
-                      plan.popular
-                        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
-
-                  <div className="space-y-3">
-                    {plan.features.map((feature, fIndex) => (
-                      <div key={fIndex} className="flex items-start gap-3">
-                        <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">{feature}</span>
+                    {billingCycle === 'annual' && plan.name !== 'Enterprise' && (
+                      <div className="text-sm text-green-400 mt-2">
+                        Save ${plan.savings} per year
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
+
+                <div className="space-y-4 mb-8">
+                  {plan.features.included.map((feature, fIdx) => (
+                    <div key={fIdx} className="flex items-start gap-3">
+                      <CheckCircleIcon className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-300 text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Link
+                  href={plan.name === 'Enterprise' ? '/contact-sales' : '/signup'}
+                  className={`block w-full py-4 rounded-full font-semibold text-center transition-all duration-300 ${
+                    plan.popular
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:shadow-lg hover:shadow-cyan-500/50'
+                      : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Comparison Table */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      {/* Feature Comparison Table */}
+      <section className="relative py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent" />
+        
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-              Compare All Features
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Compare <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">All Features</span>
             </h2>
-            <p className="text-xl text-gray-600">
-              Everything you need to make the right decision
-            </p>
+            <p className="text-xl text-gray-400">See what's included in each plan</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Feature</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Starter</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Professional</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Enterprise</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {[
-                    { feature: 'Monthly Minutes', starter: '1,000', pro: '5,000', enterprise: 'Unlimited' },
-                    { feature: 'AI Agents', starter: '1', pro: '5', enterprise: 'Unlimited' },
-                    { feature: 'Analytics Dashboard', starter: 'Basic', pro: 'Advanced', enterprise: 'Custom' },
-                    { feature: 'Support Level', starter: 'Email', pro: 'Priority', enterprise: 'Dedicated' },
-                    { feature: 'Voice Quality', starter: 'Standard', pro: 'Premium', enterprise: 'Ultra HD' },
-                    { feature: 'CRM Integrations', starter: true, pro: true, enterprise: true },
-                    { feature: 'Custom Workflows', starter: false, pro: true, enterprise: true },
-                    { feature: 'White Label', starter: false, pro: false, enterprise: true },
-                    { feature: 'SLA Guarantee', starter: false, pro: false, enterprise: true }
-                  ].map((row, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{row.feature}</td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-700">
-                        {typeof row.starter === 'boolean' ? (
-                          row.starter ? <Check className="h-5 w-5 text-green-600 mx-auto" /> : '—'
+          <div className="max-w-6xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden">
+            {comparisonFeatures.map((category, catIdx) => (
+              <div key={catIdx}>
+                <div className="px-8 py-4 bg-white/5 border-b border-white/10">
+                  <h3 className="text-xl font-bold text-white">{category.category}</h3>
+                </div>
+                {category.items.map((item, itemIdx) => (
+                  <div
+                    key={itemIdx}
+                    className="grid grid-cols-4 gap-4 px-8 py-4 border-b border-white/5 hover:bg-white/5 transition-colors"
+                  >
+                    <div className="col-span-1 text-gray-300 font-medium">{item.name}</div>
+                    <div className="text-center">
+                      {typeof item.starter === 'boolean' ? (
+                        item.starter ? (
+                          <CheckCircleIcon className="w-6 h-6 text-cyan-400 mx-auto" />
                         ) : (
-                          row.starter
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-700">
-                        {typeof row.pro === 'boolean' ? (
-                          row.pro ? <Check className="h-5 w-5 text-green-600 mx-auto" /> : '—'
+                          <XMarkIcon className="w-6 h-6 text-gray-600 mx-auto" />
+                        )
+                      ) : (
+                        <span className="text-white font-medium">{item.starter}</span>
+                      )}
+                    </div>
+                    <div className="text-center">
+                      {typeof item.pro === 'boolean' ? (
+                        item.pro ? (
+                          <CheckCircleIcon className="w-6 h-6 text-cyan-400 mx-auto" />
                         ) : (
-                          row.pro
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-700">
-                        {typeof row.enterprise === 'boolean' ? (
-                          row.enterprise ? <Check className="h-5 w-5 text-green-600 mx-auto" /> : '—'
+                          <XMarkIcon className="w-6 h-6 text-gray-600 mx-auto" />
+                        )
+                      ) : (
+                        <span className="text-white font-medium">{item.pro}</span>
+                      )}
+                    </div>
+                    <div className="text-center">
+                      {typeof item.enterprise === 'boolean' ? (
+                        item.enterprise ? (
+                          <CheckCircleIcon className="w-6 h-6 text-cyan-400 mx-auto" />
                         ) : (
-                          row.enterprise
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          <XMarkIcon className="w-6 h-6 text-gray-600 mx-auto" />
+                        )
+                      ) : (
+                        <span className="text-white font-medium">{item.enterprise}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8">
+      <section className="relative py-32 overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-              Frequently Asked Questions
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Frequently Asked <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Questions</span>
             </h2>
+            <p className="text-xl text-gray-400">Everything you need to know</p>
           </div>
 
-          <div className="space-y-6">
-            {[
-              {
-                q: 'Can I switch plans anytime?',
-                a: 'Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and we\'ll prorate the difference.'
-              },
-              {
-                q: 'What happens if I exceed my minutes?',
-                a: 'We\'ll notify you when you reach 80% of your limit. You can either upgrade or purchase additional minutes at $0.30/minute.'
-              },
-              {
-                q: 'Do you offer a free trial?',
-                a: 'Yes! All plans come with a 14-day free trial. No credit card required to start.'
-              },
-              {
-                q: 'What payment methods do you accept?',
-                a: 'We accept all major credit cards, ACH transfers, and wire transfers for Enterprise customers.'
-              },
-              {
-                q: 'Is there a setup fee?',
-                a: 'No setup fees for any plan. We believe in transparent, straightforward pricing.'
-              }
-            ].map((faq, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{faq.q}</h3>
-                <p className="text-gray-600">{faq.a}</p>
+          <div className="max-w-3xl mx-auto space-y-6">
+            {faqs.map((faq, idx) => (
+              <div
+                key={idx}
+                className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300"
+              >
+                <h3 className="text-xl font-bold text-white mb-4">{faq.question}</h3>
+                <p className="text-gray-400 leading-relaxed">{faq.answer}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1920&q=80"
-            alt="Business team"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/95 to-purple-900/95"></div>
-        </div>
-
-        <div className="relative z-10 max-w-4xl mx-auto px-6 lg:px-8 text-center text-white">
-          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            Ready to Get Started?
-          </h2>
-          <p className="text-xl mb-8 text-blue-100">
-            Join thousands of companies using AI to transform their operations
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-blue-900 bg-white hover:bg-gray-100 rounded-lg transition-all shadow-xl"
-            >
-              Start Free Trial
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-            <Link
-              href="/contact-sales"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg transition-all border border-white/20"
-            >
-              Talk to Sales
-            </Link>
+      {/* Final CTA */}
+      <section className="relative py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10" />
+        
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              Ready to Get <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Started?</span>
+            </h2>
+            <p className="text-xl text-gray-300 mb-8">
+              Try Sara free for 30 days. No credit card required.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/signup"
+                className="px-12 py-6 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full font-bold text-xl text-white shadow-xl hover:shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300"
+              >
+                Start Free Trial
+              </Link>
+              
+              <a
+                href="tel:+12164804413"
+                className="px-12 py-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-full font-bold text-xl text-white hover:bg-white/20 transition-all duration-300 flex items-center justify-center gap-3"
+              >
+                <PhoneIcon className="w-6 h-6" />
+                Call Sales
+              </a>
+            </div>
           </div>
         </div>
       </section>
