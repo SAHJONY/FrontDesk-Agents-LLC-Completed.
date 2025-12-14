@@ -149,20 +149,20 @@ export default function AutomationsPage() {
                 </div>
             </Card>
 
-            {/* --- CALL TO ACTION BANNER (Based on 509.png and 515.png) --- */}
+            {/* --- CALL TO ACTION BANNER (Corrected JSX attributes) --- */}
             <div className="mt-12 p-8 bg-gray-900 text-white text-center rounded-xl shadow-2xl border border-cyan-500/50">
-                <h3 class="text-3xl font-extrabold text-yellow-400">CALL TO LEARN MORE</h3>
-                <p class="mt-2 text-lg font-medium">Discover how SARA can explain the system for your business.</p>
+                <h3 className="text-3xl font-extrabold text-yellow-400">CALL TO LEARN MORE</h3> 
+                <p className="mt-2 text-lg font-medium">Discover how SARA can explain the system for your business.</p> 
                 <a 
                     href="tel:+12164804413" 
-                    class="mt-6 inline-block px-10 py-4 text-3xl font-extrabold rounded-full bg-cyan-400 text-gray-900 hover:bg-cyan-300 transition-colors shadow-2xl"
+                    className="mt-6 inline-block px-10 py-4 text-3xl font-extrabold rounded-full bg-cyan-400 text-gray-900 hover:bg-cyan-300 transition-colors shadow-2xl"
                 >
                     +1 (216) 480-4413
                 </a>
-                <div class="mt-4 text-sm text-gray-500">
+                <div className="mt-4 text-sm text-gray-500">
                     AI Voice Powered by Bland.AI
                 </div>
             </div>
         </main>
     );
-                                      }
+}
