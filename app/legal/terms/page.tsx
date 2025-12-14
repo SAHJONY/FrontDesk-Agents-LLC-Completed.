@@ -1,75 +1,65 @@
-// app/legal/terms/page.tsx
-import React from 'react';
-import Image from 'next/image';
+// ./app/legal/terms/page.tsx
 
-export default function LegalTermsPage() {
-    return (
-        <div className="relative py-12 px-4 sm:px-6 lg:px-8">
-            
-            {/* 🌟 1. Cinematic Header Banner */}
-            <div className="relative mb-12 h-[200px] bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
-                <Image
-                    // NOTE: Place a professional legal/trust image (e.g., legal-bg.jpg) 
-                    // in your 'public' directory.
-                    src="/images/legal-bg.jpg" 
-                    alt="Professionals in a formal setting discussing legal documents"
-                    layout="fill"
-                    objectFit="cover"
-                    quality={80}
-                    // Apply a dark overlay for dramatic effect and text contrast
-                    className="brightness-[0.35] contrast-[1.1]" 
-                />
-                
-                {/* Text Overlay for the Banner */}
-                <div className="absolute inset-0 flex items-center justify-center z-10 p-4 text-center">
-                    <h1 className="text-4xl font-extrabold text-white tracking-tight sm:text-5xl">
-                        Terms of Service
-                    </h1>
-                </div>
-            </div>
+import { ScaleIcon } from '@heroicons/react/24/outline';
 
-            {/* 🌟 2. Document Content Container (Clean, readable white background) */}
-            <div className="max-w-4xl mx-auto bg-white p-8 sm:p-10 rounded-xl shadow-premium">
-                
-                <p className="text-sm text-gray-500 mb-6 border-b pb-4">
-                    Last Updated: December 12, 2025
-                </p>
+export default function TermsOfServicePage() {
+  return (
+    <main className="p-6 md:p-10 max-w-4xl mx-auto">
+      
+      {/* Header matching image theme */}
+      <div className="border-b-2 pb-4 mb-8">
+        <h1 className="text-4xl font-extrabold text-gray-900 flex items-center">
+          <ScaleIcon className="w-8 h-8 mr-3 text-indigo-600" />
+          Terms of Service
+        </h1>
+        <p className="mt-2 text-sm text-gray-500">Last Updated: December 13, 2025</p>
+      </div>
 
-                {/* Section 1 */}
-                <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                    1. Acceptance of Terms
-                </h2>
-                <p className="text-gray-700 mb-6 leading-relaxed">
-                    By accessing and using the FrontDesk Agents LLC platform ("Service"), you agree to be bound by these Terms of Service ("Terms") and all applicable laws and regulations. If you disagree with any part of the terms, then you do not have permission to access the Service.
-                </p>
+      <div className="flex space-x-6 mb-8 text-indigo-600 font-semibold">
+        <a href="/legal/terms" className="hover:text-indigo-800 border-b-2 border-indigo-600 pb-1">Terms of Service</a>
+        <a href="/legal/privacy" className="hover:text-indigo-800 pb-1">Privacy Policy</a>
+        <a href="/legal/compliance" className="hover:text-indigo-800 pb-1">Compliance & Audit</a>
+      </div>
 
-                {/* Section 2 */}
-                <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">
-                    2. Use License
-                </h2>
-                <p className="text-gray-700 mb-6 leading-relaxed">
-                    Permission is granted to temporarily download one copy of the materials (information or software) on FrontDesk Agents LLC's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title.
-                </p>
+      <section className="space-y-6 text-gray-700">
+        
+        <h2 className="text-2xl font-bold text-gray-900">1. Agreement to Terms</h2>
+        <p>
+          By accessing or using the services provided by FrontDesk Agents LLC ("FrontDesk Agents," "we," "us," or "our"), you agree to be bound by these Terms of Service. If you disagree with any part of the terms, then you may not access the Service.
+        </p>
 
-                {/* Section 3 */}
-                <h2 className="text-2xl font-bold text-gray-900 mb-3 mt-8">
-                    3. Termination
-                </h2>
-                <p className="text-gray-700 leading-relaxed">
-                    We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.
-                </p>
-                
-                {/* Contact Section */}
-                <div className="mt-10 pt-6 border-t border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                        Contact Us
-                    </h3>
-                    <p className="text-gray-700">
-                        If you have any questions about these Terms, please contact us at legal@frontdeskagents.com.
-                    </p>
-                </div>
+        <h2 className="text-2xl font-bold text-gray-900">2. Service Description: AI Automation</h2>
+        <p>
+          FrontDesk Agents provides intelligent automation services, including but not limited to 24/7 AI Receptionist, Automatic Scheduling, and Lead Scoring. The Service is designed to augment human operations and is not intended to replace regulatory compliance duties.
+        </p>
+        
+        <h3 className="text-xl font-semibold text-gray-900">2.1. Compliance and Liability</h3>
+        <p className="text-sm">
+          While we provide audit logs and compliance features, the Client is solely responsible for ensuring the Service's usage meets all industry-specific regulations (e.g., HIPAA for Healthcare, TCPA for Outbound Calls, etc.).
+        </p>
+        
+        <h2 className="text-2xl font-bold text-gray-900">3. Enterprise POV and Billing</h2>
+        <p>
+          The 30-day Enterprise Proof-of-Value (POV) is subject to a tightly scoped agreement defining fixed KPIs. Conversion to an annual contract is mandatory upon successful completion or expiration of the POV unless mutually agreed upon. Billing is handled as per the executed Master Service Agreement (MSA).
+        </p>
 
-            </div>
-        </div>
-    );
+        <h2 className="text-2xl font-bold text-gray-900">4. Contact Information</h2>
+        <p>
+          For any questions about these Terms, please contact us at:
+        </p>
+        <p className="font-medium">
+          FrontDesk Agents LLC <br />
+          Email: <a href="mailto:support@frontdeskagents.com" className="text-indigo-600 hover:underline">support@frontdeskagents.com</a> <br />
+          Phone: +1 (216) 480-4413
+        </p>
+      </section>
+      
+      {/* Footer Link */}
+      <div className="mt-12 pt-6 border-t border-gray-200 text-center">
+        <a href="/" className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            ← Back to Home
+        </a>
+      </div>
+    </main>
+  );
 }
