@@ -1,43 +1,33 @@
-// ./app/layout.tsx
-
-'use client';
-
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { usePathname } from 'next/navigation';
-import Layout from './components/Layout';
+import Fortune500Layout from '@/components/Fortune500Layout';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// List of pages that should NOT have the sidebar/layout
-const excludedPaths = [
-    '/login', 
-    '/signup', 
-    '/forgot-password', 
-    '/legal/terms', 
-    '/legal/privacy',
-    '/not-found',
-    '' // Add empty string to handle null/undefined pathname defaulting to ''
-];
+export const metadata: Metadata = {
+  title: 'FrontDesk Agents - Enterprise AI Reception',
+  description: 'Fortune 500-level AI automation for your front desk operations. HIPAA compliant, 24/7 availability.',
+  keywords: ['AI receptionist', 'HIPAA compliant', 'enterprise automation', 'front desk AI'],
+  authors: [{ name: 'FrontDesk Agents LLC' }],
+  openGraph: {
+    title: 'FrontDesk Agents - Enterprise AI Reception',
+    description: 'Fortune 500-level AI automation for your front desk operations',
+    type: 'website',
+  },
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const pathname = usePathname();
-  
-  // FIX APPLIED: Safely provide an empty string if pathname is null
-  const showSidebar = !excludedPaths.includes(pathname ?? ''); 
-
+}) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={inter.className}>
-        {showSidebar ? (
-          <Layout>{children}</Layout> // Wrap internal pages with the sidebar layout
-        ) : (
-          children // Render excluded pages directly (full width)
-        )}
+        <Fortune500Layout>
+          {children}
+        </Fortune500Layout>
       </body>
     </html>
   );
