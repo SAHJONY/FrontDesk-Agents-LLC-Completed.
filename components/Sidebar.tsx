@@ -54,7 +54,10 @@ export default function Sidebar() {
     { name: 'Support & Help', href: '/support', icon: QuestionMarkCircleIcon },
   ];
 
-  const isActive = (path: string) => pathname === path || pathname?.startsWith(path + '/');
+  const isActive = (path: string): boolean => {
+    if (!pathname) return false;
+    return pathname === path || pathname.startsWith(path + '/');
+  };
 
   return (
     <aside className="fixed top-16 left-0 bottom-0 w-72 bg-[#0a1929]/95 backdrop-blur-xl border-r border-white/10">
