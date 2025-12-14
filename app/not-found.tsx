@@ -1,34 +1,46 @@
-import Link from "next/link";
+// ./app/not-found.tsx
+
+import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-[70vh] flex-col items-center justify-center bg-slate-950 px-4 text-center text-slate-50">
-      <p className="text-[11px] font-semibold tracking-[0.3em] text-cyan-400">
-        FRONTDESK AGENTS · COMMAND CENTER
-      </p>
-      <h1 className="mt-4 text-4xl font-semibold sm:text-5xl">404</h1>
-      <p className="mt-2 text-base sm:text-lg">
-        Esta página no existe o ya fue movida.
-      </p>
-      <p className="mt-1 max-w-md text-sm text-slate-400">
-        Usa el menú superior o vuelve al inicio para seguir configurando tu
-        recepcionista AI y el Command Center.
-      </p>
+    // Uses the dark, high-contrast background similar to the images
+    <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white p-8">
+      
+      <div className="text-center p-10 bg-gray-800 rounded-xl border border-blue-900/50 shadow-2xl">
+        <h1 className="text-9xl font-extrabold text-blue-600">
+          404
+        </h1>
+        <h2 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          Connection Lost
+        </h2>
+        <p className="mt-4 text-lg text-gray-400 max-w-md">
+          The requested data route could not be found. The AI Agent seems to have lost track of that URL.
+        </p>
+        
+        <div className="mt-6 flex flex-col space-y-3 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0">
+          
+          {/* Primary Action Button */}
+          <Link 
+            href="/dashboard" 
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150"
+          >
+            Return to Dashboard
+          </Link>
 
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-full bg-cyan-500 px-5 py-2.5 text-sm font-medium text-slate-950 shadow-lg shadow-cyan-500/30 hover:bg-cyan-400"
-        >
-          Volver al inicio
-        </Link>
-        <Link
-          href="/ai-agents"
-          className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-5 py-2.5 text-sm font-medium text-slate-100 hover:border-slate-500 hover:bg-slate-900"
-        >
-          Ver AI Agents
-        </Link>
+          {/* Secondary Action Link */}
+          <Link 
+            href="/support" 
+            className="inline-flex items-center justify-center px-6 py-3 border border-gray-600 text-base font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150"
+          >
+            Contact Support
+          </Link>
+        </div>
+
+        <p className="mt-8 text-xs text-gray-500">
+            FrontDesk Agents LLC - www.frontdeskagents.com
+        </p>
       </div>
-    </main>
+    </div>
   );
 }
