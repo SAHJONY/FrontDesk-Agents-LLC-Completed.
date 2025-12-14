@@ -1,4 +1,4 @@
-// ./components/Sidebar.tsx
+// ./components/Sidebar.tsx (Updated with Client Integrity Link)
 
 'use client';
 
@@ -10,33 +10,22 @@ import {
   Cog6ToothIcon,
   BoltIcon,
   WalletIcon,
+  ShieldCheckIcon, // <-- NEW ICON IMPORTED
   ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 
-// --- Navigation Item Component ---
+// --- Navigation Item Component (No change needed here) ---
 interface NavItemProps {
-  href: string;
-  icon: React.ElementType;
-  label: string;
-  isActive: boolean;
+// ... (rest of NavItemProps and NavItem component code)
+// ...
 }
 
 const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, isActive }) => {
-  const baseClasses = "flex items-center p-3 rounded-lg transition-colors duration-200";
-  const activeClasses = "bg-[var(--color-primary)] text-[var(--color-navy-dark)] font-semibold shadow-premium-md";
-  const inactiveClasses = "text-gray-300 hover:bg-[var(--color-navy-light)] hover:text-white";
-
-  return (
-    <Link href={href}>
-      <div className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}>
-        <Icon className="w-6 h-6 mr-3" />
-        <span className="text-sm">{label}</span>
-      </div>
-    </Link>
-  );
+// ... (rest of NavItem component code)
+// ...
 };
 
-// --- Main Sidebar Component ---
+// --- Main Sidebar Component (Navigation array updated) ---
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -54,6 +43,14 @@ export default function Sidebar() {
       label: 'AI Automations', 
       match: '/automations' 
     },
+    // --- NEW LINK ADDED HERE ---
+    { 
+      href: '/settings/integrity', 
+      icon: ShieldCheckIcon, 
+      label: 'Experience Integrity', 
+      match: '/settings/integrity' 
+    },
+    // ----------------------------
     { 
       href: '/settings/billing', 
       icon: WalletIcon, 
@@ -92,7 +89,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer / Logout */}
+      {/* Footer / Logout (No change needed here) */}
       <div className="border-t border-[var(--color-navy-light)] pt-6">
         <Link href="/login">
           <div className="flex items-center p-3 rounded-lg text-gray-400 hover:bg-red-900/30 hover:text-red-300 transition-colors duration-200">
