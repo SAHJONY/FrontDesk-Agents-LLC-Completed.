@@ -1,42 +1,52 @@
-// ./lib/dashboard-metrics.ts (SERVER SIDE UTIL)
+// lib/dashboard-metrics.ts
 
-import { db } from './db-simulation';
-
-interface Metrics {
-  callsProcessed: number;
+export interface ClientMetrics {
   appointmentsBooked: number;
-  conversionRate: number; // Appointments / Calls
-  abandonmentRate: number; // Hangups / Calls
+  conversionRate: number;
+  callsProcessed: number;
   totalDurationHours: number;
+  abandonmentRate: number;
 }
 
 /**
- * Calcula las métricas clave de rendimiento (KPIs) para el Dashboard de un cliente.
- * @param clientKey La clave única del cliente (tenantId).
- * @param days El rango de días para calcular las métricas.
+ * Fetches client metrics for the dashboard
+ * @param clientKey - The unique client identifier
+ * @param days - Number of days to look back (default: 7)
+ * @returns Promise with client metrics
  */
-export async function getClientMetrics(clientKey: string, days: number = 7): Promise<Metrics> {
-  // Simulación: Filtrar logs de llamadas de la última semana
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - days);
+export async function getClientMetrics(
+  clientKey: string, 
+  days: number = 7
+): Promise<ClientMetrics> {
+  try {
+    // TODO: Replace with actual API call or database query
+    // Example: const response = await fetch(`/api/metrics?client=${clientKey}&days=${days}`);
+    
+    // Simulated data for now
+    // In production, this would fetch from your database or API
+    const simulatedMetrics: ClientMetrics = {
+      appointmentsBooked: 47,
+      conversionRate: 68.5,
+      callsProcessed: 156,
+      totalDurationHours: 12.4,
+      abandonmentRate: 3.2
+    };
 
-  const allClientLogs = db.callLog.getRecentLogs(clientKey, 9999); // Obtener todos los logs (simulado)
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-  const relevantLogs = allClientLogs.filter(log => log.createdAt >= sevenDaysAgo);
+    return simulatedMetrics;
 
-  const callsProcessed = relevantLogs.length;
-  const appointmentsBooked = relevantLogs.filter(log => log.outcome === 'booked').length;
-  const hangups = relevantLogs.filter(log => log.outcome === 'hangup').length;
-  const totalDurationSeconds = relevantLogs.reduce((sum, log) => sum + log.durationSeconds, 0);
-
-  const conversionRate = callsProcessed > 0 ? (appointmentsBooked / callsProcessed) * 100 : 0;
-  const abandonmentRate = callsProcessed > 0 ? (hangups / callsProcessed) * 100 : 0;
-  
-  return {
-    callsProcessed,
-    appointmentsBooked,
-    conversionRate: parseFloat(conversionRate.toFixed(1)),
-    abandonmentRate: parseFloat(abandonmentRate.toFixed(1)),
-    totalDurationHours: parseFloat((totalDurationSeconds / 3600).toFixed(1)),
-  };
+  } catch (error) {
+    console.error('Error fetching client metrics:', error);
+    
+    // Return default values on error
+    return {
+      appointmentsBooked: 0,
+      conversionRate: 0,
+      callsProcessed: 0,
+      totalDurationHours: 0,
+      abandonmentRate: 0
+    };
+  }
 }
