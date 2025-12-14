@@ -11,7 +11,7 @@ import {
   CodeBracketSquareIcon,
   BookOpenIcon,
   ArrowRightStartOnRectangleIcon,
-  UsersIcon, // <-- Ensured UsersIcon is imported
+  UsersIcon, // Required icon import
 } from '@heroicons/react/24/outline';
 
 const navItems = [
@@ -26,8 +26,8 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const getLinkClasses = (href: string) => {
-    // FIX APPLIED: Added check (pathname && ...) to ensure pathname is not null before comparison/method call
-    const isActive = pathname && (pathname === href || (href !== '/' && pathname.startsWith(href)));
+    // 💥 THE REQUIRED FIX: Check if 'pathname' is truthy before accessing its methods.
+    const isActive = pathname && (pathname === href || (href !== '/' && pathname.startsWith(href))); 
     return `
       flex items-center p-3 rounded-lg transition-colors duration-150 ease-in-out
       ${isActive 
