@@ -4,6 +4,7 @@
 
 import { Cog6ToothIcon, UserCircleIcon, KeyIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import Link from 'next/link'; // <-- CORRECTED: Added Link import
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useState('********************gH7k');
