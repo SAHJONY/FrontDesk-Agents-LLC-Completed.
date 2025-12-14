@@ -243,15 +243,21 @@ h2 {
 @keyframes shimmer {
   0% {
     background-position: -1000px 0;
+    transform: translateX(-100%);
   }
   100% {
     background-position: 1000px 0;
+    transform: translateX(100%);
   }
 }
 
 .shimmer {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-shimmer {
   animation: shimmer 2s infinite;
 }
 
@@ -304,4 +310,4 @@ h2 {
     padding: 14px 36px;
     font-size: 16px;
   }
-    }
+}
