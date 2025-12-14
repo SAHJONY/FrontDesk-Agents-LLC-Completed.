@@ -11,6 +11,7 @@ import {
   CodeBracketSquareIcon,
   BookOpenIcon,
   ArrowRightStartOnRectangleIcon,
+  UsersIcon, // <-- Added UsersIcon import for Profile link
 } from '@heroicons/react/24/outline';
 
 const navItems = [
@@ -25,7 +26,8 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const getLinkClasses = (href: string) => {
-    const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
+    // CORRECTED: Added a check for null/undefined 'pathname' before comparison
+    const isActive = pathname && (pathname === href || (href !== '/' && pathname.startsWith(href)));
     return `
       flex items-center p-3 rounded-lg transition-colors duration-150 ease-in-out
       ${isActive 
