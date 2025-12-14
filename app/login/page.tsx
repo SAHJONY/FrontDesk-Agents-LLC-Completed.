@@ -2,91 +2,84 @@
 
 'use client';
 
-import { LockClosedIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import React from 'react';
+import Link from 'next/link';
+import { ArrowRightIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic for sign-in execution
-    console.log('Attempting login for:', email);
+    // Simulate login logic, then navigate to dashboard
+    console.log('Login attempt...');
+    // In a real app, this would involve API calls and routing
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white">
-      {/* Cinematic dark container matching image theme */}
-      <div className="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-xl shadow-2xl border border-blue-900/50">
-        
-        {/* Brand Header */}
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-blue-400">
-            FrontDesk Agents
+    <div className="min-h-screen flex items-center justify-center bg-[var(--color-navy-dark)] p-4">
+      <div className="glass-card w-full max-w-md p-8 md:p-10 text-center">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Client Login
           </h1>
-          <p className="mt-2 text-xl font-semibold text-white uppercase">LOGIN</p>
+          <p className="text-gray-400">Access your Operational Command Center</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          {/* Email Input */}
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="sr-only">Email address</label>
+            <label htmlFor="email" className="sr-only">Email Address</label>
             <div className="relative">
-              <EnvelopeIcon className="pointer-events-none w-5 h-5 absolute top-1/2 transform -translate-y-1/2 left-3 text-gray-400" />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                <UserIcon className="w-5 h-5" />
+              </div>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
-                className="appearance-none relative block w-full px-10 py-3 border border-gray-700 placeholder-gray-500 text-white bg-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email Address"
+                className="input-premium pl-10"
               />
             </div>
           </div>
 
-          {/* Password Input */}
           <div>
             <label htmlFor="password" className="sr-only">Password</label>
             <div className="relative">
-              <LockClosedIcon className="pointer-events-none w-5 h-5 absolute top-1/2 transform -translate-y-1/2 left-3 text-gray-400" />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                <LockClosedIcon className="w-5 h-5" />
+              </div>
               <input
                 id="password"
                 name="password"
                 type="password"
                 required
-                className="appearance-none relative block w-full px-10 py-3 border border-gray-700 placeholder-gray-500 text-white bg-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                className="input-premium pl-10"
               />
             </div>
           </div>
-
-          {/* Forgot Password Link */}
-          <div className="flex items-center justify-end">
-            <div className="text-sm">
-              <a 
-                href="/forgot-password" 
-                className="font-medium text-blue-400 hover:text-blue-300"
-              >
-                Forgot password?
-              </a>
-            </div>
+          
+          <div className="text-right">
+            <Link href="#" className="text-[var(--color-primary)] hover:text-[var(--color-primary-light)] text-sm font-medium transition">
+              Forgot Password?
+            </Link>
           </div>
 
-          {/* Sign In Button */}
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-lg font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 uppercase tracking-wider"
-            >
-              Sign in
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="btn-premium w-full flex justify-center items-center py-4 text-lg"
+          >
+            Log In to Command Center
+            <ArrowRightIcon className="w-5 h-5 ml-2" />
+          </button>
         </form>
+
+        <p className="mt-8 text-sm text-gray-500">
+          New to FrontDesk Agents?{' '}
+          <Link href="/signup" className="text-[var(--color-primary)] hover:text-[var(--color-primary-light)] font-medium transition">
+            Start Your Free Trial
+          </Link>
+        </p>
       </div>
     </div>
   );
