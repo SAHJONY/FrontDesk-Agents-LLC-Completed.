@@ -1,31 +1,415 @@
-/* --- Add to ./app/globals.css --- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@keyframes pulse-slow {
+:root {
+  /* Fortune 500 Premium Color Palette */
+  --color-primary: #00bcd4;
+  --color-primary-dark: #0097a7;
+  --color-primary-light: #26c6da;
+  
+  --color-navy: #0a1929;
+  --color-navy-light: #1a2332;
+  --color-navy-dark: #000814;
+  
+  --color-gold: #ffd700;
+  --color-gold-light: #ffed4e;
+  
+  /* Enterprise Gradients */
+  --gradient-premium: linear-gradient(135deg, #0a1929 0%, #1a2332 50%, #0097a7 100%);
+  --gradient-gold: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  --gradient-cyan: linear-gradient(135deg, #00bcd4 0%, #26c6da 100%);
+  --gradient-enterprise: linear-gradient(135deg, #0a1929 0%, #1a2332 100%);
+  
+  /* Glass Morphism - Fortune 500 */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  /* Enterprise Shadows */
+  --shadow-enterprise-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-enterprise-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-enterprise-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --shadow-enterprise-xl: 0 16px 48px rgba(0, 0, 0, 0.25);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background: var(--color-navy-dark);
+  color: #ffffff;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* Fortune 500 Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  font-feature-settings: 'ss01' on, 'cv05' on;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  background: linear-gradient(135deg, #ffffff 0%, #00bcd4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 700;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 600;
+}
+
+/* Fortune 500 Glass Card */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 16px 64px 0 rgba(0, 188, 212, 0.3);
+  border-color: var(--color-primary);
+}
+
+/* Enterprise Button Styles */
+.btn-enterprise {
+  position: relative;
+  padding: 18px 48px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: var(--gradient-cyan);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0, 188, 212, 0.3);
+  letter-spacing: -0.01em;
+}
+
+.btn-enterprise::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
+}
+
+.btn-enterprise:hover::before {
+  left: 100%;
+}
+
+.btn-enterprise:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 188, 212, 0.5);
+}
+
+.btn-enterprise:active {
+  transform: translateY(0);
+}
+
+/* Enterprise Section Backgrounds */
+.section-enterprise {
+  position: relative;
+  padding: 140px 0;
+  background: var(--gradient-enterprise);
+  overflow: hidden;
+}
+
+.section-enterprise::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(0, 188, 212, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Cinematic Image Containers */
+.cinematic-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.5);
+}
+
+.cinematic-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: brightness(1.05) contrast(1.1) saturate(1.15);
+}
+
+.cinematic-image:hover img {
+  transform: scale(1.08);
+}
+
+.cinematic-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  pointer-events: none;
+}
+
+/* Enterprise Grid Layout */
+.enterprise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  padding: 48px 0;
+}
+
+/* Animated Gradient Text */
+.gradient-text {
+  background: linear-gradient(90deg, #00bcd4, #26c6da, #3b82f6, #00bcd4);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-flow 4s linear infinite;
+}
+
+@keyframes gradient-flow {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Enterprise Scrollbar */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-navy);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-cyan);
+  border-radius: 8px;
+  border: 3px solid var(--color-navy);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-light);
+}
+
+/* Floating Animation for Hero Elements */
+@keyframes float {
   0%, 100% {
-    transform: scale(1);
-    opacity: 0.3;
+    transform: translateY(0px);
   }
   50% {
-    transform: scale(1.05);
-    opacity: 0.5;
+    transform: translateY(-24px);
   }
 }
 
-@keyframes pulse-slow-reverse {
+.floating {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* Enterprise Shadow Depths */
+.shadow-enterprise-sm {
+  box-shadow: var(--shadow-enterprise-sm);
+}
+
+.shadow-enterprise-md {
+  box-shadow: var(--shadow-enterprise-md);
+}
+
+.shadow-enterprise-lg {
+  box-shadow: var(--shadow-enterprise-lg);
+}
+
+.shadow-enterprise-xl {
+  box-shadow: var(--shadow-enterprise-xl);
+}
+
+/* Shimmer Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    background-position: 1000px 0;
+    transform: translateX(100%);
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 2.5s infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite;
+}
+
+/* Enterprise Input Fields */
+.input-enterprise {
+  width: 100%;
+  padding: 18px 24px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  letter-spacing: -0.01em;
+}
+
+.input-enterprise:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.input-enterprise::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Particle Background Effect */
+.particle-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Pulse Animation */
+@keyframes pulse-glow {
   0%, 100% {
-    transform: scale(1);
-    opacity: 0.2;
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.4);
   }
   50% {
-    transform: scale(0.95);
-    opacity: 0.4;
+    opacity: 0.8;
+    box-shadow: 0 0 40px rgba(0, 188, 212, 0.6);
   }
 }
 
-.animate-pulse-slow {
-  animation: pulse-slow 15s ease-in-out infinite;
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
-.animate-pulse-slow-reverse {
-  animation: pulse-slow-reverse 15s ease-in-out infinite;
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* Scale In Animation */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.scale-in {
+  animation: scaleIn 0.6s ease-out forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-enterprise {
+    padding: 80px 0;
+  }
+  
+  .enterprise-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .btn-enterprise {
+    padding: 16px 36px;
+    font-size: 15px;
+  }
+  
+  h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Selection */
+::selection {
+  background-color: rgba(0, 188, 212, 0.3);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: rgba(0, 188, 212, 0.3);
+  color: white;
 }
