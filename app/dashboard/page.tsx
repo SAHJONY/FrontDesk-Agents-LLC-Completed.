@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import {
-  LineChart,
   AreaChart,
-  Gauge,
   Card,
   Title,
   Text,
@@ -320,18 +318,52 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* POV Status Card - Premium Style */}
+          {/* POV Status Card - Premium Style with Custom Gauge */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col">
             <Title className="text-white text-2xl font-bold mb-6">Current POV Status</Title>
             
+            {/* Custom Circular Progress Gauge */}
             <div className="flex-1 flex flex-col items-center justify-center">
-              <Gauge 
-                value={automationSuccessRate} 
-                className="w-full" 
-                color="cyan"
-                showAnimation={true}
-              />
-              <Text className="text-center mt-4 text-lg font-semibold text-white">
+              <div className="relative w-48 h-48">
+                {/* Background Circle */}
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="80"
+                    stroke="rgba(255,255,255,0.1)"
+                    strokeWidth="12"
+                    fill="none"
+                  />
+                  {/* Progress Circle */}
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="80"
+                    stroke="url(#gradient)"
+                    strokeWidth="12"
+                    fill="none"
+                    strokeDasharray={`${2 * Math.PI * 80}`}
+                    strokeDashoffset={`${2 * Math.PI * 80 * (1 - automationSuccessRate / 100)}`}
+                    strokeLinecap="round"
+                    className="transition-all duration-1000"
+                  />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#06b6d4" />
+                      <stop offset="100%" stopColor="#3b82f6" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                
+                {/* Center Text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="text-5xl font-bold text-white">{automationSuccessRate}%</div>
+                  <div className="text-sm text-gray-400 mt-1">Success Rate</div>
+                </div>
+              </div>
+              
+              <Text className="text-center mt-6 text-gray-300">
                 Automation Success: {automationSuccessRate}%
               </Text>
             </div>
