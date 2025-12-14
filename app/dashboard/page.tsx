@@ -320,15 +320,4 @@ export default function PremiumDashboard() {
   );
 }
 
-// Shimmer animation for charts
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  .animate-shimmer {
-    animation: shimmer 2s infinite;
-  }
-`;
-document.head.appendChild(style);
+// Note: Shimmer animation is defined in globals.css
