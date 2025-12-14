@@ -1,258 +1,160 @@
+// ./app/automations/page.tsx
+
 'use client';
 
-import { useState } from 'react';
 import { Card, Title, Text, List, ListItem, Badge } from '@tremor/react';
 import { 
   CalendarIcon, 
   PhoneIcon, 
   CreditCardIcon, 
-  UsersIcon,
-  Cog6ToothIcon,
-  SparklesIcon,
-  BuildingOfficeIcon,
-  ScaleIcon,
-  HomeModernIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  BeakerIcon
+  UsersIcon, 
+  WalletIcon 
 } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 interface Automation {
+  id: number;
   name: string;
   icon: React.ElementType;
   description: string;
-  status: 'Active' | 'In Development' | 'Ready';
   category: 'Core Revenue' | 'Finance' | 'Support';
-  metrics?: {
-    calls?: number;
-    savings?: string;
-    accuracy?: string;
-  };
+  enabled: boolean;
 }
 
-const automations: Automation[] = [
+const initialAutomations: Automation[] = [
   {
+    id: 1,
     name: 'IA Recepcionista 24/7',
     icon: PhoneIcon,
-    description: 'Contesta, enruta, transcribe y detecta intención.',
-    status: 'Active',
+    description: 'Contesta, enruta, transcribe y detecta intención de llamada.',
     category: 'Core Revenue',
-    metrics: {
-      calls: 2847,
-      accuracy: '98.5%',
-    }
+    enabled: true,
   },
   {
+    id: 2,
     name: 'Agendado Automático',
     icon: CalendarIcon,
-    description: 'Google/Outlook/Calendly + reglas por servicio para citas.',
-    status: 'Active',
+    description: 'Sincroniza con Google/Outlook/Calendly y aplica reglas de servicio.',
     category: 'Core Revenue',
-    metrics: {
-      calls: 428,
-      accuracy: '96.2%',
-    }
+    enabled: true,
   },
   {
+    id: 3,
     name: 'Lead Scoring por Voz',
     icon: UsersIcon,
-    description: 'Califica leads por presupuesto, urgencia y ubicación.',
-    status: 'Ready',
+    description: 'Califica leads en tiempo real por presupuesto y urgencia.',
     category: 'Core Revenue',
+    enabled: false,
   },
   {
-    name: 'Pagos por Voz/SMS',
+    id: 4,
+    name: 'Pagos y Cobros por Voz/SMS',
     icon: CreditCardIcon,
-    description: 'Genera links seguros y procesa depósitos de forma automática. (Week 3)',
-    status: 'In Development',
+    description: 'Generación de links de pago seguros y confirmación de depósitos.',
     category: 'Finance',
+    enabled: false,
   },
   {
-    name: 'No-show Killer',
-    icon: CalendarIcon,
-    description: 'Recordatorios inteligentes y reprogramación automática para reducir faltas.',
-    status: 'In Development',
-    category: 'Finance',
-  },
-];
-
-const industryTemplates = [
-  {
-    name: 'Health',
-    subtitle: 'HIPAA Ready',
-    icon: BuildingOfficeIcon,
-    color: 'from-blue-500 to-cyan-500',
-    features: ['HIPAA Compliance', 'Appointment Scheduling', 'Insurance Verification', 'Patient Follow-ups'],
-    active: true
-  },
-  {
-    name: 'Legal',
-    subtitle: 'Consult Scheduling',
-    icon: ScaleIcon,
-    color: 'from-purple-500 to-pink-500',
-    features: ['Case Intake', 'Consultation Booking', 'Document Collection', 'Client Screening'],
-    active: false
-  },
-  {
-    name: 'Real Estate',
-    subtitle: 'Lead Qualification',
-    icon: HomeModernIcon,
-    color: 'from-green-500 to-emerald-500',
-    features: ['Property Inquiries', 'Showing Scheduling', 'Lead Qualification', 'Follow-up Automation'],
-    active: false
+    id: 5,
+    name: 'CRM Sync (HubSpot/Salesforce)',
+    icon: WalletIcon,
+    description: 'Sincronización bidireccional de leads y actividad de llamadas.',
+    category: 'Support',
+    enabled: true,
   },
 ];
 
 export default function AutomationsPage() {
-  const [automationStates, setAutomationStates] = useState<Record<string, boolean>>(
-    automations.reduce((acc, auto) => ({ ...acc, [auto.name]: auto.status === 'Active' }), {})
-  );
+    const [automations, setAutomations] = useState(initialAutomations);
 
-  const toggleAutomation = (name: string) => {
-    setAutomationStates(prev => ({ ...prev, [name]: !prev[name] }));
-  };
+    const toggleAutomation = (id: number) => {
+        setAutomations(prev => 
+            prev.map(auto => 
+                auto.id === id ? { ...auto, enabled: !auto.enabled } : auto
+            )
+        );
+    };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active': return 'green';
-      case 'Ready': return 'yellow';
-      case 'In Development': return 'blue';
-      default: return 'gray';
-    }
-  };
+    return (
+        <main className="p-6 md:p-10 bg-gray-50 min-h-screen">
+            <Title className="text-3xl font-bold text-gray-900">
+                🤖 AI Agents & Automation Hub
+            </Title>
+            <Text className="mt-2 text-lg text-gray-600">
+                Configure, activate, and optimize your high-ROI automations based on your sector.
+            </Text>
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Active': return CheckCircleIcon;
-      case 'Ready': return ClockIcon;
-      case 'In Development': return BeakerIcon;
-      default: return Cog6ToothIcon;
-    }
-  };
+            {/* --- Core Automations List --- */}
+            <Card className="mt-6">
+                <Title className="text-xl font-semibold">Active Automation Flows</Title>
+                <List className="mt-4 divide-y divide-gray-200">
+                    {automations.map((item) => (
+                        <ListItem key={item.id} className="flex justify-between items-center py-4">
+                            <div className="flex items-start space-x-4">
+                                <item.icon className="w-6 h-6 mt-1 text-indigo-600 flex-shrink-0" />
+                                <div>
+                                    <Text className="font-semibold text-lg text-gray-900">{item.name}</Text>
+                                    <Text className="text-sm text-gray-500">{item.description}</Text>
+                                    <Badge 
+                                        color={item.category === 'Core Revenue' ? 'green' : item.category === 'Finance' ? 'blue' : 'yellow'} 
+                                        className="mt-1"
+                                    >
+                                        {item.category}
+                                    </Badge>
+                                </div>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <span className={`text-sm font-medium ${item.enabled ? 'text-green-600' : 'text-red-600'}`}>
+                                    {item.enabled ? 'ACTIVE' : 'INACTIVE'}
+                                </span>
+                                <button
+                                    onClick={() => toggleAutomation(item.id)}
+                                    className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                                        item.enabled 
+                                            ? 'bg-red-500 text-white hover:bg-red-600' 
+                                            : 'bg-green-500 text-white hover:bg-green-600'
+                                    }`}
+                                >
+                                    {item.enabled ? 'Disable' : 'Activate'}
+                                </button>
+                            </div>
+                        </ListItem>
+                    ))}
+                </List>
+            </Card>
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a1929] via-[#1a2332] to-[#000814]">
-      <main className="p-6 md:p-10">
-        {/* Premium Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-              <Cog6ToothIcon className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                Automation Management
-              </h1>
-              <p className="text-gray-400 mt-1">
-                Configure and monitor the 6 Core Automations launched in the 30-day sprint
-              </p>
-            </div>
-          </div>
-
-          {/* Stats Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-            <div className="p-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Text className="text-gray-400 text-sm">Active Automations</Text>
-                  <div className="text-2xl font-bold text-white mt-1">
-                    {automations.filter(a => a.status === 'Active').length}/{automations.length}
-                  </div>
+            {/* --- Industry Templates Section (Reflects Image) --- */}
+            <Card className="mt-8">
+                <Title className="text-xl font-semibold">Quick Deploy: Industry Templates</Title>
+                <Text className="text-gray-600">Instantly apply pre-configured, compliance-ready settings for your vertical.</Text>
+                
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Link/Button for Healthcare */}
+                    <a href="#" className="p-4 border rounded-lg hover:bg-indigo-50 transition-colors flex flex-col items-center justify-center space-y-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-indigo-600"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15m7.5 0l-4.5 4.5-4.5-4.5m9 0l4.5 4.5 4.5-4.5"/></svg>
+                        <Text className="font-medium text-indigo-600 text-center">Healthcare (HIPAA Ready)</Text>
+                        <p className="text-xs text-gray-500">Includes secure data handling & appointment reminders.</p>
+                    </a>
+                    
+                    {/* Link/Button for Legal */}
+                    <a href="#" className="p-4 border rounded-lg hover:bg-indigo-50 transition-colors flex flex-col items-center justify-center space-y-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-indigo-600"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75A.75.75 0 0112.75 7.5v9a.75.75 0 01-1.5 0v-9A.75.75 0 0112 6.75zM12 6.75L6.75 12H17.25L12 6.75z"/></svg>
+                        <Text className="font-medium text-indigo-600 text-center">Legal (Client Intake & Discovery)</Text>
+                        <p className="text-xs text-gray-500">Focuses on call recording consent and secure client scheduling.</p>
+                    </a>
+                    
+                    {/* Link/Button for Real Estate */}
+                    <a href="#" className="p-4 border rounded-lg hover:bg-indigo-50 transition-colors flex flex-col items-center justify-center space-y-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-indigo-600"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.955-8.955c.441-.44.97-.665 1.505-.665h.001c.535 0 1.064.225 1.505.665L21.75 12M4.5 9v.938c0 .445.18.87.502 1.173l.498.468M19.5 9v.938c0 .445-.18.87-.502 1.173l-.498.468M9 9h6m-3-3h.008M3.75 12H19.5M3.75 12v4.875c0 .445.18.87.502 1.173l.498.468M19.5 12v4.875c0 .445-.18.87-.502 1.173l-.498.468M7.5 16.5h9m-3-3h.008V16.5H12v-3.75h.008z"/></svg>
+                        <Text className="font-medium text-indigo-600 text-center">Real Estate (Lead Qualification)</Text>
+                        <p className="text-xs text-gray-500">Automates property interest filtering and tour scheduling.</p>
+                    </a>
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <CheckCircleIcon className="w-5 h-5 text-green-400" />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Text className="text-gray-400 text-sm">Total Calls Handled</Text>
-                  <div className="text-2xl font-bold text-white mt-1">3,275</div>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                  <PhoneIcon className="w-5 h-5 text-cyan-400" />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Text className="text-gray-400 text-sm">System Uptime</Text>
-                  <div className="text-2xl font-bold text-white mt-1">99.9%</div>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <SparklesIcon className="w-5 h-5 text-purple-400" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Core Automations List - Premium Style */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <Title className="text-white text-2xl font-bold">Core & Financial Automations</Title>
-              <Text className="text-gray-400 mt-1">Manage your revenue-generating workflows</Text>
-            </div>
-            <button className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
-              + Add Automation
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {automations.map((item) => {
-              const StatusIcon = getStatusIcon(item.status);
-              const isActive = automationStates[item.name];
-              
-              return (
-                <div
-                  key={item.name}
-                  className="group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:bg-white/10 hover:border-cyan-500/50 transition-all duration-300"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-300" />
-                  
-                  <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-start gap-4 flex-1">
-                      {/* Icon */}
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
-                        item.status === 'Active' ? 'from-green-500 to-emerald-500' :
-                        item.status === 'Ready' ? 'from-yellow-500 to-orange-500' :
-                        'from-blue-500 to-cyan-500'
-                      } flex items-center justify-center flex-shrink-0`}>
-                        <item.icon className="w-6 h-6 text-white" />
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Text className="font-bold text-lg text-white">{item.name}</Text>
-                          <Badge color={getStatusColor(item.status)} className="flex items-center gap-1">
-                            <StatusIcon className="w-3 h-3" />
-                            {item.status}
-                          </Badge>
-                          <span className="text-xs text-gray-500 px-2 py-1 bg-white/5 rounded">
-                            {item.category}
-                          </span>
-                        </div>
-                        <Text className="text-sm text-gray-400 mb-3">{item.description}</Text>
-                        
-                        {/* Metrics */}
-                        {item.metrics && (
-                          <div className="flex items-center gap-4 mt-2">
-                            {item.metrics.calls && (
-                              <div className="text-sm">
-                                <span className="text-gray-500">Calls: </span>
-                                <span className="text-cyan-400 font-semibold">{item.metrics.calls.toLocaleString()}</span>
-                              </div>
-                            )}
-                            {item.metrics.accuracy && (
-                              <div className="text-sm">
-                                <span className="text-gray-500">Accuracy: </span>
-                                <span className="text-green-400 font-semibold">{item.metrics.accuracy}</span>
+            </Card>
+        </main>
+    );
+}
+<span className="text-green-400 font-semibold">{item.metrics.accuracy}</span>
                               </div>
                             )}
                             {item.metrics.savings && (
