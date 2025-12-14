@@ -4,8 +4,8 @@
 
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { usePathname } from 'next/navigation'; // <-- IMPORTANT: Added import
-import Layout from './components/Layout';      // <-- IMPORTANT: Added import
+import { usePathname } from 'next/navigation';
+import Layout from './components/Layout';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -14,10 +14,10 @@ const excludedPaths = [
     '/login', 
     '/signup', 
     '/forgot-password', 
-    '/legal/terms', // Legal pages often need a minimalist layout
+    '/legal/terms', 
     '/legal/privacy',
-    '/not-found'
-    // Add any other public or error pages here
+    '/not-found',
+    '' // Add empty string to handle null/undefined pathname defaulting to ''
 ];
 
 export default function RootLayout({
@@ -26,7 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const showSidebar = !excludedPaths.includes(pathname);
+  
+  // FIX APPLIED: Safely provide an empty string if pathname is null
+  const showSidebar = !excludedPaths.includes(pathname ?? ''); 
 
   return (
     <html lang="en">
