@@ -11,7 +11,7 @@ import {
   CodeBracketSquareIcon,
   BookOpenIcon,
   ArrowRightStartOnRectangleIcon,
-  UsersIcon, // <-- Added UsersIcon import for Profile link
+  UsersIcon, // <-- Ensured UsersIcon is imported
 } from '@heroicons/react/24/outline';
 
 const navItems = [
@@ -26,7 +26,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const getLinkClasses = (href: string) => {
-    // CORRECTED: Added a check for null/undefined 'pathname' before comparison
+    // FIX APPLIED: Added check (pathname && ...) to ensure pathname is not null before comparison/method call
     const isActive = pathname && (pathname === href || (href !== '/' && pathname.startsWith(href)));
     return `
       flex items-center p-3 rounded-lg transition-colors duration-150 ease-in-out
@@ -40,7 +40,7 @@ export default function Sidebar() {
   return (
     <div className="flex flex-col h-full w-64 bg-gray-900 border-r border-indigo-900/50 shadow-2xl">
       
-      {/* FD Logo and Branding (Matching provided logo style) */}
+      {/* FD Logo and Branding */}
       <div className="p-6 border-b border-indigo-900/50">
         <h1 className="text-2xl font-extrabold text-white tracking-wider flex items-center">
             <span className="bg-blue-600 rounded-full w-6 h-6 mr-3 flex items-center justify-center text-xs font-bold text-white">FD</span>
