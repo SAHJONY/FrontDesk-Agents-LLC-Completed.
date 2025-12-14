@@ -1,70 +1,54 @@
 // ./app/legal/privacy/page.tsx
 
-import { ShieldCheckIcon } from '@heroicons/react/24/outline';
+import React from 'react';
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="p-6 md:p-10 max-w-4xl mx-auto">
-      
-      {/* Header matching professional theme */}
-      <div className="border-b-2 pb-4 mb-8">
-        <h1 className="text-4xl font-extrabold text-gray-900 flex items-center">
-          <ShieldCheckIcon className="w-8 h-8 mr-3 text-indigo-600" />
-          Privacy Policy
-        </h1>
-        <p className="mt-2 text-sm text-gray-500">Last Updated: December 13, 2025</p>
+    <div className="min-h-screen bg-[var(--color-navy-dark)] text-white p-6 md:p-12">
+      <div className="max-w-4xl mx-auto py-12">
+        <h1 className="text-4xl font-extrabold mb-4 text-[var(--color-primary)]">Privacy Policy</h1>
+        <p className="text-gray-400 mb-8">Effective Date: December 14, 2025</p>
+
+        <section className="space-y-6 text-gray-300">
+          <p>
+            FrontDesk Agents LLC ("we," "us," or "our") is committed to protecting the privacy of our clients and the data collected through the SARA AI services. This Privacy Policy explains how we collect, use, disclose, and safeguard your information.
+          </p>
+
+          <div>
+            <h2 className="text-2xl font-bold mt-8 mb-3 text-white">1. Information We Collect</h2>
+            <ul className="list-disc list-inside space-y-2">
+                <li>**Client Account Data:** Name, email address, payment information, and billing details.</li>
+                <li>**Automation Data:** Configuration settings, business logic, and knowledge base documents uploaded by the client.</li>
+                <li>**Call Log Data:** Transcripts, recordings, duration, and disposition of calls handled by SARA AI (owned by the client, stored by us).</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold mt-8 mb-3 text-white">2. How We Use Information</h2>
+            <p>
+              We use the collected information primarily to provide, maintain, and improve the SARA AI service, process transactions, manage client subscriptions, and analyze service usage to enhance our AI models and operational efficiency. We do not sell Call Log Data to third parties.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold mt-8 mb-3 text-white">3. Data Security</h2>
+            <p>
+              We implement industry-standard security measures, including encryption and access controls, to protect your data from unauthorized access, alteration, disclosure, or destruction. Call Log Data is stored in secure, geographically isolated environments.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold mt-8 mb-3 text-white">4. Data Ownership and Retention</h2>
+            <p>
+              The client maintains full ownership of all Call Log Data and Automation Data. We retain this data for the duration of the client's active subscription and for a limited period thereafter, as required by law or necessary for backup purposes. Clients can request data deletion upon account termination.
+            </p>
+          </div>
+        </section>
+
+        <p className="mt-12 text-center text-sm text-gray-500">
+          If you have questions regarding this Privacy Policy, please contact our support team.
+        </p>
       </div>
-
-      <div className="flex space-x-6 mb-8 text-indigo-600 font-semibold">
-        <a href="/legal/terms" className="hover:text-indigo-800 pb-1">Terms of Service</a>
-        <a href="/legal/privacy" className="hover:text-indigo-800 border-b-2 border-indigo-600 pb-1">Privacy Policy</a>
-        <a href="/legal/compliance" className="hover:text-indigo-800 pb-1">Compliance & Audit</a>
-      </div>
-
-      <section className="space-y-6 text-gray-700">
-        
-        <h2 className="text-2xl font-bold text-gray-900">1. Information We Collect</h2>
-        <p>
-          We collect information that identifies, relates to, describes, or is capable of being associated with you ("Personal Data").
-        </p>
-        
-        <h3 className="text-xl font-semibold text-gray-900">1.1. Account and Usage Data</h3>
-        <p className="text-sm">
-          This includes names, email addresses, billing information, and usage metrics related to the AI automation platform (e.g., number of calls handled, conversion rates, and API usage).
-        </p>
-        
-        <h3 className="text-xl font-semibold text-gray-900">1.2. Call Data (Client Data)</h3>
-        <p className="text-sm">
-          All call transcripts, recordings, and metadata processed by our AI Agents are considered Client Data. This data is handled strictly according to the client's configuration and the executed Master Service Agreement (MSA) and is used solely to improve the client's specific AI models.
-        </p>
-
-        <h2 className="text-2xl font-bold text-gray-900">2. How We Use Your Information</h2>
-        <p>
-          We use the collected data to provide, maintain, and improve our Service, to process billing and payments, and to ensure security and compliance. We do not sell Client Data or Personal Data.
-        </p>
-
-        <h2 className="text-2xl font-bold text-gray-900">3. Data Security and Storage</h2>
-        <p>
-          We implement enterprise-grade security measures, including encryption and strict access controls, to protect your Personal Data and Client Data against unauthorized access. Data is stored in secure, certified data centers.
-        </p>
-
-        <h2 className="text-2xl font-bold text-gray-900">4. Contacting Us</h2>
-        <p>
-          If you have questions regarding this Privacy Policy or your data rights, please contact us:
-        </p>
-        <p className="font-medium">
-          FrontDesk Agents LLC <br />
-          Email: <a href="mailto:privacy@frontdeskagents.com" className="text-indigo-600 hover:underline">privacy@frontdeskagents.com</a> <br />
-          Phone: +1 (216) 480-4413
-        </p>
-      </section>
-      
-      {/* Footer Link */}
-      <div className="mt-12 pt-6 border-t border-gray-200 text-center">
-        <a href="/" className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-            ← Return to Dashboard
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
