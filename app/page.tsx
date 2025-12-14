@@ -397,23 +397,4 @@ export default function HomePage() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                <span className="text-white font-bold">FD</span>
-              </div>
-              <div>
-                <div className="text-lg font-bold text-white">FrontDesk Agents</div>
-                <div className="text-xs text-gray-400">AI-Powered Reception</div>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 mb-4">
-              © 2024 FrontDesk Agents LLC. All rights reserved.
-            </p>
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" />
-              <span className="text-xs text-cyan-400 font-medium">Enterprise Ready • Fortune 500 Quality</span>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
+         
