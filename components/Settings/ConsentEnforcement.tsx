@@ -1,56 +1,37 @@
-import React, { useState } from 'react';
+'use client';
+
+import { useState } from 'react';
 import { CheckCircle, AlertTriangle } from 'lucide-react';
 
-const ConsentEnforcement: React.FC = () => {
-    // Definición de estado para el ejemplo
-    const [consentMode, setConsentMode] = useState<'Off' | 'Soft' | 'Strict'>('Strict');
+export default function ConsentEnforcement() {
+  const [enabled, setEnabled] = useState(true);
 
-    // Lógica para el estilo (isCompliant)
-    const isCompliant = consentMode === 'Strict'; 
+  return (
+    <div className="border rounded-lg p-4 bg-white">
+      <div className="flex justify-between items-center">
+        <h3 className="font-semibold">Consent Enforcement</h3>
 
-    return (
-        <div 
-            className={`premium-card p-6 border-l-4 ${isCompliant ? 'border-green-500' : 'border-red-500'}`} 
-            style={{ borderColor: isCompliant ? 'var(--color-accent-cyan)' : '#FF4D4D' }}
+        <button
+          onClick={() => setEnabled(!enabled)}
+          className="px-3 py-1 text-sm bg-black text-white rounded"
         >
-            <div className="flex items-start justify-between">
-                <div>
-                    <h3 className="text-xl font-bold mb-1">
-                        {isCompliant ? 'Strict Enforcement Active' : 'High Risk Mode'}
-                    </h3>
-                    <p className="text-gray-400 text-sm">
-                        Mode determines the required level of caller consent logged by the AI agent.
-                    </p>
-                </div>
-                {isCompliant ? (
-                    <CheckCircle className="w-8 h-8 text-cyan-400" />
-                ) : (
-                    <AlertTriangle className="w-8 h-8 text-red-500" />
-                )}
-            </div>
+          {enabled ? 'Disable' : 'Enable'}
+        </button>
+      </div>
 
-            <div className="mt-6 flex space-x-4">
-                {/* Botones de selección de modo con estilo ejecutivo */}
-                {['Off', 'Soft', 'Strict'].map(mode => (
-                    <button
-                        key={mode}
-                        onClick={() => setConsentMode(mode as any)}
-                        className={`px-4 py-2 rounded-full font-medium transition-all duration-200 
-                            ${consentMode === mode 
-                                ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900' 
-                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                            }`}
-                    >
-                        {mode}
-                    </button>
-                ))}
-            </div>
-
-            <p className="mt-4 text-xs italic text-gray-500">
-                Current Setting: **{consentMode}** - Recommended for TCPA compliance is 'Strict'.
-            </p>
-        </div>
-    );
-};
-
-export default ConsentEnforcement;
+      <div className="mt-4 flex items-center gap-2 text-sm">
+        {enabled ? (
+          <>
+            <CheckCircle size={16} className="text-green-600" />
+            TCPA Compliance Active
+          </>
+        ) : (
+          <>
+            <AlertTriangle size={16} className="text-red-600" />
+            Compliance Disabled
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
