@@ -1,24 +1,13 @@
-// ./app/(client)/automations/voice-ai/page.tsx (Fragmento de actualización)
+'use client';
 
-// ... imports existentes
+import ConsentEnforcement from '@/components/Settings/ConsentEnforcement';
 
-import ConsentEnforcement from '@/components/Settings/ConsentEnforcement'; // <-- NUEVA IMPORTACIÓN
-
-export default function VoiceAIConfigurationPage() {
-  // ... (Estados y funciones existentes)
-
+export default function VoiceAIPage() {
   return (
-    <div className="p-8 md:p-12 w-full">
-      {/* ... (Header y texto de la página) ... */}
+    <main className="p-8 space-y-6">
+      <h1 className="text-2xl font-bold">Voice AI Automation</h1>
 
-      {/* --- INTEGRACIÓN CRÍTICA DE CUMPLIMIENTO --- */}
-      <div className="mb-10">
-          <ConsentEnforcement />
-      </div>
-      
-      {/* --- 1. Deployment Script Section --- */}
-      {/* ... (El resto del código de script y customización) ... */}
-      
-    </div>
+      <ConsentEnforcement />
+    </main>
   );
 }
