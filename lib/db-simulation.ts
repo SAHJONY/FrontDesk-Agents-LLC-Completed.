@@ -1,26 +1,23 @@
-// ./lib/db-simulation.ts (Fragmento de actualización)
+// ./lib/db-simulation.ts (Ensure correct export structure)
 
-interface ClientConfig {
-  clientKey: string;
-  email: string;
-  plan: PlanTier;
-  crmType: 'HubSpot' | 'Salesforce' | 'Custom API' | 'None';
-  crmEndpoint?: string;
-  
-  // --- NUEVO CAMPO CRÍTICO DE CUMPLIMIENTO ---
-  leadConsentType: 'ExplicitWritten' | 'Verbal' | 'NoConsentProvided'; 
-}
+// ... (Interface and data definitions above) ...
 
-// Actualizamos el cliente de ejemplo para simular un consentimiento:
-let CLIENTS: ClientConfig[] = [
-  { 
-    clientKey: 'FDDG-SARAV1-93A2X-57B', 
-    email: 'client@example.com', 
-    plan: 'Premium', 
-    crmType: 'HubSpot', 
-    crmEndpoint: 'https://api.hubspot.com/...',
-    leadConsentType: 'ExplicitWritten' // Asumimos el estándar más alto
+// --- Funciones de Simulación ---
+
+// Ensure the export keyword is used here!
+export const db = {
+  client: {
+    findUnique: (key: string): ClientConfig | undefined => {
+      // ...
+    },
+    // ...
   },
-];
-
-// ... (El resto de las estructuras y funciones de db se mantienen)
+  callLog: {
+    create: (data: Omit<CallLogEntry, 'id' | 'createdAt'>): CallLogEntry => {
+      // ...
+    },
+    getRecentLogs: (clientId: string, limit: number = 10): CallLogEntry[] => {
+      // ...
+    }
+  }
+};
