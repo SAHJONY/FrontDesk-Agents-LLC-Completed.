@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   PhoneIcon, 
   SparklesIcon, 
-  CheckCircleIcon,
   ClockIcon,
   ShieldCheckIcon,
   GlobeAltIcon,
@@ -27,37 +27,37 @@ export default function HomePage() {
       icon: ClockIcon,
       title: '24/7 Availability',
       description: 'Never miss a call. SARA works around the clock, handling inquiries and scheduling appointments.',
-      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&q=80&fit=crop'
     },
     {
       icon: ShieldCheckIcon,
       title: 'HIPAA Compliant',
       description: 'Enterprise-grade security with full HIPAA compliance. Your data is protected with bank-level encryption.',
-      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=800&q=80&fit=crop'
     },
     {
       icon: GlobeAltIcon,
       title: 'Multi-Language',
       description: 'Communicate with clients in their preferred language. SARA speaks English, Spanish, French, and more.',
-      image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80&fit=crop'
     },
     {
       icon: ChatBubbleLeftRightIcon,
       title: 'Natural Conversations',
       description: 'Advanced AI that understands context and speaks naturally. Clients won\'t believe they\'re talking to AI.',
-      image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80&fit=crop'
     },
     {
       icon: ChartBarIcon,
       title: 'Analytics Dashboard',
       description: 'Track call metrics, bookings, and customer satisfaction in real-time with actionable insights.',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80&fit=crop'
     },
     {
       icon: SparklesIcon,
       title: 'AI-Powered',
       description: 'Cutting-edge artificial intelligence that learns and adapts to your business needs automatically.',
-      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80&fit=crop'
     }
   ];
 
@@ -88,6 +88,9 @@ export default function HomePage() {
               <Link href="/pricing" className="hidden md:block text-gray-300 hover:text-white font-medium transition-colors">
                 Pricing
               </Link>
+              <Link href="/dashboard" className="hidden md:block text-gray-300 hover:text-white font-medium transition-colors">
+                Dashboard
+              </Link>
               <a
                 href="tel:+12164804413"
                 className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all"
@@ -110,7 +113,6 @@ export default function HomePage() {
 
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
-            {/* Hero Headline */}
             <div className={`text-center mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full mb-6">
                 <SparklesIcon className="w-5 h-5 text-cyan-400" />
@@ -150,22 +152,18 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Hero Image - Business Meeting with AI */}
+            {/* Hero Image - Business Meeting */}
             <div className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10">
                 <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900">
                   <img
-                    src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80"
-                    alt="Professional business team meeting with AI technology"
+                    src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80&fit=crop"
+                    alt="Professional business team meeting"
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 
-                {/* Overlay Badge */}
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl">
                     <div className="flex items-center gap-3">
@@ -207,7 +205,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section with Professional Images */}
+      {/* Features Section */}
       <section className="relative py-32">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -225,25 +223,19 @@ export default function HomePage() {
                 key={idx}
                 className="group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 hover:border-cyan-500/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20"
               >
-                {/* Image */}
                 <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 relative overflow-hidden">
                   <img
                     src={feature.image}
                     alt={feature.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a1929] via-[#0a1929]/50 to-transparent" />
                   
-                  {/* Icon Overlay */}
                   <div className="absolute top-4 right-4 w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg">
                     <feature.icon className="w-6 h-6 text-white" />
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-6">
                   <h3 className="text-2xl font-bold text-white mb-3">{feature.title}</h3>
                   <p className="text-gray-400 leading-relaxed mb-4">{feature.description}</p>
@@ -257,7 +249,58 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Teaser - Dark Professional */}
+      {/* Team/Office Section */}
+      <section className="relative py-20 border-t border-white/10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-4xl font-bold text-white mb-6">
+                  Trusted by Growing Businesses
+                </h2>
+                <p className="text-xl text-gray-300 mb-6">
+                  Join hundreds of companies that trust FrontDesk Agents to handle their most important asset: customer communication.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-300">Setup in under 5 minutes</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-300">No credit card required</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-300">24/7 support team</span>
+                  </div>
+                </div>
+              </div>
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                <img
+                  src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?w=800&q=80&fit=crop"
+                  alt="Professional team collaboration"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Teaser */}
       <section className="relative py-32 border-t border-white/10">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent" />
         
@@ -277,7 +320,6 @@ export default function HomePage() {
                 When you're ready, we turn on full Stripe billing automation.
               </p>
 
-              {/* Pricing Card Preview */}
               <div className="max-w-md mx-auto bg-[#0a1929] border border-cyan-500/30 rounded-2xl p-8 mb-8">
                 <div className="text-sm text-cyan-400 font-semibold mb-2">Starter</div>
                 <div className="text-sm text-gray-400 mb-4">Perfect for small businesses</div>
@@ -293,51 +335,12 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Professional Image */}
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 mt-8">
-                <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900">
-                  <img
-                    src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&q=80"
-                    alt="Professional business meeting"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Legal Footer Section - Professional */}
-      <section className="relative py-20 border-t border-white/10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-12">
-              <div className="aspect-[21/9] bg-gradient-to-br from-slate-800 to-slate-900">
                 <img
-                  src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80"
-                  alt="Legal and compliance team"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
+                  src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200&q=80&fit=crop"
+                  alt="Professional office environment"
+                  className="w-full aspect-video object-cover"
                 />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
-                <h2 className="text-5xl font-bold text-white mb-6">LEGAL</h2>
-                <div className="flex flex-wrap gap-4 justify-center">
-                  <Link href="/legal/terms" className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white font-medium hover:bg-white/20 transition-all">
-                    Terms of Service
-                  </Link>
-                  <Link href="/legal/privacy" className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white font-medium hover:bg-white/20 transition-all">
-                    Privacy Policy
-                  </Link>
-                </div>
               </div>
             </div>
           </div>
@@ -350,18 +353,12 @@ export default function HomePage() {
         
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Contact Image */}
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-8">
-              <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900">
-                <img
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&q=80"
-                  alt="Professional customer service representative"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&q=80&fit=crop"
+                alt="Professional customer service"
+                className="w-full aspect-video object-cover"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               
               <div className="absolute bottom-0 left-0 right-0 p-8 text-center">
