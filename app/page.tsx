@@ -14,6 +14,8 @@ import {
   ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
+// Nota: Asumo que este archivo es ./app/page.tsx o está correctamente importado en el layout.
+
 export default function HomePage() {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -377,6 +379,4 @@ export default function HomePage() {
                 alt="Professional executive"
                 className="w-full aspect-video object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-              
-              <div className="absolute bottom-0 left-0 right-0 p-8 text-center"
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" /
