@@ -1,17 +1,31 @@
-// ./components/Settings/ConsentEnforcement.tsx (FIXED COMPONENT DEFINITION)
+// ./components/Settings/ConsentEnforcement.tsx (FIXED LOGIC ORDER)
 
-import React, { useState, useEffect } from 'react';
 // ... imports ...
 
 const ConsentEnforcement: React.FC = () => {
-  // ... state and logic definitions ...
+    // 1. STATE DEFINITIONS (Must be first)
+    const [consent, setConsent] = useState('NoConsentProvided');
+    const [isSaved, setIsSaved] = useState(false);
+    
+    // 2. EFFECT HOOKS
+    useEffect(() => {
+        // ... load client config ...
+    }, []);
 
-  return ( // <--- ADD THIS RETURN STATEMENT
-    <div className="glass-card p-6 border-l-4" style={{ borderColor: isCompliant ? 'var(--color-green-light)' : 'var(--color-red-light)' }}>
-      {/* ... the rest of your JSX content ... */}
-    </div>
-  ); // <--- ENSURE THE CLOSING BRACKET IS HERE
+    // 3. LOGIC VARIABLES
+    const isCompliant = consent === 'ExplicitWritten'; // <--- THIS MUST BE DEFINED HERE!
 
-}; // <--- AND THE CLOSING FUNCTION BRACKET IS HERE
+    // 4. HANDLERS
+    const handleSave = () => {
+        // ... update logic ...
+    };
+
+    // 5. RENDER (RETURN)
+    return ( 
+        <div className="glass-card p-6 border-l-4" style={{ borderColor: isCompliant ? 'var(--color-green-light)' : 'var(--color-red-light)' }}>
+            {/* ... JSX content using isCompliant ... */}
+        </div>
+    );
+};
 
 export default ConsentEnforcement;
