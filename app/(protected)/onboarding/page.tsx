@@ -1,53 +1,59 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircleIcon, ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
-import { DatabaseIcon, KeyIcon, GlobeAltIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
+// Importaciones de heroicons para los botones (CheckCircle, Flechas)
+import { CheckCircleIcon, ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/solid'; 
+// Importaciones de lucide-react para los pasos (Íconos simples y limpios)
+import { Database, Key, Globe, Rocket } from 'lucide-react'; 
 import Link from 'next/link';
 
 // Definición de los pasos del Onboarding (FASE 4)
 const steps = [
-    { id: 1, name: 'Conexión de CRM', icon: DatabaseIcon, description: 'Configuración del API Key para HubSpot/Salesforce.' },
-    { id: 2, name: 'Configuración de Endpoints', icon: KeyIcon, description: 'Definición de rutas de webhook y tokens de seguridad.' },
-    { id: 3, name: 'Despliegue Web', icon: GlobeAltIcon, description: 'Generación del snippet de código para el Widget Web.' },
-    { id: 4, name: 'Confirmación y QA', icon: RocketLaunchIcon, description: 'Revisión final y activación del entorno de Pruebas.' },
+    // Usamos los componentes de Lucide directamente
+    { id: 1, name: 'Conexión de CRM', icon: Database, description: 'Configuración del API Key para HubSpot/Salesforce.' },
+    { id: 2, name: 'Configuración de Endpoints', icon: Key, description: 'Definición de rutas de webhook y tokens de seguridad.' },
+    { id: 3, name: 'Despliegue Web', icon: Globe, description: 'Generación del snippet de código para el Widget Web.' },
+    { id: 4, name: 'Confirmación y QA', icon: Rocket, description: 'Revisión final y activación del entorno de Pruebas.' },
 ];
 
-// --- Componentes Auxiliares ---
+// --- Componentes Auxiliares (Sin Cambios Estructurales) ---
 
 // Componente para la barra de pasos (StepIndicator)
 const StepIndicator = ({ currentStep, steps }) => (
     <div className="flex justify-between items-center mb-10 w-full max-w-4xl mx-auto">
-        {steps.map((step, index) => (
-            <div key={step.id} className={`flex flex-col items-center relative ${index < steps.length - 1 ? 'flex-1' : ''}`}>
-                
-                {/* Círculo del paso */}
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white z-10 
-                    ${currentStep > step.id
-                        ? 'bg-green-500' // Completado
-                        : currentStep === step.id
-                            ? 'bg-cyan-500 border-2 border-cyan-300' // Activo
-                            : 'bg-gray-700 border border-gray-600' // Inactivo
-                    }`}
-                >
-                    {currentStep > step.id ? <CheckCircleIcon className="w-5 h-5" /> : step.id}
-                </div>
-                
-                {/* Línea divisoria */}
-                {index < steps.length - 1 && (
-                    <div className={`absolute top-5 left-[calc(50%+20px)] w-[calc(100%-40px)] h-0.5 z-0 
-                        ${currentStep > step.id ? 'bg-green-500' : 'bg-gray-700'}`}
-                    />
-                )}
+        {steps.map((step, index) => {
+            const IconComponent = step.icon; // Componente de Lucide
+            return (
+                <div key={step.id} className={`flex flex-col items-center relative ${index < steps.length - 1 ? 'flex-1' : ''}`}>
+                    
+                    {/* Círculo del paso */}
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white z-10 
+                        ${currentStep > step.id
+                            ? 'bg-green-500' // Completado
+                            : currentStep === step.id
+                                ? 'bg-cyan-500 border-2 border-cyan-300' // Activo
+                                : 'bg-gray-700 border border-gray-600' // Inactivo
+                        }`}
+                    >
+                        {currentStep > step.id ? <CheckCircleIcon className="w-5 h-5" /> : <IconComponent className="w-5 h-5" />} 
+                    </div>
+                    
+                    {/* Línea divisoria */}
+                    {index < steps.length - 1 && (
+                        <div className={`absolute top-5 left-[calc(50%+20px)] w-[calc(100%-40px)] h-0.5 z-0 
+                            ${currentStep > step.id ? 'bg-green-500' : 'bg-gray-700'}`}
+                        />
+                    )}
 
-                {/* Título del paso */}
-                <span className={`mt-3 text-center text-sm font-medium transition-colors duration-300 
-                    ${currentStep >= step.id ? 'text-white' : 'text-gray-500'}`}
-                >
-                    {step.name}
-                </span>
-            </div>
-        ))}
+                    {/* Título del paso */}
+                    <span className={`mt-3 text-center text-sm font-medium transition-colors duration-300 
+                        ${currentStep >= step.id ? 'text-white' : 'text-gray-500'}`}
+                    >
+                        {step.name}
+                    </span>
+                </div>
+            );
+        })}
     </div>
 );
 
@@ -64,7 +70,7 @@ const SubmissionSuccess = ({ title, message }) => (
 );
 
 
-// --- Componente Principal ---
+// --- Componente Principal (Sin Cambios Funcionales) ---
 
 export default function OnboardingPage() {
     const [currentStep, setCurrentStep] = useState(1);
@@ -100,10 +106,8 @@ export default function OnboardingPage() {
         if (currentStep !== steps.length) return;
 
         setIsSubmitting(true);
-        // Lógica de envío de datos a la API de FrontDesk Agents
         console.log("Datos de Onboarding Enviados:", formData);
         
-        // Simular un envío exitoso (ej. API call a /api/onboarding)
         await new Promise(resolve => setTimeout(resolve, 2000)); 
 
         setIsSubmitting(false);
