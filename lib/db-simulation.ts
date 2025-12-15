@@ -1,23 +1,19 @@
-// ./lib/db-simulation.ts (Ensure correct export structure)
+// ./lib/db-simulation.ts (Ensure this structure is present and correct)
 
-// ... (Interface and data definitions above) ...
+// ... (Interfaces, etc.)
 
-// --- Funciones de Simulación ---
-
-// Ensure the export keyword is used here!
 export const db = {
   client: {
     findUnique: (key: string): ClientConfig | undefined => {
-      // ...
+      // ... implementation ...
     },
-    // ...
-  },
-  callLog: {
-    create: (data: Omit<CallLogEntry, 'id' | 'createdAt'>): CallLogEntry => {
-      // ...
-    },
-    getRecentLogs: (clientId: string, limit: number = 10): CallLogEntry[] => {
-      // ...
+    // <--- THIS IS CRUCIAL AND MUST BE EXPORTED --->
+    update: (key: string, data: Partial<ClientConfig>): ClientConfig | undefined => {
+      const index = CLIENTS.findIndex(c => c.clientKey === key);
+      if (index === -1) return undefined;
+      CLIENTS[index] = { ...CLIENTS[index], ...data } as ClientConfig; // Added type assertion
+      return CLIENTS[index];
     }
-  }
+  },
+  // ... (callLog object below) ...
 };
