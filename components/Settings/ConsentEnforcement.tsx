@@ -1,8 +1,8 @@
-// ./components/Settings/ConsentEnforcement.tsx (FIXED IMPORT)
+// ./components/Settings/ConsentEnforcement.tsx (Current State)
 
-import React, { useState, useEffect } from 'react';
-import { ShieldCheckIcon, ExclamationTriangleIcon, CheckIcon } from '@heroicons/react/24/outline'; // <-- Added CheckIcon
-// Importamos la simulación de DB para actualizar el campo
-import { db } from '@/lib/db-simulation'; 
+const ConsentEnforcement: React.FC = () => {
+    // ... component logic ...
+};
 
-// ... rest of the file
+// This line is often missing or incorrectly written
+export default ConsentEnforcement; // <--- ENSURE THIS LINE IS AT THE VERY END
