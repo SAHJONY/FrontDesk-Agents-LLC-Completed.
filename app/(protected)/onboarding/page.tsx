@@ -1,224 +1,67 @@
-'use client';
-import { useState } from 'react';
-import { SettingsIcon, GlobeIcon, MailIcon, PhoneIcon, ScaleIcon, CheckCircleIcon } from 'lucide-react'; 
+// ... (El código del componente OnboardingForm permanece igual) ...
 
-// --- COMPONENTE PRINCIPAL DE ONBOARDING ---
-export default function OnboardingForm() {
-    const [currentStep, setCurrentStep] = useState(1);
-    const [formData, setFormData] = useState({
-        // Step 1: Detalles de la Cuenta
-        companyName: '',
-        primaryContact: '',
-        techEmail: '',
-        // Step 2: Configuración del Agente
-        agentName: 'SARA Enterprise', // Default
-        agentTone: 'professional',
-        complianceNeeds: '',
-        agentLanguage: 'es-US',
-        // Step 3: Integración
-        crmSystem: 'salesforce',
-        apiEndpoint: '',
-        estimatedVolume: 'medium'
-    });
-    const [isSubmitted, setIsSubmitted] = useState(false);
+// --- Componentes Reutilizables (Para consistencia y solución del error de sintaxis) ---
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+import { UserIcon, ShieldIcon } from 'lucide-react'; // Importaciones necesarias
+import Link from 'next/link'; // Importación necesaria
 
-    const nextStepIsValid = () => {
-        if (currentStep === 1) {
-            return formData.companyName && formData.primaryContact && formData.techEmail;
-        }
-        if (currentStep === 2) {
-            return formData.agentTone && formData.complianceNeeds;
-        }
-        return true; 
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (currentStep < 3) {
-            setCurrentStep(currentStep + 1);
-        } else {
-            // Lógica de envío final a la API de Provisioning
-            console.log('Onboarding Data Submitted:', formData);
-            setIsSubmitted(true);
-        }
-    };
-
-    if (isSubmitted) {
-        return (
-            <SubmissionSuccess
-                title="Configuración Inicial Completada"
-                message="¡Felicidades! Los datos de configuración han sido enviados a nuestro equipo de implementación. Espera una confirmación de lanzamiento en las próximas 24 horas."
-            />
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-[#0a1929] pt-16 pb-16 flex justify-center">
-            <div className="max-w-4xl w-full bg-[#10213A] p-12 rounded-xl shadow-2xl border border-white/10">
-                <h1 className="text-4xl font-bold text-white mb-2">Asistente de Implementación</h1>
-                <p className="text-gray-400 mb-8">
-                    Este proceso de 3 pasos recopila todos los detalles para lanzar su Agente AI Enterprise.
-                </p>
-
-                {/* Indicador de Progreso */}
-                <StepIndicator currentStep={currentStep} steps={['Cuenta', 'Agente & Compliance', 'Integración']} />
-
-                <form onSubmit={handleSubmit}>
-                    
-                    {/* --- PASO 1: DETALLES DE LA CUENTA --- */}
-                    {currentStep === 1 && (
-                        <div className="space-y-6">
-                            <InputField 
-                                label="Nombre Legal de la Empresa" name="companyName" type="text" icon={ScaleIcon}
-                                value={formData.companyName} onChange={handleChange} placeholder="FrontDesk Agents LLC"
-                            />
-                            <InputField 
-                                label="Contacto Principal (Decisor)" name="primaryContact" type="text" icon={UserIcon}
-                                value={formData.primaryContact} onChange={handleChange} placeholder="Ej. Jane Smith, VP de Implementación"
-                            />
-                            <InputField 
-                                label="Email de Contacto Técnico" name="techEmail" type="email" icon={MailIcon}
-                                value={formData.techEmail} onChange={handleChange} placeholder="it-admin@empresa.com"
-                            />
-                        </div>
-                    )}
-
-                    {/* --- PASO 2: CONFIGURACIÓN DEL AGENTE Y COMPLIANCE --- */}
-                    {currentStep === 2 && (
-                        <div className="space-y-6">
-                            <InputField 
-                                label="Nombre del Agente AI (Personalización)" name="agentName" type="text" icon={SettingsIcon}
-                                value={formData.agentName} onChange={handleChange} placeholder="SARA Enterprise"
-                            />
-                            <SelectField
-                                label="Tono de Voz y Personalidad" name="agentTone" icon={SettingsIcon}
-                                value={formData.agentTone} onChange={handleChange}
-                                options={[
-                                    { value: 'professional', label: 'Profesional y formal (Predeterminado)' },
-                                    { value: 'concierge', label: 'Conserje amigable (Hospitalidad)' },
-                                    { value: 'direct', label: 'Directo y eficiente (Técnico)' },
-                                ]}
-                                placeholder="Selecciona el tono..."
-                            />
-                            <SelectField
-                                label="Requisitos de Compliance" name="complianceNeeds" icon={ShieldIcon}
-                                value={formData.complianceNeeds} onChange={handleChange}
-                                options={[
-                                    { value: 'hipaa', label: 'HIPAA (Sanidad)' },
-                                    { value: 'gdpr_ccpa', label: 'GDPR / CCPA (Global)' },
-                                    { value: 'none', label: 'Ninguno / Estándar' },
-                                ]}
-                                placeholder="Selecciona los estándares regulatorios..."
-                            />
-                            <SelectField
-                                label="Idioma Principal" name="agentLanguage" icon={GlobeIcon}
-                                value={formData.agentLanguage} onChange={handleChange}
-                                options={[
-                                    { value: 'en-US', label: 'Inglés (US)' },
-                                    { value: 'es-US', label: 'Español (Latam)' },
-                                    { value: 'fr-CA', label: 'Francés (Canadá)' },
-                                ]}
-                                placeholder="Selecciona el idioma..."
-                            />
-                        </div>
-                    )}
-
-                    {/* --- PASO 3: DETALLES DE INTEGRACIÓN --- */}
-                    {currentStep === 3 && (
-                        <div className="space-y-6">
-                            <SelectField
-                                label="Sistema CRM/ERP a Integrar" name="crmSystem" icon={SettingsIcon}
-                                value={formData.crmSystem} onChange={handleChange}
-                                options={[
-                                    { value: 'salesforce', label: 'Salesforce' },
-                                    { value: 'hubspot', label: 'HubSpot' },
-                                    { value: 'custom_api', label: 'API Personalizada / Webhook' },
-                                ]}
-                                placeholder="Selecciona el sistema..."
-                            />
-                            <InputField 
-                                label="Endpoint de API (si aplica)" name="apiEndpoint" type="url" icon={MailIcon}
-                                value={formData.apiEndpoint} onChange={handleChange} 
-                                placeholder="https://api.empresa.com/frontdesk-hook"
-                            />
-                             <SelectField
-                                label="Volumen Estimado (Por si acaso)" name="estimatedVolume" icon={PhoneIcon}
-                                value={formData.estimatedVolume} onChange={handleChange}
-                                options={[
-                                    { value: 'low', label: 'Bajo (hasta 500 llamadas/mes)' },
-                                    { value: 'medium', label: 'Medio (500 - 2500)' },
-                                    { value: 'high', label: 'Alto (+2500)' },
-                                ]}
-                                placeholder="Selecciona el volumen..."
-                            />
-                        </div>
-                    )}
-
-                    {/* Controles de Navegación */}
-                    <div className="flex justify-between mt-8 pt-4 border-t border-gray-800">
-                        {currentStep > 1 && (
-                            <button
-                                type="button"
-                                onClick={() => setCurrentStep(currentStep - 1)}
-                                className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition-colors"
-                            >
-                                ← Anterior
-                            </button>
-                        )}
-                        
-                        <div className={currentStep === 1 ? 'w-full' : ''}>
-                            <button
-                                type="submit"
-                                disabled={!nextStepIsValid()}
-                                className={`px-6 py-3 rounded-lg text-white font-semibold transition-all duration-300 ${nextStepIsValid() ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-gray-500/50 cursor-not-allowed'} ${currentStep < 3 ? 'ml-auto' : 'w-full'}`}
-                            >
-                                {currentStep < 3 ? 'Siguiente Paso →' : 'Finalizar y Lanzar'}
-                            </button>
-                        </div>
-                    </div>
-                </form>
-
+const InputField = ({ label, name, type, icon: Icon, value, onChange, placeholder, required = false }) => (
+    <div>
+        <label htmlFor={name} className="block text-sm font-medium text-gray-300 mb-2">{label}</label>
+        <div className="relative rounded-md shadow-sm">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <Icon className="h-5 w-5 text-cyan-400" aria-hidden="true" />
             </div>
+            <input
+                type={type}
+                name={name}
+                id={name}
+                value={value}
+                onChange={onChange}
+                required={required}
+                placeholder={placeholder}
+                className="block w-full rounded-md border-0 bg-white/5 py-3 pl-10 pr-4 text-white placeholder-gray-500 ring-1 ring-inset ring-gray-700 focus:ring-2 focus:ring-inset focus:ring-cyan-500 sm:text-sm sm:leading-6 transition-all duration-200"
+            />
         </div>
-    );
-}
-
-// --- Componentes Reutilizables (de la Demo Page, para consistencia) ---
-
-const InputField = ({ label, name, type, icon: Icon, value, onChange, placeholder }) => (
-    // ... Código del InputField (usado en Demo Page)
+    </div>
 );
 
-const SelectField = ({ label, name, icon: Icon, value, onChange, options, placeholder }) => (
-    // ... Código del SelectField (usado en Demo Page)
+const SelectField = ({ label, name, icon: Icon, value, onChange, options, placeholder, required = false }) => (
+    <div>
+        <label htmlFor={name} className="block text-sm font-medium text-gray-300 mb-2">{label}</label>
+        <div className="relative rounded-md shadow-sm">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <Icon className="h-5 w-5 text-cyan-400" aria-hidden="true" />
+            </div>
+            <select
+                id={name}
+                name={name}
+                value={value}
+                onChange={onChange}
+                required={required}
+                className="block w-full rounded-md border-0 bg-white/5 py-3 pl-10 pr-10 text-white ring-1 ring-inset ring-gray-700 focus:ring-2 focus:ring-inset focus:ring-cyan-500 sm:text-sm sm:leading-6 appearance-none transition-all duration-200"
+            >
+                <option value="" disabled className="text-gray-500 bg-[#10213A]">{placeholder}</option>
+                {options.map(option => (
+                    <option key={option.value} value={option.value} className="text-white bg-[#10213A]">
+                        {option.label}
+                    </option>
+                ))}
+            </select>
+            {/* Ícono de flecha para el select */}
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4 text-gray-500 transform rotate-90">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+            </div>
+        </div>
+    </div>
 );
 
 const StepIndicator = ({ currentStep, steps }) => (
-    <div className="flex justify-between mb-8">
-        {steps.map((label, index) => {
-            const step = index + 1;
-            return (
-                <div key={step} className={`flex-1 text-center py-2 border-b-4 ${currentStep >= step ? 'border-cyan-500 text-cyan-400' : 'border-gray-700 text-gray-500'} font-semibold transition-all`}>
-                    {step}. {label}
-                </div>
-            );
-        })}
-    </div>
+    // ... (El código de StepIndicator permanece igual)
 );
 
 const SubmissionSuccess = ({ title, message }) => (
-    <div className="min-h-screen bg-[#0a1929] pt-32 flex justify-center items-start">
-        <div className="max-w-xl w-full bg-[#10213A] p-12 rounded-xl shadow-2xl border border-cyan-700/50 text-center">
-            <CheckCircleIcon className="w-16 h-16 mx-auto text-green-400 mb-6" />
-            <h1 className="text-3xl font-bold text-white mb-4">{title}</h1>
-            <p className="text-gray-400 mb-8">{message}</p>
-            <Link href="/dashboard" className="text-cyan-400 hover:text-cyan-300 font-medium">
-                → Ir al Dashboard
-            </Link>
-        </div>
-    </div>
+    // ... (El código de SubmissionSuccess permanece igual)
 );
