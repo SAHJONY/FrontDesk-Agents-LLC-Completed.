@@ -9,22 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@sendgrid/mail": "^8.1.1",  // <-- CORRECCIÓN: Módulo SendGrid añadido
     "next": "14.2.4",
-    "react": "^18",
-    "react-dom": "^18",
-    // Asegúrate de que todas tus otras dependencias como @supabase/supabase-js, lucide-react, etc., estén listadas aquí con sus versiones correctas.
-    "lucide-react": "^0.303.0",
-    "typescript": "^5.3.3"
-  },
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    
+    "@supabase/supabase-js": "^2.43.4",
+    "@sendgrid/mail": "^8.1.1",
+    "lucide-react": "^0.303.0"
+    
+    },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
+    "@types/node": "^20.14.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
     "eslint-config-next": "14.2.4",
-    "postcss": "^8",
-    "tailwindcss": "^3.3.0"
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.4.5"
   },
   "engines": {
     "node": "20.x"
