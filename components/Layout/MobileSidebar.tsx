@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Menu, X, Settings, BarChart3, ShieldHalf, PhoneCall, DollarSign, Plug, LifeBuoy } from 'lucide-react';
 
 const navItems = [
+    // Rutas protegidas clave
     { href: '/dashboard', icon: BarChart3, label: 'Global Command Center' },
     { href: '/admin/compliance-center', icon: ShieldHalf, label: 'Compliance & Risk' },
     { href: '/client/call-log', icon: PhoneCall, label: 'Call Log & Audit' },
@@ -14,12 +15,6 @@ const navItems = [
     { href: '/support', icon: LifeBuoy, label: 'Concierge Support' },
 ];
 
-const SidebarContent = () => (
-    <div className="text-xl font-extrabold text-cyan-400 mb-8 tracking-wider">
-        FrontDesk Agents
-    </div>
-);
-
 export const MobileSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,13 +23,12 @@ export const MobileSidebar = () => {
       {/* Botón de Hamburguesa (Visible solo en móvil/sm) */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-40 p-2 lg:hidden text-white bg-gray-800 rounded-lg"
+        className="fixed top-4 left-4 z-40 p-2 lg:hidden text-white bg-[#10213A] border border-gray-700 rounded-lg shadow-xl"
       >
-        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {isOpen ? <X className="w-6 h-6 text-cyan-400" /> : <Menu className="w-6 h-6 text-cyan-400" />}
       </button>
 
-      {/* Sidebar - Fija y Oculta por defecto en escritorio, controlada por estado en móvil */}
-      {/* En desktop (lg:), mantiene el comportamiento fijo y siempre visible */}
+      {/* Sidebar - Controlada por el estado 'isOpen' en móvil */}
       <nav 
         className={`
           fixed h-full bg-[#10213A] border-r border-gray-800 p-4 pt-16 z-30 
@@ -43,7 +37,12 @@ export const MobileSidebar = () => {
           lg:translate-x-0 lg:w-64 lg:pt-10 lg:block
         `}
       >
-        <SidebarContent />
+        {/* Encabezado del menú */}
+        <div className="text-xl font-extrabold text-cyan-400 mb-8 tracking-wider">
+            FrontDesk Agents
+        </div>
+        
+        {/* Items de Navegación */}
         <ul>
             {navItems.map((item) => (
             <li key={item.href} className="mb-2">
@@ -60,7 +59,7 @@ export const MobileSidebar = () => {
         </ul>
       </nav>
 
-      {/* Overlay Oscuro para móvil cuando el menú está abierto */}
+      {/* Overlay Oscuro (aparece solo en móvil cuando el menú está abierto) */}
       {isOpen && (
         <div 
           onClick={() => setIsOpen(false)}
