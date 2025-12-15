@@ -55,7 +55,7 @@ const ConsentEnforcement: React.FC = () => {
         onClick={handleSave}
         className="btn-premium w-full"
       >
-        Save Consent Policy
+        Save Consent Policy 
       </button>
 
       {isSaved && (
