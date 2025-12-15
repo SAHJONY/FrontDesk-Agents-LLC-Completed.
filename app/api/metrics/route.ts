@@ -1,22 +1,36 @@
-// app/api/metrics/route.ts
-import { createClient } from '@supabase/supabase-js';
+// ./app/api/metrics/route.ts
 
-// Only create client when actually handling requests, not at build time
-export async function GET(request: Request) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Asegúrate de usar la importación correcta de Supabase
+import { createClient } from '@supabase/supabase-js'; 
+import { NextResponse } from 'next/server';
 
-  if (!supabaseUrl || !supabaseKey) {
-    return Response.json(
-      { error: 'Supabase configuration missing' },
-      { status: 500 }
-    );
-  }
+// Inicialización del cliente Supabase del lado del servidor
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_KEY || ''
+);
 
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  
-  // Your metrics logic here...
+// Definición de la función GET (Ejemplo de métricas)
+export async function GET() {
+    try {
+        // Ejemplo de consulta para el dashboard
+        const { data: metrics, error } = await supabase
+            .from('calls') // Asegúrate de que tu tabla se llama 'calls' o usa el nombre correcto
+            .select('count')
+            .limit(1); // Solo un ejemplo para verificar la conexión
+
+        if (error) {
+            console.error("Error al obtener métricas de Supabase:", error);
+            return NextResponse.json({ error: 'Fallo en la base de datos', details: error.message }, { status: 500 });
+        }
+
+        return NextResponse.json({ 
+            status: 'ok', 
+            data: metrics 
+        });
+
+    } catch (e) {
+        console.error("Error inesperado en la API de métricas:", e);
+        return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+    }
 }
-
-// Add this to prevent static generation
-export const dynamic = 'force-dynamic';
