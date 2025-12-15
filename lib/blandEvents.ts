@@ -1,17 +1,16 @@
 // ./lib/blandEvents.ts
 
-// Importar las utilidades de valor que hemos desarrollado
-import { syncLeadToCRM } from './crm-sync-utils'; 
-import { setupNoShowPrevention } from './sms-scheduler'; 
-import { db } from './db-simulation'; // Para persistencia de logs
+import { syncLeadToCRM } from './crm-sync-utils';
+import { setupNoShowPrevention } from './sms-scheduler';
+import { db } from './db-simulation';
 
-// Tipo común para contexto multi-tenant (opcional por ahora)
 export type TenantContext = {
   tenantId?: string | null;
 };
 
 /**
- * 1. Loguea el evento de llamada en nuestra DB para auditoría.
+ * 1. Loguea el evento de llamada (SAFE MODE)
+ *    No usamos db.callLog porque no existe en la DB actual.
  */
 export async function storeCallFromBland(
   payload: any,
@@ -19,83 +18,81 @@ export async function storeCallFromBland(
 ) {
   const clientId = context?.tenantId || payload?.tenant_id || 'UNKNOWN';
 
-  // --- PERSISTENCIA DE DATOS CRÍTICA ---
-  // Guardar el log en nuestra DB (usando la simulación para este ejemplo)
-  const newCallLog = db.callLog.create({
-      callId: payload.call_id,
-      clientId: clientId,
-      status: payload.status || 'failed',
-      outcome: payload.outcome || 'hangup', // Asumiendo que Bland pasa el outcome aquí
-      durationSeconds: Math.round(payload.duration || 0),
-      transcript: payload.transcript || 'No transcript available.',
-      // Asumimos que el leadData se extrae en los stubs de lead/appointment si existe.
-      leadData: payload.lead || payload.appointment?.lead || { name: 'N/A', phone: 'N/A', email: 'N/A' },
+  // 🔒 SAFE LOGGING (no dependencia estructural)
+  console.log('[blandEvents][CALL]', {
+    callId: payload.call_id,
+    clientId,
+    status: payload.status || 'failed',
+    outcome: payload.outcome || 'hangup',
+    duration: Math.round(payload.duration || 0),
   });
 
-  console.log(`[blandEvents] Stored Call ID ${newCallLog.callId} for Tenant: ${clientId}`);
+  return { ok: true };
 }
 
 /**
- * 1. Confirma el almacenamiento del lead en la DB.
- * 2. Activa la sincronización con el CRM externo del cliente.
+ * 1. Confirma lead
+ * 2. Activa sincronización CRM (CORE VALUE)
  */
 export async function storeLead(payload: any, context?: TenantContext) {
   const clientId = context?.tenantId || payload?.tenant_id || 'UNKNOWN';
-  console.log(`[blandEvents] Storing Lead for Tenant: ${clientId}`);
 
-  // --- ACTIVACIÓN DE VALOR: CRM SYNC ---
-  if (payload.lead) {
-      // Creamos un objeto que simula la entrada de DB para la función de sincronización.
-      const simulatedCallLogEntry = {
-          clientId: clientId,
-          leadData: payload.lead, 
-          outcome: payload.outcome || 'qualified', // Asumimos un lead calificado
-      } as any; 
+  console.log('[blandEvents][LEAD]', { clientId });
 
-      await syncLeadToCRM(simulatedCallLogEntry);
-      console.log(`[blandEvents] Lead CRM Sync triggered for Call ${payload.call_id}`);
-  }
+  if (!payload?.lead) return;
+
+  const simulatedEntry = {
+    clientId,
+    leadData: payload.lead,
+    outcome: payload.outcome || 'qualified',
+  } as any;
+
+  await syncLeadToCRM(simulatedEntry);
+
+  console.log('[blandEvents] CRM Sync triggered', {
+    callId: payload.call_id,
+  });
 }
 
 /**
- * 1. Confirma el almacenamiento de la cita en la DB.
- * 2. Activa la Prevención de Ausencias (SMS Scheduler).
+ * 1. Registra cita
+ * 2. Sincroniza CRM
+ * 3. Programa SMS No-Show Prevention (CORE VALUE)
  */
 export async function storeAppointment(
   payload: any,
   context?: TenantContext
 ) {
   const clientId = context?.tenantId || payload?.tenant_id || 'UNKNOWN';
-  console.log(`[blandEvents] Storing Appointment for Tenant: ${clientId}`);
 
-  // 1. Realizar una sincronización de lead/cita para el CRM (para asegurar que la cita se registra).
-  if (payload.appointment) {
-      const simulatedCallLogEntry = {
-          clientId: clientId,
-          leadData: payload.appointment.lead || payload.lead,
-          outcome: 'booked',
-      } as any; 
-      await syncLeadToCRM(simulatedCallLogEntry);
-  }
+  const appt = payload?.appointment;
+  if (!appt) return;
 
-  // --- ACTIVACIÓN DE VALOR: NO-SHOW PREVENTION (SMS) ---
+  // --- CRM SYNC ---
+  const simulatedEntry = {
+    clientId,
+    leadData: appt.lead || payload.lead,
+    outcome: 'booked',
+  } as any;
+
+  await syncLeadToCRM(simulatedEntry);
+
+  // --- NO-SHOW PREVENTION ---
   try {
-      const appt = payload.appointment;
-      
-      if (appt && appt.lead && appt.appointment_time) {
-        
-          const apptTime = new Date(appt.appointment_time);
-          
-          await setupNoShowPrevention(
-              appt.lead.name || 'Prospecto', 
-              appt.lead.phone || 'N/A', 
-              apptTime, 
-              appt.service_name || 'Servicio Genérico', 
-              clientId
-          );
-      }
-      console.log(`[blandEvents] Appointment SMS Prevention scheduled for Call ${payload.call_id}`);
-  } catch (e) {
-      console.error("[blandEvents] Error scheduling SMS:", e);
+    if (appt.lead && appt.appointment_time) {
+      await setupNoShowPrevention(
+        appt.lead.name || 'Prospect',
+        appt.lead.phone || 'N/A',
+        new Date(appt.appointment_time),
+        appt.service_name || 'Service',
+        clientId
+      );
+    }
+
+    console.log('[blandEvents] SMS No-Show scheduled', {
+      callId: payload.call_id,
+    });
+  } catch (err) {
+    console.error('[blandEvents] SMS scheduling error', err);
   }
-            }
+}
