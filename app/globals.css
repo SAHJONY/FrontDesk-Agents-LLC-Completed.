@@ -2,33 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definición de la Paleta de Colores Corporativa */
+/* ===============================
+   FORTUNE 500 DESIGN SYSTEM
+   =============================== */
+
 :root {
-  /* Fondo Ejecutivo (Casi negro/Azul profundo) */
-  --color-background-dark: #0A1929; 
-  /* Tarjetas/Contenedores Secundarios */
-  --color-surface: #10213A; 
-  /* Acento Cian/Teal (Para KPIs, Botones Primarios) */
-  --color-accent-cyan: #00C9E9;
-  /* Texto Principal */
-  --color-text-light: #E0E7FF;
-  /* Texto Secundario/Gráficos */
-  --color-text-secondary: #8899AA;
+  --bg-main: #0B0F1A;
+  --bg-surface: #111827;
+  --bg-elevated: #1F2937;
+
+  --border-default: #374151;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
 }
 
-body {
-  background-color: var(--color-background-dark);
-  color: var(--color-text-light);
-  font-family: 'Inter', sans-serif; /* Usando una fuente moderna */
+/* Reset base */
+html, body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Estilo para Títulos H1 y H2 */
-.executive-heading {
-  @apply text-3xl font-bold tracking-tight text-white mb-6 border-b border-gray-700 pb-2;
+/* Headings — Corporate hierarchy */
+h1 {
+  font-size: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+h3 {
+  font-size: 1.125rem;
+  font-weight: 500;
 }
 
-/* Estilo de Tarjeta Premium */
-.premium-card {
-  background-color: var(--color-surface);
-  @apply rounded-xl p-6 shadow-2xl border border-gray-800 transition duration-300 hover:border-cyan-500;
+/* Text */
+p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Enterprise Card */
+.enterprise-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+/* Enterprise Button */
+.btn-primary {
+  height: 44px;
+  padding: 0 1.5rem;
+  border-radius: 0.5rem;
+  background-color: var(--primary);
+  color: white;
+  font-weight: 500;
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Remove all glass / ghost */
+.glass,
+.bg-white\/5,
+.bg-black\/10 {
+  background: none !important;
+  backdrop-filter: none !important;
 }
