@@ -1,9 +1,7 @@
-// File: lib/auth.ts (MODIFICADO para incluir el Rol)
+// File: lib/auth.ts 
 
 /**
- * Authentication helper function
- * In production, this would handle actual authentication
- * For now, it returns a simulated client key
+ * Authentication helper function (Dummy client key/user for STAFF)
  */
 export function auth() {
   // TODO: Implement real authentication
@@ -25,14 +23,13 @@ export function isAuthenticated(): boolean {
 }
 
 /**
- * Get current session
+ * Get current session - (Simula al CEO/OWNER para pruebas de ruta)
  */
 export async function getSession() {
   // TODO: Implement session retrieval
   
   // === MODIFICACIÓN CLAVE: INCLUIR EL ROL ===
   // Para las rutas sensibles, el código real consultaría la DB para obtener el rol.
-  // Aquí, simulamos al CEO temporalmente para probar el Dashboard.
   
   const isOwner = true; // CAMBIAR a 'false' una vez que la lógica real esté implementada
   
@@ -46,10 +43,3 @@ export async function getSession() {
     clientKey: 'FDDG-SARAV1-93A2X-57B'
   };
 }
-
-// ------------------------------------------------------------------
-// NOTA: Con esta modificación, puedes integrar el módulo de seguridad:
-// 
-// 1. Reemplaza getCurrentUser en 'lib/auth/authorization.ts'
-//    con esta función getSession (o una función que devuelva el objeto user).
-// 2. Ejecuta una prueba en el CEO Dashboard.
