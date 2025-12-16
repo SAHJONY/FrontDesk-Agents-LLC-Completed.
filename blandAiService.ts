@@ -6,10 +6,6 @@ import { loadSecret } from '../config/secrets'
 
 const BLAND_API_BASE = 'https://api.bland.ai/v1'
 
-// ----------------------------------------------------
-// 0. LÍMITE DIARIO (HARD STOP)
-// ----------------------------------------------------
-
 async function checkDailyLimit(integration: IntegrationControl): Promise<void> {
   if (integration.daily_limit <= 0) {
     throw new Error(
@@ -25,10 +21,6 @@ async function checkDailyLimit(integration: IntegrationControl): Promise<void> {
     )
   }
 }
-
-// ----------------------------------------------------
-// 1. ACTIVATION GATE (CEO + GLOBAL)
-// ----------------------------------------------------
 
 async function getIntegration(provider: string): Promise<IntegrationControl> {
   if (process.env.GLOBAL_KILL_SWITCH === 'OFF') {
@@ -50,10 +42,6 @@ async function getIntegration(provider: string): Promise<IntegrationControl> {
   return integration
 }
 
-// ----------------------------------------------------
-// 2. CONFIG RESOLUTION (SANDBOX / LIVE)
-// ----------------------------------------------------
-
 function resolveBlandConfig(integration: IntegrationControl) {
   if (!integration.metadata) {
     throw new Error('Bland.ai metadata missing')
@@ -72,35 +60,23 @@ function resolveBlandConfig(integration: IntegrationControl) {
   }
 }
 
-// ----------------------------------------------------
-// 3. EJECUCIÓN PRINCIPAL (HTTP API)
-// ----------------------------------------------------
-
 export async function makeCall(to: string, units_to_use = 1) {
-  // A. CEO + GLOBAL GATE
   const integration = await getIntegration('bland_ai')
-
-  // B. COST CONTROL
   await checkDailyLimit(integration)
 
-  // C. CONFIG
   const { apiKey, agentId } = resolveBlandConfig(integration)
 
   if (!apiKey || !agentId) {
     throw new Error('Bland.ai API key or agent ID missing')
   }
 
-  // D. API CALL
   const response = await fetch(`${BLAND_API_BASE}/call`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      to,
-      agent_id: agentId,
-    }),
+    body: JSON.stringify({ to, agent_id: agentId }),
   })
 
   if (!response.ok) {
@@ -110,7 +86,6 @@ export async function makeCall(to: string, units_to_use = 1) {
 
   const result = await response.json()
 
-  // E. USAGE LOG
   await db.consumption.logUsage('bland_ai', units_to_use)
 
   return {
