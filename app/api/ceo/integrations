@@ -1,0 +1,44 @@
+// File: app/api/ceo/integrations/[provider]/route.ts (Next.js App Router)
+
+import { db } from '../../../../../db/client'; // Importa el cliente DB definido
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { provider: string } }
+) {
+  // 1. AUTORIZACIÓN: ¡CRÍTICO! Solo el CEO/Owner debe pasar.
+  // const user = await getCurrentUser(request);
+  // if (user.role !== 'OWNER') {
+  //   return new NextResponse('Unauthorized: Only CEO role can modify integrations.', { status: 403 });
+  // }
+  
+  const { provider } = params;
+  const data = await request.json(); // Contendrá { active, mode, daily_limit, metadata, ... }
+
+  try {
+    // 2. VALIDACIÓN DE REGLAS DE NEGOCIO
+    if (data.active === true && !data.daily_limit) {
+      // Regla: No se puede activar sin establecer un límite de costos.
+      return NextResponse.json({ error: "Cannot activate without setting a daily_limit." }, { status: 400 });
+    }
+    
+    // 3. ACTUALIZACIÓN SEGURA
+    const updatedIntegration = await db.integrations_control.update({
+      provider: provider,
+      ...data,
+      // Se recomienda añadir un campo de audit log aquí, o usar un trigger de DB.
+      activated_by: 'CEO_USER_ID', 
+    });
+
+    // 4. RESPUESTA
+    return NextResponse.json({ 
+      message: `${provider} successfully updated.`,
+      status: updatedIntegration 
+    });
+
+  } catch (error) {
+    console.error(`Error updating ${provider}:`, error);
+    return NextResponse.json({ error: `Failed to update integration: ${error.message}` }, { status: 500 });
+  }
+}
