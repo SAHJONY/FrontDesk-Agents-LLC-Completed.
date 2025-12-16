@@ -1,4 +1,4 @@
-// ./components/ui/card.tsx (Corregir la destructuración en todos los subcomponentes)
+// ./components/ui/card.tsx (Asegurar que todas las 'className' son opcionales con un valor por defecto)
 import React from 'react';
 import { cn } from "@/lib/utils"; 
 
@@ -14,7 +14,7 @@ export const Card = ({ className, children, ...props }) => (
 
 // CORRECCIÓN CRÍTICA: CardHeader
 export const CardHeader = ({ className = "", children, ...props }) => (
-//                                  ^^^^^^ Agregado valor por defecto
+//                                  ^^^^^^ DEBE estar presente
   <div className={cn("flex flex-col space-y-1.5", className)} {...props}>
     {children}
   </div>
@@ -22,7 +22,7 @@ export const CardHeader = ({ className = "", children, ...props }) => (
 
 // CORRECCIÓN: CardTitle
 export const CardTitle = ({ className = "", children, ...props }) => (
-//                                 ^^^^^^ Agregado valor por defecto
+//                                 ^^^^^^ DEBE estar presente
   <h3 className={cn("font-semibold leading-none tracking-tight text-lg", className)} {...props}>
     {children}
   </h3>
@@ -30,7 +30,7 @@ export const CardTitle = ({ className = "", children, ...props }) => (
 
 // CORRECCIÓN: CardDescription
 export const CardDescription = ({ className = "", children, ...props }) => (
-//                                        ^^^^^^ Agregado valor por defecto
+//                                        ^^^^^^ DEBE estar presente
   <p className={cn("text-sm text-muted-foreground text-gray-500", className)} {...props}>
     {children}
   </p>
@@ -38,7 +38,7 @@ export const CardDescription = ({ className = "", children, ...props }) => (
 
 // CORRECCIÓN: CardContent
 export const CardContent = ({ className = "", children, ...props }) => (
-//                                     ^^^^^^ Agregado valor por defecto
+//                                     ^^^^^^ DEBE estar presente
   <div className={cn("p-0 pt-6", className)} {...props}>
     {children}
   </div>
@@ -46,7 +46,7 @@ export const CardContent = ({ className = "", children, ...props }) => (
 
 // CORRECCIÓN: CardFooter
 export const CardFooter = ({ className = "", children, ...props }) => (
-//                                    ^^^^^^ Agregado valor por defecto
+//                                    ^^^^^^ DEBE estar presente
   <div className={cn("flex items-center pt-0", className)} {...props}>
     {children}
   </div>
