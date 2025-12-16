@@ -16,7 +16,6 @@ const navItems = [
     { name: 'Compliance', href: '/admin/compliance-center', icon: ShieldCheckIcon },
 ];
 
-// Exportación con nombre
 export function Sidebar() {
     return (
         <aside className="fixed inset-y-0 left-0 z-20 w-64 bg-[#111827] text-white border-r border-gray-700 p-4 flex flex-col">
