@@ -1,18 +1,17 @@
-// components/ui/switch.tsx
-import React from 'react';
-// Asumimos que usa una prop 'checked' y 'onCheckedChange'
+// ./components/ui/switch.tsx
+'use client';
 
-export const Switch = React.forwardRef(({ checked, onCheckedChange, ...props }, ref) => (
-  <button 
-    ref={ref} 
-    role="switch" 
-    aria-checked={checked} 
-    onClick={() => onCheckedChange && onCheckedChange(!checked)}
-    {...props}
-  >
-    {/* Placeholder para la apariencia del switch */}
-    {checked ? 'ON' : 'OFF'} 
-  </button>
-));
-
-Switch.displayName = 'Switch';
+// Simulación de un componente Switch
+export const Switch = ({ checked, onCheckedChange, ...props }) => {
+  return (
+    <button 
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onCheckedChange(!checked)}
+      className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${checked ? 'bg-cyan-600' : 'bg-gray-400'}`}
+      {...props}
+    >
+      <span className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${checked ? 'translate-x-6' : 'translate-x-0'}`} />
+    </button>
+  );
+};
