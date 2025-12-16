@@ -1,118 +1,96 @@
 // services/blandAiService.ts
+// PRODUCCIÓN — SIN SDK FANTASMA — CONTROL CEO TOTAL
 
-import { Bland } from 'blandai';
-import { db, IntegrationControl } from '../db/client';
-import { loadSecret } from '../config/secrets';
+import { db, IntegrationControl } from '../db/client'
+import { loadSecret } from '../config/secrets'
 
-// ----------------------------------------------------
-// 1. Obtiene el estado y aplica el CEO Activation Gate
-// ----------------------------------------------------
+const BLAND_API_BASE = 'https://api.bland.ai/v1'
+
+async function checkDailyLimit(integration: IntegrationControl): Promise<void> {
+  if (integration.daily_limit <= 0) {
+    throw new Error(
+      `Integration ${integration.provider} blocked: daily_limit=${integration.daily_limit}`
+    )
+  }
+
+  const usageToday = await db.consumption.getDailyUsage(integration.provider)
+
+  if (usageToday >= integration.daily_limit) {
+    throw new Error(
+      `402 Payment Required: Daily limit reached (${usageToday}/${integration.daily_limit})`
+    )
+  }
+}
 
 async function getIntegration(provider: string): Promise<IntegrationControl> {
+  if (process.env.GLOBAL_KILL_SWITCH === 'OFF') {
+    throw new Error('GLOBAL KILL SWITCH ACTIVE — All external calls halted')
+  }
+
   const integration = await db.integrations_control.findUnique({
-    where: { provider: provider }
-  });
+    where: { provider },
+  })
 
   if (!integration) {
-    throw new Error(`Integration provider '${provider}' not found in registry.`);
+    throw new Error(`Integration config missing for provider: ${provider}`)
   }
 
-  // === CEO ACTIVATION GATE ===
   if (!integration.active) {
-    console.warn(`[Activation Gate] Attempt to use ${provider} failed. Status: DISABLED by CEO.`);
-    throw new Error(`Voice AI disabled by CEO.`);
+    throw new Error('Integration disabled by CEO')
   }
 
-  // === LÍMITE DE FACTURACIÓN DURO ===
-  if (integration.daily_limit <= 0) {
-      console.error(`[Activation Gate] Daily limit exceeded for ${provider}. HARD STOP.`);
-      throw new Error(`Integration daily limit reached: ${integration.daily_limit}`);
-  }
-  
-  return integration;
+  return integration
 }
 
-// ----------------------------------------------------
-// 2. Inicializa el cliente Bland.ai con credenciales condicionadas
-// ----------------------------------------------------
-
-async function initializeBlandClient(integration: IntegrationControl) {
-  let apiKey: string;
-  let agentId: string | undefined;
-
-  // Carga la clave y el Agente ID basado en el modo (Sandbox/Live)
-  if (integration.mode === 'live') {
-    apiKey = loadSecret('BLAND_AI_LIVE_KEY');
-    agentId = integration.metadata.liveAgentId;
-    
-  } else if (integration.mode === 'sandbox') {
-    apiKey = loadSecret('BLAND_AI_SANDBOX_KEY');
-    agentId = integration.metadata.sandboxAgentId;
-    
-  } else {
-    throw new Error(`Invalid mode configured for Bland.ai: ${integration.mode}`);
+function resolveBlandConfig(integration: IntegrationControl) {
+  if (!integration.metadata) {
+    throw new Error('Bland.ai metadata missing')
   }
+
+  if (integration.mode === 'live') {
+    return {
+      apiKey: loadSecret('BLAND_AI_LIVE_KEY'),
+      agentId: integration.metadata.liveAgentId,
+    }
+  }
+
+  return {
+    apiKey: loadSecret('BLAND_AI_SANDBOX_KEY'),
+    agentId: integration.metadata.sandboxAgentId,
+  }
+}
+
+export async function makeCall(to: string, units_to_use = 1) {
+  const integration = await getIntegration('bland_ai')
+  await checkDailyLimit(integration)
+
+  const { apiKey, agentId } = resolveBlandConfig(integration)
 
   if (!apiKey || !agentId) {
-    // Falla si la configuración de Secrets o Metadata está incompleta para el modo activo.
-    throw new Error(`Bland.ai API Key or Agent ID not configured for mode: ${integration.mode}`);
+    throw new Error('Bland.ai API key or agent ID missing')
   }
-  
-  const blandClient = new Bland(apiKey);
-  
-  return { blandClient, agentId };
-}
 
-// ----------------------------------------------------
-// 3. Función de Ejecución Principal
-// ----------------------------------------------------
+  const response = await fetch(`${BLAND_API_BASE}/call`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ to, agent_id: agentId }),
+  })
 
-/**
- * Función principal para iniciar una llamada de Bland.ai.
- * @param to El número de teléfono a llamar.
- */
-export async function makeCall(to: string) {
-  try {
-    // PASO 1: Consulta y Validación del Activation Gate
-    const blandConfig = await getIntegration('bland_ai');
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Bland.ai API error: ${response.status} — ${errorText}`)
+  }
 
-    // PASO 2: Inicialización Condicional de Credenciales
-    const { blandClient, agentId } = await initializeBlandClient(blandConfig);
+  const result = await response.json()
 
-    console.log(`[Bland AI Service] Executing call in ${blandConfig.mode} mode. Agent ID: ${agentId}.`);
-    
-    // PASO 3: Ejecución de la llamada
-    const callResult = await blandClient.call({
-      to: to,
-      agent_id: agentId,
-      // Otras configuraciones del request...
-    });
-    
-    // PASO 4: Auditoría y Consumo (Pendiente de implementación)
-    // await logConsumption('bland_ai', 1, blandConfig.daily_limit); 
-    // ^ Aquí iría la lógica para decrementar el límite en la DB
+  await db.consumption.logUsage('bland_ai', units_to_use)
 
-    return { success: true, callResult, mode: blandConfig.mode };
-
-  } catch (error) {
-    // Captura los errores del Activation Gate y los propaga.
-    throw error; 
+  return {
+    success: true,
+    mode: integration.mode,
+    result,
   }
 }
-
-// ----------------------------------------------------
-// Ejemplo de Uso (para testing)
-// ----------------------------------------------------
-
-// Descomenta y configura las variables de entorno para probar:
-/*
-async function runTest() {
-    try {
-        const result = await makeCall('5551234567');
-        console.log('Call executed successfully:', result);
-    } catch (e) {
-        console.error('Call execution stopped:', e.message);
-    }
-}
-runTest();
-*/
