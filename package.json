@@ -1,6 +1,6 @@
 {
   "name": "frontdesk-agents-llc-completed",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,6 +17,7 @@
     "react-dom": "18.2.0",
 
     "lucide-react": "^0.400.0",
+    "@heroicons/react": "^2.1.5",
 
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
