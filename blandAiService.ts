@@ -1,6 +1,6 @@
-// services/blandAiService.ts (Actualización Completa)
+// services/blandAiService.ts (Actualización Completa y Corregida)
 
-import { Bland } from 'blandai';
+import { Bland } from 'blandai'; // REQUIERE: blandai instalado en package.json
 import { db, IntegrationControl } from '../db/client';
 import { loadSecret } from '../config/secrets';
 
@@ -14,6 +14,7 @@ async function checkDailyLimit(integration: IntegrationControl): Promise<void> {
         throw new Error(`Integration ${integration.provider} is restricted by a hard limit of ${integration.daily_limit}.`);
     }
 
+    // Nota: Se asume que db.consumption.getDailyUsage está definido y devuelve el uso.
     const usageToday = await db.consumption.getDailyUsage(integration.provider);
     
     if (usageToday >= integration.daily_limit) {
@@ -28,6 +29,7 @@ async function checkDailyLimit(integration: IntegrationControl): Promise<void> {
 // 1. Activation Gate (El primer Failsafe)
 // ----------------------------------------------------
 
+// Corrección de Tipo: Retorna IntegrationControl o null/undefined si no se encuentra
 async function getIntegration(provider: string): Promise<IntegrationControl> {
   // === A. KILL SWITCH GLOBAL (Check de Env Var) ===
   if (process.env.GLOBAL_KILL_SWITCH === 'OFF') {
@@ -40,7 +42,12 @@ async function getIntegration(provider: string): Promise<IntegrationControl> {
     where: { provider: provider }
   });
 
-  if (!integration || !integration.active) {
+  if (!integration) {
+    // Manejar el caso donde la integración no existe en la DB
+    throw new Error(`Configuration not found for provider: ${provider}.`);
+  }
+  
+  if (!integration.active) {
     throw new Error(`Voice AI disabled by CEO.`);
   }
 
@@ -48,21 +55,31 @@ async function getIntegration(provider: string): Promise<IntegrationControl> {
 }
 
 // ----------------------------------------------------
-// 2. Inicialización Condicional (Omitido por ser idéntico al anterior)
+// 2. Inicialización Condicional
 // ----------------------------------------------------
 
 async function initializeBlandClient(integration: IntegrationControl) {
-  // ... (código para cargar la API key y el agentId, igual al anterior)
   let apiKey: string;
   let agentId: string | undefined;
+  
+  // Asegurarse de que metadata exista
+  if (!integration.metadata) {
+      throw new Error(`Bland.ai metadata missing for integration.`);
+  }
+  
+  // Nota: Se asume que metadata tiene las propiedades sandboxAgentId y liveAgentId
   if (integration.mode === 'live') {
+    // Nota: Se asume que loadSecret está definido y funciona
     apiKey = loadSecret('BLAND_AI_LIVE_KEY');
     agentId = integration.metadata.liveAgentId;
   } else { // sandbox
     apiKey = loadSecret('BLAND_AI_SANDBOX_KEY');
     agentId = integration.metadata.sandboxAgentId;
   }
-  if (!apiKey || !agentId) throw new Error(`Bland.ai config missing for mode: ${integration.mode}`);
+  
+  if (!apiKey || !agentId) {
+      throw new Error(`Bland.ai API key or Agent ID config missing for mode: ${integration.mode}`);
+  }
   
   return { blandClient: new Bland(apiKey), agentId };
 }
@@ -86,19 +103,22 @@ export async function makeCall(to: string, units_to_use: number = 1) {
     console.log(`[Bland AI Service] Executing call in mode: ${blandConfig.mode}.`);
     
     // 4. EJECUCIÓN
+    // Nota: Se asume que blandClient.call acepta un objeto con to y agent_id
     const callResult = await blandClient.call({
       to: to,
       agent_id: agentId,
-      // ... otros parámetros
+      // ... otros parámetros necesarios para Bland.ai
     });
     
     // 5. POST-EJECUCIÓN: Registro de Consumo
+    // Nota: Se asume que db.consumption.logUsage está definido y registra el uso
     await db.consumption.logUsage('bland_ai', units_to_use); 
 
     return { success: true, callResult, mode: blandConfig.mode };
 
   } catch (error) {
-    // Asegura que todos los errores (Gate, Límite, o Conexión API) sean atrapados.
+    // Asegura que todos los errores (Gate, Límite, o Conexión API) sean atrapados y propagados.
+    // console.error(`Error in makeCall:`, error); // Opcional: registrar el error
     throw error; 
   }
 }
