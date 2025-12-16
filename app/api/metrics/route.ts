@@ -8,7 +8,6 @@ export async function GET(request: Request) {
     
     let supabase;
     try {
-        // Asumo que la función createServiceSupabaseClient está definida correctamente
         supabase = createServiceSupabaseClient(); 
     } catch (error) {
         console.error('Error al inicializar Supabase:', error);
