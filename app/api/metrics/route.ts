@@ -2,17 +2,19 @@
 import { NextResponse } from 'next/server';
 import { createServiceSupabaseClient } from '@/utils/supabase/server'; 
 
+export const runtime = 'nodejs'; // FUERZA EL ENTORNO NODE.JS
+
 export async function GET(request: Request) {
     
     let supabase;
     try {
-        supabase = createServiceSupabaseClient();
+        // Asumo que la función createServiceSupabaseClient está definida correctamente
+        supabase = createServiceSupabaseClient(); 
     } catch (error) {
         console.error('Error al inicializar Supabase:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Consulta de ejemplo para obtener métricas (ajusta el nombre de la tabla si es necesario)
     const { data, error } = await supabase
         .from('agent_metrics') 
         .select(`
