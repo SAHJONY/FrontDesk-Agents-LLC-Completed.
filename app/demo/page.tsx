@@ -6,7 +6,9 @@ import {
   UserIcon, 
   BriefcaseIcon, 
   ScaleIcon, 
-  CheckCircleIcon 
+  CheckCircleIcon,
+  // ¡CORRECCIÓN 1: Agregar PhoneIcon aquí!
+  PhoneIcon 
 } from '@heroicons/react/24/outline';
 
 // --- DATOS PARA CALIFICACIÓN ---
@@ -22,7 +24,7 @@ const INDUSTRY_OPTIONS = [
 
 const DemoFormStep = ({ step, currentStep, children }) => (
     <div 
-        className={`transition-opacity duration-500 ease-in-out ${currentStep === step ? 'opacity-100 block' : 'opacity-0 hidden'}`}
+        className={`transition-opacity duration-500 ease-in-out ${currentStep === step ? 'opacity-100 block' : 'opacity-0 hidden absolute top-0 left-0 w-full'}`}
     >
         {children}
     </div>
@@ -63,9 +65,11 @@ export default function BookADemoPage() {
 
     const nextStepIsValid = () => {
         if (currentStep === 1) {
-            return formData.fullName && formData.workEmail && formData.jobTitle;
+            // Validación mejorada para prevenir espacios vacíos
+            return formData.fullName.trim() && formData.workEmail.trim() && formData.jobTitle.trim();
         }
         if (currentStep === 2) {
+            // Valida los campos del paso 2
             return formData.industry && formData.callVolume;
         }
         return true;
@@ -79,7 +83,7 @@ export default function BookADemoPage() {
                     <h1 className="text-3xl font-bold text-white mb-4">¡Demo Solicitada Exitosamente!</h1>
                     <p className="text-gray-400 mb-8">
                         Su solicitud ha sido enviada. Nuestro equipo ejecutivo revisará sus requerimientos 
-                        (<strong className="text-cyan-400">{formData.industry}</strong>, ~{formData.callVolume} llamadas/mes) 
+                        (<strong className="text-cyan-400">{INDUSTRY_OPTIONS.find(o => o.value === formData.industry)?.label || 'N/A'}</strong>, ~{formData.callVolume} llamadas/mes) 
                         y se comunicará con usted en menos de 4 horas para confirmar su agenda.
                     </p>
                     <Link href="/" className="text-cyan-400 hover:text-cyan-300 font-medium">
@@ -89,6 +93,10 @@ export default function BookADemoPage() {
             </div>
         );
     }
+
+    // Encuentra la etiqueta de la industria para el paso 3
+    const selectedIndustryLabel = INDUSTRY_OPTIONS.find(o => o.value === formData.industry)?.label || 'No especificada';
+
 
     return (
         <div className="min-h-screen bg-[#0a1929] pt-32 pb-16 flex justify-center items-start">
@@ -113,105 +121,108 @@ export default function BookADemoPage() {
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    
-                    {/* --- PASO 1: CONTACTO --- */}
-                    <DemoFormStep step={1} currentStep={currentStep}>
-                        <div className="space-y-6">
-                            <InputField 
-                                label="Nombre Completo"
-                                name="fullName"
-                                type="text"
-                                icon={UserIcon}
-                                value={formData.fullName}
-                                onChange={handleChange}
-                                placeholder="Ej. Juan Pérez"
-                            />
-                            <InputField 
-                                label="Email de Trabajo"
-                                name="workEmail"
-                                type="email"
-                                icon={ArrowRightIcon}
-                                value={formData.workEmail}
-                                onChange={handleChange}
-                                placeholder="name@empresa.com"
-                            />
-                            <InputField 
-                                label="Cargo / Título"
-                                name="jobTitle"
-                                type="text"
-                                icon={BriefcaseIcon}
-                                value={formData.jobTitle}
-                                onChange={handleChange}
-                                placeholder="Ej. VP de Operaciones"
-                            />
-                        </div>
-                    </DemoFormStep>
-
-                    {/* --- PASO 2: CALIFICACIÓN DEL NEGOCIO --- */}
-                    <DemoFormStep step={2} currentStep={currentStep}>
-                        <div className="space-y-6">
-                            <SelectField
-                                label="Industria"
-                                name="industry"
-                                icon={ScaleIcon}
-                                value={formData.industry}
-                                onChange={handleChange}
-                                options={INDUSTRY_OPTIONS}
-                                placeholder="Selecciona tu industria principal..."
-                            />
-                            
-                            <SelectField
-                                label="Volumen Mensual de Llamadas/Inquiries"
-                                name="callVolume"
-                                icon={PhoneIcon}
-                                value={formData.callVolume}
-                                onChange={handleChange}
-                                options={[
-                                    { value: '<500', label: 'Menos de 500 (PoC Inicial)' },
-                                    { value: '500-2500', label: '500 - 2,500 (Crecimiento)' },
-                                    { value: '2500-10000', label: '2,500 - 10,000 (Empresa Mediana)' },
-                                    { value: '10000+', label: 'Más de 10,000 (Enterprise)' },
-                                ]}
-                                placeholder="Estima tu volumen de comunicación..."
-                            />
-
-                            <SelectField
-                                label="Tamaño de la Empresa (Empleados)"
-                                name="companySize"
-                                icon={UserIcon}
-                                value={formData.companySize}
-                                onChange={handleChange}
-                                options={[
-                                    { value: '1-50', label: '1 - 50 (Startup/Pequeña Empresa)' },
-                                    { value: '51-500', label: '51 - 500 (Mediana Empresa)' },
-                                    { value: '501+', label: '+500 (Enterprise / Corporativo)' },
-                                ]}
-                                placeholder="Selecciona el rango de empleados..."
-                            />
-                        </div>
-                    </DemoFormStep>
-
-                    {/* --- PASO 3: CONFIRMACIÓN --- */}
-                    <DemoFormStep step={3} currentStep={currentStep}>
-                        <div className="text-center p-8 bg-cyan-900/20 border border-cyan-700/50 rounded-lg">
-                            <h2 className="text-2xl font-bold text-white mb-4">Revisión Final</h2>
-                            <p className="text-gray-300 mb-6">
-                                Confirme sus datos antes de agendar la llamada. Su demostración será adaptada a la industria **{formData.industry}**.
-                            </p>
-                            <ul className="text-left space-y-2 text-gray-300">
-                                <li><strong>Contacto:</strong> {formData.fullName} ({formData.jobTitle})</li>
-                                <li><strong>Email:</strong> {formData.workEmail}</li>
-                                <li><strong>Industria:</strong> {INDUSTRY_OPTIONS.find(o => o.value === formData.industry)?.label || 'N/A'}</li>
-                                <li><strong>Volumen:</strong> {formData.callVolume} llamadas/mes</li>
-                            </ul>
-                            <div className="mt-6 text-sm text-gray-400">
-                                Al enviar, acepta nuestra Política de Privacidad.
+                    {/* Contenedor relativo para la transición de pasos */}
+                    <div className="relative min-h-[350px]"> 
+                        
+                        {/* --- PASO 1: CONTACTO --- */}
+                        <DemoFormStep step={1} currentStep={currentStep}>
+                            <div className="space-y-6">
+                                <InputField 
+                                    label="Nombre Completo"
+                                    name="fullName"
+                                    type="text"
+                                    icon={UserIcon}
+                                    value={formData.fullName}
+                                    onChange={handleChange}
+                                    placeholder="Ej. Juan Pérez"
+                                />
+                                <InputField 
+                                    label="Email de Trabajo"
+                                    name="workEmail"
+                                    type="email"
+                                    icon={ArrowRightIcon} // Podrías usar MailIcon
+                                    value={formData.workEmail}
+                                    onChange={handleChange}
+                                    placeholder="name@empresa.com"
+                                />
+                                <InputField 
+                                    label="Cargo / Título"
+                                    name="jobTitle"
+                                    type="text"
+                                    icon={BriefcaseIcon}
+                                    value={formData.jobTitle}
+                                    onChange={handleChange}
+                                    placeholder="Ej. VP de Operaciones"
+                                />
                             </div>
-                        </div>
-                    </DemoFormStep>
+                        </DemoFormStep>
+
+                        {/* --- PASO 2: CALIFICACIÓN DEL NEGOCIO --- */}
+                        <DemoFormStep step={2} currentStep={currentStep}>
+                            <div className="space-y-6">
+                                <SelectField
+                                    label="Industria"
+                                    name="industry"
+                                    icon={ScaleIcon}
+                                    value={formData.industry}
+                                    onChange={handleChange}
+                                    options={INDUSTRY_OPTIONS}
+                                    placeholder="Selecciona tu industria principal..."
+                                />
+                                
+                                <SelectField
+                                    label="Volumen Mensual de Llamadas/Inquiries"
+                                    name="callVolume"
+                                    icon={PhoneIcon} // ¡CORRECCIÓN 1: Ícono PhoneIcon usado!
+                                    value={formData.callVolume}
+                                    onChange={handleChange}
+                                    options={[
+                                        { value: '<500', label: 'Menos de 500 (PoC Inicial)' },
+                                        { value: '500-2500', label: '500 - 2,500 (Crecimiento)' },
+                                        { value: '2500-10000', label: '2,500 - 10,000 (Empresa Mediana)' },
+                                        { value: '10000+', label: 'Más de 10,000 (Enterprise)' },
+                                    ]}
+                                    placeholder="Estima tu volumen de comunicación..."
+                                />
+
+                                <SelectField
+                                    label="Tamaño de la Empresa (Empleados)"
+                                    name="companySize"
+                                    icon={UserIcon} // Ícono UserIcon usado
+                                    value={formData.companySize}
+                                    onChange={handleChange}
+                                    options={[
+                                        { value: '1-50', label: '1 - 50 (Startup/Pequeña Empresa)' },
+                                        { value: '51-500', label: '51 - 500 (Mediana Empresa)' },
+                                        { value: '501+', label: '+500 (Enterprise / Corporativo)' },
+                                    ]}
+                                    placeholder="Selecciona el rango de empleados..."
+                                />
+                            </div>
+                        </DemoFormStep>
+
+                        {/* --- PASO 3: CONFIRMACIÓN --- */}
+                        <DemoFormStep step={3} currentStep={currentStep}>
+                            <div className="text-center p-8 bg-cyan-900/20 border border-cyan-700/50 rounded-lg">
+                                <h2 className="text-2xl font-bold text-white mb-4">Revisión Final</h2>
+                                <p className="text-gray-300 mb-6">
+                                    Confirme sus datos antes de agendar la llamada. Su demostración será adaptada a la industria **{selectedIndustryLabel}**.
+                                </p>
+                                <ul className="text-left space-y-2 text-gray-300 pl-4 list-disc list-inside">
+                                    <li><strong>Contacto:</strong> {formData.fullName} ({formData.jobTitle})</li>
+                                    <li><strong>Email:</strong> {formData.workEmail}</li>
+                                    <li><strong>Industria:</strong> {selectedIndustryLabel}</li>
+                                    <li><strong>Volumen:</strong> {formData.callVolume} llamadas/mes</li>
+                                </ul>
+                                <div className="mt-6 text-sm text-gray-400">
+                                    Al enviar, acepta nuestra Política de Privacidad.
+                                </div>
+                            </div>
+                        </DemoFormStep>
+                    </div> {/* Fin del contenedor relativo */}
 
                     {/* Controles de Navegación */}
-                    <div className="flex justify-between mt-8 pt-4 border-t border-gray-800">
+                    <div className={`flex mt-8 pt-4 border-t border-gray-800 ${currentStep > 1 ? 'justify-between' : 'justify-end'}`}>
                         {currentStep > 1 && (
                             <button
                                 type="button"
@@ -222,11 +233,12 @@ export default function BookADemoPage() {
                             </button>
                         )}
                         
-                        <div className={currentStep === 1 ? 'w-full' : ''}>
+                        {/* ¡CORRECCIÓN 2: Ajuste de clase para el botón para que se estire en el paso 1! */}
+                        <div className={`${currentStep === 1 ? 'w-full' : ''}`}>
                             <button
                                 type="submit"
                                 disabled={!nextStepIsValid()}
-                                className={`px-6 py-3 rounded-lg text-white font-semibold transition-all duration-300 ${nextStepIsValid() ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-gray-500/50 cursor-not-allowed'} ${currentStep === 1 ? 'w-full ml-auto' : 'ml-auto'}`}
+                                className={`px-6 py-3 rounded-lg text-white font-semibold transition-all duration-300 ${nextStepIsValid() ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-gray-500/50 cursor-not-allowed'} ${currentStep === 1 ? 'w-full' : 'w-auto'}`}
                             >
                                 {currentStep < 3 ? 'Siguiente Paso →' : 'Agendar Demostración'}
                             </button>
@@ -239,7 +251,7 @@ export default function BookADemoPage() {
     );
 }
 
-// --- Componente de Input Profesional ---
+// --- Componente de Input Profesional (Sin cambios, solo para completitud) ---
 const InputField = ({ label, name, type, icon: Icon, value, onChange, placeholder }) => (
     <div>
         <label htmlFor={name} className="block text-sm font-medium text-gray-300 mb-2">{label}</label>
@@ -261,7 +273,7 @@ const InputField = ({ label, name, type, icon: Icon, value, onChange, placeholde
     </div>
 );
 
-// --- Componente de Select Profesional ---
+// --- Componente de Select Profesional (Sin cambios, solo para completitud) ---
 const SelectField = ({ label, name, icon: Icon, value, onChange, options, placeholder }) => (
     <div>
         <label htmlFor={name} className="block text-sm font-medium text-gray-300 mb-2">{label}</label>
@@ -291,5 +303,4 @@ const SelectField = ({ label, name, icon: Icon, value, onChange, options, placeh
         </div>
     </div>
 );
-
-// Nota: Asegúrate de que los íconos de @heroicons/react estén instalados.
+                              
