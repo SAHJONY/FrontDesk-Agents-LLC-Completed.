@@ -1,16 +1,14 @@
 {
   "name": "frontdesk-agents",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": true,
   "description": "FrontDesk Agents – Enterprise AI Receptionist Platform",
   "author": "FrontDesk Agents LLC",
   "license": "UNLICENSED",
-
   "engines": {
     "node": "20.x",
     "npm": ">=9.0.0"
   },
-
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,17 +17,15 @@
     "type-check": "tsc --noEmit",
     "postinstall": "next telemetry disable"
   },
-
   "dependencies": {
     "next": "14.2.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-
-    // Dependencias de Iconos
+    
+    // ICONOS NECESARIOS PARA EL FRONTEND:
     "lucide-react": "0.454.0",
-    "@heroicons/react": "2.1.5", // <<< CORRECCIÓN: Dependencia FALTANTE
-
-    // Componentes Radix UI
+    "@heroicons/react": "2.1.5", // <<< LÍNEA AÑADIDA PARA SOLUCIONAR EL ERROR
+    
     "@radix-ui/react-accordion": "1.2.0",
     "@radix-ui/react-alert-dialog": "1.1.1",
     "@radix-ui/react-avatar": "1.1.0",
@@ -45,43 +41,26 @@
     "@radix-ui/react-switch": "1.1.1",
     "@radix-ui/react-tabs": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.4",
-    
-    // Utilidades de Estilo
     "class-variance-authority": "0.7.0",
     "clsx": "2.1.1",
     "tailwind-merge": "2.5.2",
-
-    // Librerías de Datos y Validaciones
     "date-fns": "3.6.0",
     "zod": "3.23.8",
-    
-    // Backend y Seguridad
     "axios": "1.7.7",
     "jsonwebtoken": "9.0.2",
     "bcryptjs": "2.4.3",
-
-    // Manejo de Estado y Tablas
     "@tanstack/react-query": "5.51.15",
     "@tanstack/react-table": "8.20.5",
-
-    // Formularios y Gráficos
     "react-hook-form": "7.53.0",
     "recharts": "2.13.0"
-    
-    // Nota: Si usas 'blandai', asegúrate de que también esté aquí: 
-    // "blandai": "1.0.0", 
   },
-
   "devDependencies": {
     "typescript": "5.5.4",
-
     "tailwindcss": "3.4.10",
     "postcss": "8.4.47",
     "autoprefixer": "10.4.20",
-
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.4",
-
     "@types/node": "20.14.10",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0"
