@@ -13,6 +13,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     
+    // ** CORRECCIÓN CLAVE: Añadida la dependencia blandai para resolver el error de TypeSript **
+    "blandai": "^1.2.0", 
+    
     "@supabase/supabase-js": "^2.43.4",
     "@sendgrid/mail": "^8.1.1",
     "lucide-react": "^0.303.0",
@@ -34,6 +37,8 @@
     "typescript": "^5.4.5"
   },
   "engines": {
-    "node": "20.x"
+    // Recomendación: Actualizado a 22.x para evitar la advertencia de Vercel
+    "node": "22.x" 
   }
 }
+  
