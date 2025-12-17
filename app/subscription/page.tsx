@@ -21,16 +21,14 @@ const PlanCard = ({
   currentPlanName,
   isPromoActive = false,
   priceMultiplier = 1,
-}: PlanCardProps) => {
+}: PlanCardProps): JSX.Element => {
   const isCurrent = plan.name === currentPlanName;
   const finalPrice = Math.round(plan.price * priceMultiplier);
 
   return (
     <div
-      className={`rounded-xl border p-6 bg-[#0a1929]/70 transition ${
-        isCurrent
-          ? "border-emerald-500 shadow-emerald-900/40"
-          : "border-gray-800"
+      className={`rounded-xl border p-6 bg-[#0a1929]/70 ${
+        isCurrent ? "border-emerald-500" : "border-gray-800"
       }`}
     >
       <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
@@ -39,12 +37,6 @@ const PlanCard = ({
         ${finalPrice}
         <span className="text-sm font-normal text-gray-400"> /mo</span>
       </div>
-
-      {isPromoActive && (
-        <div className="mb-4 text-sm text-emerald-400">
-          Promo applied
-        </div>
-      )}
 
       <ul className="space-y-2 mb-6">
         {plan.features.map((feature) => (
@@ -56,12 +48,8 @@ const PlanCard = ({
       </ul>
 
       <button
-        className={`w-full py-2 rounded-lg font-semibold transition ${
-          isCurrent
-            ? "bg-gray-700 text-gray-300 cursor-not-allowed"
-            : "bg-emerald-500 hover:bg-emerald-600 text-white"
-        }`}
         disabled={isCurrent}
+        className="w-full py-2 rounded-lg bg-emerald-500 text-white font-semibold disabled:opacity-50"
       >
         {isCurrent ? "Current Plan" : "Choose Plan"}
       </button>
@@ -69,30 +57,22 @@ const PlanCard = ({
   );
 };
 
-export default function SubscriptionPage() {
+export default function SubscriptionPage(): JSX.Element {
   const plans: Plan[] = [
     {
       name: "Starter",
       price: 399,
-      features: ["1 AI Agent", "24/7 Coverage", "Single Language"],
+      features: ["1 AI Agent", "24/7 Coverage"],
     },
     {
       name: "Professional",
       price: 899,
-      features: [
-        "3 AI Agents",
-        "Multilingual",
-        "CRM Integration",
-      ],
+      features: ["3 AI Agents", "CRM Integration"],
     },
     {
       name: "Enterprise",
       price: 1799,
-      features: [
-        "Unlimited Agents",
-        "SSO & SLA",
-        "Dedicated Manager",
-      ],
+      features: ["Unlimited Agents", "SSO & SLA"],
     },
   ];
 
@@ -108,7 +88,6 @@ export default function SubscriptionPage() {
             key={plan.name}
             plan={plan}
             currentPlanName="Professional"
-            isPromoActive={false}
           />
         ))}
       </div>
