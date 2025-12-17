@@ -10,7 +10,7 @@ type Plan = {
 };
 
 type PlanCardProps = {
-  plan: Plan;
+  plan: Plan;   
   currentPlanName?: string;
   isPromoActive?: boolean;
   priceMultiplier?: number;
