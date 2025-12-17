@@ -1,1 +1,3 @@
-npm install @heroicons/react
+export default function ConsentEnforcement() {
+  return null;
+}
