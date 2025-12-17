@@ -1,6 +1,4 @@
-// PRODUCCIÓN — BLAND AI SERVICE — SIN DEPENDENCIAS FANTASMA
-
-import { loadSecret } from "../config/secrets";
+// PRODUCCIÓN — BLAND AI SERVICE — ENV DIRECTO (NEXT / VERCEL SAFE)
 
 const BLAND_API_BASE = "https://api.bland.ai/v1";
 
@@ -12,10 +10,13 @@ type BlandCallPayload = {
 export async function initiateBlandCall(
   payload: BlandCallPayload
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  const apiKey = loadSecret("BLAND_API_KEY");
+  const apiKey = process.env.BLAND_API_KEY;
 
   if (!apiKey) {
-    return { success: false, error: "Missing BLAND_API_KEY" };
+    return {
+      success: false,
+      error: "BLAND_API_KEY is not defined in environment variables",
+    };
   }
 
   try {
