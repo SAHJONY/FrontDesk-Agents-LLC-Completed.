@@ -1,0 +1,30 @@
+import { NextResponse } from 'next/server';
+import { autonomousBusinessSetup } from '@/lib/ai/crawler';
+
+export async function POST(req: Request) {
+  try {
+    const { url } = await req.json();
+
+    if (!url) {
+      return NextResponse.json({ error: "URL requerida" }, { status: 400 });
+    }
+
+    // Ejecutar el proceso autónomo
+    const businessData = await autonomousBusinessSetup(url);
+
+    // Aquí puedes añadir lógica para guardar en Supabase o Prisma:
+    // await prisma.business.update({ where: { userId: ... }, data: businessData });
+
+    return NextResponse.json({
+      success: true,
+      message: "Configuración completada autónomamente",
+      data: businessData
+    });
+
+  } catch (error: any) {
+    return NextResponse.json({ 
+      success: false, 
+      error: "Error al procesar el sitio web" 
+    }, { status: 500 });
+  }
+}
