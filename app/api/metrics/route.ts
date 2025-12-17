@@ -1,37 +1,36 @@
-// ./app/api/metrics/route.ts
-import { NextResponse } from 'next/server';
-import { createServiceSupabaseClient } from '@/utils/supabase/server'; 
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-export const runtime = 'nodejs'; // FUERZA EL ENTORNO NODE.JS
-
-export async function GET(request: Request) {
-    
-    let supabase;
-    try {
-        supabase = createServiceSupabaseClient(); 
-    } catch (error) {
-        console.error('Error al inicializar Supabase:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+export async function GET() {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     const { data, error } = await supabase
-        .from('agent_metrics') 
-        .select(`
-            total_calls_handled, 
-            successful_bookings,
-            lead_conversion_rate
-        `)
-        .order('id', { ascending: false })
-        .limit(1)
-        .single(); 
+      .from("metrics")
+      .select("*");
 
     if (error) {
-        console.error('Error al obtener métricas de Supabase:', error);
-        return NextResponse.json({ error: 'Failed to fetch metrics: ' + error.message }, { status: 500 });
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ 
-        success: true,
-        data: data 
-    }, { status: 200 });
+    return NextResponse.json({ data });
+  } catch (error: unknown) {
+    console.error("Error al inicializar Supabase:", error);
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unknown server error";
+
+    return NextResponse.json(
+      { error: message },
+      { status: 500 }
+    );
+  }
 }
