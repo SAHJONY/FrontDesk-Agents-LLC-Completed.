@@ -8,44 +8,65 @@ import {
   AutomationConfig,
 } from '@/services/automation.service';
 
+/**
+ * EXTENSIÓN LOCAL DEL TIPO
+ * No rompe backend ni servicios
+ */
+type AutomationUIConfig = AutomationConfig & {
+  autoReply: boolean;
+  autoAssign: boolean;
+  afterHours: boolean;
+};
+
 function classNames(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
 }
 
 const AutomationSettingsCard: React.FC = () => {
-  const [config, setConfig] = useState<AutomationConfig | null>(null);
+  const [config, setConfig] = useState<AutomationUIConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
+
     (async () => {
       try {
         const data = await fetchAutomationConfig();
-        if (mounted) setConfig(data);
-      } catch (e) {
+
+        if (mounted) {
+          setConfig({
+            autoReply: false,
+            autoAssign: false,
+            afterHours: false,
+            ...data,
+          });
+        }
+      } catch {
         if (mounted) setError('Failed to load automation settings');
       } finally {
         if (mounted) setLoading(false);
       }
     })();
+
     return () => {
       mounted = false;
     };
   }, []);
 
-  const toggle = async (key: keyof AutomationConfig) => {
+  const toggle = async (key: keyof AutomationUIConfig) => {
     if (!config) return;
+
     const next = { ...config, [key]: !config[key] };
     setConfig(next);
     setSaving(true);
+
     try {
       await updateAutomationConfig(next);
     } catch {
       setError('Failed to save changes');
-      // rollback
-      setConfig(config);
+      setConfig(config); // rollback
     } finally {
       setSaving(false);
     }
@@ -74,53 +95,59 @@ const AutomationSettingsCard: React.FC = () => {
       <h3 className="mb-4 text-lg font-semibold">Automation Settings</h3>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Auto-Reply</p>
-            <p className="text-sm text-neutral-500">
-              Automatically reply to inbound messages
-            </p>
-          </div>
-          <Switch
-            checked={!!config.autoReply}
-            onCheckedChange={() => toggle('autoReply')}
-            disabled={saving}
-            className={classNames(saving && 'opacity-60')}
-          />
-        </div>
+        <SettingRow
+          title="Auto-Reply"
+          description="Automatically reply to inbound messages"
+          checked={config.autoReply}
+          onChange={() => toggle('autoReply')}
+          disabled={saving}
+        />
 
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Auto-Assign</p>
-            <p className="text-sm text-neutral-500">
-              Assign conversations automatically
-            </p>
-          </div>
-          <Switch
-            checked={!!config.autoAssign}
-            onCheckedChange={() => toggle('autoAssign')}
-            disabled={saving}
-            className={classNames(saving && 'opacity-60')}
-          />
-        </div>
+        <SettingRow
+          title="Auto-Assign"
+          description="Assign conversations automatically"
+          checked={config.autoAssign}
+          onChange={() => toggle('autoAssign')}
+          disabled={saving}
+        />
 
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">After-Hours Automation</p>
-            <p className="text-sm text-neutral-500">
-              Enable automation outside business hours
-            </p>
-          </div>
-          <Switch
-            checked={!!config.afterHours}
-            onCheckedChange={() => toggle('afterHours')}
-            disabled={saving}
-            className={classNames(saving && 'opacity-60')}
-          />
-        </div>
+        <SettingRow
+          title="After-Hours Automation"
+          description="Enable automation outside business hours"
+          checked={config.afterHours}
+          onChange={() => toggle('afterHours')}
+          disabled={saving}
+        />
       </div>
     </div>
   );
 };
+
+const SettingRow = ({
+  title,
+  description,
+  checked,
+  onChange,
+  disabled,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  onChange: () => void;
+  disabled: boolean;
+}) => (
+  <div className="flex items-center justify-between">
+    <div>
+      <p className="font-medium">{title}</p>
+      <p className="text-sm text-neutral-500">{description}</p>
+    </div>
+    <Switch
+      checked={checked}
+      onCheckedChange={onChange}
+      disabled={disabled}
+      className={classNames(disabled && 'opacity-60')}
+    />
+  </div>
+);
 
 export default AutomationSettingsCard;
