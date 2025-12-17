@@ -1,0 +1,36 @@
+// app/api/voice/call-complete/route.ts
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { sendBookingNotification } from '@/lib/notifications/whatsapp';
+
+export async function POST(req: Request) {
+  const { callId, wasBooked, summary, businessId, customerPhone, serviceDetected } = await req.json();
+
+  // 1. Guardar el log en la base de datos
+  const callLog = await db.callLog.create({
+    data: {
+      businessId,
+      customerPhone,
+      summary,
+      wasBooked,
+      estimatedValue: wasBooked ? 150 : 0, // Esto puede ser dinámico
+    }
+  });
+
+  // 2. Si se agendó, notificar al dueño inmediatamente
+  if (wasBooked) {
+    const business = await db.businessConfig.findUnique({ where: { id: businessId } });
+    
+    // El ownerPhone debería estar en el perfil del usuario/negocio
+    const ownerPhone = "+521234567890"; 
+
+    await sendBookingNotification(ownerPhone, {
+      businessName: business?.businessName,
+      customerPhone,
+      service: serviceDetected || "Consulta General",
+      value: callLog.estimatedValue
+    });
+  }
+
+  return NextResponse.json({ success: true });
+}
