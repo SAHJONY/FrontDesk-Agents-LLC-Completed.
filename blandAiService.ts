@@ -7,6 +7,19 @@ interface IntegrationControl {
   enabled: boolean;
 }
 
+// Type guard to check if db has consumption property
+function hasConsumption(obj: any): obj is typeof db & { 
+  consumption: { 
+    getDailyUsage: (provider: string) => Promise<number>;
+    create: (data: any) => Promise<void>;
+    findMany: (params: any) => Promise<any[]>;
+  } 
+} {
+  return 'consumption' in obj && 
+         obj.consumption && 
+         typeof obj.consumption === 'object';
+}
+
 export async function checkBlandAiUsage(): Promise<boolean> {
   try {
     const integration = await db.integrations_control.findUnique({
@@ -18,21 +31,19 @@ export async function checkBlandAiUsage(): Promise<boolean> {
     }
 
     // Get daily usage from consumption tracking
-    // If consumption service doesn't exist, we'll implement a simple check
     let usageToday = 0;
     
-    // Check if consumption service exists
-    if ('consumption' in db && db.consumption && typeof db.consumption.getDailyUsage === 'function') {
-      usageToday = await db.consumption.getDailyUsage(integration.provider);
-    } else {
-      // Fallback: Query consumption table directly if it exists
-      // This is a safe fallback that won't break if the table doesn't exist
-      try {
-        if ('consumption' in db) {
+    // Check if consumption service exists with type guard
+    if (hasConsumption(db)) {
+      if (typeof db.consumption.getDailyUsage === 'function') {
+        usageToday = await db.consumption.getDailyUsage(integration.provider);
+      } else if (typeof db.consumption.findMany === 'function') {
+        // Fallback: Query consumption table directly
+        try {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           
-          const consumption = await (db as any).consumption?.findMany({
+          const consumption = await db.consumption.findMany({
             where: {
               provider: integration.provider,
               created_at: {
@@ -42,12 +53,15 @@ export async function checkBlandAiUsage(): Promise<boolean> {
           });
           
           usageToday = consumption?.length || 0;
+        } catch (error) {
+          console.warn('Consumption tracking not available, allowing request:', error);
+          return true;
         }
-      } catch (error) {
-        console.warn('Consumption tracking not available, allowing request:', error);
-        // If we can't check usage, allow the request
-        return true;
       }
+    } else {
+      // If consumption tracking is not available, allow the request
+      console.warn('Consumption tracking not configured, allowing request');
+      return true;
     }
 
     if (usageToday >= integration.daily_limit) {
@@ -66,24 +80,15 @@ export async function checkBlandAiUsage(): Promise<boolean> {
 export async function trackBlandAiUsage(): Promise<void> {
   try {
     // Track usage if consumption service exists
-    if ('consumption' in db && db.consumption && typeof db.consumption.create === 'function') {
-      await db.consumption.create({
-        provider: 'bland_ai',
-        timestamp: new Date()
-      });
-    } else if ('consumption' in db) {
-      // Fallback: Create consumption record directly
-      try {
-        await (db as any).consumption?.create({
-          data: {
-            provider: 'bland_ai',
-            created_at: new Date()
-          }
+    if (hasConsumption(db)) {
+      if (typeof db.consumption.create === 'function') {
+        await db.consumption.create({
+          provider: 'bland_ai',
+          timestamp: new Date()
         });
-      } catch (error) {
-        console.warn('Unable to track consumption:', error);
-        // Non-critical error, don't throw
       }
+    } else {
+      console.warn('Consumption tracking not configured, skipping usage tracking');
     }
   } catch (error) {
     console.error('Error tracking Bland AI usage:', error);
