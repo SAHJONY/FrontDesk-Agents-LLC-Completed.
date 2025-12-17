@@ -1,94 +1,126 @@
-// components/AutomationSettingsCard.tsx
+'use client';
 
-"use client";
+import React, { useEffect, useState } from 'react';
+import { Switch } from '@/components/ui/switch';
+import {
+  fetchAutomationConfig,
+  updateAutomationConfig,
+  AutomationConfig,
+} from '@/services/automation.service';
 
-import React, { useState, useEffect } from 'react';
-import { fetchAutomationConfig, updateAutomationConfig, AutomationConfig } from '@/services/automation.service';
-import { Switch } from '@headlessui/react'; // Requiere la librería @headlessui/react
-
-// Helper para Tailwind
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
+function classNames(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
 }
 
-export const AutomationSettingsCard = () => {
-    const [config, setConfig] = useState<AutomationConfig | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false);
+const AutomationSettingsCard: React.FC = () => {
+  const [config, setConfig] = useState<AutomationConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        setIsLoading(true);
-        fetchAutomationConfig().then(data => {
-            setConfig(data);
-            setIsLoading(false);
-        });
-    }, []);
-
-    const handleToggleBooking = async () => {
-        if (!config) return;
-
-        const newConfig = { ...config, isBookingEnabled: !config.isBookingEnabled };
-        setConfig(newConfig); // Optimistic UI update
-
-        setIsSaving(true);
-        try {
-            await updateAutomationConfig(newConfig);
-            // Mostrar una notificación de éxito aquí
-            console.log("Configuración guardada con éxito.");
-        } catch (error) {
-            console.error("Error al guardar la configuración:", error);
-            setConfig(config); // Revertir en caso de error
-        } finally {
-            setIsSaving(false);
-        }
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await fetchAutomationConfig();
+        if (mounted) setConfig(data);
+      } catch (e) {
+        if (mounted) setError('Failed to load automation settings');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
     };
-    
-    if (isLoading) {
-        return <div className="p-6 bg-white rounded-xl shadow-lg animate-pulse h-40">Cargando Configuración...</div>;
+  }, []);
+
+  const toggle = async (key: keyof AutomationConfig) => {
+    if (!config) return;
+    const next = { ...config, [key]: !config[key] };
+    setConfig(next);
+    setSaving(true);
+    try {
+      await updateAutomationConfig(next);
+    } catch {
+      setError('Failed to save changes');
+      // rollback
+      setConfig(config);
+    } finally {
+      setSaving(false);
     }
+  };
 
-    if (!config) return null;
-
+  if (loading) {
     return (
-        <div className="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
-            <h3 className="text-xl font-semibold leading-6 text-gray-900">
-                Booking Automation
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-                Permite a nuestro agente LLM reservar citas directamente en tu CRM (Actual: {config.bookingCrm}).
-            </p>
-
-            <div className="mt-6 flex items-center justify-between">
-                <span className="flex-grow flex flex-col">
-                    <span className="text-base font-medium text-gray-900">
-                        {config.isBookingEnabled ? "Activado" : "Desactivado"}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                        {config.isBookingEnabled 
-                            ? "El agente intentará reservar citas en cada llamada relevante." 
-                            : "El agente solo toma mensajes y no usa la integración de booking."
-                        }
-                    </span>
-                </span>
-                <Switch
-                    checked={config.isBookingEnabled}
-                    onChange={handleToggleBooking}
-                    disabled={isSaving}
-                    className={classNames(
-                        config.isBookingEnabled ? 'bg-indigo-600' : 'bg-gray-200',
-                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2'
-                    )}
-                >
-                    <span
-                        aria-hidden="true"
-                        className={classNames(
-                            config.isBookingEnabled ? 'translate-x-5' : 'translate-x-0',
-                            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
-                        )}
-                    />
-                </Switch>
-            </div>
-            {isSaving && <p className="mt-4 text-sm text-indigo-600">Guardando cambios...</p>}
-        </div>
+      <div className="rounded-lg border p-6 text-sm text-neutral-500">
+        Loading automation settings…
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-600">
+        {error}
+      </div>
+    );
+  }
+
+  if (!config) return null;
+
+  return (
+    <div className="rounded-lg border bg-white p-6 shadow-sm">
+      <h3 className="mb-4 text-lg font-semibold">Automation Settings</h3>
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium">Auto-Reply</p>
+            <p className="text-sm text-neutral-500">
+              Automatically reply to inbound messages
+            </p>
+          </div>
+          <Switch
+            checked={!!config.autoReply}
+            onCheckedChange={() => toggle('autoReply')}
+            disabled={saving}
+            className={classNames(saving && 'opacity-60')}
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium">Auto-Assign</p>
+            <p className="text-sm text-neutral-500">
+              Assign conversations automatically
+            </p>
+          </div>
+          <Switch
+            checked={!!config.autoAssign}
+            onCheckedChange={() => toggle('autoAssign')}
+            disabled={saving}
+            className={classNames(saving && 'opacity-60')}
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium">After-Hours Automation</p>
+            <p className="text-sm text-neutral-500">
+              Enable automation outside business hours
+            </p>
+          </div>
+          <Switch
+            checked={!!config.afterHours}
+            onCheckedChange={() => toggle('afterHours')}
+            disabled={saving}
+            className={classNames(saving && 'opacity-60')}
+          />
+        </div>
+      </div>
+    </div>
+  );
 };
+
+export default AutomationSettingsCard;
