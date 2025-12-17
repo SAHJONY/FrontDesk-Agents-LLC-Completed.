@@ -1,49 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql" // o "sqlite" / "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// 1. CONFIGURACIÓN DEL NEGOCIO (Lo que el Crawler llena)
 model BusinessConfig {
   id                String   @id @default(cuid())
-  userId            String   @unique
-  businessName      String
+  userId            String   @unique // ID del usuario (Clerk/Supabase Auth)
+  businessName      String?
   industry          String?
   websiteUrl        String?
   
-  // Información sintetizada por la IA (vía Crawler)
-  services          String[] 
-  businessHours     Json?    // {weekdays: "9-5", weekends: "10-2"}
-  toneOfVoice       String?  
+  // Datos extraídos por la IA
+  services          String[] // Lista de servicios
+  businessHours     Json?    // {weekdays: "9am-6pm", weekends: "10am-2pm"}
+  faq               Json?    // Preguntas y respuestas en formato JSON
+  toneOfVoice       String   @default("profesional y amable")
   cancellationPolicy String?
-  faq               Json?    // Array de objetos {q: string, a: string}
+
+  // Telefonía (Bland AI)
+  phoneNumber       String?  @unique // El número asignado al negocio
+  blandInboundId    String?  // ID de configuración en Bland AI
+
+  // Estado de Pago y Suscripción (Stripe o Square)
+  paymentProvider   String?  // "stripe" o "square"
+  subscriptionId    String?  @unique
+  status            String   @default("pending") // "active", "canceled", "pending", "past_due"
   
-  // Configuración de Agente
-  systemPrompt      String?  @db.Text 
-  phoneNumber       String?  // El número asignado a este negocio
-  
-  // Relaciones para Analítica
+  // Relaciones
   calls             CallLog[]
-  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
 
+// 2. REGISTRO DE LLAMADAS (Lo que el Post-Call Webhook llena)
 model CallLog {
-  id            String   @id @default(cuid())
-  businessId    String
-  customerPhone String
-  duration      Int      // Duración en segundos
-  summary       String?  @db.Text // Resumen generado por la IA
-  wasBooked     Boolean  @default(false) // ¿Se cerró una cita?
-  estimatedValue Float?   // Valor monetario de la cita (calculado por IA)
-  recordingUrl  String?  // Link al audio de la llamada
+  id              String   @id @default(cuid())
+  businessId      String
+  business        BusinessConfig @relation(fields: [businessId], references: [id])
   
-  createdAt     DateTime @default(now())
+  customerPhone   String
+  callDuration    Int?      // En segundos
+  transcript      String?   @db.Text
+  summary         String?   @db.Text
+  
+  // Analítica de la IA
+  wasBooked       Boolean  @default(false)
+  sentiment       String?   // "positive", "neutral", "negative"
+  estimatedValue  Float    @default(0.0)
+  
+  // Datos de Bland AI
+  blandCallId     String   @unique
+  recordingUrl    String?
+  
+  createdAt       DateTime @default(now())
+}
 
-  // Relación con el negocio
-  business      BusinessConfig @relation(fields: [businessId], references: [id], onDelete: Cascade)
+// 3. ANALÍTICAS GLOBALES (Opcional, para el Admin Dashboard)
+model PlatformStats {
+  id              Int      @id @default(1)
+  totalCalls      Int      @default(0)
+  totalBookings   Int      @default(0)
+  totalRevenue    Float    @default(0.0)
+  lastUpdated     DateTime @updatedAt
 }
