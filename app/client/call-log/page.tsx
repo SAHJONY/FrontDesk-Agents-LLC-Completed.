@@ -3,8 +3,8 @@
 import {
   CheckCircleIcon,
   XCircleIcon,
-  PhoneMissedCallIcon,
   ClockIcon,
+  PhoneXMarkIcon,
 } from "@heroicons/react/24/outline";
 
 type CallStatus = "SUCCESS" | "FAILED" | "MISSED" | "IN_PROGRESS";
@@ -31,7 +31,7 @@ const getStatusStyle = (status: CallStatus): StatusStyle => {
       };
     case "MISSED":
       return {
-        icon: PhoneMissedCallIcon,
+        icon: PhoneXMarkIcon,
         color: "text-yellow-600",
         bg: "bg-yellow-50",
       };
