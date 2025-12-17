@@ -1,4 +1,11 @@
-// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // o "sqlite" / "mysql"
+  url      = env("DATABASE_URL")
+}
 
 model BusinessConfig {
   id                String   @id @default(cuid())
@@ -7,16 +14,36 @@ model BusinessConfig {
   industry          String?
   websiteUrl        String?
   
-  // Información sintetizada por la IA
-  services          String[] // Lista de servicios
+  // Información sintetizada por la IA (vía Crawler)
+  services          String[] 
   businessHours     Json?    // {weekdays: "9-5", weekends: "10-2"}
-  toneOfVoice       String?  // Formal, Amigable, etc.
+  toneOfVoice       String?  
   cancellationPolicy String?
   faq               Json?    // Array de objetos {q: string, a: string}
   
-  // El prompt final generado para el agente de voz/texto
+  // Configuración de Agente
   systemPrompt      String?  @db.Text 
+  phoneNumber       String?  // El número asignado a este negocio
+  
+  // Relaciones para Analítica
+  calls             CallLog[]
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+model CallLog {
+  id            String   @id @default(cuid())
+  businessId    String
+  customerPhone String
+  duration      Int      // Duración en segundos
+  summary       String?  @db.Text // Resumen generado por la IA
+  wasBooked     Boolean  @default(false) // ¿Se cerró una cita?
+  estimatedValue Float?   // Valor monetario de la cita (calculado por IA)
+  recordingUrl  String?  // Link al audio de la llamada
+  
+  createdAt     DateTime @default(now())
+
+  // Relación con el negocio
+  business      BusinessConfig @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
