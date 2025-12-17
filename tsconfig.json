@@ -4,12 +4,20 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    
+    /* MODIFICACIÓN CLAVE: Mantenemos strict en true para calidad, 
+       pero podrías cambiarlo a false temporalmente si el build sigue fallando en otros archivos */
+    "strict": true, 
+    
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    
+    /* MODIFICACIÓN CLAVE: Cambiado a 'Node' o 'Bundler'. 
+       Next.js 14 funciona mejor con 'Node' para asegurar compatibilidad de paquetes antiguos. */
+    "moduleResolution": "Node", 
+    
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -18,7 +26,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    
+    /* AGREGADO: Ayuda a manejar errores de tipos nulos en formularios */
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
