@@ -1,6 +1,6 @@
 {
   "name": "frontdesk-agents-llc-completed",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "engines": {
     "node": "20.x"
@@ -20,6 +20,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-switch": "^1.0.3",
     "@supabase/supabase-js": "^2.39.0",
+    "blandai": "^1.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "lucide-react": "^0.344.0",
