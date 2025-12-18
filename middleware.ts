@@ -4,9 +4,7 @@ import { type CookieOptions } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    request: { headers: request.headers },
   })
 
   const supabase = createServerClient(
@@ -14,14 +12,10 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
+        getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          response = NextResponse.next({
-            request,
-          })
+          response = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )
@@ -30,39 +24,30 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // 1. Supabase Session Refresh
+  // 1. Refresh session
   await supabase.auth.getUser()
 
-  // 2. Placeholder/Maintenance Logic
-  const isMaintenanceMode = process.env.MAINTENANCE_MODE === 'true';
-  const url = request.nextUrl.clone();
-  const path = url.pathname;
+  // 2. Maintenance Logic
+  const isMaintenanceMode = process.env.MAINTENANCE_MODE === 'true'
+  const url = request.nextUrl.clone()
+  const path = url.pathname
 
-  // Define paths that should ALWAYS be accessible
+  // Allow access to Admin, Login, API, and Auth callback routes
   const isExcludedPath = 
     path.startsWith('/api') || 
     path.startsWith('/coming-soon') || 
     path.startsWith('/login') || 
     path.startsWith('/admin') ||
-    path.startsWith('/auth'); // Required for Supabase callback links
+    path.startsWith('/auth')
 
   if (isMaintenanceMode && !isExcludedPath) {
-    url.pathname = '/coming-soon';
-    return NextResponse.rewrite(url);
+    url.pathname = '/coming-soon'
+    return NextResponse.rewrite(url)
   }
 
   return response
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public assets (svg, png, jpg, etc.)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 }
