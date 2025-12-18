@@ -1,6 +1,6 @@
 {
   "name": "frontdesk-agents-llc-completed",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -27,6 +27,7 @@
     "@radix-ui/react-tabs": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.1.6",
+    "@sendgrid/mail": "^8.1.4",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "@tremor/react": "^3.18.7",
@@ -35,13 +36,15 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.468.0",
-    "next": "15.1.5",
+    "next": "15.1.6",
     "next-themes": "^0.4.4",
+    "openai": "^4.77.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.0",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "twilio": "^5.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.17.10",
@@ -49,7 +52,7 @@
     "@types/react-dom": "^19.0.2",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
-    "eslint-config-next": "15.1.5",
+    "eslint-config-next": "15.1.6",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2"
