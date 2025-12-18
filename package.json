@@ -1,6 +1,6 @@
 {
   "name": "frontdesk-agents-llc-completed",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -58,6 +58,8 @@
     "typescript": "^5.7.2"
   },
   "overrides": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2"
   }
