@@ -1,28 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react' // Add useEffect
+import { useState, useEffect } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 
 export default function WaitlistForm() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [count, setCount] = useState<number | null>(null) // State for the counter
+  const [count, setCount] = useState<number | null>(null)
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  // Fetch the count on component mount
   useEffect(() => {
     const fetchCount = async () => {
       const { count: total, error } = await supabase
         .from('waitlist')
         .select('*', { count: 'exact', head: true })
-      
-      if (!error && total !== null) {
-        setCount(total)
-      }
+      if (!error && total !== null) setCount(total)
     }
     fetchCount()
   }, [supabase])
@@ -30,52 +26,46 @@ export default function WaitlistForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('loading')
-
-    const { error } = await supabase
-      .from('waitlist')
-      .insert([{ email }])
-
+    const { error } = await supabase.from('waitlist').insert([{ email }])
     if (error) {
       setStatus('error')
     } else {
       setStatus('success')
-      // Optimistically update count for the user
       if (count !== null) setCount(count + 1)
       setEmail('')
     }
   }
 
   return (
-    <div className="w-full max-w-md mx-auto mt-8">
-      {/* --- The Waitlist Counter UI --- */}
-      {count !== null && count > 0 && (
-        <div className="mb-6 text-sm text-slate-400 flex items-center justify-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Join {count} other businesses already on the list
+    <div className="w-full max-w-md mx-auto">
+      {count !== null && (
+        <div className="mb-6 text-[11px] font-bold text-blue-400 uppercase tracking-widest flex items-center justify-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+          Join {count} businesses in line
         </div>
       )}
 
       {status === 'success' ? (
-        <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-center">
-          Success! You're business #{count} in line.
+        <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold uppercase italic tracking-widest">
+          Success. You are #{(count || 0)} on the list.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
             type="email"
             required
-            placeholder="Enter your work email"
+            placeholder="WORK EMAIL"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="flex-1 px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-800 text-white"
+            className="px-6 py-4 rounded-2xl bg-slate-900 border border-white/10 text-white text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             disabled={status === 'loading'}
           />
           <button
             type="submit"
             disabled={status === 'loading'}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl"
+            className="px-6 py-4 bg-white text-black font-black rounded-2xl uppercase tracking-widest text-xs hover:bg-slate-200 transition-all active:scale-95"
           >
-            {status === 'loading' ? 'Joining...' : 'Get Early Access'}
+            {status === 'loading' ? 'Processing...' : 'Request Early Access'}
           </button>
         </form>
       )}
