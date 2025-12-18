@@ -1,37 +1,41 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
-  // 1. Verificar si hay una sesión activa de Supabase
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          response = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
 
-  const isDashboardPage = req.nextUrl.pathname.startsWith('/dashboard');
-  const isOnboardingPage = req.nextUrl.pathname.startsWith('/onboarding');
+  await supabase.auth.getUser()
 
-  // 2. PROTECCIÓN: Si el usuario intenta entrar a rutas protegidas sin sesión
-  if ((isDashboardPage || isOnboardingPage) && !session) {
-    const redirectUrl = req.nextUrl.clone();
-    redirectUrl.pathname = '/login'; // O la página donde tengas tu Auth
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  // 3. (Opcional) Lógica de Pago: 
-  // Podrías verificar aquí si el usuario tiene una suscripción activa
-  // antes de dejarlo pasar al dashboard.
-
-  return res;
+  return response
 }
 
-// Configurar en qué rutas se debe ejecutar este guardián
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/onboarding/:path*',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-};
+}
