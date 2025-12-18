@@ -2,16 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  PhoneIcon, 
-  SparklesIcon, 
-  ShieldCheckIcon,
-  PlayCircleIcon, 
-  CheckBadgeIcon,
-  MegaphoneIcon,
-  CheckIcon,
-  EnvelopeIcon 
-} from '@heroicons/react/24/outline';
+
+// Optimized imports to fix the Client Reference Manifest bug
+import PhoneIcon from '@heroicons/react/24/outline/PhoneIcon';
+import SparklesIcon from '@heroicons/react/24/outline/SparklesIcon';
+import ShieldCheckIcon from '@heroicons/react/24/outline/ShieldCheckIcon';
+import PlayCircleIcon from '@heroicons/react/24/outline/PlayCircleIcon';
+import CheckBadgeIcon from '@heroicons/react/24/outline/CheckBadgeIcon';
+import MegaphoneIcon from '@heroicons/react/24/outline/MegaphoneIcon';
+import EnvelopeIcon from '@heroicons/react/24/outline/EnvelopeIcon';
+
+// Force dynamic to bypass static generation issues with the manifest
+export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -75,14 +77,13 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* --- EARLY ACCESS SECTION (REEMPLAZA PRICING) --- */}
+      {/* --- EARLY ACCESS SECTION --- */}
       <section id="pricing" className="py-24 relative overflow-hidden border-t border-white/5">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 blur-[120px] rounded-full" />
         
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-3xl mx-auto p-12 bg-slate-900/80 border-2 border-cyan-500/30 rounded-[40px] text-center backdrop-blur-xl shadow-2xl relative">
             
-            {/* Tag de Escasez Real */}
             <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-[0.2em] shadow-lg flex items-center gap-2">
               <span className="flex h-2 w-2 rounded-full bg-black animate-pulse"></span>
               Solo 25 Cupos Disponibles
@@ -142,44 +143,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* --- ENTERPRISE --- */}
-      <section id="enterprise" className="py-24 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="relative rounded-[40px] overflow-hidden border border-white/10 aspect-video md:aspect-[21/9] shadow-2xl">
-            <img 
-              src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=90&fit=crop" 
-              className="w-full h-full object-cover opacity-40 grayscale" 
-              alt="Global Operations"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#000814] via-[#000814]/40 to-transparent" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-              <h2 className="text-4xl md:text-6xl font-black mb-4 uppercase italic italic tracking-tighter">Soluciones Enterprise</h2>
-              <p className="text-gray-300 max-w-xl font-medium">Escalabilidad global para corporaciones con despliegue masivo de agentes y seguridad de datos AES-256.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* --- DEMO --- */}
-      <section id="demo" className="py-32 relative">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-black mb-8 italic uppercase tracking-tighter">Prueba la potencia de ALEX</h2>
-          <form onSubmit={handleDemoRequest} className="flex flex-col md:flex-row gap-4 max-w-md mx-auto">
-            <input 
-              type="tel" 
-              placeholder="Número de teléfono (+1...)" 
-              className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:border-cyan-500 outline-none transition-all font-mono text-sm"
-              value={demoPhone}
-              onChange={(e) => setDemoPhone(e.target.value)}
-              required
-            />
-            <button type="submit" className="bg-white text-black font-black px-8 py-4 rounded-2xl hover:bg-cyan-400 transition-all flex items-center justify-center gap-2 uppercase text-xs tracking-widest">
-              <PlayCircleIcon className="w-5 h-5" /> Llamarme Ahora
-            </button>
-          </form>
         </div>
       </section>
 
