@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 
 /**
  * POST /api/voice/post-call
- * Guarda el resumen final de una llamada de voz
+ * Stores the final result of a voice call
  */
 export async function POST(req: Request) {
   try {
@@ -25,8 +25,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Guardamos el resultado final en la Base de Datos
-    await db.callLogs.create({
+    // Persist call log using Prisma model (NOT array)
+    await db.callLog.create({
       data: {
         businessId,
         customerPhone,
