@@ -34,10 +34,25 @@ export type ConsumptionEntry = {
   created_at: Date;
 };
 
+export type BusinessConfig = {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  voiceAgentConfig?: any;
+  active: boolean;
+  createdAt: Date;
+};
+
 type DB = {
   callLogs: CallLogEntry[];
   client: {
     findUnique: (id: string) => ClientConfig | null;
+  };
+  businessConfig: {
+    findFirst: (params: { where: { phoneNumber: string } }) => Promise<BusinessConfig | null>;
+    findUnique: (params: { where: { id: string } }) => Promise<BusinessConfig | null>;
+    create: (data: Omit<BusinessConfig, 'id' | 'createdAt'>) => Promise<BusinessConfig>;
+    update: (params: { where: { id: string }; data: Partial<BusinessConfig> }) => Promise<BusinessConfig>;
   };
   integrations_control: {
     findUnique: (params: { where: { provider: string } }) => Promise<IntegrationControl | null>;
@@ -73,11 +88,48 @@ const integrations: IntegrationControl[] = [
 
 const consumptionLogs: ConsumptionEntry[] = [];
 
+const businessConfigs: BusinessConfig[] = [
+  {
+    id: 'demo-business-1',
+    name: 'Demo Business',
+    phoneNumber: '+11234567890',
+    active: true,
+    createdAt: new Date(),
+  },
+];
+
 export const db: DB = {
   callLogs: [],
   client: {
     findUnique: (id: string) => {
       return clients.find(c => c.id === id) || null;
+    },
+  },
+  businessConfig: {
+    findFirst: async (params: { where: { phoneNumber: string } }) => {
+      const config = businessConfigs.find(b => b.phoneNumber === params.where.phoneNumber);
+      return config || null;
+    },
+    findUnique: async (params: { where: { id: string } }) => {
+      const config = businessConfigs.find(b => b.id === params.where.id);
+      return config || null;
+    },
+    create: async (data: Omit<BusinessConfig, 'id' | 'createdAt'>) => {
+      const newConfig: BusinessConfig = {
+        ...data,
+        id: `business-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date(),
+      };
+      businessConfigs.push(newConfig);
+      return newConfig;
+    },
+    update: async (params: { where: { id: string }; data: Partial<BusinessConfig> }) => {
+      const index = businessConfigs.findIndex(b => b.id === params.where.id);
+      if (index === -1) {
+        throw new Error('Business config not found');
+      }
+      businessConfigs[index] = { ...businessConfigs[index], ...params.data };
+      return businessConfigs[index];
     },
   },
   integrations_control: {
@@ -152,4 +204,19 @@ export function getConsumptionLogs() {
 // Helper to clear consumption logs (useful for testing)
 export function clearConsumptionLogs() {
   consumptionLogs.length = 0;
-      }
+}
+
+// Helpers for business configs
+export function addBusinessConfig(config: Omit<BusinessConfig, 'id' | 'createdAt'>) {
+  const newConfig: BusinessConfig = {
+    ...config,
+    id: `business-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    createdAt: new Date(),
+  };
+  businessConfigs.push(newConfig);
+  return newConfig;
+}
+
+export function getBusinessConfigs() {
+  return businessConfigs;
+}
