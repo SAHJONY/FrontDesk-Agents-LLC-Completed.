@@ -1,42 +1,63 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react' // Add useEffect
 import { createBrowserClient } from '@supabase/ssr'
 
 export default function WaitlistForm() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [count, setCount] = useState<number | null>(null) // State for the counter
 
-  // Initialize the Supabase client for the browser
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
+  // Fetch the count on component mount
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count: total, error } = await supabase
+        .from('waitlist')
+        .select('*', { count: 'exact', head: true })
+      
+      if (!error && total !== null) {
+        setCount(total)
+      }
+    }
+    fetchCount()
+  }, [supabase])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('loading')
 
-    // This matches the 'waitlist' table you just created
     const { error } = await supabase
       .from('waitlist')
       .insert([{ email }])
 
     if (error) {
-      console.error('Error:', error.message)
       setStatus('error')
     } else {
       setStatus('success')
-      setEmail('') // Clear the input after success
+      // Optimistically update count for the user
+      if (count !== null) setCount(count + 1)
+      setEmail('')
     }
   }
 
   return (
     <div className="w-full max-w-md mx-auto mt-8">
+      {/* --- The Waitlist Counter UI --- */}
+      {count !== null && count > 0 && (
+        <div className="mb-6 text-sm text-slate-400 flex items-center justify-center gap-2">
+          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Join {count} other businesses already on the list
+        </div>
+      )}
+
       {status === 'success' ? (
-        <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-center animate-in fade-in zoom-in duration-300">
-          <p className="font-semibold">You're on the list!</p>
-          <p className="text-sm opacity-90">We'll notify you as soon as an agent is ready for your desk.</p>
+        <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-center">
+          Success! You're business #{count} in line.
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
@@ -46,23 +67,17 @@ export default function WaitlistForm() {
             placeholder="Enter your work email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="flex-1 px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-800 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+            className="flex-1 px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-800 text-white"
             disabled={status === 'loading'}
           />
           <button
             type="submit"
             disabled={status === 'loading'}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl"
           >
             {status === 'loading' ? 'Joining...' : 'Get Early Access'}
           </button>
         </form>
-      )}
-
-      {status === 'error' && (
-        <p className="mt-3 text-sm text-red-400 text-center animate-shake">
-          Something went wrong. You might already be on the list!
-        </p>
       )}
     </div>
   )
