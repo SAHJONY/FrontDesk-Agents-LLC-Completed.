@@ -1,27 +1,33 @@
-import { createVoicePrompt } from '@/lib/ai/agent-factory';
-import { db } from '@/lib/db';
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
-  const { callId, businessId } = await req.json();
+  const body = await req.json()
+  
+  // Initialize Supabase with service role for backend bypass or admin client
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!, // Use Service Role Key for background tasks
+    { cookies: { getAll: () => [] } }
+  )
 
-  // 1. Buscamos la configuración que el crawler generó automáticamente
-  const config = await db.businessConfig.findUnique({
-    where: { id: businessId }
-  });
+  const { error } = await supabase
+    .from('call_logs')
+    .insert([{
+      call_id: body.call_id,
+      phone_number: body.to,
+      transcript: body.transcript,
+      summary: body.concise_summary,
+      duration: body.duration,
+      status: body.status,
+      client_name: body.metadata?.client_name || 'FrontDesk Agents LLC'
+    }])
 
-  // 2. Generamos el prompt de voz en milisegundos
-  const dynamicPrompt = createVoicePrompt(config);
+  if (error) {
+    console.error('Webhook Save Error:', error.message)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
-  // 3. Enviamos las instrucciones al proveedor de Voz AI
-  // Ejemplo con una API genérica de Voz:
-  await fetch('https://api.voice-provider.com/v1/update-agent', {
-    method: 'PATCH',
-    headers: { 'Authorization': `Bearer ${process.env.VOICE_API_KEY}` },
-    body: JSON.stringify({
-      call_id: callId,
-      system_prompt: dynamicPrompt
-    })
-  });
-
-  return Response.json({ status: "Agent Ready" });
+  return NextResponse.json({ success: true })
 }
