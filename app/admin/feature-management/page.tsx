@@ -1,4 +1,6 @@
-import React from "react";
+"use client"; // ✅ THIS IS THE CRITICAL ADDITION
+
+import React, { useState } from "react";
 import {
   CheckCircleIcon,
   XCircleIcon,
@@ -9,7 +11,6 @@ import { Card } from "@/components/ui/card";
 /* =======================
    Types
 ======================= */
-
 type FeatureStatus = "ACTIVE" | "INACTIVE";
 
 interface Feature {
@@ -27,7 +28,6 @@ interface FeatureCardProps {
 /* =======================
    FeatureCard Component
 ======================= */
-
 const FeatureCard: React.FC<FeatureCardProps> = ({
   feature,
   onToggle,
@@ -36,7 +36,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   const StatusIcon = isActive ? CheckCircleIcon : XCircleIcon;
 
   return (
-    <Card className="flex items-center justify-between p-4">
+    <Card className="flex items-center justify-between p-4 bg-[#0a1929]/50 border-gray-800">
       <div className="flex items-start gap-4">
         <StatusIcon
           className={`h-6 w-6 ${
@@ -44,8 +44,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           }`}
         />
         <div>
-          <h3 className="font-semibold">{feature.name}</h3>
-          <p className="text-sm text-neutral-500">
+          <h3 className="font-semibold text-white">{feature.name}</h3>
+          <p className="text-sm text-neutral-400">
             {feature.description}
           </p>
         </div>
@@ -64,8 +64,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 /* =======================
    Page Component
 ======================= */
-
-const features: Feature[] = [
+const initialFeatures: Feature[] = [
   {
     id: "voice-ai",
     name: "Voice AI",
@@ -81,14 +80,22 @@ const features: Feature[] = [
 ];
 
 export default function FeatureManagementPage() {
+  // Added local state so the UI actually responds when you click the switch
+  const [featureList, setFeatureList] = useState<Feature[]>(initialFeatures);
+
   const handleToggle = (featureId: string, enabled: boolean) => {
+    setFeatureList((prev) =>
+      prev.map((f) =>
+        f.id === featureId ? { ...f, status: enabled ? "ACTIVE" : "INACTIVE" } : f
+      )
+    );
     console.log("Toggle feature:", featureId, enabled);
-    // aquí luego conectas backend / flags
   };
 
   return (
-    <div className="space-y-4">
-      {features.map((feature) => (
+    <div className="p-6 space-y-4 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold text-white mb-6">Admin: Feature Management</h1>
+      {featureList.map((feature) => (
         <FeatureCard
           key={feature.id}
           feature={feature}
