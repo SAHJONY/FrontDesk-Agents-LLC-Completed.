@@ -1,4 +1,5 @@
 // lib/ai/prompts.ts
+// AI Prompts for various business automation tasks
 
 export const systemPrompts = {
   websiteScraper: `You are an AI assistant that analyzes website content to extract business information.
@@ -132,3 +133,10 @@ export function getPrompt(type: keyof typeof systemPrompts, userInput?: string |
   
   return { system, user };
 }
+
+// Export default for easier imports
+export default {
+  systemPrompts,
+  userPrompts,
+  getPrompt
+};
