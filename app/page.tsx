@@ -6,7 +6,7 @@ import {
   PhoneIcon, 
   SparklesIcon, 
   ShieldCheckIcon,
-  PlayCircleIcon,
+  PlayCircleIcon, 
   CheckBadgeIcon,
   MegaphoneIcon,
   CheckIcon,
