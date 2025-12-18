@@ -1,97 +1,86 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase-client';
-import { Card, Grid, Title, Text, Metric, Badge, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell } from '@tremor/react';
 
-export default function MainDashboard() {
-  const [calls, setCalls] = useState<any[]>([]);
-  const [stats, setStats] = useState({ total: 0, bookings: 0, revenue: 0 });
+import { useState, useEffect } from 'react';
+import { Card, Title, Text, Flex, Badge, ProgressBar, Grid, Metric } from '@tremor/react';
+import { supabase } from '@/lib/supabase-client';
+
+export default function DashboardPage() {
+  const [usedMinutes, setUsedMinutes] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const totalMinutes = 1000; // Tu oferta de Fundadores (500 + 500)
 
   useEffect(() => {
-    // 1. Carga inicial de datos
-    fetchDashboardData();
+    async function fetchUsage() {
+      // 1. Obtener la sesión del usuario actual
+      const { data: { user } } = await supabase.auth.getUser();
 
-    // 2. ESCUCHA EN TIEMPO REAL: Si se inserta una llamada nueva, actualiza la lista
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'CallLog' }, (payload) => {
-        setCalls((prev) => [payload.new, ...prev]);
-        fetchDashboardData(); // Recalcular métricas
-      })
-      .subscribe();
+      if (user) {
+        // 2. Sumar la duración de todas sus llamadas en la tabla 'CallLog'
+        const { data: calls, error } = await supabase
+          .from('CallLog')
+          .select('duration')
+          .eq('user_id', user.id);
 
-    return () => { supabase.removeChannel(channel); };
+        if (!error && calls) {
+          // Calculamos el total (asumiendo que duration está en segundos)
+          const totalSeconds = calls.reduce((acc, call) => acc + (call.duration || 0), 0);
+          setUsedMinutes(Math.ceil(totalSeconds / 60)); // Convertir a minutos
+        }
+      }
+      setLoading(false);
+    }
+
+    fetchUsage();
   }, []);
 
-  async function fetchDashboardData() {
-    const { data: callData } = await supabase
-      .from('CallLog')
-      .select('*')
-      .order('createdAt', { ascending: false });
-
-    if (callData) {
-      setCalls(callData);
-      const bookings = callData.filter(c => c.wasBooked).length;
-      setStats({
-        total: callData.length,
-        bookings: bookings,
-        revenue: bookings * 100 // Asumiendo $100 por cita ganada
-      });
-    }
-  }
+  // Calcular el porcentaje para la barra
+  const percentage = Math.min((usedMinutes / totalMinutes) * 100, 100);
 
   return (
-    <main className="p-10 bg-slate-950 min-h-screen text-white">
-      <div className="flex justify-between items-center mb-10">
-        <Title className="text-white text-3xl font-bold">Panel de Control en Vivo</Title>
-        <Badge color="emerald">Conectado a Supabase</Badge>
-      </div>
+    <main className="p-8 bg-[#000814] min-h-screen text-white">
+      <Title className="text-white mb-6">Panel de Control - Sahjony LLC</Title>
 
-      <Grid numItemsMd={2} numItemsLg={3} className="gap-6 mb-10">
-        <Card className="bg-slate-900 border-slate-800">
-          <Text className="text-slate-400">Llamadas Totales</Text>
-          <Metric className="text-white">{stats.total}</Metric>
+      <Grid numItemsMd={1} numItemsLg={3} className="gap-6">
+        
+        {/* LA BARRA DE PROGRESO REAL */}
+        <Card className="bg-slate-900 border-cyan-500/50 lg:col-span-2">
+          <Flex items="start">
+            <div>
+              <Text className="text-slate-400 uppercase text-xs font-bold tracking-widest">Estado de tu Cuenta</Text>
+              <Title className="text-white">Plan Founding Member</Title>
+            </div>
+            <Badge color="cyan">BONO ACTIVO</Badge>
+          </Flex>
+          
+          <div className="mt-6">
+            <Flex>
+              <Text className="text-cyan-400 font-bold">
+                {loading ? 'Calculando...' : `${usedMinutes} de ${totalMinutes} minutos usados`}
+              </Text>
+              <Text className="text-slate-500">
+                {totalMinutes - usedMinutes} min restantes
+              </Text>
+            </Flex>
+            
+            <ProgressBar value={percentage} color="cyan" className="mt-2" />
+            
+            <Text className="text-xs text-slate-400 mt-2 italic">
+              *Tu beneficio de 500 minutos extra es vitalicio mientras mantengas tu suscripción activa.
+            </Text>
+          </div>
         </Card>
+
+        {/* METRICA RAPIDA */}
         <Card className="bg-slate-900 border-slate-800">
-          <Text className="text-slate-400">Citas Cerradas</Text>
-          <Metric className="text-emerald-400">{stats.bookings}</Metric>
+           <Text className="text-slate-400">Estado de Agentes</Text>
+           <div className="mt-2 flex items-center gap-2">
+             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+             <Metric className="text-white text-2xl">SARA & ALEX LIVE</Metric>
+           </div>
+           <Text className="text-xs text-slate-500 mt-4">Protegido por Sahjonyllc@outlook.com</Text>
         </Card>
-        <Card className="bg-slate-900 border-slate-800">
-          <Text className="text-slate-400">ROI Estimado</Text>
-          <Metric className="text-amber-400">${stats.revenue}</Metric>
-        </Card>
+
       </Grid>
-
-      <Card className="bg-slate-900 border-slate-800">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell className="text-slate-400">Teléfono</TableHeaderCell>
-              <TableHeaderCell className="text-slate-400">Resultado</TableHeaderCell>
-              <TableHeaderCell className="text-slate-400">Resumen IA</TableHeaderCell>
-              <TableHeaderCell className="text-slate-400">Fecha</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {calls.map((call) => (
-              <TableRow key={call.id} className="border-slate-800">
-                <TableCell className="text-white font-mono">{call.customerPhone}</TableCell>
-                <TableCell>
-                  <Badge color={call.wasBooked ? "emerald" : "gray"}>
-                    {call.wasBooked ? "CITA AGENDADA" : "CONSULTA"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-slate-300 max-w-md italic text-sm">
-                  "{call.summary}"
-                </TableCell>
-                <TableCell className="text-slate-500">
-                  {new Date(call.createdAt).toLocaleTimeString()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
     </main>
   );
 }
