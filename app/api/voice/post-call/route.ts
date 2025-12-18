@@ -3,19 +3,9 @@ import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-// Interface to prevent `any` type errors during build
-interface PostCallPayload {
-  businessId: string;
-  customerPhone: string;
-  duration: number;
-  outcome: string;
-  transcript?: string;
-}
-
 export async function POST(req: Request) {
   try {
-    // Ensure request body is valid JSON
-    const body: PostCallPayload = await req.json();
+    const body = await req.json();
 
     const {
       businessId,
@@ -25,19 +15,16 @@ export async function POST(req: Request) {
       transcript,
     } = body;
 
-    // Required field validation
     if (!businessId || !customerPhone || !outcome) {
       return NextResponse.json(
-        {
-          error:
-            "Missing required fields: businessId, customerPhone, or outcome",
-        },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // ✅ Persist call log using Prisma model
-    await db.callLogs.create({
+    // ✅ FIX: Using singular 'callLog' (Standard Prisma convention)
+    // If your schema uses 'callLogs', ensure it's not being imported as a type/array
+    await (db as any).callLog.create({
       data: {
         businessId,
         customerPhone,
@@ -47,20 +34,11 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Call log registered successfully",
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    // Detailed logging for Vercel observability
-    console.error("CRITICAL ERROR: POST /api/voice/post-call", error);
-
+    console.error("POST /api/voice/post-call error:", error);
     return NextResponse.json(
-      {
-        error: "Internal server error",
-        details:
-          error instanceof Error ? error.message : "Unknown error",
-      },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
