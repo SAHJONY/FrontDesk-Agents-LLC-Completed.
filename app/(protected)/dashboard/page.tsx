@@ -1,301 +1,228 @@
+'use client';
+
 import React from 'react';
-import { getClientMetrics } from '@/lib/dashboard-metrics';
 import { 
   ClockIcon, 
   CalendarDaysIcon, 
   ChartBarIcon, 
   PhoneIcon,
   ArrowPathIcon,
-  SparklesIcon
+  SparklesIcon,
+  ShieldCheckIcon,
+  ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline';
 
-// Nota: Se ha removido el div contenedor principal y sus clases de fondo/padding
-// para que el layout.tsx pueda gestionar la estructura de la página.
+// Nota: Se asume que los estilos 'glass-card' están definidos en globals.css
+// Si usas Tailwind puro, puedes reemplazar glass-card con "bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl"
 
-const SIMULATED_CLIENT_KEY = 'FDDG-SARAV1-93A2X-57B'; 
-
-export default async function DashboardPage() {
-  // Asumiendo que getClientMetrics y sus tipos están definidos.
-  // Si metrics es undefined/null, usar un valor predeterminado seguro.
-  const clientKey = SIMULATED_CLIENT_KEY;
-  // Simulación: Si metrics falla, usar valores predeterminados
-  const metrics = await getClientMetrics(clientKey, 7) || {
-    appointmentsBooked: 'N/A',
-    conversionRate: 'N/A',
-    callsProcessed: 'N/A',
-    totalDurationHours: 'N/A',
-    abandonmentRate: 'N/A',
+export default function DashboardPage() {
+  // Simulación de datos (En producción vendrían de Supabase/Bland AI)
+  const metrics = {
+    appointmentsBooked: 24,
+    conversionRate: 18.5,
+    callsProcessed: 142,
+    totalDurationHours: 12.4,
+    abandonmentRate: 2.1,
+    minutesUsed: 320,
+    totalMinutes: 1000, // Reflejando el bono de fundador
   };
-  
+
+  const minutesRemaining = metrics.totalMinutes - metrics.minutesUsed;
+  const usagePercentage = (metrics.minutesUsed / metrics.totalMinutes) * 100;
+
   return (
-    // CONTENIDO: Ahora es solo el contenido de la página, el padding y el fondo
-    // serán provistos por el layout.tsx para consistencia.
-    <div> 
-      {/* Premium Header Section */}
-      <div className="relative rounded-2xl overflow-hidden mb-10">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=90&fit=crop"
-            alt="Executive dashboard"
-            className="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0a1929] via-[#0a1929]/90 to-transparent" />
-        </div>
+    <div className="space-y-8 animate-in fade-in duration-700"> 
+      
+      {/* --- SECCIÓN DE BIENVENIDA Y ESTADO DEL PLAN --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <div className="relative p-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg">
-              <SparklesIcon className="w-8 h-8 text-white" />
+        {/* Banner de Bienvenida */}
+        <div className="lg:col-span-2 relative rounded-[32px] overflow-hidden bg-slate-900 border border-white/5 shadow-2xl p-8 flex flex-col justify-center">
+          <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none">
+            <img
+              src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80"
+              alt="Executive background"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-l from-[#000814] to-transparent" />
+          </div>
+          
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black mb-6 uppercase tracking-[0.2em]">
+              <ShieldCheckIcon className="w-4 h-4" /> Acceso VIP Verificado
             </div>
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-2 tracking-tighter italic">
+              COMMAND CENTER
+            </h1>
+            <p className="text-gray-400 font-medium max-w-md italic">
+              Bienvenido, J. Gonzalez. Tus agentes SARA y ALEX están operando con máxima eficiencia.
+            </p>
+          </div>
+        </div>
+
+        {/* Card de Minutos (Bono de Fundador) */}
+        <div className="bg-gradient-to-br from-slate-900 to-[#000814] border-2 border-cyan-500/30 rounded-[32px] p-8 shadow-[0_0_30px_rgba(6,182,212,0.15)] relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+             <SparklesIcon className="w-32 h-32 text-cyan-500" />
+          </div>
+          
+          <div className="relative z-10 h-full flex flex-col justify-between">
             <div>
-              <h1 className="text-4xl font-extrabold text-white">
-                Executive Command Center
-              </h1>
-              <p className="text-gray-400">
-                Enterprise Performance Analytics (Last 7 Days)
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+                  Plan Fundador
+                </span>
+                <span className="text-white/40 text-[10px] font-mono italic">REF: FD-25-VIP</span>
+              </div>
+              <p className="text-3xl font-black text-white italic">{minutesRemaining} <span className="text-sm not-italic font-medium text-gray-500 uppercase tracking-widest">Min Libres</span></p>
+            </div>
+
+            <div className="mt-8">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-2">
+                <span className="text-gray-400">Consumo Mensual</span>
+                <span className="text-cyan-400">{metrics.minutesUsed} / {metrics.totalMinutes} MIN</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div 
+                  className="bg-gradient-to-r from-cyan-600 to-blue-400 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(6,182,212,0.5)]" 
+                  style={{ width: `${usagePercentage}%` }} 
+                />
+              </div>
+              <p className="text-[9px] text-gray-500 mt-3 italic text-center">
+                * Incluye Bono de 500 min por Early Access
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Primary Metrics Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-10">
-        {/* System Status Card */}
-        <div className="lg:col-span-1">
-          <div className="glass-card p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
-              <img
-                src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=90&fit=crop"
-                alt="Analytics"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="relative">
-              <h2 className="text-xl font-bold text-white mb-4">System Status</h2>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-green-400 text-sm font-medium">Enterprise Online</span>
-              </div>
-              <div className="space-y-3">
-                <div className="text-center p-3 bg-blue-500/20 rounded-lg border border-blue-500/30">
-                  <p className="text-sm text-blue-400">Active AI Agents</p>
-                  <p className="text-2xl font-bold text-white">12</p>
-                </div>
-                <div className="text-center p-3 bg-green-500/20 rounded-lg border border-green-500/30">
-                  <p className="text-sm text-green-400">Daily Volume</p>
-                  <p className="text-2xl font-bold text-white">847</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
+      {/* --- MÉTRICAS PRIMARIAS --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard 
           icon={CalendarDaysIcon} 
-          title="Appointments Booked" 
+          title="Citas Agendadas" 
           value={metrics.appointmentsBooked} 
-          color="--color-gold"
-          image="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&q=90&fit=crop"
+          trend="+12% vs ayer"
+          color="text-cyan-400"
         />
-        
         <MetricCard 
           icon={ChartBarIcon} 
-          title="Conversion Rate" 
+          title="Tasa de Conversión" 
           value={`${metrics.conversionRate}%`}
-          color="--color-primary"
-          image="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=90&fit=crop"
+          trend="Superior al sector"
+          color="text-purple-400"
         />
-        
         <MetricCard 
           icon={PhoneIcon} 
-          title="Total Calls Processed" 
+          title="Llamadas Totales" 
           value={metrics.callsProcessed} 
-          color="--color-accent-blue"
-          image="https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=90&fit=crop"
+          trend="Operación 24/7"
+          color="text-emerald-400"
         />
-      </div>
-      
-      {/* Secondary Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
         <MetricCard 
           icon={ClockIcon} 
-          title="Time Saved (Hours)" 
-          value={metrics.totalDurationHours} 
-          color="--color-gold" 
-          secondaryText="Equivalent to full-time staff"
-          image="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&q=90&fit=crop"
-        />
-        <MetricCard 
-          icon={ArrowPathIcon} 
-          title="Service Level" 
-          value={`${100 - metrics.abandonmentRate}%`}
-          color="--color-primary" 
-          secondaryText="Industry-leading performance"
-          image="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&q=90&fit=crop"
-        />
-        
-        <MetricCard 
-          icon={ChartBarIcon} 
-          title="Revenue Impact" 
-          value={`$${(metrics.appointmentsBooked * 150).toLocaleString()}`}
-          color="--color-gold" 
-          secondaryText="Estimated value captured"
-          image="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=90&fit=crop"
+          title="Tiempo Ahorrado" 
+          value={`${metrics.totalDurationHours}h`} 
+          trend="Enfoque en ventas"
+          color="text-amber-400"
         />
       </div>
 
-      {/* Enterprise Performance Section */}
+      {/* --- SECCIÓN DE ACTIVIDAD Y RENDIMIENTO --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass-card p-8">
-          <h3 className="text-2xl font-bold text-white mb-6">Enterprise AI Performance</h3>
-          <div className="relative rounded-xl overflow-hidden mb-6">
-            <img
-              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=90&fit=crop"
-              alt="Performance analytics"
-              className="w-full h-48 object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1929] to-transparent" />
+        
+        {/* Rendimiento AI */}
+        <div className="bg-slate-900/50 border border-white/5 rounded-[32px] p-8 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-xl font-bold italic uppercase tracking-tight">AI Agent Performance</h3>
+            <ArrowTrendingUpIcon className="w-6 h-6 text-cyan-500" />
           </div>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">AI Response Accuracy</span>
-              <span className="text-white font-bold">99.2%</span>
+          
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
+                <span className="text-gray-400">Exactitud de Respuesta (SARA)</span>
+                <span className="text-white">99.2%</span>
+              </div>
+              <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-cyan-500 h-full rounded-full" style={{ width: '99.2%' }} />
+              </div>
             </div>
-            <div className="w-full bg-white/10 rounded-full h-2">
-              <div className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" style={{ width: '99.2%' }} />
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
+                <span className="text-gray-400">Efectividad de Cierre (ALEX)</span>
+                <span className="text-white">87.5%</span>
+              </div>
+              <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-purple-500 h-full rounded-full" style={{ width: '87.5%' }} />
+              </div>
             </div>
-            <div className="flex justify-between items-center pt-4">
-              <span className="text-gray-400">Customer Satisfaction</span>
-              <span className="text-white font-bold">97.8%</span>
-            </div>
-            <div className="w-full bg-white/10 rounded-full h-2">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{ width: '97.8%' }} />
-            </div>
+          </div>
+
+          <div className="mt-10 rounded-2xl overflow-hidden grayscale border border-white/10 opacity-40 h-32">
+             <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" className="w-full h-full object-cover" alt="Analytics Graph" />
           </div>
         </div>
 
-        <div className="glass-card p-8">
-          <h3 className="text-2xl font-bold text-white mb-6">Executive Activity Stream</h3>
-          <div className="relative rounded-xl overflow-hidden mb-6">
-            <img
-              src="https://images.unsplash.com/photo-1568992688065-536aad8a12f6?w=800&q=90&fit=crop"
-              alt="Business professional"
-              className="w-full h-48 object-cover"
+        {/* Flujo de Actividad */}
+        <div className="bg-slate-900/50 border border-white/5 rounded-[32px] p-8 backdrop-blur-sm">
+          <h3 className="text-xl font-bold italic uppercase tracking-tight mb-8">Actividad en Tiempo Real</h3>
+          <div className="space-y-4">
+            <ActivityItem 
+              color="bg-emerald-500" 
+              text="SARA agendó una nueva cita" 
+              time="Hace 2 min" 
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1929] to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4">
-              <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full w-fit">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-xs font-medium text-green-400">Real-time Updates</span>
-              </div>
-            </div>
+            <ActivityItem 
+              color="bg-purple-500" 
+              text="ALEX completó llamada de seguimiento" 
+              time="Hace 15 min" 
+            />
+            <ActivityItem 
+              color="bg-cyan-500" 
+              text="Lead de alta prioridad capturado" 
+              time="Hace 42 min" 
+            />
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <div className="flex-1">
-                <p className="text-sm text-white">High-value lead captured</p>
-                <p className="text-xs text-gray-400">Enterprise account - 2 min ago</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
-              <div className="w-2 h-2 bg-blue-500 rounded-full" />
-              <div className="flex-1">
-                <p className="text-sm text-white">Executive meeting scheduled</p>
-                <p className="text-xs text-gray-400">C-level prospect - 5 min ago</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
-              <div className="w-2 h-2 bg-purple-500 rounded-full" />
-              <div className="flex-1">
-                <p className="text-sm text-white">Strategic partnership inquiry</p>
-                <p className="text-xs text-gray-400">Fortune 500 company - 12 min ago</p>
-              </div>
-            </div>
-          </div>
+          
+          <button className="w-full mt-10 py-4 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-cyan-400 hover:bg-white/5 transition-all">
+            Ver Registro Completo de Llamadas
+          </button>
         </div>
       </div>
 
-      {/* Global Operations Map */}
-      <div className="mt-10 glass-card p-8">
-        <h3 className="text-2xl font-bold text-white mb-6">Global Enterprise Operations</h3>
-        <div className="relative rounded-xl overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1200&q=90&fit=crop"
-            alt="Global operations center"
-            className="w-full h-64 object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a1929] via-[#0a1929]/50 to-transparent" />
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-white">50+</p>
-                <p className="text-xs text-gray-300">Countries Served</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-white">24/7</p>
-                <p className="text-xs text-gray-300">Global Coverage</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-white">15+</p>
-                <p className="text-xs text-gray-300">Languages</p>
-              </div>
-            </div>
-          </div>
+    </div>
+  );
+}
+
+// --- COMPONENTES AUXILIARES ---
+
+function MetricCard({ icon: Icon, title, value, trend, color }: any) {
+  return (
+    <div className="bg-slate-900/50 border border-white/5 rounded-[28px] p-6 group hover:border-white/10 transition-all">
+      <div className="flex justify-between items-start mb-4">
+        <div className={`p-3 rounded-2xl bg-white/5 ${color}`}>
+          <Icon className="w-6 h-6" />
         </div>
+      </div>
+      <div>
+        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">{title}</p>
+        <p className="text-3xl font-black text-white italic">{value}</p>
+        <p className="text-[9px] font-bold text-gray-600 mt-2 uppercase tracking-tighter italic">{trend}</p>
       </div>
     </div>
   );
 }
 
-// ----------------------------------------------------------------------
-// MetricCard Component (Mantenerlo como se definió)
-// ----------------------------------------------------------------------
-interface MetricCardProps {
-  icon: React.ElementType;
-  title: string;
-  value: string | number;
-  color: string;
-  secondaryText?: string;
-  image?: string;
-}
-
-const MetricCard: React.FC<MetricCardProps> = ({ 
-  icon: Icon, 
-  title, 
-  value, 
-  color, 
-  secondaryText,
-  image 
-}) => (
-  <div className="glass-card p-6 flex flex-col justify-between h-full relative overflow-hidden group">
-    {image && (
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
-        <img
-          src={image}
-          alt={title}
-          className="w-full h-full object-cover"
-        />
-      </div>
-    )}
-    
-    <div className="relative">
-      <div className="flex items-start justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
-          {title}
-        </h3>
-        <Icon className={`w-8 h-8 text-[var(${color})]`} />
-      </div>
-      <div className="mt-4">
-        <p className="text-4xl font-extrabold text-white">
-          {value}
-        </p>
-        {secondaryText && (
-          <p className="text-xs text-gray-500 mt-1">{secondaryText}</p>
-        )}
+function ActivityItem({ color, text, time }: any) {
+  return (
+    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+      <div className={`w-2 h-2 rounded-full ${color} animate-pulse`} />
+      <div className="flex-1">
+        <p className="text-xs font-bold text-gray-200">{text}</p>
+        <p className="text-[10px] text-gray-500 uppercase tracking-tighter mt-0.5">{time}</p>
       </div>
     </div>
-  </div>
-);
-                
+  );
+}
