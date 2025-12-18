@@ -6,25 +6,32 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
   const supabase = createMiddlewareClient({ req, res });
 
-  const { data: { session } } = await supabase.auth.getSession();
+  // 1. Verificar si hay una sesión activa de Supabase
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  // 1. Proteger la ruta /admin (SOLO PARA TI)
-  if (req.nextUrl.pathname.startsWith('/admin')) {
-    if (session?.user.email !== 'Sahjonyllc@outlook.com') {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
+  const isDashboardPage = req.nextUrl.pathname.startsWith('/dashboard');
+  const isOnboardingPage = req.nextUrl.pathname.startsWith('/onboarding');
+
+  // 2. PROTECCIÓN: Si el usuario intenta entrar a rutas protegidas sin sesión
+  if ((isDashboardPage || isOnboardingPage) && !session) {
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.pathname = '/login'; // O la página donde tengas tu Auth
+    return NextResponse.redirect(redirectUrl);
   }
 
-  // 2. Proteger el /dashboard (Para cualquier usuario logueado)
-  if (req.nextUrl.pathname.startsWith('/dashboard')) {
-    if (!session) {
-      return NextResponse.redirect(new URL('/login', req.url));
-    }
-  }
+  // 3. (Opcional) Lógica de Pago: 
+  // Podrías verificar aquí si el usuario tiene una suscripción activa
+  // antes de dejarlo pasar al dashboard.
 
   return res;
 }
 
+// Configurar en qué rutas se debe ejecutar este guardián
 export const config = {
-  matcher: ['/admin/:path*', '/dashboard/:path*'],
+  matcher: [
+    '/dashboard/:path*',
+    '/onboarding/:path*',
+  ],
 };
