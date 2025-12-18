@@ -1,22 +1,22 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import twilio from 'twilio'
 
-/**
- * WEBHOOK ENDPOINT: Receives post-call data from Bland AI
- * This runs automatically every time a call ends.
- */
+// Initialize Twilio Client
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+)
+
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    
-    // We await cookies() to comply with Next.js 15 async headers
     const cookieStore = await cookies()
 
-    // Initialize Supabase with Service Role Key to bypass RLS for data logging
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!, 
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
       {
         cookies: {
           getAll() {
@@ -26,28 +26,43 @@ export async function POST(req: Request) {
       }
     )
 
-    // Log the incoming data to Supabase
-    const { error } = await supabase
+    // 1. Log the data to Supabase
+    const { error: dbError } = await supabase
       .from('call_logs')
       .insert([{
         call_id: body.call_id,
-        phone_number: body.to, // The number the AI called/received
+        phone_number: body.to,
         transcript: body.transcript,
-        summary: body.concise_summary, // Bland's AI-generated summary
-        duration: body.duration, // Duration in seconds
-        status: body.status, // e.g., 'completed', 'busy'
-        recording_url: body.recording_url, // NEW: Link to the audio file
+        summary: body.concise_summary,
+        duration: body.duration,
+        status: body.status,
+        recording_url: body.recording_url,
         client_name: body.metadata?.client_name || 'FrontDesk Agents LLC'
       }])
 
-    if (error) {
-      console.error('Supabase Insert Error:', error.message)
+    if (dbError) {
+      console.error('Supabase Insert Error:', dbError.message)
       return NextResponse.json({ error: 'Failed to save call log' }, { status: 500 })
+    }
+
+    // 2. Trigger "Hot Lead" SMS Notification
+    // We only send an SMS if the call was completed and not a busy/no-answer
+    if (body.status === 'completed') {
+      try {
+        await twilioClient.messages.create({
+          body: `🚀 New Lead: ${body.to}\n\nSummary: ${body.concise_summary}\n\nListen: ${body.recording_url}`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: process.env.CLIENT_MOBILE_NUMBER // Business owner's phone
+        })
+      } catch (smsError: any) {
+        console.error('Twilio SMS Error:', smsError.message)
+        // We don't return an error here so the webhook still succeeds if only SMS fails
+      }
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Call log and recording saved successfully' 
+      message: 'Call logged and notification sent' 
     })
 
   } catch (err: any) {
