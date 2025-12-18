@@ -1,3 +1,8 @@
 {
-  "installCommand": "npm install"
+  "crons": [
+    {
+      "path": "/api/cron/daily-report",
+      "schedule": "0 22 * * *"
+    }
+  ]
 }
