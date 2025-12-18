@@ -1,0 +1,46 @@
+import { Title, Text, Card, Divider } from '@tremor/react';
+
+export default function TermsOfService() {
+  return (
+    <main className="p-10 bg-[#000814] min-h-screen text-slate-300 max-w-4xl mx-auto">
+      <Title className="text-white text-3xl mb-2">Términos de Servicio</Title>
+      <Text className="text-cyan-500 mb-8 font-mono">FrontDesk Agents LLC – Edición Fundadores</Text>
+      
+      <div className="space-y-8">
+        <section>
+          <h3 className="text-white font-bold text-xl mb-3">1. La Oferta "Founding 100"</h3>
+          <Text className="text-slate-300">
+            El beneficio de 1,000 minutos mensuales (500 base + 500 bono) es exclusivo para los primeros 100 clientes. Este bono es vitalicio mientras la suscripción de $399 USD se mantenga activa y sin interrupciones. Si la suscripción se cancela o falla el pago, el bono podría ser revocado.
+          </Text>
+        </section>
+
+        <section>
+          <h3 className="text-white font-bold text-xl mb-3">2. Política de Reembolsos</h3>
+          <Text className="text-slate-300">
+            Debido a los costos operativos inmediatos de procesamiento de IA y asignación de números telefónicos, **no ofrecemos reembolsos** una vez que los agentes SARA o ALEX han sido configurados o se han consumido más de 10 minutos de llamada.
+          </Text>
+        </section>
+
+        <section>
+          <h3 className="text-white font-bold text-xl mb-3">3. Responsabilidad del Contenido</h3>
+          <Text className="text-slate-300">
+            El cliente es el único responsable de la información proporcionada para entrenar a la IA. FrontDesk Agents LLC no se hace responsable por errores en precios, horarios o promesas hechas por la IA basadas en datos incorrectos suministrados por el cliente.
+          </Text>
+        </section>
+
+        <section>
+          <h3 className="text-white font-bold text-xl mb-3">4. Uso Ético y Legal</h3>
+          <Text className="text-slate-300">
+            Queda prohibido el uso de ALEX para "Spam" telefónico, acoso o actividades ilegales. El cliente debe cumplir con las leyes locales de telemarketing (como la TCPA en EE. UU.). Sahjony LLC se reserva el derecho de suspender cuentas que violen estas normas.
+          </Text>
+        </section>
+      </div>
+
+      <Divider className="my-10 border-slate-800" />
+      
+      <footer className="text-center text-xs text-slate-500 pb-10">
+        Contacto Legal: Sahjonyllc@outlook.com | Delaware, USA (o tu ubicación fiscal)
+      </footer>
+    </main>
+  );
+}
