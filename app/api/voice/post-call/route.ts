@@ -1,47 +1,66 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
-/**
- * POST /api/voice/post-call
- * Stores the final result of a voice call
- */
+export const runtime = "nodejs";
+
+// Interface to prevent `any` type errors during build
+interface PostCallPayload {
+  businessId: string;
+  customerPhone: string;
+  duration: number;
+  outcome: string;
+  transcript?: string;
+}
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    // Ensure request body is valid JSON
+    const body: PostCallPayload = await req.json();
 
     const {
       businessId,
       customerPhone,
-      agentName,
-      callDuration,
-      transcript,
+      duration,
       outcome,
+      transcript,
     } = body;
 
-    if (!businessId || !customerPhone) {
+    // Required field validation
+    if (!businessId || !customerPhone || !outcome) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        {
+          error:
+            "Missing required fields: businessId, customerPhone, or outcome",
+        },
         { status: 400 }
       );
     }
 
-    // Persist call log using Prisma model (NOT array)
-    await db.callLog.create({
+    // ✅ Persist call log using Prisma model
+    await db.callLogs.create({
       data: {
         businessId,
         customerPhone,
-        agentName,
-        callDuration,
-        transcript,
+        duration: Number(duration) || 0,
         outcome,
+        transcript: transcript || "",
       },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      message: "Call log registered successfully",
+    });
   } catch (error) {
-    console.error('Post-call error:', error);
+    // Detailed logging for Vercel observability
+    console.error("CRITICAL ERROR: POST /api/voice/post-call", error);
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: "Internal server error",
+        details:
+          error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
