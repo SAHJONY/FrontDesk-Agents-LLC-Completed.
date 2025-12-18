@@ -1,38 +1,48 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import OpenAI from 'openai';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
+/**
+ * POST /api/voice/post-call
+ * Guarda el resumen final de una llamada de voz
+ */
 export async function POST(req: Request) {
-  const { call_id, transcript, businessId, customerPhone } = await req.json();
+  try {
+    const body = await req.json();
 
-  // 1. La IA analiza la transcripción completa
-  const analysis = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: "Eres un experto en análisis de llamadas. Resume la conversación y determina si se agendó una cita. Responde estrictamente en JSON con este formato: { summary: string, wasBooked: boolean, serviceRequested: string, sentiment: 'positive' | 'neutral' | 'negative' }"
-      },
-      { role: "user", content: transcript }
-    ],
-    response_format: { type: "json_object" }
-  });
-
-  const result = JSON.parse(analysis.choices[0].message.content || "{}");
-
-  // 2. Guardamos el resultado final en la Base de Datos
-  await db.callLog.create({
-    data: {
+    const {
       businessId,
       customerPhone,
-      summary: result.summary,
-      wasBooked: result.wasBooked,
-      estimatedValue: result.wasBooked ? 100 : 0, // Ajustable según el crawler
-      createdAt: new Date(),
-    }
-  });
+      agentName,
+      callDuration,
+      transcript,
+      outcome,
+    } = body;
 
-  return NextResponse.json({ success: true });
+    if (!businessId || !customerPhone) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Guardamos el resultado final en la Base de Datos
+    await db.callLogs.create({
+      data: {
+        businessId,
+        customerPhone,
+        agentName,
+        callDuration,
+        transcript,
+        outcome,
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Post-call error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
