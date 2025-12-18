@@ -1,34 +1,34 @@
-// app/api/analytics/route.ts
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { calculateROI } from '@/lib/ai/analytics';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
-    // 1. Obtener el ID del negocio (usualmente de la sesión del usuario)
-    const businessId = "id-del-negocio-actual"; 
+    const { businessId } = await req.json();
 
-    // 2. Traer los datos de la DB
+    // 1. Get the business info
     const business = await db.businessConfig.findUnique({
       where: { id: businessId },
-      include: { calls: true } // Incluye todas las llamadas registradas
     });
 
     if (!business) return NextResponse.json({ error: "No data found" }, { status: 404 });
 
-    // 3. Ejecutar la función de cálculo
-    const stats = calculateROI(business.calls, business);
+    // 2. Fetch calls separately to avoid "include" relation errors
+    const calls = await (db as any).callLogs.findMany({
+      where: { businessId: businessId },
+      orderBy: { createdAt: 'desc' }
+    });
 
-    // 4. Formatear datos para el gráfico de Tremor (ejemplo de últimos 7 días)
-    const chartData = [
-      { date: "Jan 21", "Llamadas": 12, "Citas": 3 },
-      { date: "Jan 22", "Llamadas": 15, "Citas": 5 },
-      // ... esto se puede generar dinámicamente con business.calls
-    ];
-
-    return NextResponse.json({ ...stats, chartData });
+    return NextResponse.json({
+      business,
+      calls,
+      stats: {
+        totalCalls: calls.length,
+        // Add more basic stats here
+      }
+    });
 
   } catch (error) {
-    return NextResponse.json({ error: "Error fetching analytics" }, { status: 500 });
+    console.error("Analytics Error:", error);
+    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
 }
