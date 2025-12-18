@@ -34,16 +34,19 @@ export async function middleware(request: NextRequest) {
   await supabase.auth.getUser()
 
   // 2. Placeholder/Maintenance Logic
-  // Set MAINTENANCE_MODE="true" in Vercel Environment Variables
   const isMaintenanceMode = process.env.MAINTENANCE_MODE === 'true';
   const url = request.nextUrl.clone();
+  const path = url.pathname;
 
-  // Allow access to /api routes and the placeholder page itself to avoid infinite loops
-  if (
-    isMaintenanceMode && 
-    !url.pathname.startsWith('/api') && 
-    !url.pathname.startsWith('/coming-soon')
-  ) {
+  // Define paths that should ALWAYS be accessible
+  const isExcludedPath = 
+    path.startsWith('/api') || 
+    path.startsWith('/coming-soon') || 
+    path.startsWith('/login') || 
+    path.startsWith('/admin') ||
+    path.startsWith('/auth'); // Required for Supabase callback links
+
+  if (isMaintenanceMode && !isExcludedPath) {
     url.pathname = '/coming-soon';
     return NextResponse.rewrite(url);
   }
@@ -53,6 +56,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public assets (svg, png, jpg, etc.)
+     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
