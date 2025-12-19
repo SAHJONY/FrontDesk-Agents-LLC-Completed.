@@ -3,17 +3,19 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import twilio from 'twilio'
 
+// DO NOT initialize Twilio here at the top level. 
+// It will crash the build if the environment variables are not found.
+
 export async function POST(req: Request) {
   try {
     const body = await req.json()
     const cookieStore = await cookies()
 
-    // CEO Fix: Initialize Twilio INSIDE the function. 
-    // This prevents the build from crashing when environment variables are missing.
+    // 1. Initialize Twilio ONLY when the request actually hits the server
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     
-    // Only create the client if we have a valid SID
+    // Safety check: Twilio library crashes if SID doesn't start with 'AC'
     const twilioClient = (accountSid && accountSid.startsWith('AC')) 
       ? twilio(accountSid, authToken) 
       : null;
@@ -31,7 +33,7 @@ export async function POST(req: Request) {
       }
     )
 
-    // 1. Log the data to Supabase
+    // 2. Log to Supabase
     const { error: dbError } = await supabase
       .from('CallLog')
       .insert([{
@@ -42,12 +44,12 @@ export async function POST(req: Request) {
         duration: body.duration,
         status: body.status,
         recordingUrl: body.recording_url,
-        estimatedValue: 50
+        estimatedValue: 50 
       }])
 
-    if (dbError) console.error('Supabase Insert Error:', dbError.message);
+    if (dbError) console.error('Supabase Error:', dbError.message);
 
-    // 2. Trigger SMS Notification if Client is available
+    // 3. Send SMS using the client initialized inside this function
     if (body.status === 'completed' && twilioClient) {
       try {
         await twilioClient.messages.create({
