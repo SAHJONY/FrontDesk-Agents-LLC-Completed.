@@ -1,43 +1,21 @@
-// Centralized Supabase client utilities for FrontDesk Agents
-// Client-side only
+// lib/supabase/client.ts
+// Centralized Supabase client utilities for the FrontDesk Agents infrastructure
 
-import { createBrowserClient } from "@supabase/ssr";
-
-/**
- * GO_LIVE switch
- * Set to true ONLY at final deployment step
- */
-const GO_LIVE = false;
+import { createBrowserClient } from '@supabase/ssr';
 
 /**
- * Placeholder credentials (pre–go-live)
- * These prevent accidental real connections during staging/builds
- */
-const PLACEHOLDER_URL = "https://SUPABASE_URL_PLACEHOLDER.supabase.co";
-const PLACEHOLDER_ANON_KEY = "SUPABASE_ANON_KEY_PLACEHOLDER";
-
-/**
- * Factory function for creating a Supabase browser client.
- * Use this inside Client Components or hooks.
+ * Creates a Supabase browser client for client-side operations
+ * Use this in client components ('use client')
  */
 export function createClient() {
   return createBrowserClient(
-    GO_LIVE
-      ? process.env.NEXT_PUBLIC_SUPABASE_URL!
-      : PLACEHOLDER_URL,
-    GO_LIVE
-      ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      : PLACEHOLDER_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 }
 
 /**
- * Shared Supabase client instance.
- * Safe for standard client-side usage.
- */
-export const supabase = createClient();
-
-/**
- * Type-safe Supabase client type
+ * Type-safe Supabase client instance
+ * Import this when you need type inference
  */
 export type SupabaseClient = ReturnType<typeof createClient>;
