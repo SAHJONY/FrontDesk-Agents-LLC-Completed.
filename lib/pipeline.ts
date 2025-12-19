@@ -1,5 +1,11 @@
 // lib/pipeline.ts
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize the admin client directly to ensure it uses the Service Role Key
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 interface LeadPayload {
   lead_id?: string;
@@ -15,15 +21,9 @@ interface LeadPayload {
  * usando el cliente admin de Supabase.
  */
 export async function upsertLeadInPipeline(payload: LeadPayload) {
-  const supabase = supabaseAdmin;
-
-  if (!supabase) {
-    throw new Error("Supabase admin client not initialized");
-  }
-
   const { lead_id, ...rest } = payload;
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("leads_pipeline")
     .upsert(
       [
