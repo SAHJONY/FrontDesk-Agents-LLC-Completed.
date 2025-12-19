@@ -1,48 +1,53 @@
-import Link from 'next/link'
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
-import LanguageButton from './LanguageButton' 
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+import { languages, defaultLanguage } from './config/languages'
 
-export default async function Navbar() {
-  const supabase = await createClient()
+export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+  const acceptLanguage = request.headers.get('accept-language')
   
-  // Wrap in try/catch so if Auth fails, the Navbar still shows the button
-  let user = null;
-  try {
-    const { data } = await supabase.auth.getUser()
-    user = data.user;
-  } catch (e) {
-    console.error("Auth failed in navbar", e);
+  let detectedLocale = defaultLanguage
+  if (cookieLocale && languages.some(l => l.code === cookieLocale)) {
+    detectedLocale = cookieLocale
+  } else if (acceptLanguage) {
+    const preferredLang = acceptLanguage.split(',')[0].split('-')[0].toLowerCase()
+    const match = languages.find(l => l.code === preferredLang)
+    if (match) detectedLocale = match.code
+  }
+  
+  const selectedLang = languages.find(l => l.code === detectedLocale)
+  let response = NextResponse.next({ request: { headers: request.headers } })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return request.cookies.getAll() },
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          response = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+  const isProtectedRoute = /^\/(dashboard|admin|settings|owner|analytics)/.test(pathname)
+
+  if (!user && isProtectedRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
-  return (
-    <nav className="flex justify-between items-center p-4 border-b bg-white relative z-[100]">
-      <Link href="/" className="font-bold text-xl">
-        FrontDesk Agents
-      </Link>
-      
-      <div className="flex gap-4 items-center">
-        {/* WE PUT THIS FIRST TO ENSURE IT RENDERS */}
-        <LanguageButton />
+  response.headers.set('x-detected-locale', detectedLocale)
+  response.headers.set('x-detected-dir', selectedLang?.dir || 'ltr')
+  return response
+}
 
-        {user ? (
-          <>
-            <Link href="/dashboard">Dashboard</Link>
-            <form action={async () => {
-              'use server'
-              const supabase = await createClient()
-              await supabase.auth.signOut()
-              redirect('/login')
-            }}>
-              <button className="bg-red-500 text-white px-3 py-1 rounded">Logout</button>
-            </form>
-          </>
-        ) : (
-          <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded">
-            Login
-          </Link>
-        )}
-      </div>
-    </nav>
-  )
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 }
