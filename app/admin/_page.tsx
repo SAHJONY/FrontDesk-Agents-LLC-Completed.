@@ -21,7 +21,7 @@ export default function AdminControlCenter() {
     setGlobalStats({
       users: userCount || 0,
       calls: calls?.length || 0,
-      revenue: totalRevenue
+      revenue: totalRevenue 
     });
 
     // 2. Obtener negocios recientes
