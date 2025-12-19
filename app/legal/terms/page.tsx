@@ -1,52 +1,95 @@
 // ./app/legal/terms/page.tsx
 
 import React from 'react';
+import { Metadata } from 'next';
+import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service | FrontDesk Agents LLC',
+  description: 'Operating terms and conditions for SARA AI and FrontDesk Agents LLC.',
+};
 
 export default function TermsOfServicePage() {
   return (
-    <div className="min-h-screen bg-[var(--color-navy-dark)] text-white p-6 md:p-12">
-      <div className="max-w-4xl mx-auto py-12">
-        <h1 className="text-4xl font-extrabold mb-4 text-[var(--color-primary)]">Terms of Service</h1>
-        <p className="text-gray-400 mb-8">Last Updated: December 14, 2025</p>
+    <main className="min-h-screen bg-[var(--color-navy-dark)] text-white selection:bg-[var(--color-primary)] selection:text-navy-dark">
+      <div className="max-w-4xl mx-auto px-6 py-16 md:px-12 md:py-24">
+        
+        <Link 
+          href="/" 
+          className="text-sm text-[var(--color-primary)] hover:underline mb-8 inline-block"
+        >
+          ← Back to Home
+        </Link>
 
-        <section className="space-y-6 text-gray-300">
+        <header className="mb-12">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-[var(--color-primary)] tracking-tight">
+            Terms of Service
+          </h1>
+          <p className="text-gray-400 font-medium">
+            Last Updated: <time dateTime="2025-12-19">December 19, 2025</time>
+          </p>
+        </header>
+
+        <article className="prose prose-invert max-w-none space-y-8 text-gray-300 leading-relaxed">
           <p>
-            Welcome to FrontDesk Agents LLC. By accessing or using our services, including SARA AI, the Command Center Dashboard, and related APIs, you agree to be bound by these Terms of Service ("Terms"). These Terms govern your access and use of all services provided by FrontDesk Agents LLC.
+            Welcome to FrontDesk Agents LLC. By accessing or using SARA AI, you agree to be bound by these Terms of Service. Please read them carefully.
           </p>
 
-          <div>
-            <h2 className="text-2xl font-bold mt-8 mb-3 text-white">1. Use of SARA AI Agents</h2>
+          <section>
+            <h2 className="text-2xl font-bold mb-4 text-white border-b border-gray-700 pb-2">
+              1. Service Description
+            </h2>
             <p>
-              The SARA AI agents are provided for automated customer interaction, sales, and support functions as configured by the client via the Automations Workflow Creator. You are responsible for ensuring that the configuration and use of SARA AI comply with all applicable local, state, and federal laws, including, but not limited to, call recording and data privacy regulations.
+              FrontDesk Agents LLC provides AI-driven telephony and automation services via the SARA AI platform. We reserve the right to modify, suspend, or discontinue any aspect of the service at any time.
             </p>
-          </div>
+          </section>
 
-          <div>
-            <h2 className="text-2xl font-bold mt-8 mb-3 text-white">2. Billing and Subscription</h2>
+          <section>
+            <h2 className="text-2xl font-bold mb-4 text-white border-b border-gray-700 pb-2">
+              2. Acceptable Use
+            </h2>
+            <p>You agree not to use SARA AI for:</p>
+            <ul className="list-disc pl-5 space-y-3">
+              <li>Engaging in illegal telemarketing or "robocalling" practices in violation of TCPA or local laws.</li>
+              <li>Impersonating individuals without consent or engaging in fraudulent activities.</li>
+              <li>Attempting to reverse-engineer the AI models or bypass service rate limits.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-bold mb-4 text-white border-b border-gray-700 pb-2">
+              3. Fees and Payment
+            </h2>
             <p>
-              Services are billed on a monthly subscription basis as detailed on your billing page. Failure to pay subscription fees may result in the suspension or termination of your access to SARA AI agents and the Command Center Dashboard. All fees are non-refundable unless otherwise specified in your service level agreement (SLA).
+              Subscription fees are billed in advance on a monthly or annual basis. All fees are non-refundable unless otherwise stated. Failure to maintain an active payment method may result in immediate suspension of service.
             </p>
-          </div>
+          </section>
 
-          <div>
-            <h2 className="text-2xl font-bold mt-8 mb-3 text-white">3. Intellectual Property</h2>
+          <section>
+            <h2 className="text-2xl font-bold mb-4 text-white border-b border-gray-700 pb-2">
+              4. AI Limitations and Liability
+            </h2>
             <p>
-              All content, technology, and proprietary systems, including the SARA AI core model and the Command Center UI, are the exclusive property of FrontDesk Agents LLC. The client retains ownership of all data provided to train the AI and all conversation logs generated through the service.
+              SARA AI is an automated system. While we strive for 99.9% accuracy, we do not guarantee that the AI will always provide correct information or handle every call perfectly. FrontDesk Agents LLC is not liable for business losses resulting from AI errors or service downtime.
             </p>
-          </div>
+          </section>
 
-          <div>
-            <h2 className="text-2xl font-bold mt-8 mb-3 text-white">4. Limitation of Liability</h2>
+          <section>
+            <h2 className="text-2xl font-bold mb-4 text-white border-b border-gray-700 pb-2">
+              5. Termination
+            </h2>
             <p>
-              FrontDesk Agents LLC is not liable for any direct, indirect, incidental, special, or consequential damages resulting from the use or inability to use the services. The maximum liability shall not exceed the total fees paid by the client for the three months preceding the event giving rise to the claim.
+              Either party may terminate the agreement at any time. Upon termination, your right to use SARA AI will cease immediately. Data retention following termination is governed by our <Link href="/legal/privacy" className="text-[var(--color-primary)] hover:underline">Privacy Policy</Link>.
             </p>
-          </div>
-        </section>
+          </section>
+        </article>
 
-        <p className="mt-12 text-center text-sm text-gray-500">
-          By continuing to use our service, you acknowledge that you have read and agree to these terms.
-        </p>
+        <footer className="mt-20 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
+          <p>
+            By using our services, you acknowledge that you have read and understood these terms.
+          </p>
+        </footer>
       </div>
-    </div>
+    </main>
   );
 }
