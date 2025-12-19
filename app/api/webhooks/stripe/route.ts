@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
+// CEO Fix: Update to the version required by the current Stripe SDK
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacias',
+  apiVersion: '2025-02-24.acacia',
 });
 
 // Use Service Role Key to bypass RLS for administrative updates
@@ -14,39 +15,47 @@ const supabaseAdmin = createClient(
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = req.headers.get('stripe-signature')!;
+  const signature = req.headers.get('stripe-signature') || '';
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(
+      body, 
+      signature, 
+      process.env.STRIPE_WEBHOOK_SECRET || ''
+    );
   } catch (err: any) {
+    console.error(`Webhook Signature Verification Failed: ${err.message}`);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
-  // When a payment is successful, upgrade the BusinessConfig
+  // Handle successful checkout
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    const userId = session.client_reference_id; // Pass this from your checkout button
+    const userId = session.client_reference_id; 
     const planType = session.metadata?.planType || 'essential';
 
-    // Map plan types to your new Disruptive Minute Limits
+    // Global Infrastructure Limits
     const limits: Record<string, number> = {
       'essential': 500,
       'professional': 2500,
       'enterprise': 10000
     };
 
-    const { error } = await supabaseAdmin
-      .from('BusinessConfig')
-      .update({ 
-        planType: planType,
-        minuteLimit: limits[planType] || 500,
-        minutesUsed: 0 // Reset for new subscription
-      })
-      .eq('userId', userId);
+    if (userId) {
+      const { error } = await supabaseAdmin
+        .from('BusinessConfig')
+        .update({ 
+          planType: planType,
+          minuteLimit: limits[planType] || 500,
+          minutesUsed: 0,
+          status: 'active' // CEO Move: Automatically activate the account on payment
+        })
+        .eq('userId', userId);
 
-    if (error) console.error('Database update failed:', error);
+      if (error) console.error('Stripe Webhook Database Update Failed:', error.message);
+    }
   }
 
   return NextResponse.json({ received: true });
