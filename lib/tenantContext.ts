@@ -1,5 +1,11 @@
 // lib/tenantContext.ts
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize the admin client directly to bypass the broken @/lib/supabaseClient path
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export interface TenantContext {
   tenantId: string | null;
@@ -15,7 +21,10 @@ export interface TenantContext {
 export async function resolveTenantContextFromRequest(
   req: Request
 ): Promise<TenantContext> {
-  if (!supabaseAdmin) return { tenantId: null, mode: "admin" };
+  // Safe check for environment variables
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return { tenantId: null, mode: "admin" };
+  }
 
   const url = new URL(req.url);
   const tenantParam = url.searchParams.get("tenant");
