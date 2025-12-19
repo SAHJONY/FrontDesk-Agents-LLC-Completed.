@@ -5,7 +5,7 @@ import { languages } from './config/languages'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // 1. Language Detection Logic
+  // 1. Language Detection
   const acceptLanguage = request.headers.get('accept-language')
   let detectedLocale = 'en'
   if (acceptLanguage) {
@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
     },
   })
 
-  // 3. Supabase Client with Explicit Types for Vercel Build
+  // 3. Supabase Client with Explicitly Typed Parameter
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -31,9 +31,9 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
-          // CEO Fix: We use the explicit mapping to avoid 'any' type errors
-          cookiesToSet.forEach(({ name, value, options }) => {
+        // We add the type definition directly to the argument here
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value)
           })
           response = NextResponse.next({
@@ -47,7 +47,7 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // 4. Refresh session & Protect Routes
+  // 4. Protection Logic
   const { data: { user } } = await supabase.auth.getUser()
 
   const isProtectedRoute = 
@@ -62,7 +62,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // 5. Finalize Headers
+  // 5. Apply Headers
   response.headers.set('x-detected-locale', detectedLocale)
   response.headers.set('x-detected-dir', selectedLang?.dir || 'ltr')
 
