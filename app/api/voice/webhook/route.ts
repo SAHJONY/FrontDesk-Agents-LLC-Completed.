@@ -3,16 +3,20 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import twilio from 'twilio'
 
-// CEO Fix: Ensure SID and Token exist for Twilio initialization
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID || '',
-  process.env.TWILIO_AUTH_TOKEN || ''
-)
-
 export async function POST(req: Request) {
   try {
     const body = await req.json()
     const cookieStore = await cookies()
+
+    // CEO Fix: Initialize Twilio INSIDE the function. 
+    // This prevents the build from crashing when environment variables are missing.
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    
+    // Only create the client if we have a valid SID
+    const twilioClient = (accountSid && accountSid.startsWith('AC')) 
+      ? twilio(accountSid, authToken) 
+      : null;
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,16 +26,14 @@ export async function POST(req: Request) {
           getAll() {
             return cookieStore.getAll()
           },
-          setAll() {
-            // Webhooks generally don't set cookies, but this satisfies the type
-          }
+          setAll() {}
         },
       }
     )
 
-    // 1. Log the data to Supabase (Standardized for your Dashboard)
+    // 1. Log the data to Supabase
     const { error: dbError } = await supabase
-      .from('CallLog') // Matched to your Admin table name
+      .from('CallLog')
       .insert([{
         callId: body.call_id,
         phoneNumber: body.to,
@@ -40,18 +42,14 @@ export async function POST(req: Request) {
         duration: body.duration,
         status: body.status,
         recordingUrl: body.recording_url,
-        estimatedValue: 50 // CEO Move: Default value for ROI tracking
+        estimatedValue: 50
       }])
 
-    if (dbError) {
-      console.error('Supabase Insert Error:', dbError.message)
-      // Log the error but keep going to attempt SMS
-    }
+    if (dbError) console.error('Supabase Insert Error:', dbError.message);
 
-    // 2. Trigger "Hot Lead" SMS Notification
-    if (body.status === 'completed') {
+    // 2. Trigger SMS Notification if Client is available
+    if (body.status === 'completed' && twilioClient) {
       try {
-        // CEO Fix: Use "!" or "|| ''" to satisfy TypeScript string requirement
         await twilioClient.messages.create({
           body: `🚀 New Lead: ${body.to}\n\nSummary: ${body.concise_summary}\n\nListen: ${body.recording_url}`,
           from: process.env.TWILIO_PHONE_NUMBER || '', 
@@ -62,10 +60,7 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Call processed successfully' 
-    })
+    return NextResponse.json({ success: true })
 
   } catch (err: any) {
     console.error('Webhook Runtime Error:', err.message)
