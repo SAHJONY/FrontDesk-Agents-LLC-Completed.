@@ -1,6 +1,3 @@
-// lib/supabase/client.ts
-// Centralized Supabase client (placeholder-safe)
-
 import { createBrowserClient } from "@supabase/ssr";
 
 export function createClient() {
@@ -11,5 +8,4 @@ export function createClient() {
 }
 
 export const supabase = createClient();
-
 export type SupabaseClient = ReturnType<typeof createClient>;
