@@ -1,16 +1,23 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { LogOut } from 'lucide-react';
 
 export default function LogoutButton() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  
+  // Initialize the new Browser Client
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
+      
+      // Force a refresh to clear all server-side cache and redirect
       router.push('/login');
       router.refresh();
     } catch (error) {
