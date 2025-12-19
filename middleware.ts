@@ -1,11 +1,11 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { languages } from './config/languages'
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // 1. Logic for Language/RTL Support
+  // 1. Language Detection Logic
   const acceptLanguage = request.headers.get('accept-language')
   let detectedLocale = 'en'
   if (acceptLanguage) {
@@ -15,14 +15,14 @@ export async function middleware(request: NextRequest) {
   }
   const selectedLang = languages.find(l => l.code === detectedLocale)
 
-  // 2. Initialize Supabase Response
+  // 2. Initialize Response
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   })
 
-  // 3. Supabase Auth Session Handler (CRITICAL FOR LOGIN)
+  // 3. Supabase Client with Explicit Types for Vercel Build
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -32,29 +32,37 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          // CEO Fix: We use the explicit mapping to avoid 'any' type errors
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value)
+          })
           response = NextResponse.next({
             request,
           })
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value, options }) => {
             response.cookies.set(name, value, options)
-          )
+          })
         },
       },
     }
   )
 
-  // This line "refreshes" the session so the user stays logged in
+  // 4. Refresh session & Protect Routes
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 4. Protection Logic: If trying to access dashboard without login, send to /login
-  if (!user && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/settings'))) {
+  const isProtectedRoute = 
+    pathname.startsWith('/dashboard') || 
+    pathname.startsWith('/admin') || 
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/owner')
+
+  if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // 5. Apply Language Headers
+  // 5. Finalize Headers
   response.headers.set('x-detected-locale', detectedLocale)
   response.headers.set('x-detected-dir', selectedLang?.dir || 'ltr')
 
