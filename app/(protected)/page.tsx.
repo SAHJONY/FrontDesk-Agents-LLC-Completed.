@@ -10,10 +10,10 @@ import {
   SparklesIcon,
   ShieldCheckIcon,
   ArrowPathIcon,
-  ChatBubbleBottomCenterTextIcon
+  ChatBubbleBottomCenterTextIcon,
+  PlayIcon
 } from '@heroicons/react/24/outline';
 
-// --- MAIN DASHBOARD COMPONENT ---
 export default function DashboardPage() {
   const supabase = createClient();
   const [loadingLeadId, setLoadingLeadId] = useState<string | null>(null);
@@ -26,21 +26,38 @@ export default function DashboardPage() {
     conversionRate: 0
   });
 
-  // Your verified UID for J. Gonzalez
+  // Verified UID for J. Gonzalez
   const userId = '42c9eda0-81fd-4d7a-b9f7-49bba359d6ce';
 
+  // --- 1. REAL-TIME SUBSCRIPTION ---
   useEffect(() => {
     fetchDashboardData();
+
+    // Listen for any changes in call_results to update status/sentiment/recordings live
+    const channel = supabase
+      .channel('realtime-dashboard')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'call_results' }, 
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
+  // --- 2. DATA FETCHING ---
   async function fetchDashboardData() {
-    // 1. Fetch Leads with related Call Results
+    // Fetch Leads and nested Call Results
     const { data: leadsData } = await supabase
       .from('leads')
       .select('*, call_results(*)')
       .order('created_at', { ascending: false });
 
-    // 2. Fetch Consumption for Founder Plan
+    // Fetch Consumption for Founder Plan progress bar
     const { data: logs } = await supabase
       .from('consumption_log')
       .select('minutes_used');
@@ -56,6 +73,7 @@ export default function DashboardPage() {
     }
   }
 
+  // --- 3. TRIGGER AI CALL ---
   const callLead = async (lead: any) => {
     setLoadingLeadId(lead.id);
     try {
@@ -99,14 +117,14 @@ export default function DashboardPage() {
           <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Plan Fundador</p>
           <p className="text-3xl font-black italic">{metrics.totalMinutes - metrics.minutesUsed} <span className="text-sm font-medium text-gray-500 uppercase">Min Libres</span></p>
           <div className="mt-6 w-full bg-white/5 h-2 rounded-full border border-white/5 overflow-hidden">
-            <div className="bg-cyan-500 h-full transition-all duration-1000" style={{ width: `${usagePercentage}%` }} />
+            <div className="bg-cyan-500 h-full transition-all duration-1000 shadow-[0_0_10px_rgba(6,182,212,0.5)]" style={{ width: `${usagePercentage}%` }} />
           </div>
         </div>
       </div>
 
       {/* --- LEADS TABLE --- */}
       <div className="bg-slate-900/50 border border-white/5 rounded-[32px] overflow-hidden backdrop-blur-md">
-        <div className="p-8 border-b border-white/5 flex justify-between items-center">
+        <div className="p-8 border-b border-white/5">
           <h2 className="text-xl font-black italic uppercase tracking-tight">Lead Management</h2>
         </div>
         <div className="overflow-x-auto">
@@ -115,33 +133,51 @@ export default function DashboardPage() {
               <tr className="border-b border-white/5 bg-white/5">
                 <th className="px-8 py-4 text-[10px] font-black uppercase text-gray-500">Lead</th>
                 <th className="px-8 py-4 text-[10px] font-black uppercase text-gray-500">Status</th>
+                <th className="px-8 py-4 text-[10px] font-black uppercase text-gray-500">Sentiment</th>
                 <th className="px-8 py-4 text-[10px] font-black uppercase text-gray-500 text-right">Acción</th>
               </tr>
             </thead>
             <tbody>
-              {leads.map((lead) => (
-                <tr key={lead.id} className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
-                  <td className="px-8 py-6" onClick={() => setSelectedLead(lead)}>
-                    <p className="font-bold text-white group-hover:text-cyan-400 transition-colors">{lead.full_name}</p>
-                    <p className="text-[10px] text-gray-500 font-mono">{lead.phone_number}</p>
-                  </td>
-                  <td className="px-8 py-6">
-                    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-cyan-400 italic">
-                      {lead.call_results?.[0]?.sentiment_score || 'Pendiente'}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <button 
-                      disabled={loadingLeadId === lead.id}
-                      onClick={(e) => { e.stopPropagation(); callLead(lead); }}
-                      className="inline-flex items-center gap-2 bg-cyan-500 text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase hover:bg-cyan-400 transition-all disabled:opacity-50"
-                    >
-                      {loadingLeadId === lead.id ? <ArrowPathIcon className="w-3 h-3 animate-spin" /> : <PhoneIcon className="w-3 h-3" />}
-                      {loadingLeadId === lead.id ? 'Llamando' : 'Llamar'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {leads.map((lead) => {
+                const call = lead.call_results?.[0];
+                return (
+                  <tr key={lead.id} className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
+                    <td className="px-8 py-6" onClick={() => setSelectedLead(lead)}>
+                      <p className="font-bold text-white group-hover:text-cyan-400 transition-colors">{lead.full_name}</p>
+                      <p className="text-[10px] text-gray-500 font-mono">{lead.phone_number}</p>
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase italic ${
+                        call?.status === 'In Call 📞' 
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' 
+                          : 'bg-white/5 text-gray-400 border-white/10'
+                      }`}>
+                        {call?.status || 'Ready'}
+                      </span>
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-cyan-400 italic">
+                        {call?.sentiment_score || 'Pending'}
+                      </span>
+                    </td>
+                    <td className="px-8 py-6 text-right flex items-center justify-end gap-3">
+                      {call?.recording_url && (
+                        <a href={call.recording_url} target="_blank" className="p-2 rounded-lg bg-white/5 border border-white/10 hover:border-cyan-500 transition-all">
+                          <PlayIcon className="w-4 h-4 text-cyan-400" />
+                        </a>
+                      )}
+                      <button 
+                        disabled={loadingLeadId === lead.id || call?.status === 'In Call 📞'}
+                        onClick={(e) => { e.stopPropagation(); callLead(lead); }}
+                        className="inline-flex items-center gap-2 bg-cyan-500 text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase hover:bg-cyan-400 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        {loadingLeadId === lead.id ? <ArrowPathIcon className="w-3 h-3 animate-spin" /> : <PhoneIcon className="w-3 h-3" />}
+                        {loadingLeadId === lead.id ? 'Connecting' : 'Llamar'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -152,20 +188,23 @@ export default function DashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
           <div className="bg-slate-900 border border-white/10 w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden">
             <div className="p-8 border-b border-white/5 flex justify-between items-center">
-              <h3 className="text-2xl font-black italic uppercase tracking-tighter">Análisis de IA</h3>
+              <div>
+                <h3 className="text-2xl font-black italic uppercase tracking-tighter">AI Analysis</h3>
+                <p className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Lead: {selectedLead.full_name}</p>
+              </div>
               <button onClick={() => setSelectedLead(null)} className="text-gray-500 hover:text-white transition-colors uppercase font-black text-xs">✕ Cerrar</button>
             </div>
             <div className="p-8 space-y-6">
               <div className="space-y-2">
-                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Resumen Ejecutivo</p>
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Executive Summary</p>
                 <div className="p-4 bg-black/20 rounded-2xl border border-white/5 text-sm italic text-gray-300 leading-relaxed">
-                  {selectedLead.call_results?.[0]?.summary || "El resumen estará disponible al finalizar la llamada."}
+                  {selectedLead.call_results?.[0]?.summary || "The summary will appear here once the agent completes the call."}
                 </div>
               </div>
               <div className="space-y-2">
-                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Transcripción</p>
-                <div className="p-4 bg-black/40 rounded-2xl border border-white/5 text-[10px] font-mono text-gray-500 h-40 overflow-y-auto">
-                  {selectedLead.call_results?.[0]?.transcript || "Procesando audio..."}
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Full Transcript</p>
+                <div className="p-4 bg-black/40 rounded-2xl border border-white/5 text-[10px] font-mono text-gray-500 h-40 overflow-y-auto custom-scrollbar">
+                  {selectedLead.call_results?.[0]?.transcript || "Waiting for audio data..."}
                 </div>
               </div>
             </div>
