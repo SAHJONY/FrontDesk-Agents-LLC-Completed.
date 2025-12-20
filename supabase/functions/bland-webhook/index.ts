@@ -9,10 +9,10 @@ const supabase = createClient(
 Deno.serve(async (req) => {
   try {
     const body = await req.json()
-    // Extract metadata we sent from the Dashboard (user_id and lead_id)
+    // Extract everything needed from the Bland AI payload
     const { call_id, status, transcript, summary, duration, completed, metadata } = body
 
-    // 1. Handle "In-Progress" updates to show the pulse on the Dashboard
+    // 1. Handle "In-Progress" updates (Shows the pulse on your Dashboard)
     if (status === 'started' || status === 'in-progress') {
       await supabase
         .from('call_results')
@@ -23,12 +23,16 @@ Deno.serve(async (req) => {
         })
     }
 
-    // 2. Handle "Completed" events to save the final analysis
+    // 2. Handle "Completed" events
     if (status === 'completed' || completed === true) {
       // Basic Sentiment Scoring (Category 5.1)
-      const isHot = transcript?.toLowerCase().includes('yes') || transcript?.toLowerCase().includes('interested')
-      const sentiment = isHot ? 'Hot 🔥' : 'Neutral'
+      const isHot = transcript?.toLowerCase().includes('yes') || 
+                    transcript?.toLowerCase().includes('interested') ||
+                    transcript?.toLowerCase().includes('interesado');
+      
+      const sentiment = isHot ? 'Hot 🔥' : 'Neutral';
 
+      // Update Database with final results
       const { error } = await supabase
         .from('call_results')
         .update({
@@ -39,9 +43,41 @@ Deno.serve(async (req) => {
           was_completed: true,
           sentiment_score: sentiment
         })
-        .eq('call_id', call_id)
+        .eq('call_id', call_id);
 
-      if (error) console.error("Update Error:", error.message)
+      if (error) console.error("Database Update Error:", error.message);
+
+      // --- TWILIO SMS TRIGGER (Category 4.1) ---
+      if (isHot) {
+        const TWILIO_SID = Deno.env.get('TWILIO_ACCOUNT_SID');
+        const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
+        const TWILIO_PHONE = Deno.env.get('TWILIO_PHONE_NUMBER');
+
+        // Personalize the message using metadata sent from your dashboard
+        const leadName = metadata?.full_name || 'Prospecto';
+        const destinationPhone = metadata?.phone_number;
+
+        if (destinationPhone && TWILIO_SID && TWILIO_AUTH_TOKEN) {
+          const smsBody = `¡Hola ${leadName}! Fue un gusto hablar contigo. Aquí tienes el link para agendar nuestra reunión: https://calendly.com/tu-empresa`;
+
+          const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${btoa(`${TWILIO_SID}:${TWILIO_AUTH_TOKEN}`)}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              To: destinationPhone,
+              From: TWILIO_PHONE!,
+              Body: smsBody,
+            }),
+          });
+
+          if (!response.ok) {
+            console.error("Twilio SMS Error:", await response.text());
+          }
+        }
+      }
     }
 
     return new Response("OK", { status: 200 })
