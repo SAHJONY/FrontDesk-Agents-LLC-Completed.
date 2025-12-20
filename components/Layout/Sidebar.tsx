@@ -8,6 +8,7 @@ import {
     ShieldCheckIcon,
     ArrowLeftStartOnRectangleIcon
 } from '@heroicons/react/24/outline';
+import UsageTracker from '../dashboard/UsageTracker'; // Ensure this path is correct
 
 const navItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
@@ -22,19 +23,33 @@ export function Sidebar() {
             <div className="text-2xl font-bold mb-8 text-cyan-400">
                 FrontDesk Admin
             </div>
+            
             <nav className="flex-grow space-y-2">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     return (
-                        <Link key={item.name} href={item.href} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition duration-150">
+                        <Link 
+                            key={item.name} 
+                            href={item.href} 
+                            className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition duration-150"
+                        >
                             <Icon className="w-6 h-6" />
                             <span className="text-base">{item.name}</span>
                         </Link>
                     );
                 })}
             </nav>
+
+            {/* Integration of the Minute Tracking UI */}
+            <div className="mb-4">
+                <UsageTracker />
+            </div>
+
             <div className="pt-4 border-t border-gray-700">
-                <Link href="/logout" className="flex items-center space-x-3 p-3 rounded-lg text-red-400 hover:bg-gray-700 transition duration-150">
+                <Link 
+                    href="/logout" 
+                    className="flex items-center space-x-3 p-3 rounded-lg text-red-400 hover:bg-gray-700 transition duration-150"
+                >
                     <ArrowLeftStartOnRectangleIcon className="w-6 h-6" />
                     <span className="text-base">Cerrar Sesión</span>
                 </Link>
