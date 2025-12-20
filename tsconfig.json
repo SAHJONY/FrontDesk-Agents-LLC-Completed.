@@ -1,61 +1,35 @@
 {
   "compilerOptions": {
-    /* =========================
-       TARGET & RUNTIME
-    ========================= */
     "target": "ES2020",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-
-    /* =========================
-       JAVASCRIPT / TYPESCRIPT
-    ========================= */
     "allowJs": true,
-    "checkJs": false,
     "skipLibCheck": true,
     "strict": true,
-    "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-
-    /* =========================
-       MODULE SYSTEM
-    ========================= */
+    "esModuleInterop": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "isolatedModules": true,
     "resolveJsonModule": true,
+    "isolatedModules": true,
     "jsx": "preserve",
-
-    /* =========================
-       NEXT.JS / BUILD
-    ========================= */
     "incremental": true,
-
-    /* =========================
-       PATH ALIASES
-    ========================= */
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "strictNullChecks": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-
-  /* =========================
-     FILE INCLUSION
-  ========================= */
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-
-  /* =========================
-     FILE EXCLUSION
-  ========================= */
-  "exclude": [
-    "node_modules",
-    "scripts"
-  ]
+  "exclude": ["node_modules"]
 }
