@@ -1,1 +1,87 @@
+'use client';
 
+import { Card } from '@tremor/react';
+import { DollarSign, TrendingUp, Users, PhoneCall } from 'lucide-react';
+
+interface RevenueStatsProps {
+  totalRevenue?: number;
+  growth?: number;
+  activeClients?: number;
+  totalCalls?: number;
+}
+
+export default function GlobalRevenueStats({
+  totalRevenue = 0,
+  growth = 0,
+  activeClients = 0,
+  totalCalls = 0,
+}: RevenueStatsProps) {
+  const stats = [
+    {
+      name: 'Total Revenue',
+      value: `$${totalRevenue.toLocaleString()}`,
+      icon: DollarSign,
+      change: `+${growth}%`,
+      changeType: growth >= 0 ? 'positive' : 'negative',
+    },
+    {
+      name: 'Active Clients',
+      value: activeClients.toLocaleString(),
+      icon: Users,
+      change: '+12%',
+      changeType: 'positive',
+    },
+    {
+      name: 'Total Calls',
+      value: totalCalls.toLocaleString(),
+      icon: PhoneCall,
+      change: '+8%',
+      changeType: 'positive',
+    },
+    {
+      name: 'Growth Rate',
+      value: `${growth}%`,
+      icon: TrendingUp,
+      change: 'This month',
+      changeType: 'neutral',
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {stats.map((stat) => {
+        const Icon = stat.icon;
+        return (
+          <Card key={stat.name} className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  {stat.name}
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
+                  {stat.value}
+                </p>
+              </div>
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+            <div className="mt-4">
+              <span
+                className={`text-sm font-medium ${
+                  stat.changeType === 'positive'
+                    ? 'text-green-600 dark:text-green-400'
+                    : stat.changeType === 'negative'
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-gray-600 dark:text-gray-400'
+                }`}
+              >
+                {stat.change}
+              </span>
+            </div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
