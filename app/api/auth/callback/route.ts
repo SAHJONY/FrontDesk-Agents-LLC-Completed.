@@ -2,6 +2,10 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+// Ensure these exist or comment them out if not ready
+// import { welcomePack, languages } from '@/lib/constants';
+// import { sendEmail } from '@/lib/mail';
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
@@ -10,12 +14,11 @@ export async function GET(request: Request) {
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
     
-    // Exchange the code for a session
+    // Exchange code for session
     const { data: { user } } = await supabase.auth.exchangeCodeForSession(code);
 
     if (user) {
-      // --- START OF YOUR CODE ---
-      // This is now inside an "async" function, so "await" will work!
+      // Logic moved INSIDE the async function
       const { data: profile } = await supabase
         .from('profiles')
         .select('locale, region_tier')
@@ -25,9 +28,9 @@ export async function GET(request: Request) {
       const locale = profile?.locale || 'en';
       const region_tier = profile?.region_tier || 'Standard';
 
-      // Assuming welcomePack and languages are imported at the top
-      // await sendEmail({ ... }); 
-      // --- END OF YOUR CODE ---
+      console.log(`User ${user.email} signed in with locale: ${locale}`);
+      
+      // Add your email sending logic here if needed
     }
   }
 
