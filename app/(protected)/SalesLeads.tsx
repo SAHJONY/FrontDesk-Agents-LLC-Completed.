@@ -1,68 +1,55 @@
-'use client';
+// 1. Add this state to your SalesLeads component
+const [selectedLead, setSelectedLead] = useState<any>(null);
 
-import React, { useState } from 'react';
-import { PhoneIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-
-export default function SalesLeads() {
-  // Track which specific lead is currently being called
-  const [loadingLeadId, setLoadingLeadId] = useState<string | null>(null);
-
-  const callLead = async (lead: any) => {
-    // Verified UID for J. Gonzalez
-    const userId = '42c9eda0-81fd-4d7a-b9f7-49bba359d6ce'; 
-    
-    setLoadingLeadId(lead.id); // Start loading for this specific lead
-
-    try {
-      const response = await fetch('https://awzczbaarskqjgdatefv.supabase.co/functions/v1/bland-call', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}` 
-        },
-        body: JSON.stringify({
-          record: {
-            id: lead.id,
-            full_name: lead.full_name,
-            phone_number: lead.phone_number
-          },
-          metadata: { user_id: userId, lead_id: lead.id }
-        }),
-      });
-
-      if (response.ok) {
-        alert(`🚀 Llamada iniciada para ${lead.full_name}`);
-      } else {
-        alert('Error al iniciar la llamada. Revisa la consola.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoadingLeadId(null); // Stop loading regardless of outcome
-    }
-  };
-
-  return (
-    <div className="bg-slate-900/50 rounded-[32px] p-8 border border-white/5 backdrop-blur-sm">
-      <h3 className="text-xl font-bold italic uppercase tracking-tight mb-6">Sales Leads</h3>
+// 2. Add this Modal UI inside your return statement (bottom of the JSX)
+{selectedLead && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="bg-[#000814] border border-white/10 w-full max-w-2xl rounded-[32px] overflow-hidden shadow-2xl">
       
-      {/* Example Table Row Button */}
-      <button 
-        disabled={loadingLeadId === "test-lead-id"} // Replace with dynamic ID from your map
-        onClick={() => callLead({ id: "test-lead-id", full_name: "Test Lead", phone_number: "+1..." })}
-        className={`flex items-center gap-2 px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${
-          loadingLeadId === "test-lead-id" 
-            ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
-            : 'bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]'
-        }`}
-      >
-        {loadingLeadId === "test-lead-id" ? (
-          <ArrowPathIcon className="w-4 h-4 animate-spin" />
-        ) : (
-          <PhoneIcon className="w-4 h-4" />
-        )}
-        {loadingLeadId === "test-lead-id" ? 'Llamando...' : 'Llamar'}
-      </button>
+      {/* Modal Header */}
+      <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
+        <div>
+          <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">
+            Resumen de Llamada
+          </h3>
+          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+            Lead: {selectedLead.full_name}
+          </p>
+        </div>
+        <button 
+          onClick={() => setSelectedLead(null)}
+          className="text-gray-500 hover:text-white transition-colors"
+        >
+          ✕ Cerrar
+        </button>
+      </div>
+
+      {/* Modal Content */}
+      <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+        {/* Sentiment Badge */}
+        <div className="flex items-center gap-4">
+           <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Resultado:</span>
+           <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-black italic uppercase">
+             {selectedLead.call_results?.[0]?.sentiment_score || 'Neutral'}
+           </span>
+        </div>
+
+        {/* Summary Section */}
+        <div className="space-y-2">
+          <h4 className="text-xs font-black uppercase tracking-widest text-gray-400">Análisis del AI SDR</h4>
+          <p className="text-sm text-gray-300 leading-relaxed italic bg-white/5 p-4 rounded-2xl border border-white/5">
+            {selectedLead.call_results?.[0]?.summary || "No hay resumen disponible aún. El agente está procesando la llamada."}
+          </p>
+        </div>
+
+        {/* Transcript Section */}
+        <div className="space-y-2">
+          <h4 className="text-xs font-black uppercase tracking-widest text-gray-400">Transcripción Completa</h4>
+          <div className="text-[11px] font-mono text-gray-500 bg-black/40 p-4 rounded-2xl border border-white/5 h-40 overflow-y-auto">
+            {selectedLead.call_results?.[0]?.transcript || "La transcripción aparecerá aquí una vez finalizada la llamada."}
+          </div>
+        </div>
+      </div>
     </div>
-  );
-}
+  </div>
+)}
