@@ -2,23 +2,22 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-// Ensure these exist or comment them out if not ready
-// import { welcomePack, languages } from '@/lib/constants';
-// import { sendEmail } from '@/lib/mail';
-
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
 
   if (code) {
-    const cookieStore = cookies();
+    // CRITICAL FIX: await cookies() for Next.js 15 compatibility
+    const cookieStore = await cookies(); 
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
     
-    // Exchange code for session
-    const { data: { user } } = await supabase.auth.exchangeCodeForSession(code);
+    // Exchange the temporary code for a real User Session
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (user) {
-      // Logic moved INSIDE the async function
+    if (!error && data.user) {
+      const user = data.user;
+
+      // 1. Fetch user profile to handle localization or Tier-based routing
       const { data: profile } = await supabase
         .from('profiles')
         .select('locale, region_tier')
@@ -26,14 +25,13 @@ export async function GET(request: Request) {
         .single();
 
       const locale = profile?.locale || 'en';
-      const region_tier = profile?.region_tier || 'Standard';
-
-      console.log(`User ${user.email} signed in with locale: ${locale}`);
       
-      // Add your email sending logic here if needed
+      console.log(`✅ User ${user.email} authenticated. Region: ${profile?.region_tier || 'Standard'}`);
+      
+      // 2. You can trigger post-registration logic here (e.g. Welcome Email)
     }
   }
 
-  // URL to redirect to after sign in process completes
+  // Always redirect back to the dashboard or a specific "Success" page
   return NextResponse.redirect(new URL('/dashboard', request.url));
 }
