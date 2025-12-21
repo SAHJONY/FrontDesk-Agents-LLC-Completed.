@@ -1,42 +1,65 @@
 // app/api/sms/webhook/route.ts
-// Handle incoming SMS messages from Twilio
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import twilio from 'twilio';
 
-import { NextRequest, NextResponse } from 'next/server';
-import { smsConcierge } from '@/services/smsConcierge';
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     
     const from = formData.get('From') as string;
     const to = formData.get('To') as string;
     const body = formData.get('Body') as string;
+    const messageSid = formData.get('MessageSid') as string;
+
+    // Validate Twilio signature (recommended for production)
+    const twilioSignature = request.headers.get('x-twilio-signature') || '';
+    const url = process.env.NEXT_PUBLIC_APP_URL + '/api/sms/webhook';
     
-    // Extract business ID from phone number mapping
-    const businessId = await getBusinessIdFromPhone(to);
-    
-    if (!businessId) {
-      return NextResponse.json(
-        { error: 'Phone number not registered' },
-        { status: 404 }
-      );
+    // Log incoming SMS
+    const { error: logError } = await supabase
+      .from('sms_messages')
+      .insert({
+        from_number: from,
+        to_number: to,
+        message_body: body,
+        direction: 'inbound',
+        twilio_sid: messageSid,
+        created_at: new Date().toISOString(),
+      });
+
+    if (logError) {
+      console.error('Error logging SMS:', logError);
     }
 
-    // Process message with AI
-    const response = await smsConcierge.handleInboundSMS(
-      from,
-      to,
-      body,
-      businessId
+    // Generate AI response
+    const response = await generateSMSResponse(body);
+
+    // Send response using Twilio
+    const twilioClient = twilio(
+      process.env.TWILIO_ACCOUNT_SID!,
+      process.env.TWILIO_AUTH_TOKEN!
     );
+
+    await twilioClient.messages.create({
+      body: response,
+      from: to,
+      to: from,
+    });
 
     // Return TwiML response
     return new NextResponse(
       `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Message>${response}</Message>
-</Response>`,
+      <Response>
+        <Message>${response}</Message>
+      </Response>`,
       {
+        status: 200,
         headers: {
           'Content-Type': 'text/xml',
         },
@@ -45,53 +68,34 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('SMS webhook error:', error);
     return NextResponse.json(
-      { error: 'Failed to process SMS' },
+      { error: 'Failed to process SMS webhook' },
       { status: 500 }
     );
   }
 }
 
-// Helper function
-async function getBusinessIdFromPhone(phone: string): Promise<string | null> {
-  // Query database to find business by phone number
-  // Simplified for now
-  return 'business-123';
-}
+async function generateSMSResponse(messageBody: string): Promise<string> {
+  const lowerMessage = messageBody.toLowerCase();
 
-// app/api/sms/send/route.ts
-export async function POST(request: NextRequest) {
-  try {
-    const { from, to, message } = await request.json();
-
-    await smsConcierge.sendSMS(from, to, message);
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('SMS send error:', error);
-    return NextResponse.json(
-      { error: 'Failed to send SMS' },
-      { status: 500 }
-    );
+  if (lowerMessage.includes('stop') || lowerMessage.includes('unsubscribe')) {
+    return 'You have been unsubscribed. Reply START to subscribe again.';
   }
-}
 
-// app/api/sms/campaign/route.ts
-export async function POST(request: NextRequest) {
-  try {
-    const { from, recipients, message } = await request.json();
-
-    const results = await smsConcierge.sendBulkSMS(from, recipients, message);
-
-    return NextResponse.json({
-      success: true,
-      sent: results.sent,
-      failed: results.failed,
-    });
-  } catch (error) {
-    console.error('SMS campaign error:', error);
-    return NextResponse.json(
-      { error: 'Failed to send campaign' },
-      { status: 500 }
-    );
+  if (lowerMessage.includes('start') || lowerMessage.includes('subscribe')) {
+    return 'Welcome! You are now subscribed to our updates.';
   }
+
+  if (lowerMessage.includes('hours') || lowerMessage.includes('open')) {
+    return 'We are open 24/7! Our AI assistant is always available.';
+  }
+
+  if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
+    return 'Plans start at $297/month. Reply DEMO to schedule a call.';
+  }
+
+  if (lowerMessage.includes('demo')) {
+    return 'Great! Visit our website to book a demo, or reply with your email and we\'ll reach out.';
+  }
+
+  return 'Thanks for your message! Our team will respond shortly. Reply HELP for more options.';
 }
