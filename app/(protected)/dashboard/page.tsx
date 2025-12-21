@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx'; // Import Excel Engine
 import { 
   PhoneCall, TrendingUp, Users, Clock, ArrowUpTray, 
   Zap, Activity, Headset, Download, Bell, 
-  Terminal, Cpu, Radio, ShieldCheck
+  Terminal, Cpu, Radio, ShieldCheck, UserPlus
 } from 'lucide-react';
 
 const BRAND_NAME = "FrontDesk Agents"; 
@@ -28,7 +28,43 @@ export default function DashboardPage() {
     avgPerformance: 0
   });
 
+  // --- NEW: ONBOARDING STATE ---
+  const [inviteData, setInviteData] = useState({ name: '', email: '' });
+  const [isInviting, setIsInviting] = useState(false);
+
   const userId = '42c9eda0-81fd-4d7a-b9f7-49bba359d6ce';
+
+  // --- NEW: ONBOARDING FUNCTION ---
+  const sendInvite = async () => {
+    if (!inviteData.name || !inviteData.email) return alert("Please fill in all fields");
+    
+    setIsInviting(true);
+    try {
+      const res = await fetch('/api/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          clientName: inviteData.name, 
+          clientEmail: inviteData.email 
+        })
+      });
+
+      if (res.ok) {
+        alert("Uplink Established. Magic Link Sent!");
+        setInviteData({ name: '', email: '' }); // Clear form
+        setLiveLogs(prev => [
+          { id: Date.now().toString(), text: `SYS: Magic Link transmitted to ${inviteData.email}`, type: 'sys' },
+          ...prev
+        ].slice(0, 6));
+      } else {
+        throw new Error("Failed to send invite");
+      }
+    } catch (err) {
+      alert("Error sending invitation.");
+    } finally {
+      setIsInviting(false);
+    }
+  };
 
   // --- EXPORT MASTER ROI ENGINE ---
   const handleExportROI = () => {
@@ -45,12 +81,10 @@ export default function DashboardPage() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Operational_ROI');
 
-    // Auto-size columns for professionalism
     ws['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 50 }, { wch: 15 }, { wch: 15 }, { wch: 25 }];
 
     XLSX.writeFile(wb, `FRONTDESK_ROI_MASTER_${new Date().toISOString().split('T')[0]}.xlsx`);
     
-    // Log to terminal
     setLiveLogs(prev => [
       { id: Date.now().toString(), text: "SYS: Master ROI Report Generated and Exported.", type: 'sys' },
       ...prev
@@ -208,7 +242,45 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* INGESTION & DATA TABLE (REMAINING UI) */}
+      {/* NEW: CLIENT ONBOARDING SECTION */}
+      <div className="bg-[#000d1a] border border-white/5 p-8 rounded-[40px] mb-8 shadow-2xl">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 bg-cyan-500/10 rounded-lg">
+            <UserPlus className="w-4 h-4 text-cyan-500" />
+          </div>
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white italic">Client Onboarding Protocol</h2>
+        </div>
+        
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <input 
+              type="text"
+              placeholder="Client Entity Name"
+              value={inviteData.name}
+              onChange={e => setInviteData({...inviteData, name: e.target.value})}
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-xs text-white placeholder:text-slate-700 outline-none focus:border-cyan-500/30 transition-all"
+            />
+          </div>
+          <div className="flex-1 relative">
+            <input 
+              type="email"
+              placeholder="Client Uplink Email"
+              value={inviteData.email}
+              onChange={e => setInviteData({...inviteData, email: e.target.value})}
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-xs text-white placeholder:text-slate-700 outline-none focus:border-cyan-500/30 transition-all"
+            />
+          </div>
+          <button 
+            onClick={sendInvite}
+            disabled={isInviting}
+            className="px-8 py-4 bg-cyan-500 text-[#000814] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+          >
+            {isInviting ? 'Transmitting...' : 'Send Magic Link'}
+          </button>
+        </div>
+      </div>
+
+      {/* INGESTION & DATA TABLE */}
       <div className="space-y-8">
           <div className="bg-[#000d1a] border border-white/5 p-8 rounded-[40px]">
             <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-[32px] py-12 cursor-pointer hover:bg-cyan-500/5 transition-all">
