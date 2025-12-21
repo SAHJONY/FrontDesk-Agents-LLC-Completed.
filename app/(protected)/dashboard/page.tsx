@@ -14,8 +14,7 @@ import {
   Headset,
   FileBarChart,
   Download,
-  Bell,
-  Trash2
+  Bell
 } from 'lucide-react';
 
 const BRAND_NAME = "FrontDesk Agents"; 
@@ -36,32 +35,23 @@ export default function DashboardPage() {
 
   const userId = '42c9eda0-81fd-4d7a-b9f7-49bba359d6ce';
 
-  // --- NOTIFICATION ENGINE ---
+  // --- REAL-TIME ALERTS ---
   const triggerAlert = (leadName: string) => {
-    const message = `High-Interest: ${leadName} is ready to book!`;
-    
-    if (Notification.permission === "granted") {
-      new Notification(`🔥 ${BRAND_NAME} Alert`, { body: message });
-    }
-
     const id = Math.random().toString(36).substr(2, 9);
-    setNotifications(prev => [{id, msg: message}, ...prev]);
+    setNotifications(prev => [{id, msg: `New Conversion: ${leadName}`}, ...prev]);
+    setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 6000);
   };
-
-  const clearNotifications = () => setNotifications([]);
 
   useEffect(() => {
     fetchOperationalData();
-    if (Notification.permission !== "granted") Notification.requestPermission();
 
     const channel = supabase
-      .channel('frontdesk-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'call_results' }, (payload) => {
-        fetchOperationalData();
-        // Trigger alert only on new "Hot 🔥" status
+      .channel('frontdesk-core')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_results' }, (payload) => {
         if (payload.new && (payload.new as any).sentiment_score === 'Hot 🔥') {
-          triggerAlert("A New Prospect");
+          triggerAlert("High Interest Prospect");
         }
+        fetchOperationalData();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => fetchOperationalData())
       .subscribe();
@@ -92,30 +82,6 @@ export default function DashboardPage() {
     setLoading(false);
   }
 
-  const generateAgencyReport = () => {
-    const hotLeads = leads.filter(l => l.call_results?.[0]?.sentiment_score === 'Hot 🔥');
-    const report = {
-      agency: BRAND_NAME,
-      generated_at: new Date().toLocaleString(),
-      performance_metrics: {
-        total_entities_managed: metrics.totalLeads,
-        successful_conversions: metrics.conversions,
-        conversion_efficiency: `${((metrics.conversions / metrics.totalLeads) * 100 || 0).toFixed(2)}%`
-      },
-      top_priority_leads: hotLeads.map(l => ({
-        identity: l.full_name,
-        contact: l.phone_number,
-        ai_summary: l.call_results?.[0]?.summary || "Analysis in progress"
-      }))
-    };
-    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${BRAND_NAME.replace(' ', '_')}_ROI_Report.json`;
-    link.click();
-  };
-
   const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -135,145 +101,104 @@ export default function DashboardPage() {
     reader.readAsText(file);
   };
 
-  const kpis = [
-    { name: 'Managed Entities', value: metrics.totalLeads, label: 'Database Size', icon: Users, color: 'text-blue-500' },
-    { name: 'Conversions', value: metrics.conversions, label: 'High-Sentiment', icon: TrendingUp, color: 'text-emerald-500' },
-    { name: 'System Credits', value: metrics.creditsRemaining, label: 'Mins Available', icon: Clock, color: 'text-purple-500' },
-    { name: 'Efficiency', value: `${metrics.avgPerformance}m`, label: 'Avg Session', icon: PhoneCall, color: 'text-orange-500' },
-  ];
-
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-[#050505]">
+    <div className="flex items-center justify-center min-h-screen bg-[#000814]">
       <div className="flex flex-col items-center gap-4">
-        <Headset className="w-12 h-12 text-blue-600 animate-pulse" />
-        <div className="text-[10px] font-black tracking-[0.5em] text-blue-600 uppercase">Initializing {BRAND_NAME}...</div>
+        <Headset className="w-12 h-12 text-cyan-500 animate-pulse" />
+        <div className="text-[10px] font-black tracking-[0.5em] text-cyan-500 uppercase">Syncing Command Center...</div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-slate-300 p-4 lg:p-8 font-sans selection:bg-blue-500/30">
+    <div className="relative">
+      {/* Toast Notifications */}
+      <div className="fixed top-24 right-8 z-[100] space-y-3 pointer-events-none">
+        {notifications.map(n => (
+          <div key={n.id} className="pointer-events-auto bg-cyan-500 text-[#000814] px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-right-10">
+            <Zap className="w-4 h-4 fill-current" />
+            {n.msg}
+          </div>
+        ))}
+      </div>
+
       <div className="max-w-7xl mx-auto">
-        
-        {/* --- BRANDED HEADER --- */}
         <div className="mb-12 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-600 rounded-2xl shadow-[0_0_30px_rgba(37,99,235,0.2)]">
-              <Headset className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight text-white flex items-center gap-3">
-                {BRAND_NAME.split(' ')[0]} <span className="text-blue-600 italic">{BRAND_NAME.split(' ')[1]}</span>
-              </h1>
-              <div className="flex items-center gap-2 mt-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Enterprise AI Layer {SYSTEM_VERSION}</span>
-              </div>
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-white flex items-center gap-3 uppercase italic">
+              FrontDesk <span className="text-cyan-500">Dashboard</span>
+            </h1>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Core OS {SYSTEM_VERSION} • Secure Link Active</span>
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            {/* --- NOTIFICATION BELL --- */}
-            <div className="relative group">
-              <button className="p-3 bg-slate-900 border border-white/5 rounded-2xl hover:border-blue-500/50 transition-all relative">
-                <Bell className="w-5 h-5 text-slate-400 group-hover:text-blue-500" />
-                {notifications.length > 0 && (
-                  <span className="absolute top-2 right-2 h-2 w-2 bg-blue-500 rounded-full animate-ping" />
-                )}
-              </button>
-              
-              {notifications.length > 0 && (
-                <div className="absolute right-0 mt-4 w-72 bg-[#0A0A0A] border border-blue-500/20 rounded-[24px] shadow-2xl z-50 overflow-hidden">
-                  <div className="p-4 border-b border-white/5 bg-blue-600/5 flex justify-between items-center">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">Live Agent Alerts</p>
-                    <button onClick={clearNotifications} className="p-1 hover:bg-white/5 rounded-lg transition-colors">
-                      <Trash2 className="w-3 h-3 text-slate-500 hover:text-red-500" />
-                    </button>
-                  </div>
-                  <div className="max-h-60 overflow-y-auto">
-                    {notifications.map(n => (
-                      <div key={n.id} className="p-4 border-b border-white/5 text-[11px] font-medium text-slate-300 animate-in fade-in slide-in-from-top-1">
-                        {n.msg}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <button onClick={generateAgencyReport} className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-slate-400">
-              <Download className="w-4 h-4" /> Export ROI Report
-            </button>
-          </div>
+          <button className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-slate-400">
+            <Download className="w-4 h-4" /> Export Performance Report
+          </button>
         </div>
 
-        {/* --- KPI MONITORING --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {kpis.map((kpi) => (
-            <div key={kpi.name} className="bg-[#0A0A0A] border border-white/5 hover:border-blue-500/30 transition-all rounded-[32px] p-7 group relative overflow-hidden">
-              <div className={`p-3 w-fit rounded-xl bg-slate-900 mb-6 group-hover:scale-110 transition-transform`}><kpi.icon className={`w-5 h-5 ${kpi.color}`} /></div>
-              <p className="text-3xl font-black text-white italic mb-1">{kpi.value}</p>
-              <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{kpi.name}</h3>
-              <p className="text-[9px] font-medium text-slate-600 mt-2 uppercase">{kpi.label}</p>
+        {/* KPI Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          {[
+            { label: 'Managed Entities', val: metrics.totalLeads, icon: Users, color: 'text-cyan-500' },
+            { label: 'Hot Conversions', val: metrics.conversions, icon: TrendingUp, color: 'text-emerald-500' },
+            { label: 'System Credits', val: metrics.creditsRemaining, icon: Clock, color: 'text-purple-500' },
+            { label: 'Avg Session', val: `${metrics.avgPerformance}m`, icon: PhoneCall, color: 'text-orange-500' }
+          ].map((kpi) => (
+            <div key={kpi.label} className="bg-[#000d1a] border border-white/5 p-7 rounded-[32px] group hover:border-cyan-500/30 transition-all">
+              <kpi.icon className={`w-5 h-5 ${kpi.color} mb-6`} />
+              <p className="text-3xl font-black text-white italic">{kpi.val}</p>
+              <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{kpi.label}</h3>
             </div>
           ))}
         </div>
 
-        {/* --- CORE OPS --- */}
+        {/* Operations & Live Feed */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-           <div className="bg-[#0A0A0A] border border-white/5 p-8 rounded-[40px] flex flex-col">
-              <div className="flex items-center gap-2 mb-8">
-                <Activity className="w-4 h-4 text-blue-500" />
-                <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Data Ingestion</h2>
-              </div>
-              <label className="flex flex-col items-center justify-center gap-4 flex-1 border-2 border-dashed border-white/5 rounded-[32px] cursor-pointer hover:bg-blue-600/5 hover:border-blue-600/40 transition-all group p-10">
-                <ArrowUpTray className={`w-10 h-10 ${isProcessing ? 'animate-bounce text-blue-500' : 'text-slate-700 group-hover:text-blue-500'}`} />
-                <div className="text-center">
-                   <p className="text-[11px] font-black text-white uppercase tracking-widest mb-1">{isProcessing ? 'Processing Matrix...' : 'Import Entity List'}</p>
-                   <p className="text-[9px] text-slate-600 font-medium italic">Supports CSV Format</p>
-                </div>
-                <input type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" disabled={isProcessing} />
-              </label>
-           </div>
-           
-           <div className="lg:col-span-2 bg-gradient-to-br from-blue-900/10 to-[#0A0A0A] border border-white/5 p-8 rounded-[40px] flex flex-col justify-center relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full -mr-20 -mt-20" />
-              <div className="relative z-10">
-                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-blue-500 mb-3 italic">Global Deployment</h2>
-                <p className="text-xs text-slate-500 mb-10 max-w-lg leading-relaxed font-medium italic">Autonomous dispatch sequence for FrontDesk Agents. Agents will navigate custom scripts, determine lead sentiment, and initiate scheduling protocols.</p>
-                <div className="flex gap-4">
-                  <button className="flex items-center justify-center gap-4 flex-1 py-6 bg-blue-600 hover:bg-blue-500 rounded-[24px] font-black text-[13px] uppercase tracking-[0.3em] text-white transition-all shadow-[0_20px_40px_rgba(37,99,235,0.2)] hover:translate-y-[-2px]">
-                    <Zap className="w-5 h-5 fill-current" /> Initialize Agent Protocol
-                  </button>
-                  <button className="px-8 bg-slate-900 border border-white/5 rounded-[24px] hover:bg-slate-800 transition-all"><FileBarChart className="w-5 h-5 text-slate-400" /></button>
-                </div>
-              </div>
-           </div>
+          <div className="bg-[#000d1a] border border-white/5 p-8 rounded-[40px] flex flex-col min-h-[400px]">
+            <div className="flex items-center gap-2 mb-8">
+              <Activity className="w-4 h-4 text-cyan-500" />
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Data Ingestion</h2>
+            </div>
+            <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[32px] cursor-pointer hover:bg-cyan-500/5 hover:border-cyan-500/40 transition-all group">
+              <ArrowUpTray className={`w-10 h-10 ${isProcessing ? 'animate-bounce text-cyan-500' : 'text-slate-700 group-hover:text-cyan-500'}`} />
+              <p className="text-[11px] font-black text-white uppercase tracking-widest mt-4">{isProcessing ? 'Processing Matrix...' : 'Import Lead List'}</p>
+              <input type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" disabled={isProcessing} />
+            </label>
+          </div>
+
+          <div className="lg:col-span-2 bg-gradient-to-br from-cyan-900/10 to-[#000d1a] border border-white/5 p-8 rounded-[40px] relative overflow-hidden flex flex-col justify-center">
+            <div className="relative z-10">
+              <h2 className="text-sm font-black uppercase tracking-[0.3em] text-cyan-500 mb-3 italic">Autonomous Dispatch</h2>
+              <p className="text-xs text-slate-500 mb-10 max-w-lg leading-relaxed font-medium">Initialize the FrontDesk AI swarm. Agents will execute custom script logic, qualify leads, and synchronize conversion data in real-time.</p>
+              <button className="flex items-center justify-center gap-4 w-full sm:w-auto px-12 py-6 bg-cyan-500 hover:bg-cyan-400 rounded-[24px] font-black text-[13px] uppercase tracking-[0.3em] text-[#000814] transition-all shadow-xl shadow-cyan-500/20">
+                <Zap className="w-5 h-5 fill-current" /> Start Agent Swarm
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* --- LIVE NETWORK STREAM --- */}
-        <div className="bg-[#0A0A0A] border border-white/5 rounded-[40px] overflow-hidden">
+        {/* Live Stream Table */}
+        <div className="bg-[#000d1a] border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
           <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white italic">Live Network Stream</h2>
-            <div className="px-4 py-1.5 bg-blue-600/10 rounded-full border border-blue-600/20 flex items-center gap-2">
-               <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
-               <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">Secure Uplink Active</span>
-            </div>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white italic">Live Uplink Stream</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-white/5">
-                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">Entity Signature</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest text-center">Protocol Status</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest text-right">Intelligence Result</th>
+                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">Entity</th>
+                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest text-center">Status</th>
+                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest text-right">Result</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {leads.map((lead) => (
                   <tr key={lead.id} className="hover:bg-white/[0.01] transition-colors group">
                     <td className="px-10 py-8">
-                      <div className="font-black text-white uppercase italic tracking-tighter group-hover:text-blue-500 transition-colors">{lead.full_name}</div>
+                      <div className="font-black text-white uppercase italic group-hover:text-cyan-500 transition-colors">{lead.full_name}</div>
                       <div className="text-[10px] text-slate-600 font-mono mt-1 tracking-widest">{lead.phone_number}</div>
                     </td>
                     <td className="px-10 py-8 text-center">
@@ -282,16 +207,16 @@ export default function DashboardPage() {
                         ? 'bg-amber-500/5 text-amber-500 border-amber-500/20 animate-pulse' 
                         : 'bg-white/5 text-slate-500 border-white/5'
                       }`}>
-                        {lead.call_results?.[0]?.status || 'Ready_For_Init'}
+                        {lead.call_results?.[0]?.status || 'Idle'}
                       </span>
                     </td>
                     <td className="px-10 py-8 text-right">
                        {lead.call_results?.[0]?.sentiment_score === 'Hot 🔥' ? (
-                         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest italic shadow-[0_0_20px_rgba(16,185,129,0.1)]">
-                            Conversion Detected
+                         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest italic">
+                            Conversion
                          </div>
                        ) : (
-                         <span className="text-slate-800 text-[10px] font-black tracking-widest italic opacity-40">SIGNAL_NULL</span>
+                         <span className="text-slate-800 text-[10px] font-black tracking-widest italic opacity-40">Scanning...</span>
                        )}
                     </td>
                   </tr>
