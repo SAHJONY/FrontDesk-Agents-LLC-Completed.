@@ -1,68 +1,56 @@
-// services/metrics.service.ts
+// services/automation.service.ts
 import { supabase } from '@/lib/supabase';
-import { billingService } from './billing';
+import { metricsService } from './metrics.service';
+import { telegramBot } from '@/lib/telegram';
 
-export interface PerformanceMetrics {
-  appointmentsBooked: number;
-  leadsQualified: number;
-  revenueGenerated: number;
-  conversionRate: number;
-  aiEfficiencyScore: number;
-}
-
-export class MetricsService {
+export class AutomationService {
   /**
-   * Rastrea un evento de éxito para calcular comisiones en tiempo real
+   * Orquestación de Reacción Automática:
+   * Si la eficiencia cae, el sistema toma medidas correctivas.
    */
-  async trackSuccessEvent(businessId: string, eventType: 'APPOINTMENT' | 'QUALIFIED_LEAD' | 'SALE') {
-    const timestamp = new Date().toISOString();
+  async monitorAndOptimize(businessId: string) {
+    const metrics = await metricsService.getGlobalPerformanceReport(); //
 
-    // 1. Registrar el evento en Supabase para auditoría
-    const { data, error } = await supabase
-      .from('performance_logs')
-      .insert([{ 
-        business_id: businessId, 
-        event_type: eventType, 
-        created_at: timestamp 
-      }]);
+    // 1. Umbral de Alerta: Si la eficiencia de la IA cae bajo el 80%
+    if (metrics.aiEfficiencyScore < 80) {
+      await this.triggerQualityRecovery(businessId);
+    }
 
-    if (error) throw new Error(`Error tracking metrics: ${error.message}`);
-
-    // 2. Si el cliente está en modelo de comisión, reportar el uso a Stripe
-    await billingService.reportUsage(businessId, eventType);
-
-    return { success: true, eventId: data?.[0]?.id };
+    // 2. Notificación de Ingresos: Reporte de rendimiento al CEO
+    if (metrics.revenueGenerated > 0) {
+      await telegramBot.sendMessage(`Reloj de Ingresos: El negocio ha generado $${metrics.revenueGenerated} hoy.`);
+    }
   }
 
   /**
-   * Genera el reporte para el Dashboard de Ganancias del CEO
+   * Recuperación de Calidad: Re-ajusta los bloques de conocimiento
    */
-  async getGlobalPerformanceReport(): Promise<PerformanceMetrics> {
-    // Consulta agregada de todos los servicios activos
-    const { data: appointments } = await supabase.from('meeting_slots').select('id', { count: 'exact' });
-    const { data: revenue } = await supabase.from('invoices').select('amount').eq('status', 'paid');
+  private async triggerQualityRecovery(businessId: string) {
+    console.warn(`Alerta de Calidad para ${businessId}. Re-optimizando agentes...`);
+    
+    // Notifica al CEO vía Telegram
+    await telegramBot.sendAlert(`🚨 ALERTA: La eficiencia de la IA en ${businessId} bajó al 80%. Iniciando re-ajuste.`);
 
-    const totalRevenue = revenue?.reduce((acc, curr) => acc + curr.amount, 0) || 0;
-
-    return {
-      appointmentsBooked: appointments?.length || 0,
-      leadsQualified: 0, // Vinculado a aiSDR.ts
-      revenueGenerated: totalRevenue,
-      conversionRate: 85.5, // Cálculo basado en interacciones totales vs éxitos
-      aiEfficiencyScore: 98.2 // Basado en callQualityAnalyst.ts
-    };
+    // Ejecuta el "Surgical Reactivation" de servicios críticos
+    await supabase.rpc('optimize_agent_knowledge', { target_id: businessId });
   }
 
   /**
-   * Activa el rastreo de rendimiento para nuevos clientes en el Portal de Selección
+   * El Botón de Pánico Global (Global Kill-Switch)
    */
-  async enablePerformanceTracking(businessId: string) {
-    console.log(`Activando rastreo de rendimiento de alto nivel para: ${businessId}`);
-    return await supabase
-      .from('businesses')
-      .update({ metrics_enabled: true })
-      .eq('id', businessId);
+  async triggerPanic(reason: string) {
+    console.error(`PANIC TRIGGERED: ${reason}`);
+    
+    // Bloqueo total de las rutas de API de los 15 servicios
+    const { error } = await supabase
+      .from('system_config')
+      .update({ global_lock: true, lock_reason: reason })
+      .eq('id', 'MASTER_CONFIG');
+
+    if (!error) {
+      await telegramBot.sendAlert(`💀 SISTEMA BLOQUEADO: ${reason}. Todos los servicios están en modo de solo lectura.`);
+    }
   }
 }
 
-export const metricsService = new MetricsService();
+export const automationService = new AutomationService();
