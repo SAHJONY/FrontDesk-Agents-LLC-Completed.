@@ -13,23 +13,34 @@ import {
   CurrencyDollarIcon,
   CommandLineIcon,
   ChartBarIcon,
-  ChatBubbleLeftRightIcon
+  ChatBubbleLeftRightIcon,
+  FireIcon,
+  CheckIcon,
+  ClockIcon,
+  PhoneIcon
 } from '@heroicons/react/24/outline';
 
 export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+  const [spotsLeft, setSpotsLeft] = useState(42);
 
   return (
     <div className="min-h-screen bg-[#000814] text-white selection:bg-cyan-500/30 font-sans antialiased">
       
+      {/* --- URGENCY BANNER (Founder's 50) --- */}
+      <div className="fixed top-0 left-0 w-full bg-cyan-500 py-2 overflow-hidden whitespace-nowrap z-[110]">
+        <div className="flex animate-marquee gap-12 items-center text-[#000814] font-black text-[9px] uppercase tracking-[0.3em]">
+          {[...Array(10)].map((_, i) => (
+            <span key={i} className="flex items-center gap-2">
+              <FireIcon className="w-4 h-4" /> Founder's 50 Offer: {spotsLeft} Spots Remaining at Legacy Rates
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* --- ELITE NAVIGATION --- */}
-      <nav className="fixed top-0 w-full z-[100] border-b border-white/5 bg-[#000814]/70 backdrop-blur-2xl">
+      <nav className="fixed top-8 w-full z-[100] border-b border-white/5 bg-[#000814]/70 backdrop-blur-2xl">
         <div className="container mx-auto px-8 h-20 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
@@ -42,9 +53,9 @@ export default function HomePage() {
           </div>
           
           <div className="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-            <Link href="#neural" className="hover:text-white transition-colors">Neural Core</Link>
             <Link href="#services" className="hover:text-white transition-colors">15 Services</Link>
-            <Link href="#monetization" className="hover:text-white transition-colors">Performance Model</Link>
+            <Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link>
+            <Link href="mailto:Frontdeskllc@outlook.com" className="hover:text-white transition-colors">Contact</Link>
           </div>
 
           <Link href="/dashboard">
@@ -55,119 +66,139 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* --- CINEMATIC HERO SECTION --- */}
-      <header className="relative pt-32 pb-32 px-6 min-h-screen flex items-center justify-center overflow-hidden">
+      {/* --- CINEMATIC HERO --- */}
+      <header className="relative pt-48 pb-32 px-6 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image 
-            src="/premium/hero-cinematic.jpg" 
-            alt="Neural Command Center" 
-            fill
-            priority
-            className="object-cover opacity-30 scale-105"
-          />
+          <Image src="/premium/hero-cinematic.jpg" alt="Command Center" fill priority className="object-cover opacity-30 scale-105" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#000814] via-transparent to-[#000814]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#000814] via-transparent to-[#000814]" />
         </div>
 
         <div className="container mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black mb-10 uppercase tracking-[0.4em] animate-pulse">
-            <CheckBadgeIcon className="w-4 h-4" /> 15 Autonomous Services Active
-          </div>
-          
           <h1 className="text-6xl md:text-[110px] font-black mb-10 tracking-tighter leading-[0.85] italic uppercase">
-            <span className="text-white">Revenue</span><br />
-            <span className="bg-gradient-to-b from-cyan-400 to-cyan-700 bg-clip-text text-transparent">Autonomy.</span>
+            <span className="text-white">Neural</span><br />
+            <span className="bg-gradient-to-b from-cyan-400 to-cyan-700 bg-clip-text text-transparent">Execution.</span>
           </h1>
-
-          <p className="text-lg md:text-2xl text-slate-400 max-w-3xl mx-auto mb-16 font-medium leading-relaxed">
-            A digital workforce of 15 specialized AI agents. 
-            <span className="text-white"> Zero salary. Zero downtime.</span> 
-            Built to capture, qualify, and close leads on 100% performance-based commission.
+          <p className="text-lg md:text-2xl text-slate-400 max-w-3xl mx-auto mb-16 font-medium leading-relaxed uppercase tracking-widest text-[11px]">
+            The high-fidelity autonomous workforce. <br />
+            <span className="text-cyan-500">First 50 partners lock in performance-based rates forever.</span>
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link href="/dashboard" className="px-12 py-6 bg-cyan-500 hover:bg-cyan-400 text-[#000814] rounded-2xl font-black transition-all shadow-[0_0_50px_rgba(6,182,212,0.3)] text-[12px] uppercase tracking-widest">
-              Launch My Pilot
-            </Link>
-            <Link href="#services" className="px-12 py-6 bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl font-black transition-all text-[12px] uppercase tracking-widest">
-              Explore Services
+          <div className="flex justify-center">
+            <Link href="#pricing" className="px-12 py-6 bg-cyan-500 text-[#000814] rounded-2xl font-black transition-all shadow-[0_0_50px_rgba(6,182,212,0.3)] text-[12px] uppercase tracking-widest">
+              Secure Founder's Slot
             </Link>
           </div>
         </div>
       </header>
 
-      {/* --- THE 15 SERVICES MATRIX --- */}
-      <section id="services" className="py-32 relative bg-[#000d1a]">
+      {/* --- PRICING MATRIX --- */}
+      <section id="pricing" className="py-32 bg-[#000814] relative border-t border-white/5">
         <div className="container mx-auto px-8">
-          <div className="text-center mb-24">
-            <h2 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.5em] mb-4">The Workforce</h2>
-            <p className="text-4xl font-black italic uppercase tracking-tighter">15 Integrated Intelligence Units</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
-            {[
-              { title: "Voice Receptionist", desc: "24/7 human-like inbound voice handling.", icon: MicrophoneIcon },
-              { title: "WhatsApp Concierge", desc: "Interactive rich-media chat automation.", icon: ChatBubbleLeftRightIcon },
-              { title: "AI SDR (Outbound)", desc: "Aggressive prospecting & qualification.", icon: CommandLineIcon },
-              { title: "Meeting Scheduler", desc: "Instant sync with Google/Outlook calendars.", icon: CheckBadgeIcon },
-              { title: "Sentiment Monitor", desc: "Real-time emotional tone tracking.", icon: SparklesIcon },
-              { title: "Collections Agent", desc: "Automated Stripe debt recovery.", icon: CurrencyDollarIcon },
-              { title: "Quality Analyst", desc: "100% audit of every call & chat.", icon: ShieldCheckIcon },
-              { title: "Revenue Tracker", desc: "ROI attribution in real-time.", icon: ChartBarIcon },
-              { title: "SMS Proactive", desc: "Nurturing & appointment reminders.", icon: ChatBubbleLeftRightIcon },
-              { title: "Live Chat Widget", desc: "Zero-latency website lead capture.", icon: GlobeAmericasIcon },
-              { title: "Email Assistant", desc: "Professional autonomous inbox management.", icon: SparklesIcon },
-              { title: "KYC Gatekeeper", desc: "Identity & document verification.", icon: ShieldCheckIcon },
-              { title: "Lead Qualifier", desc: "Budget & intent filtration logic.", icon: CpuChipIcon },
-              { title: "CRM Sync", desc: "Native Airtable & Salesforce integration.", icon: GlobeAmericasIcon },
-              { title: "Global Kill-Switch", desc: "Master security & pause control.", icon: ShieldCheckIcon }
-            ].map((service, idx) => (
-              <div key={idx} className="p-8 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all group">
-                <service.icon className="w-6 h-6 text-cyan-500 mb-4 group-hover:scale-110 transition-transform" />
-                <h4 className="text-sm font-black uppercase tracking-widest mb-2 italic">{service.title}</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">{service.desc}</p>
+          <div className="grid lg:grid-cols-4 gap-6 max-w-[1600px] mx-auto">
+            
+            {/* STARTER - 500 MINS */}
+            <div className="p-10 rounded-[40px] bg-white/5 border border-white/10 flex flex-col hover:border-cyan-500/30 transition-all">
+              <h3 className="text-lg font-black italic uppercase text-white mb-2 tracking-tighter">Starter</h3>
+              <div className="flex items-end gap-2 mb-6">
+                <span className="text-5xl font-black italic">$197</span>
+                <span className="text-slate-500 text-sm font-bold mb-2">/mo</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* --- MONETIZATION MODEL --- */}
-      <section id="monetization" className="py-32 bg-[#000814]">
-        <div className="container mx-auto px-8">
-          <div className="max-w-4xl mx-auto bg-gradient-to-br from-cyan-900/20 to-purple-900/20 border border-cyan-500/20 rounded-[50px] p-16 text-center">
-            <h2 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.5em] mb-8">Performance Model</h2>
-            <h3 className="text-5xl font-black italic uppercase tracking-tighter mb-8 italic">Zero Risk. High Reward.</h3>
-            <p className="text-slate-400 text-xl leading-relaxed mb-12">
-              Choose between a premium fixed retainer or our <span className="text-white">Success-Based Commission Model</span>. 
-              We don't get paid unless our AI agents generate revenue for you.
-            </p>
-            <div className="flex flex-wrap justify-center gap-12 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-              <span className="flex items-center gap-2"><CheckBadgeIcon className="w-4 h-4 text-cyan-500"/> $0 Setup Fees</span>
-              <span className="flex items-center gap-2"><CheckBadgeIcon className="w-4 h-4 text-cyan-500"/> Pay Per Booking</span>
-              <span className="flex items-center gap-2"><CheckBadgeIcon className="w-4 h-4 text-cyan-500"/> Cancel Anytime</span>
+              <div className="flex items-center gap-2 text-cyan-400 text-[10px] font-black uppercase mb-8 bg-cyan-500/10 p-3 rounded-xl">
+                <ClockIcon className="w-4 h-4" /> 500 Neural Mins Incl.
+              </div>
+              <ul className="space-y-4 mb-12 flex-1">
+                {["Voice Receptionist 24/7", "WhatsApp Business Concierge", "SMS Proactive Agent", "5% Performance Fee"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                    <CheckIcon className="w-4 h-4 text-cyan-500" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full py-5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">Select Starter</button>
             </div>
+
+            {/* GROWTH - 1,000 MINS */}
+            <div className="p-10 rounded-[40px] bg-gradient-to-br from-cyan-500/10 to-transparent border-2 border-cyan-500 shadow-[0_0_80px_rgba(6,182,212,0.1)] flex flex-col scale-105 z-10">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-cyan-500 text-[#000814] px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest italic">Most Popular</div>
+              <h3 className="text-lg font-black italic uppercase text-white mb-2 tracking-tighter pt-4">Growth</h3>
+              <div className="flex items-end gap-2 mb-6">
+                <span className="text-5xl font-black italic">$497</span>
+                <span className="text-slate-500 text-sm font-bold mb-2">/mo</span>
+              </div>
+              <div className="flex items-center gap-2 text-cyan-400 text-[10px] font-black uppercase mb-8 bg-cyan-500/20 p-3 rounded-xl border border-cyan-500/30">
+                <ClockIcon className="w-4 h-4" /> 1,000 Neural Mins Incl.
+              </div>
+              <ul className="space-y-4 mb-12 flex-1">
+                {["Full Sales Suite", "AI SDR (Outbound)", "Meeting Scheduler", "3% Performance Fee"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-white text-[10px] font-bold uppercase tracking-widest">
+                    <CheckIcon className="w-4 h-4 text-cyan-500" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full py-5 bg-cyan-500 text-[#000814] rounded-2xl text-[10px] font-black uppercase tracking-widest">Launch Growth</button>
+            </div>
+
+            {/* SCALE - 1,500 MINS */}
+            <div className="p-10 rounded-[40px] bg-white/5 border border-white/10 flex flex-col hover:border-purple-500/30 transition-all">
+              <h3 className="text-lg font-black italic uppercase text-white mb-2 tracking-tighter">Scale</h3>
+              <div className="flex items-end gap-2 mb-6">
+                <span className="text-5xl font-black italic">$997</span>
+                <span className="text-slate-500 text-sm font-bold mb-2">/mo</span>
+              </div>
+              <div className="flex items-center gap-2 text-purple-400 text-[10px] font-black uppercase mb-8 bg-purple-500/10 p-3 rounded-xl">
+                <ClockIcon className="w-4 h-4" /> 1,500 Neural Mins Incl.
+              </div>
+              <ul className="space-y-4 mb-12 flex-1">
+                {["All 15 AI Agents", "Global Kill-Switch", "Sentiment Analysis", "0% Performance Fee"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                    <CheckIcon className="w-4 h-4 text-purple-500" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full py-5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-500 hover:text-white transition-all">Initiate Scale</button>
+            </div>
+
+            {/* ENTERPRISE - CALL FOR QUOTE */}
+            <div className="p-10 rounded-[40px] bg-black border border-white/20 flex flex-col group hover:bg-white/5 transition-all">
+              <h3 className="text-lg font-black italic uppercase text-slate-400 mb-2 tracking-tighter">Enterprise</h3>
+              <div className="flex items-end gap-2 mb-6">
+                <span className="text-4xl font-black italic uppercase tracking-tighter">Contact</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase mb-8 bg-white/5 p-3 rounded-xl border border-white/10">
+                <PhoneIcon className="w-4 h-4" /> Bulk Infrastructure
+              </div>
+              <ul className="space-y-4 mb-12 flex-1">
+                {["Unlimited Infrastructure", "Whitelabel Dashboard", "Dedicated GPU Power", "Direct Engineer Access"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+                    <CheckIcon className="w-4 h-4 text-slate-700" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="mailto:Frontdeskllc@outlook.com">
+                <button className="w-full py-5 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-cyan-500 transition-all">Call for Quote</button>
+              </Link>
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* --- ELITE FOOTER --- */}
-      <footer className="py-32 border-t border-white/5 bg-black">
-        <div className="container mx-auto px-8 text-center">
-          <div className="flex justify-center gap-6 mb-12 grayscale opacity-30">
-             <ShieldCheckIcon className="w-6 h-6 text-cyan-500" />
-             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white">Neural Infrastructure Secured</span>
-          </div>
-          <p className="text-slate-700 text-[10px] uppercase tracking-[0.3em] font-black leading-loose">
-            © 2025 FrontDesk Agents LLC • Intelligence Architecture v4.2.0-PRO <br />
-            <span className="text-slate-800 italic uppercase">Optimized for Surface Pro 11 & iPad Pro M4 Oversight</span>
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-2">
-            <p className="text-slate-800 text-[9px] font-bold uppercase tracking-widest">Master Link: Frontdeskllc@outlook.com</p>
-            <p className="text-cyan-900 text-[8px] font-bold uppercase tracking-[0.4em]">Engineered by J. Gonzalez</p>
-          </div>
+      <footer className="py-24 border-t border-white/5 bg-black">
+        <div className="container mx-auto px-8 text-center text-slate-700 text-[10px] font-black uppercase tracking-[0.3em]">
+          © 2025 FrontDesk Agents LLC • Intelligence Architecture v4.2.0-PRO <br />
+          <span className="text-slate-800 italic uppercase">Optimized for Surface Pro 11 & iPad Pro M4 Systems</span>
+          <p className="mt-8 text-cyan-900 font-bold uppercase tracking-widest">Secure Uplink: Frontdeskllc@outlook.com</p>
         </div>
       </footer>
+
+      <style jsx global>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 30s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
