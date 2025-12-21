@@ -10,7 +10,9 @@ import {
   Cog6ToothIcon,
   ArrowLeftOnRectangleIcon,
   SparklesIcon,
-  Bars3Icon
+  Bars3Icon,
+  Square3Stack3DIcon, // Icon for Portal
+  IdentificationIcon // Alternative for Profile
 } from '@heroicons/react/24/outline';
 
 /* ======================================================================
@@ -18,9 +20,10 @@ import {
    ====================================================================== */
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+  { name: 'Client Portal', href: '/portal', icon: Square3Stack3DIcon }, // New Client Entry
   { name: 'Agentes IA', href: '/agents', icon: SparklesIcon },
   { name: 'Llamadas', href: '/calls', icon: PhoneArrowUpRightIcon },
-  { name: 'Perfil', href: '/profile', icon: UserGroupIcon },
+  { name: 'Perfil', href: '/profile', icon: IdentificationIcon },
   { name: 'Configuración', href: '/settings', icon: Cog6ToothIcon },
 ];
 
