@@ -9,7 +9,11 @@ import {
   ShieldCheckIcon, 
   GlobeAmericasIcon,
   CpuChipIcon,
-  MicrophoneIcon
+  MicrophoneIcon,
+  CurrencyDollarIcon,
+  CommandLineIcon,
+  ChartBarIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
 export const dynamic = 'force-dynamic';
@@ -39,8 +43,8 @@ export default function HomePage() {
           
           <div className="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             <Link href="#neural" className="hover:text-white transition-colors">Neural Core</Link>
-            <Link href="#voice" className="hover:text-white transition-colors">Voice Cloning</Link>
-            <Link href="#enterprise" className="hover:text-white transition-colors">Enterprise</Link>
+            <Link href="#services" className="hover:text-white transition-colors">15 Services</Link>
+            <Link href="#monetization" className="hover:text-white transition-colors">Performance Model</Link>
           </div>
 
           <Link href="/dashboard">
@@ -53,7 +57,6 @@ export default function HomePage() {
 
       {/* --- CINEMATIC HERO SECTION --- */}
       <header className="relative pt-32 pb-32 px-6 min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Apple-style background imagery */}
         <div className="absolute inset-0 z-0">
           <Image 
             src="/premium/hero-cinematic.jpg" 
@@ -62,134 +65,87 @@ export default function HomePage() {
             priority
             className="object-cover opacity-30 scale-105"
           />
-          {/* Gradient masking for 100% text visibility */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#000814] via-transparent to-[#000814]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#000814] via-transparent to-[#000814]" />
         </div>
 
         <div className="container mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black mb-10 uppercase tracking-[0.4em] animate-pulse">
-            <CheckBadgeIcon className="w-4 h-4" /> Global Intelligence Established
+            <CheckBadgeIcon className="w-4 h-4" /> 15 Autonomous Services Active
           </div>
           
-          <h1 className="text-6xl md:text-[120px] font-black mb-10 tracking-tighter leading-[0.8] italic uppercase">
-            <span className="text-white">Neural</span><br />
-            <span className="bg-gradient-to-b from-cyan-400 to-cyan-700 bg-clip-text text-transparent">Execution.</span>
+          <h1 className="text-6xl md:text-[110px] font-black mb-10 tracking-tighter leading-[0.85] italic uppercase">
+            <span className="text-white">Revenue</span><br />
+            <span className="bg-gradient-to-b from-cyan-400 to-cyan-700 bg-clip-text text-transparent">Autonomy.</span>
           </h1>
 
           <p className="text-lg md:text-2xl text-slate-400 max-w-3xl mx-auto mb-16 font-medium leading-relaxed">
-            Replace manual outreach with high-fidelity autonomous voice agents. Trained on your proprietary data. Built for multi-billion dollar scale.
+            A digital workforce of 15 specialized AI agents. 
+            <span className="text-white"> Zero salary. Zero downtime.</span> 
+            Built to capture, qualify, and close leads on 100% performance-based commission.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link href="/dashboard" className="px-12 py-6 bg-cyan-500 hover:bg-cyan-400 text-[#000814] rounded-2xl font-black transition-all shadow-[0_0_50px_rgba(6,182,212,0.3)] text-[12px] uppercase tracking-widest">
-              Initiate Neural Swarm
+              Launch My Pilot
             </Link>
-            <Link href="#agents" className="px-12 py-6 bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl font-black transition-all text-[12px] uppercase tracking-widest">
-              View Agent Specs
+            <Link href="#services" className="px-12 py-6 bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl font-black transition-all text-[12px] uppercase tracking-widest">
+              Explore Services
             </Link>
           </div>
         </div>
       </header>
 
-      {/* --- AGENT SPECIFICATIONS --- */}
-      <section id="agents" className="py-32 relative bg-[#000d1a]">
+      {/* --- THE 15 SERVICES MATRIX --- */}
+      <section id="services" className="py-32 relative bg-[#000d1a]">
         <div className="container mx-auto px-8">
           <div className="text-center mb-24">
-            <h2 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.5em] mb-4">The Personnel</h2>
-            <p className="text-4xl font-black italic uppercase tracking-tighter">Autonomous Intelligence Units</p>
+            <h2 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.5em] mb-4">The Workforce</h2>
+            <p className="text-4xl font-black italic uppercase tracking-tighter">15 Integrated Intelligence Units</p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-10 max-w-7xl mx-auto">
-            
-            {/* AGENT: SARA */}
-            <div className="relative group overflow-hidden rounded-[50px] border border-white/5 bg-black/40 backdrop-blur-3xl p-1">
-              <div className="relative h-[400px] overflow-hidden rounded-[48px]">
-                <Image 
-                  src="/premium/team/agents-grid.jpg" 
-                  alt="Sara: Inbound Neural Agent" 
-                  fill 
-                  className="object-cover opacity-50 group-hover:scale-105 transition-transform duration-1000"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                <div className="absolute bottom-10 left-10">
-                  <span className="px-4 py-1 bg-cyan-500 text-[#000814] text-[9px] font-black uppercase rounded-full tracking-widest">Inbound Specialist</span>
-                  <h3 className="text-5xl font-black mt-4 italic uppercase">Sara</h3>
-                </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
+            {[
+              { title: "Voice Receptionist", desc: "24/7 human-like inbound voice handling.", icon: MicrophoneIcon },
+              { title: "WhatsApp Concierge", desc: "Interactive rich-media chat automation.", icon: ChatBubbleLeftRightIcon },
+              { title: "AI SDR (Outbound)", desc: "Aggressive prospecting & qualification.", icon: CommandLineIcon },
+              { title: "Meeting Scheduler", desc: "Instant sync with Google/Outlook calendars.", icon: CheckBadgeIcon },
+              { title: "Sentiment Monitor", desc: "Real-time emotional tone tracking.", icon: SparklesIcon },
+              { title: "Collections Agent", desc: "Automated Stripe debt recovery.", icon: CurrencyDollarIcon },
+              { title: "Quality Analyst", desc: "100% audit of every call & chat.", icon: ShieldCheckIcon },
+              { title: "Revenue Tracker", desc: "ROI attribution in real-time.", icon: ChartBarIcon },
+              { title: "SMS Proactive", desc: "Nurturing & appointment reminders.", icon: ChatBubbleLeftRightIcon },
+              { title: "Live Chat Widget", desc: "Zero-latency website lead capture.", icon: GlobeAmericasIcon },
+              { title: "Email Assistant", desc: "Professional autonomous inbox management.", icon: SparklesIcon },
+              { title: "KYC Gatekeeper", desc: "Identity & document verification.", icon: ShieldCheckIcon },
+              { title: "Lead Qualifier", desc: "Budget & intent filtration logic.", icon: CpuChipIcon },
+              { title: "CRM Sync", desc: "Native Airtable & Salesforce integration.", icon: GlobeAmericasIcon },
+              { title: "Global Kill-Switch", desc: "Master security & pause control.", icon: ShieldCheckIcon }
+            ].map((service, idx) => (
+              <div key={idx} className="p-8 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all group">
+                <service.icon className="w-6 h-6 text-cyan-500 mb-4 group-hover:scale-110 transition-transform" />
+                <h4 className="text-sm font-black uppercase tracking-widest mb-2 italic">{service.title}</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">{service.desc}</p>
               </div>
-              <div className="p-12">
-                <p className="text-slate-400 text-lg leading-relaxed mb-8">Specialized in high-volume customer acquisition, scheduling, and instantaneous knowledge retrieval from your corporate database.</p>
-                <div className="flex items-center gap-6 border-t border-white/5 pt-8">
-                  <div className="flex-1">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Response Latency</p>
-                    <p className="font-mono text-cyan-500 font-bold tracking-tighter">&lt; 400ms</p>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Human Score</p>
-                    <p className="font-mono text-cyan-500 font-bold tracking-tighter">99.8%</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* AGENT: ALEX */}
-            <div className="relative group overflow-hidden rounded-[50px] border border-white/5 bg-black/40 backdrop-blur-3xl p-1">
-              <div className="relative h-[400px] overflow-hidden rounded-[48px]">
-                <Image 
-                  src="/premium/command-center-dark.jpg" 
-                  alt="Alex: Outbound Neural Agent" 
-                  fill 
-                  className="object-cover opacity-50 group-hover:scale-105 transition-transform duration-1000"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                <div className="absolute bottom-10 left-10">
-                  <span className="px-4 py-1 bg-purple-500 text-white text-[9px] font-black uppercase rounded-full tracking-widest">Sales Acquisition</span>
-                  <h3 className="text-5xl font-black mt-4 italic uppercase">Alex</h3>
-                </div>
-              </div>
-              <div className="p-12">
-                <p className="text-slate-400 text-lg leading-relaxed mb-8">Outbound unit engineered for aggressive prospecting, complex objection handling, and closing high-ticket enterprise contracts.</p>
-                <div className="flex items-center gap-6 border-t border-white/5 pt-8">
-                  <div className="flex-1">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Objection Logic</p>
-                    <p className="font-mono text-purple-500 font-bold tracking-tighter">Advanced v4.2</p>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Voice Persistence</p>
-                    <p className="font-mono text-purple-500 font-bold tracking-tighter">Infinite</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+            ))}
           </div>
         </div>
       </section>
 
-      {/* --- ENTERPRISE SPECS GRID --- */}
-      <section className="py-32 bg-[#000814]">
+      {/* --- MONETIZATION MODEL --- */}
+      <section id="monetization" className="py-32 bg-[#000814]">
         <div className="container mx-auto px-8">
-          <div className="grid md:grid-cols-3 gap-16 border-t border-white/5 pt-20">
-            <div className="space-y-6">
-              <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
-                <CpuChipIcon className="w-6 h-6 text-cyan-500" />
-              </div>
-              <h4 className="text-xl font-black uppercase italic tracking-tighter text-white">Neural Processing</h4>
-              <p className="text-slate-500 text-sm leading-relaxed">Our proprietary Neural engine processes human sentiment in real-time, adjusting pitch and tone for maximum conversion.</p>
-            </div>
-            <div className="space-y-6">
-              <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
-                <GlobeAmericasIcon className="w-6 h-6 text-purple-500" />
-              </div>
-              <h4 className="text-xl font-black uppercase italic tracking-tighter text-white">Global Scalability</h4>
-              <p className="text-slate-500 text-sm leading-relaxed">Deploy swarms across 6 continents with local dialer signatures. Fully compliant with international communications protocols.</p>
-            </div>
-            <div className="space-y-6">
-              <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
-                <MicrophoneIcon className="w-6 h-6 text-emerald-500" />
-              </div>
-              <h4 className="text-xl font-black uppercase italic tracking-tighter text-white">Neural Cloning</h4>
-              <p className="text-slate-500 text-sm leading-relaxed">Capture the exact essence of your best sales rep. Our Neural Voice Lab clones inflection and charisma with extreme precision.</p>
+          <div className="max-w-4xl mx-auto bg-gradient-to-br from-cyan-900/20 to-purple-900/20 border border-cyan-500/20 rounded-[50px] p-16 text-center">
+            <h2 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.5em] mb-8">Performance Model</h2>
+            <h3 className="text-5xl font-black italic uppercase tracking-tighter mb-8 italic">Zero Risk. High Reward.</h3>
+            <p className="text-slate-400 text-xl leading-relaxed mb-12">
+              Choose between a premium fixed retainer or our <span className="text-white">Success-Based Commission Model</span>. 
+              We don't get paid unless our AI agents generate revenue for you.
+            </p>
+            <div className="flex flex-wrap justify-center gap-12 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+              <span className="flex items-center gap-2"><CheckBadgeIcon className="w-4 h-4 text-cyan-500"/> $0 Setup Fees</span>
+              <span className="flex items-center gap-2"><CheckBadgeIcon className="w-4 h-4 text-cyan-500"/> Pay Per Booking</span>
+              <span className="flex items-center gap-2"><CheckBadgeIcon className="w-4 h-4 text-cyan-500"/> Cancel Anytime</span>
             </div>
           </div>
         </div>
@@ -200,13 +156,16 @@ export default function HomePage() {
         <div className="container mx-auto px-8 text-center">
           <div className="flex justify-center gap-6 mb-12 grayscale opacity-30">
              <ShieldCheckIcon className="w-6 h-6 text-cyan-500" />
-             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white">Proprietary Security Protocols Active</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white">Neural Infrastructure Secured</span>
           </div>
           <p className="text-slate-700 text-[10px] uppercase tracking-[0.3em] font-black leading-loose">
             © 2025 FrontDesk Agents LLC • Intelligence Architecture v4.2.0-PRO <br />
-            <span className="text-slate-800">Operational Excellence Engineered by J. Gonzalez</span>
+            <span className="text-slate-800 italic uppercase">Optimized for Surface Pro 11 & iPad Pro M4 Oversight</span>
           </p>
-          <p className="mt-8 text-slate-800 text-[9px] font-bold uppercase tracking-widest">Secure Uplink: Frontdeskllc@outlook.com</p>
+          <div className="mt-8 flex flex-col items-center gap-2">
+            <p className="text-slate-800 text-[9px] font-bold uppercase tracking-widest">Master Link: Frontdeskllc@outlook.com</p>
+            <p className="text-cyan-900 text-[8px] font-bold uppercase tracking-[0.4em]">Engineered by J. Gonzalez</p>
+          </div>
         </div>
       </footer>
     </div>
