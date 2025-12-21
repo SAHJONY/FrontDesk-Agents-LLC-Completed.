@@ -11,16 +11,20 @@ import {
   Zap, 
   ShieldCheck, 
   Activity,
-  Headset
+  Headset,
+  FileBarChart,
+  Download
 } from 'lucide-react';
 
 // --- ENTERPRISE BRAND CONFIGURATION ---
 const BRAND_NAME = "FrontDesk Agents"; 
+const SYSTEM_VERSION = "v4.2.0-PRO";
 
 export default function DashboardPage() {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [leads, setLeads] = useState<any[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [metrics, setMetrics] = useState({
     totalLeads: 0,
     conversions: 0,
@@ -28,13 +32,17 @@ export default function DashboardPage() {
     avgPerformance: 0
   });
 
+  // Unique Identifier for the Administrative Account
+  const userId = '42c9eda0-81fd-4d7a-b9f7-49bba359d6ce';
+
   useEffect(() => {
     fetchOperationalData();
 
     // --- REAL-TIME DATA STREAM ---
     const channel = supabase
-      .channel('frontdesk-sync')
+      .channel('frontdesk-core-sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'call_results' }, () => fetchOperationalData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => fetchOperationalData())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -63,19 +71,73 @@ export default function DashboardPage() {
     setLoading(false);
   }
 
+  // --- AGENCY REPORT GENERATOR (Category 10.1) ---
+  const generateAgencyReport = () => {
+    const hotLeads = leads.filter(l => l.call_results?.[0]?.sentiment_score === 'Hot 🔥');
+    const report = {
+      agency: BRAND_NAME,
+      generated_at: new Date().toLocaleString(),
+      performance_metrics: {
+        total_entities_managed: metrics.totalLeads,
+        successful_conversions: metrics.conversions,
+        conversion_efficiency: `${((metrics.conversions / metrics.totalLeads) * 100 || 0).toFixed(2)}%`
+      },
+      top_priority_leads: hotLeads.map(l => ({
+        identity: l.full_name,
+        contact: l.phone_number,
+        ai_summary: l.call_results?.[0]?.summary || "Analysis in progress"
+      }))
+    };
+
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${BRAND_NAME.replace(' ', '_')}_ROI_Report.json`;
+    link.click();
+  };
+
+  // --- BULK INGESTION HANDLER (Category 9.1) ---
+  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const text = e.target?.result as string;
+      const rows = text.split('\n').slice(1);
+
+      const leadsToInsert = rows.map(row => {
+        const [full_name, phone_number] = row.split(',');
+        return { 
+            full_name: full_name?.trim(), 
+            phone_number: phone_number?.trim(), 
+            user_id: userId 
+        };
+      }).filter(l => l.full_name && l.phone_number);
+
+      const { error } = await supabase.from('leads').insert(leadsToInsert);
+      if (error) console.error("Ingestion Error:", error.message);
+      else fetchOperationalData();
+      setIsProcessing(false);
+    };
+    reader.readAsText(file);
+  };
+
   const kpis = [
     { name: 'Managed Entities', value: metrics.totalLeads, label: 'Database Size', icon: Users, color: 'text-blue-500' },
-    { name: 'High-Value Leads', value: metrics.conversions, label: 'Hot Sentiment', icon: TrendingUp, color: 'text-emerald-500' },
-    { name: 'System Credits', value: metrics.creditsRemaining, label: 'Minutes Available', icon: Clock, color: 'text-purple-500' },
-    { name: 'Agent Efficiency', value: `${metrics.avgPerformance}m`, label: 'Avg Call Time', icon: PhoneCall, color: 'text-orange-500' },
+    { name: 'Conversions', value: metrics.conversions, label: 'High-Sentiment', icon: TrendingUp, color: 'text-emerald-500' },
+    { name: 'System Credits', value: metrics.creditsRemaining, label: 'Mins Available', icon: Clock, color: 'text-purple-500' },
+    { name: 'Efficiency', value: `${metrics.avgPerformance}m`, label: 'Avg Session', icon: PhoneCall, color: 'text-orange-500' },
   ];
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen bg-[#050505]">
       <div className="flex flex-col items-center gap-4">
         <Headset className="w-12 h-12 text-blue-600 animate-pulse" />
-        <div className="text-[10px] font-black tracking-[0.5em] text-blue-600 uppercase transition-all">
-          Booting {BRAND_NAME} Core...
+        <div className="text-[10px] font-black tracking-[0.5em] text-blue-600 uppercase">
+          Initializing {BRAND_NAME} Core...
         </div>
       </div>
     </div>
@@ -85,10 +147,10 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#050505] text-slate-300 p-4 lg:p-8 font-sans selection:bg-blue-500/30">
       <div className="max-w-7xl mx-auto">
         
-        {/* --- BRANDED NAVIGATION / HEADER --- */}
+        {/* --- BRANDED HEADER --- */}
         <div className="mb-12 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-600 rounded-2xl shadow-[0_0_20px_rgba(37,99,235,0.3)]">
+            <div className="p-3 bg-blue-600 rounded-2xl shadow-[0_0_30px_rgba(37,99,235,0.2)]">
               <Headset className="w-8 h-8 text-white" />
             </div>
             <div>
@@ -97,23 +159,19 @@ export default function DashboardPage() {
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Enterprise AI Layer v4.1</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Enterprise AI Layer {SYSTEM_VERSION}</span>
               </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5">
-             <div className="px-6 py-2 text-center border-r border-white/10">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Global Status</p>
-                <div className="flex items-center gap-2 justify-center mt-1">
-                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                   <p className="text-xs font-bold text-white uppercase tracking-tighter">Active</p>
-                </div>
-             </div>
-             <div className="px-6 py-2 text-center">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Provisioning</p>
-                <p className="text-xs font-bold text-blue-500 uppercase tracking-tighter mt-1 italic">Founder Plan</p>
-             </div>
+          <div className="flex gap-3">
+            <button 
+              onClick={generateAgencyReport}
+              className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-slate-400 group"
+            >
+              <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+              Export ROI Report
+            </button>
           </div>
         </div>
 
@@ -121,10 +179,10 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {kpis.map((kpi) => (
             <div key={kpi.name} className="bg-[#0A0A0A] border border-white/5 hover:border-blue-500/30 transition-all rounded-[32px] p-7 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <kpi.icon className="w-16 h-16 text-white" />
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity text-white">
+                <kpi.icon className="w-16 h-16" />
               </div>
-              <div className={`p-3 w-fit rounded-xl bg-slate-900 mb-6 group-hover:scale-110 transition-transform`}>
+              <div className="p-3 w-fit rounded-xl bg-slate-900 mb-6 group-hover:scale-110 transition-transform">
                 <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
               </div>
               <p className="text-3xl font-black text-white italic mb-1">{kpi.value}</p>
@@ -136,46 +194,48 @@ export default function DashboardPage() {
 
         {/* --- CORE OPS --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-           {/* CSV UPLOAD */}
-           <div className="bg-[#0A0A0A] border border-white/5 p-8 rounded-[40px] flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-6">
-                  <Activity className="w-4 h-4 text-blue-500" />
-                  <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Lead Ingestion</h2>
-                </div>
-                <label className="flex flex-col items-center justify-center gap-4 py-12 border-2 border-dashed border-white/5 rounded-[32px] cursor-pointer hover:bg-blue-600/5 hover:border-blue-600/40 transition-all group">
-                  <ArrowUpTray className="w-10 h-10 text-slate-700 group-hover:text-blue-500 group-hover:translate-y-[-4px] transition-all" />
-                  <div className="text-center">
-                     <p className="text-[11px] font-black text-white uppercase tracking-widest mb-1">Import Matrix</p>
-                     <p className="text-[9px] text-slate-600 font-medium italic">Supports CSV Format</p>
-                  </div>
-                  <input type="file" accept=".csv" className="hidden" />
-                </label>
+           <div className="bg-[#0A0A0A] border border-white/5 p-8 rounded-[40px] flex flex-col">
+              <div className="flex items-center gap-2 mb-8">
+                <Activity className="w-4 h-4 text-blue-500" />
+                <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Data Ingestion</h2>
               </div>
+              <label className="flex flex-col items-center justify-center gap-4 flex-1 border-2 border-dashed border-white/5 rounded-[32px] cursor-pointer hover:bg-blue-600/5 hover:border-blue-600/40 transition-all group p-10">
+                <ArrowUpTray className={`w-10 h-10 ${isProcessing ? 'animate-bounce text-blue-500' : 'text-slate-700 group-hover:text-blue-500'} transition-all`} />
+                <div className="text-center">
+                   <p className="text-[11px] font-black text-white uppercase tracking-widest mb-1">{isProcessing ? 'Processing Matrix...' : 'Import Entity List'}</p>
+                   <p className="text-[9px] text-slate-600 font-medium italic">Supports CSV Format</p>
+                </div>
+                <input type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" disabled={isProcessing} />
+              </label>
            </div>
            
-           {/* EXECUTION ENGINE */}
            <div className="lg:col-span-2 bg-gradient-to-br from-blue-900/10 to-[#0A0A0A] border border-white/5 p-8 rounded-[40px] flex flex-col justify-center relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full -mr-20 -mt-20" />
               <div className="relative z-10">
-                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-blue-500 mb-2 italic">Global Deployment</h2>
-                <p className="text-xs text-slate-500 mb-10 max-w-md leading-relaxed font-medium">
-                  Trigger autonomous AI dispatch across all verified leads. FrontDesk agents will initiate outreach, evaluate sentiment, and manage follow-ups automatically.
+                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-blue-500 mb-3 italic">Global Deployment</h2>
+                <p className="text-xs text-slate-500 mb-10 max-w-lg leading-relaxed font-medium">
+                  Autonomous dispatch sequence for FrontDesk Agents. Agents will navigate custom scripts, determine lead sentiment, and initiate scheduling protocols across all active entities.
                 </p>
-                <button className="flex items-center justify-center gap-4 w-full py-6 bg-blue-600 hover:bg-blue-500 rounded-[24px] font-black text-[13px] uppercase tracking-[0.3em] text-white transition-all shadow-[0_20px_40px_rgba(37,99,235,0.2)] hover:shadow-[0_20px_60px_rgba(37,99,235,0.4)] hover:translate-y-[-2px]">
-                  <Zap className="w-5 h-5 fill-current" />
-                  Initialize Agent Protocol
-                </button>
+                <div className="flex gap-4">
+                  <button className="flex items-center justify-center gap-4 flex-1 py-6 bg-blue-600 hover:bg-blue-500 rounded-[24px] font-black text-[13px] uppercase tracking-[0.3em] text-white transition-all shadow-[0_20px_40px_rgba(37,99,235,0.2)] hover:translate-y-[-2px]">
+                    <Zap className="w-5 h-5 fill-current" />
+                    Initialize Agent Protocol
+                  </button>
+                  <button className="px-8 bg-slate-900 border border-white/5 rounded-[24px] hover:bg-slate-800 transition-all">
+                    <FileBarChart className="w-5 h-5 text-slate-400" />
+                  </button>
+                </div>
               </div>
            </div>
         </div>
 
-        {/* --- LIVE STREAM TABLE --- */}
+        {/* --- LIVE NETWORK STREAM --- */}
         <div className="bg-[#0A0A0A] border border-white/5 rounded-[40px] overflow-hidden">
           <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white italic">Live Network Traffic</h2>
-            <div className="px-3 py-1 bg-blue-600/10 rounded-full border border-blue-600/20">
-               <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">Encrypted Stream</span>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white italic">Live Network Stream</h2>
+            <div className="px-4 py-1.5 bg-blue-600/10 rounded-full border border-blue-600/20 flex items-center gap-2">
+               <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
+               <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">Secure Uplink Active</span>
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -183,8 +243,8 @@ export default function DashboardPage() {
               <thead>
                 <tr className="border-b border-white/5">
                   <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">Entity Signature</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest">Agent Status</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest text-right">Sentiment Outcome</th>
+                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest text-center">Protocol Status</th>
+                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-600 tracking-widest text-right">Intelligence Result</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -194,24 +254,22 @@ export default function DashboardPage() {
                       <div className="font-black text-white uppercase italic tracking-tighter group-hover:text-blue-500 transition-colors">{lead.full_name}</div>
                       <div className="text-[10px] text-slate-600 font-mono mt-1 tracking-widest">{lead.phone_number}</div>
                     </td>
-                    <td className="px-10 py-8">
-                      <div className="flex items-center gap-3">
-                        <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase italic tracking-widest border ${
-                          lead.call_results?.[0]?.status === 'In Call 📞' 
-                          ? 'bg-amber-500/5 text-amber-500 border-amber-500/20 animate-pulse' 
-                          : 'bg-white/5 text-slate-500 border-white/5'
-                        }`}>
-                          {lead.call_results?.[0]?.status || 'In-Queue'}
-                        </span>
-                      </div>
+                    <td className="px-10 py-8 text-center">
+                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase italic tracking-widest border inline-block ${
+                        lead.call_results?.[0]?.status === 'In Call 📞' 
+                        ? 'bg-amber-500/5 text-amber-500 border-amber-500/20 animate-pulse' 
+                        : 'bg-white/5 text-slate-500 border-white/5'
+                      }`}>
+                        {lead.call_results?.[0]?.status || 'Ready_For_Init'}
+                      </span>
                     </td>
                     <td className="px-10 py-8 text-right">
                        {lead.call_results?.[0]?.sentiment_score === 'Hot 🔥' ? (
-                         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest">
+                         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest italic shadow-[0_0_20px_rgba(16,185,129,0.1)]">
                             Conversion Detected
                          </div>
                        ) : (
-                         <span className="text-slate-800 text-[10px] font-black tracking-widest italic">NEUTRAL_SIG</span>
+                         <span className="text-slate-800 text-[10px] font-black tracking-widest italic opacity-40">SIGNAL_NULL</span>
                        )}
                     </td>
                   </tr>
