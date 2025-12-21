@@ -13,10 +13,10 @@ import {
   Activity,
   Headset,
   FileBarChart,
-  Download
+  Download,
+  Bell
 } from 'lucide-react';
 
-// --- ENTERPRISE BRAND CONFIGURATION ---
 const BRAND_NAME = "FrontDesk Agents"; 
 const SYSTEM_VERSION = "v4.2.0-PRO";
 
@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [leads, setLeads] = useState<any[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [notifications, setNotifications] = useState<{id: string, msg: string}[]>([]);
   const [metrics, setMetrics] = useState({
     totalLeads: 0,
     conversions: 0,
@@ -32,16 +33,34 @@ export default function DashboardPage() {
     avgPerformance: 0
   });
 
-  // Unique Identifier for the Administrative Account
   const userId = '42c9eda0-81fd-4d7a-b9f7-49bba359d6ce';
+
+  // --- NOTIFICATION ENGINE ---
+  const triggerAlert = (leadName: string) => {
+    const message = `High-Interest Detected: ${leadName} is ready for follow-up!`;
+    
+    if (Notification.permission === "granted") {
+      new Notification(`🔥 ${BRAND_NAME} Alert`, { body: message });
+    }
+
+    const id = Math.random().toString(36).substr(2, 9);
+    setNotifications(prev => [{id, msg: message}, ...prev]);
+    setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 8000);
+  };
 
   useEffect(() => {
     fetchOperationalData();
+    if (Notification.permission !== "granted") Notification.requestPermission();
 
-    // --- REAL-TIME DATA STREAM ---
     const channel = supabase
-      .channel('frontdesk-core-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'call_results' }, () => fetchOperationalData())
+      .channel('frontdesk-sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'call_results' }, (payload) => {
+        fetchOperationalData();
+        // Trigger alert if status updates to a conversion state
+        if (payload.new && (payload.new as any).sentiment_score === 'Hot 🔥') {
+          triggerAlert("A New Prospect");
+        }
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => fetchOperationalData())
       .subscribe();
 
@@ -71,7 +90,6 @@ export default function DashboardPage() {
     setLoading(false);
   }
 
-  // --- AGENCY REPORT GENERATOR (Category 10.1) ---
   const generateAgencyReport = () => {
     const hotLeads = leads.filter(l => l.call_results?.[0]?.sentiment_score === 'Hot 🔥');
     const report = {
@@ -88,7 +106,6 @@ export default function DashboardPage() {
         ai_summary: l.call_results?.[0]?.summary || "Analysis in progress"
       }))
     };
-
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -97,29 +114,20 @@ export default function DashboardPage() {
     link.click();
   };
 
-  // --- BULK INGESTION HANDLER (Category 9.1) ---
   const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     setIsProcessing(true);
     const reader = new FileReader();
     reader.onload = async (e) => {
       const text = e.target?.result as string;
       const rows = text.split('\n').slice(1);
-
       const leadsToInsert = rows.map(row => {
         const [full_name, phone_number] = row.split(',');
-        return { 
-            full_name: full_name?.trim(), 
-            phone_number: phone_number?.trim(), 
-            user_id: userId 
-        };
+        return { full_name: full_name?.trim(), phone_number: phone_number?.trim(), user_id: userId };
       }).filter(l => l.full_name && l.phone_number);
-
-      const { error } = await supabase.from('leads').insert(leadsToInsert);
-      if (error) console.error("Ingestion Error:", error.message);
-      else fetchOperationalData();
+      await supabase.from('leads').insert(leadsToInsert);
+      fetchOperationalData();
       setIsProcessing(false);
     };
     reader.readAsText(file);
@@ -136,9 +144,7 @@ export default function DashboardPage() {
     <div className="flex items-center justify-center min-h-screen bg-[#050505]">
       <div className="flex flex-col items-center gap-4">
         <Headset className="w-12 h-12 text-blue-600 animate-pulse" />
-        <div className="text-[10px] font-black tracking-[0.5em] text-blue-600 uppercase">
-          Initializing {BRAND_NAME} Core...
-        </div>
+        <div className="text-[10px] font-black tracking-[0.5em] text-blue-600 uppercase">Initializing {BRAND_NAME}...</div>
       </div>
     </div>
   );
@@ -164,13 +170,25 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <div className="flex gap-3">
-            <button 
-              onClick={generateAgencyReport}
-              className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-slate-400 group"
-            >
-              <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
-              Export ROI Report
+          <div className="flex items-center gap-4">
+            {/* Notification Bell */}
+            <div className="relative group">
+              <button className="p-3 bg-slate-900 border border-white/5 rounded-2xl hover:border-blue-500/50 transition-all">
+                <Bell className="w-5 h-5 text-slate-400 group-hover:text-blue-500" />
+                {notifications.length > 0 && <span className="absolute top-2 right-2 h-2 w-2 bg-blue-500 rounded-full animate-ping" />}
+              </button>
+              {notifications.length > 0 && (
+                <div className="absolute right-0 mt-4 w-72 bg-[#0A0A0A] border border-blue-500/20 rounded-[24px] shadow-2xl z-50 overflow-hidden">
+                  <div className="p-4 border-b border-white/5 bg-blue-600/5"><p className="text-[10px] font-black uppercase text-blue-500">Live Agent Alerts</p></div>
+                  <div className="max-h-60 overflow-y-auto">
+                    {notifications.map(n => <div key={n.id} className="p-4 border-b border-white/5 text-[11px] text-slate-300 animate-in fade-in slide-in-from-top-1">{n.msg}</div>)}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button onClick={generateAgencyReport} className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <Download className="w-4 h-4" /> Export ROI Report
             </button>
           </div>
         </div>
@@ -179,12 +197,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {kpis.map((kpi) => (
             <div key={kpi.name} className="bg-[#0A0A0A] border border-white/5 hover:border-blue-500/30 transition-all rounded-[32px] p-7 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity text-white">
-                <kpi.icon className="w-16 h-16" />
-              </div>
-              <div className="p-3 w-fit rounded-xl bg-slate-900 mb-6 group-hover:scale-110 transition-transform">
-                <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
-              </div>
+              <div className={`p-3 w-fit rounded-xl bg-slate-900 mb-6 group-hover:scale-110 transition-transform`}><kpi.icon className={`w-5 h-5 ${kpi.color}`} /></div>
               <p className="text-3xl font-black text-white italic mb-1">{kpi.value}</p>
               <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{kpi.name}</h3>
               <p className="text-[9px] font-medium text-slate-600 mt-2 uppercase">{kpi.label}</p>
@@ -200,7 +213,7 @@ export default function DashboardPage() {
                 <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Data Ingestion</h2>
               </div>
               <label className="flex flex-col items-center justify-center gap-4 flex-1 border-2 border-dashed border-white/5 rounded-[32px] cursor-pointer hover:bg-blue-600/5 hover:border-blue-600/40 transition-all group p-10">
-                <ArrowUpTray className={`w-10 h-10 ${isProcessing ? 'animate-bounce text-blue-500' : 'text-slate-700 group-hover:text-blue-500'} transition-all`} />
+                <ArrowUpTray className={`w-10 h-10 ${isProcessing ? 'animate-bounce text-blue-500' : 'text-slate-700 group-hover:text-blue-500'}`} />
                 <div className="text-center">
                    <p className="text-[11px] font-black text-white uppercase tracking-widest mb-1">{isProcessing ? 'Processing Matrix...' : 'Import Entity List'}</p>
                    <p className="text-[9px] text-slate-600 font-medium italic">Supports CSV Format</p>
@@ -213,17 +226,12 @@ export default function DashboardPage() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full -mr-20 -mt-20" />
               <div className="relative z-10">
                 <h2 className="text-sm font-black uppercase tracking-[0.3em] text-blue-500 mb-3 italic">Global Deployment</h2>
-                <p className="text-xs text-slate-500 mb-10 max-w-lg leading-relaxed font-medium">
-                  Autonomous dispatch sequence for FrontDesk Agents. Agents will navigate custom scripts, determine lead sentiment, and initiate scheduling protocols across all active entities.
-                </p>
+                <p className="text-xs text-slate-500 mb-10 max-w-lg leading-relaxed font-medium italic">Autonomous dispatch sequence for FrontDesk Agents. Agents will navigate custom scripts, determine lead sentiment, and initiate scheduling protocols.</p>
                 <div className="flex gap-4">
                   <button className="flex items-center justify-center gap-4 flex-1 py-6 bg-blue-600 hover:bg-blue-500 rounded-[24px] font-black text-[13px] uppercase tracking-[0.3em] text-white transition-all shadow-[0_20px_40px_rgba(37,99,235,0.2)] hover:translate-y-[-2px]">
-                    <Zap className="w-5 h-5 fill-current" />
-                    Initialize Agent Protocol
+                    <Zap className="w-5 h-5 fill-current" /> Initialize Agent Protocol
                   </button>
-                  <button className="px-8 bg-slate-900 border border-white/5 rounded-[24px] hover:bg-slate-800 transition-all">
-                    <FileBarChart className="w-5 h-5 text-slate-400" />
-                  </button>
+                  <button className="px-8 bg-slate-900 border border-white/5 rounded-[24px] hover:bg-slate-800 transition-all"><FileBarChart className="w-5 h-5 text-slate-400" /></button>
                 </div>
               </div>
            </div>
