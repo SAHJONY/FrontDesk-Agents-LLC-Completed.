@@ -14,7 +14,8 @@ import {
   Headset,
   FileBarChart,
   Download,
-  Bell
+  Bell,
+  Trash2
 } from 'lucide-react';
 
 const BRAND_NAME = "FrontDesk Agents"; 
@@ -37,7 +38,7 @@ export default function DashboardPage() {
 
   // --- NOTIFICATION ENGINE ---
   const triggerAlert = (leadName: string) => {
-    const message = `High-Interest Detected: ${leadName} is ready for follow-up!`;
+    const message = `High-Interest: ${leadName} is ready to book!`;
     
     if (Notification.permission === "granted") {
       new Notification(`🔥 ${BRAND_NAME} Alert`, { body: message });
@@ -45,8 +46,9 @@ export default function DashboardPage() {
 
     const id = Math.random().toString(36).substr(2, 9);
     setNotifications(prev => [{id, msg: message}, ...prev]);
-    setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 8000);
   };
+
+  const clearNotifications = () => setNotifications([]);
 
   useEffect(() => {
     fetchOperationalData();
@@ -56,7 +58,7 @@ export default function DashboardPage() {
       .channel('frontdesk-sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'call_results' }, (payload) => {
         fetchOperationalData();
-        // Trigger alert if status updates to a conversion state
+        // Trigger alert only on new "Hot 🔥" status
         if (payload.new && (payload.new as any).sentiment_score === 'Hot 🔥') {
           triggerAlert("A New Prospect");
         }
@@ -171,17 +173,29 @@ export default function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
-            {/* Notification Bell */}
+            {/* --- NOTIFICATION BELL --- */}
             <div className="relative group">
-              <button className="p-3 bg-slate-900 border border-white/5 rounded-2xl hover:border-blue-500/50 transition-all">
+              <button className="p-3 bg-slate-900 border border-white/5 rounded-2xl hover:border-blue-500/50 transition-all relative">
                 <Bell className="w-5 h-5 text-slate-400 group-hover:text-blue-500" />
-                {notifications.length > 0 && <span className="absolute top-2 right-2 h-2 w-2 bg-blue-500 rounded-full animate-ping" />}
+                {notifications.length > 0 && (
+                  <span className="absolute top-2 right-2 h-2 w-2 bg-blue-500 rounded-full animate-ping" />
+                )}
               </button>
+              
               {notifications.length > 0 && (
                 <div className="absolute right-0 mt-4 w-72 bg-[#0A0A0A] border border-blue-500/20 rounded-[24px] shadow-2xl z-50 overflow-hidden">
-                  <div className="p-4 border-b border-white/5 bg-blue-600/5"><p className="text-[10px] font-black uppercase text-blue-500">Live Agent Alerts</p></div>
+                  <div className="p-4 border-b border-white/5 bg-blue-600/5 flex justify-between items-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">Live Agent Alerts</p>
+                    <button onClick={clearNotifications} className="p-1 hover:bg-white/5 rounded-lg transition-colors">
+                      <Trash2 className="w-3 h-3 text-slate-500 hover:text-red-500" />
+                    </button>
+                  </div>
                   <div className="max-h-60 overflow-y-auto">
-                    {notifications.map(n => <div key={n.id} className="p-4 border-b border-white/5 text-[11px] text-slate-300 animate-in fade-in slide-in-from-top-1">{n.msg}</div>)}
+                    {notifications.map(n => (
+                      <div key={n.id} className="p-4 border-b border-white/5 text-[11px] font-medium text-slate-300 animate-in fade-in slide-in-from-top-1">
+                        {n.msg}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
