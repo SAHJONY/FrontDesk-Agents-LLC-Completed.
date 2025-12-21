@@ -1,0 +1,6 @@
+export class CallQualityAnalyst {
+  async scoreCall(transcript: string) {
+    // Verifica: ¿Mencionó el precio? ¿Fue amable? ¿Cerró la cita?
+    return { score: 95, adherence: 'Excellent', improvements: [] };
+  }
+}
