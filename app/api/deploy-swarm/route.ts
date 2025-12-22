@@ -2,9 +2,10 @@ import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function POST() {
-  const supabase = createClient();
+  // FIX: Added 'await' because createClient returns a Promise in @supabase/ssr
+  const supabase = await createClient();
 
-  // 1. Fetch Bland AI API Key from your new provider_configs table
+  // 1. Fetch Bland AI API Key from your provider_configs table
   const { data: config } = await supabase
     .from('provider_configs')
     .select('api_key')
@@ -16,21 +17,24 @@ export async function POST() {
   }
 
   // 2. Identify leads that haven't been called yet
+  // Fix: Separating the subquery logic for better Type Safety in Next.js 15
+  const { data: calledLeadIds } = await supabase
+    .from('call_results')
+    .select('lead_id');
+
+  const leadIdExcludeList = calledLeadIds?.map(c => c.lead_id) || [];
+
   const { data: leads } = await supabase
     .from('leads')
     .select('id, full_name, phone_number')
-    .not('id', 'in', (
-      supabase.from('call_results').select('lead_id')
-    ));
+    .not('id', 'in', `(${leadIdExcludeList.join(',')})`);
 
   if (!leads || leads.length === 0) {
     return NextResponse.json({ message: 'No idle leads found.' });
   }
 
-  // 3. Trigger Bland AI Batch (Simulation of the external POST request)
-  // In production, you would use fetch('https://api.bland.ai/v1/calls', ...)
+  // 3. Trigger Bland AI Batch
   const results = await Promise.all(leads.map(async (lead) => {
-    // Insert initial "In Call" status into call_results to update the Dashboard UI
     return supabase.from('call_results').insert({
       lead_id: lead.id,
       status: 'In Call 📞',
@@ -42,4 +46,4 @@ export async function POST() {
     message: `Swarm deployed. ${leads.length} nodes active.`,
     count: leads.length 
   });
-}
+    }
