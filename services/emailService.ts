@@ -1,29 +1,30 @@
-import * as sgMail from '@sendgrid/mail';
 import { render } from '@react-email/render';
-import { WelcomeTemplate } from './emails/WelcomeTemplate';
-import { Plans } from './plans';
-import { medicAgent } from './medic.service';
+import { EscalationTemplate } from './emails/EscalationTemplate';
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+// ... existing code ...
 
 export const emailService = {
-  async sendWelcomeEmail(to: string, clientName: string, plan: Plans) {
+  // ... existing sendWelcomeEmail ...
+
+  async triggerEscalation(to: string, agentName: string, taskDescription: string, taskId: string) {
     try {
-      // CEO Fix: Rendering the React component into HTML string
-      const emailHtml = await render(WelcomeTemplate({ clientName, plan }));
+      const approvalLink = `${process.env.NEXT_PUBLIC_APP_URL}/approve/${taskId}`;
+      const emailHtml = await render(
+        EscalationTemplate({ agentName, taskDescription, approvalLink })
+      );
 
       const msg = {
         to,
-        from: 'ceo@frontdeskagents.com',
-        subject: `[SYSTEM ACTIVATED] Welcome, ${clientName}`,
+        from: 'alerts@frontdeskagents.com',
+        subject: `[ESCALATION] ${agentName} requires oversight`,
         html: emailHtml,
+        headers: { 'Importance': 'high', 'X-Priority': '1' } // Force high priority in inboxes
       };
 
       await sgMail.send(msg);
-      console.log(`[EMAIL] React-rendered protocol sent to ${to}`);
+      console.log(`[ALERTS] Escalation protocol sent for task ${taskId}`);
     } catch (error: any) {
-      await medicAgent.reportIncident(error, 'React Email Render/Send Failure');
-      throw error;
+      await medicAgent.reportIncident(error, 'Escalation Email Failure');
     }
   }
 };
