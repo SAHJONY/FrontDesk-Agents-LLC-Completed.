@@ -31,9 +31,9 @@ export interface WhatsAppResponse {
  */
 export const whatsappAgent = {
   /**
-   * Process incoming WhatsApp message
+   * FIX: Renamed from processMessage to processIncoming to match Webhook route
    */
-  async processMessage(message: WhatsAppMessage): Promise<WhatsAppResponse> {
+  async processIncoming(message: WhatsAppMessage): Promise<WhatsAppResponse> {
     try {
       // Log the message to Supabase
       const { error: logError } = await supabase
@@ -114,8 +114,6 @@ export const whatsappAgent = {
    * Generate AI response to customer message
    */
   async generateResponse(messageBody: string): Promise<string> {
-    // Simple keyword-based responses for now
-    // TODO: Integrate with OpenAI for intelligent responses
     const lowerMessage = messageBody.toLowerCase();
 
     if (lowerMessage.includes('hours') || lowerMessage.includes('open')) {
@@ -131,10 +129,9 @@ export const whatsappAgent = {
     }
 
     if (lowerMessage.includes('help') || lowerMessage.includes('support')) {
-      return 'I\'m here to help! You can ask me about:\n- Our services\n- Pricing\n- Schedule a demo\n- Technical support\n\nWhat would you like to know?';
+      return "I'm here to help! You can ask me about:\n- Our services\n- Pricing\n- Schedule a demo\n- Technical support\n\nWhat would you like to know?";
     }
 
-    // Default response
     return 'Thank you for your message! Our team will get back to you shortly. In the meantime, feel free to ask me anything about our services.';
   },
 
