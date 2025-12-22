@@ -7,7 +7,6 @@ import {
   LockClosedIcon, 
   KeyIcon, 
   ServerIcon, 
-  DocumentShieldIcon,
   ChevronLeftIcon
 } from '@heroicons/react/24/outline';
 
@@ -82,7 +81,7 @@ export default function SecurityPage() {
           {/* Pillar 3: Compliance */}
           <div className="bg-white/[0.02] border border-white/5 p-10 rounded-[40px] hover:border-emerald-500/30 transition-all group">
             <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-8">
-              <DocumentShieldIcon className="w-7 h-7 text-emerald-500" />
+              <ShieldCheckIcon className="w-7 h-7 text-emerald-500" />
             </div>
             <h3 className="text-xl font-black uppercase italic mb-4">Global Compliance</h3>
             <p className="text-slate-500 text-sm leading-relaxed uppercase font-bold tracking-tight">
