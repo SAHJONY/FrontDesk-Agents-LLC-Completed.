@@ -6,17 +6,20 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Stubs for internal logic
+// Internal helper stubs
 const metricsService = {
-  enablePerformanceTracking: async (id: string) => console.log("Tracking:", id),
+  enablePerformanceTracking: async (id: string) => console.log("Metrics:", id),
 };
 const billingService = {
   setupUsageBasedBilling: async (id: string, type: string) => console.log("Billing:", type),
 };
 
+/**
+ * Unified Automation Service
+ */
 export const automationService = {
   /**
-   * Commission logic
+   * Commission Logic
    */
   async setupCommissionModel(clientId: string, option: string) {
     if (option === 'COMMISSION') {
@@ -27,22 +30,23 @@ export const automationService = {
   },
 
   /**
-   * FIX: Re-added triggerPanic to resolve the Webhook Type Error
+   * FIX: This method MUST be inside this object to resolve the Webhook Type Error
    */
   async triggerPanic(reason: string): Promise<any> {
     console.error(`!!! SECURITY ALERT: ${reason} !!!`);
-    return { success: true, protocol: 'PANIC_MODE_ACTIVATED', reason };
+    // Return a structured object or Response as the webhook expects
+    return { 
+      success: true, 
+      protocol: 'PANIC_MODE_ACTIVATED', 
+      reason 
+    };
   },
 
   /**
-   * Keep standard automation methods to prevent other errors
+   * Standard methods for dashboard
    */
   async getRules(userId: string) {
     const { data } = await supabase.from('automation_rules').select('*').eq('user_id', userId);
     return data || [];
-  },
-
-  async toggleRule(ruleId: string, enabled: boolean) {
-    await supabase.from('automation_rules').update({ enabled }).eq('id', ruleId);
   }
 };
