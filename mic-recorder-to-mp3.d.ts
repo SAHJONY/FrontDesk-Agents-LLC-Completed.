@@ -4,16 +4,9 @@ declare module 'mic-recorder-to-mp3' {
     bitRate?: number;
   }
 
-  export interface RecordingResult {
-    buffer: ArrayBuffer;
-    blob: Blob;
-  }
-
   export default class MicRecorder {
     constructor(options?: MicRecorderOptions);
-    
     start(): Promise<void>;
-    
     stop(): {
       getMp3(): Promise<[ArrayBuffer, Blob]>;
     };
