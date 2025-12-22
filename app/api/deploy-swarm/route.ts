@@ -46,4 +46,4 @@ export async function POST() {
     message: `Swarm deployed. ${leads.length} nodes active.`,
     count: leads.length 
   });
-    }
+}
