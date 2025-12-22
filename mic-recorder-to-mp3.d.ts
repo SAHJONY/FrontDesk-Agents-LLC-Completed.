@@ -1,5 +1,5 @@
 // mic-recorder-to-mp3.d.ts
-declare module 'mic-recorder-to-mp3' {
+declare module 'mic-recorder-to-mp3' { 
   export interface MicRecorderOptions {
     bitRate?: number;
   }
