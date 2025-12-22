@@ -1,44 +1,28 @@
+// services/automation.service.ts
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// The Global Engine
+export const aiCeoAgent = {
+  /**
+   * Orchestrates the 15-product workforce
+   * @param signal The incoming trigger (Webhook, Cron, or UI Action)
+   */
+  async orchestrate(signal: any) {
+    console.log(`[AI CEO] Analyzing signal from product: ${signal.productId}`);
+    
+    // 1. Memory Check: What happened last time?
+    const history = await this.getGlobalContext(signal.clientId);
 
-export interface AutomationConfig {
-  enabled: boolean;
-  type: 'COMMISSION' | 'STANDARD';
-  notifications: boolean;
-}
+    // 2. Policy Selection (RL): Which agent is best for this?
+    const bestAgent = this.selectOptimalAgent(signal.type, history);
 
-// FIX: Added '?' to make clientId optional for the UI call
-export const fetchAutomationConfig = async (clientId?: string): Promise<AutomationConfig> => {
-  if (!clientId) return { enabled: false, type: 'STANDARD', notifications: true };
-  
-  const { data } = await supabase
-    .from('clients')
-    .select('automation_settings')
-    .eq('id', clientId)
-    .single();
+    // 3. Execution: Command the specialized workforce
+    return await bestAgent.execute(signal.data);
+  },
 
-  return data?.automation_settings || { enabled: false, type: 'STANDARD', notifications: true };
-};
-
-// FIX: Adjusted parameters to handle the UI's 'toggle' function call
-export const updateAutomationConfig = async (config: any, clientId?: string) => {
-  if (!clientId) return { success: true };
-
-  const { error } = await supabase
-    .from('clients')
-    .update({ automation_settings: config })
-    .eq('id', clientId);
-
-  if (error) throw error;
-  return { success: true };
-};
-
-export const automationService = {
-  triggerPanic: async (reason: string) => {
-    return { success: true, message: "Security protocol initiated", reason };
+  // RL Reward Mechanism: Learning from success
+  async registerReward(interactionId: string, value: number) {
+    // This updates the 'Weights' in Supabase to make the agents smarter for the next call
+    await supabase.from('agent_intelligence').upsert({ id: interactionId, reward: value });
   }
 };
