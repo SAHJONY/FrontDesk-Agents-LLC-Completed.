@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server';
-// ... other imports
+import { aiCeoAgent } from '@/services/ai-ceo.service';
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  
-  switch (body.provider) {
-    case 'STRIPE':
-      const stripeRes = await billingService.handlePayment(body.data);
-      return NextResponse.json(stripeRes);
-    case 'WHATSAPP':
-      const waRes = await whatsappAgent.processIncoming(body.data);
-      return NextResponse.json(waRes);
-    case 'SECURITY_ALERT':
-      const panicRes = await automationService.triggerPanic(body.reason);
-      return NextResponse.json(panicRes);
-    default:
-      return new Response('Unknown Provider', { status: 400 });
+  try {
+    const body = await req.json();
+    const industryContext = req.headers.get('x-industry-type') || 'GENERAL';
+
+    // The AI CEO takes the wheel
+    const response = await aiCeoAgent.orchestrate({
+      payload: body,
+      industry: industryContext,
+      region: req.headers.get('x-region')
+    });
+
+    return NextResponse.json(response);
+  } catch (error) {
+    return NextResponse.json({ status: 'error', message: 'CEO Handoff Failed' }, { status: 500 });
   }
 }
