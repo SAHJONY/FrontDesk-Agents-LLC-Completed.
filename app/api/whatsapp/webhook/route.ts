@@ -2,55 +2,28 @@
 import { NextResponse } from 'next/server';
 import { whatsappAgent } from '@/services/whatsappAgent';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const formData = await request.formData();
-    
+    const formData = await req.formData();
+    const body = formData.get('Body') as string;
     const from = formData.get('From') as string;
     const to = formData.get('To') as string;
-    const body = formData.get('Body') as string;
-    const mediaUrl = formData.get('MediaUrl0') as string | undefined;
 
     // Process the message through WhatsApp agent
-    const result = await whatsappAgent.processMessage({
+    // FIX: Changed processMessage to processIncoming
+    const result = await whatsappAgent.processIncoming({
       from: from.replace('whatsapp:', ''),
       to: to.replace('whatsapp:', ''),
       body,
-      mediaUrl,
     });
 
     if (!result.success) {
-      console.error('WhatsApp processing error:', result.error);
+      throw new Error(result.error);
     }
 
-    // Return empty TwiML response (agent already sent reply)
-    return new NextResponse(
-      `<?xml version="1.0" encoding="UTF-8"?>
-      <Response></Response>`,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/xml',
-        },
-      }
-    );
-  } catch (error) {
-    console.error('WhatsApp webhook error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process WhatsApp webhook' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('WhatsApp Webhook Route Error:', error.message);
+    return NextResponse.json({ error: 'Webhook failed' }, { status: 500 });
   }
-}
-
-export async function GET(request: Request) {
-  // Handle Twilio webhook verification
-  const { searchParams } = new URL(request.url);
-  const hubChallenge = searchParams.get('hub.challenge');
-  
-  if (hubChallenge) {
-    return new NextResponse(hubChallenge, { status: 200 });
-  }
-
-  return NextResponse.json({ message: 'WhatsApp webhook endpoint' });
 }
