@@ -52,7 +52,7 @@ export default function DashboardPage() {
       if (res.ok) {
         setInviteData({ name: '', email: '' }); 
         setLiveLogs(prev => [
-          { id: Date.now().toString(), text: `SYS: Magic Link transmitted to ${inviteData.email}`, type: 'sys' },
+          { id: Date.now().toString(), text: `SYS: Magic Link transmitted to ${inviteData.email}`, type: 'sys' as const },
           ...prev
         ].slice(0, 6));
       } else {
@@ -83,7 +83,7 @@ export default function DashboardPage() {
     XLSX.writeFile(wb, `FRONTDESK_ROI_${new Date().toISOString().split('T')[0]}.xlsx`);
     
     setLiveLogs(prev => [
-      { id: Date.now().toString(), text: "SYS: ROI Report Generated.", type: 'sys' },
+      { id: Date.now().toString(), text: "SYS: ROI Report Generated.", type: 'sys' as const },
       ...prev
     ].slice(0, 6));
   };
@@ -91,13 +91,13 @@ export default function DashboardPage() {
   // --- SWARM DEPLOYMENT ---
   const handleDeploySwarm = async () => {
     setIsProcessing(true);
-    setLiveLogs(prev => [{ id: Date.now().toString(), text: "SYS: Initializing Swarm Protocol...", type: 'sys' }, ...prev]);
+    setLiveLogs(prev => [{ id: Date.now().toString(), text: "SYS: Initializing Swarm Protocol...", type: 'sys' as const }, ...prev]);
     try {
       const response = await fetch('/api/deploy-swarm', { method: 'POST' });
       const data = await response.json();
-      setLiveLogs(prev => [{ id: Date.now().toString(), text: `SYS: ${data.message || 'Swarm Active'}`, type: 'sys' }, ...prev].slice(0, 6));
+      setLiveLogs(prev => [{ id: Date.now().toString(), text: `SYS: ${data.message || 'Swarm Active'}`, type: 'sys' as const }, ...prev].slice(0, 6));
     } catch (error) {
-      setLiveLogs(prev => [{ id: Date.now().toString(), text: "ERR: Uplink Failed.", type: 'sys' }, ...prev]);
+      setLiveLogs(prev => [{ id: Date.now().toString(), text: "ERR: Uplink Failed.", type: 'sys' as const }, ...prev]);
     } finally {
       setIsProcessing(false);
       fetchOperationalData();
@@ -346,4 +346,4 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-}
+                  }
