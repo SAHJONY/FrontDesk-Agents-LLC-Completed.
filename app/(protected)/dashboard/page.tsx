@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import * as XLSX from 'xlsx'; // Import Excel Engine
 import { 
-  PhoneCall, TrendingUp, Users, Clock, ArrowUpTray, 
+  PhoneCall, TrendingUp, Users, Clock, Upload, 
   Zap, Activity, Headset, Download, Bell, 
   Terminal, Cpu, Radio, ShieldCheck, UserPlus
 } from 'lucide-react';
@@ -290,7 +290,7 @@ export default function DashboardPage() {
           <div className="bg-[#000d1a] border border-white/5 p-10 rounded-[45px] h-full">
             <h2 className="text-xs font-black uppercase tracking-widest text-white mb-6 italic">Packet Ingestion</h2>
             <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-[35px] py-20 cursor-pointer hover:bg-white/[0.02] hover:border-cyan-500/30 transition-all">
-                <ArrowUpTray className="w-12 h-12 text-slate-800" />
+                <Upload className="w-12 h-12 text-slate-800" />
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mt-6">Drop CSV Manifest</p>
                 <input type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" />
             </label>
