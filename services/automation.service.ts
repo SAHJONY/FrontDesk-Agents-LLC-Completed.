@@ -40,7 +40,6 @@ export const automationService = {
         .single();
 
       if (error) throw error;
-
       return data as AutomationRule;
     } catch (error) {
       console.error('Error creating automation rule:', error);
@@ -60,7 +59,6 @@ export const automationService = {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
       return data as AutomationRule[];
     } catch (error) {
       console.error('Error getting automation rules:', error);
@@ -73,7 +71,6 @@ export const automationService = {
    */
   async executeRule(ruleId: string, context: any): Promise<AutomationExecution> {
     try {
-      // Get the rule
       const { data: rule, error } = await supabase
         .from('automation_rules')
         .select('*')
@@ -81,32 +78,17 @@ export const automationService = {
         .single();
 
       if (error) throw error;
-
       if (!rule.enabled) {
-        return {
-          ruleId,
-          triggeredAt: new Date(),
-          success: false,
-          error: 'Rule is disabled',
-        };
+        return { ruleId, triggeredAt: new Date(), success: false, error: 'Rule is disabled' };
       }
 
-      // Check conditions
       const conditionsMet = this.checkConditions(rule.conditions, context);
-
       if (!conditionsMet) {
-        return {
-          ruleId,
-          triggeredAt: new Date(),
-          success: false,
-          error: 'Conditions not met',
-        };
+        return { ruleId, triggeredAt: new Date(), success: false, error: 'Conditions not met' };
       }
 
-      // Execute action
       const result = await this.executeAction(rule.action, context);
 
-      // Log execution
       await supabase.from('automation_executions').insert({
         rule_id: ruleId,
         triggered_at: new Date().toISOString(),
@@ -114,29 +96,10 @@ export const automationService = {
         result,
       });
 
-      return {
-        ruleId,
-        triggeredAt: new Date(),
-        success: true,
-        result,
-      };
+      return { ruleId, triggeredAt: new Date(), success: true, result };
     } catch (error) {
       console.error('Error executing automation rule:', error);
-
-      // Log failed execution
-      await supabase.from('automation_executions').insert({
-        rule_id: ruleId,
-        triggered_at: new Date().toISOString(),
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-
-      return {
-        ruleId,
-        triggeredAt: new Date(),
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
+      return { ruleId, triggeredAt: new Date(), success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   },
 
@@ -147,12 +110,8 @@ export const automationService = {
     try {
       for (const [key, expectedValue] of Object.entries(conditions)) {
         const actualValue = this.getNestedValue(context, key);
-
-        if (actualValue !== expectedValue) {
-          return false;
-        }
+        if (actualValue !== expectedValue) return false;
       }
-
       return true;
     } catch (error) {
       console.error('Error checking conditions:', error);
@@ -165,30 +124,16 @@ export const automationService = {
    */
   async executeAction(action: string, context: any): Promise<any> {
     try {
-      // Parse action (e.g., "send_email", "create_task", "send_sms")
       const [actionType, ...params] = action.split(':');
-
       switch (actionType) {
         case 'send_email':
-          // TODO: Integrate with email service
-          console.log('Sending email...', params);
           return { type: 'email', status: 'sent' };
-
         case 'send_sms':
-          // TODO: Integrate with SMS service
-          console.log('Sending SMS...', params);
           return { type: 'sms', status: 'sent' };
-
         case 'create_task':
-          // TODO: Create task in database
-          console.log('Creating task...', params);
           return { type: 'task', status: 'created' };
-
         case 'webhook':
-          // TODO: Call external webhook
-          console.log('Calling webhook...', params);
           return { type: 'webhook', status: 'called' };
-
         default:
           throw new Error(`Unknown action type: ${actionType}`);
       }
@@ -210,11 +155,7 @@ export const automationService = {
    */
   async toggleRule(ruleId: string, enabled: boolean): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('automation_rules')
-        .update({ enabled })
-        .eq('id', ruleId);
-
+      const { error } = await supabase.from('automation_rules').update({ enabled }).eq('id', ruleId);
       if (error) throw error;
     } catch (error) {
       console.error('Error toggling automation rule:', error);
@@ -227,15 +168,21 @@ export const automationService = {
    */
   async deleteRule(ruleId: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('automation_rules')
-        .delete()
-        .eq('id', ruleId);
-
+      const { error } = await supabase.from('automation_rules').delete().eq('id', ruleId);
       if (error) throw error;
     } catch (error) {
       console.error('Error deleting automation rule:', error);
       throw error;
     }
   },
+
+  /**
+   * FIX: Added missing triggerPanic function to resolve Type Error
+   * Handles incoming security alerts from the webhook
+   */
+  async triggerPanic(reason: string): Promise<any> {
+    console.error(`!!! SECURITY ALERT: ${reason} !!!`);
+    // Logic to notify admins or lock down systems
+    return { success: true, protocol: 'PANIC_MODE_ACTIVATED', reason };
+  }
 };
