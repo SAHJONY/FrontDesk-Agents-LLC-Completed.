@@ -12,6 +12,8 @@ export default function PortalLogin() {
 
   useEffect(() => {
     const validateKey = async () => {
+      if (!searchParams) return;
+      
       const key = searchParams.get('key');
       if (!key) return;
 
@@ -29,7 +31,7 @@ export default function PortalLogin() {
     };
 
     validateKey();
-  }, [searchParams]);
+  }, [searchParams, router, supabase]);
 
   return (
     <div className="min-h-screen bg-[#000814] flex items-center justify-center">
