@@ -94,4 +94,28 @@ export const blandAiService = {
       return null;
     }
   },
+
+  /**
+   * FIX: Added missing configureAgent function
+   * Updates the AI Agent's system prompt and personality
+   */
+  async configureAgent(config: any): Promise<any> {
+    try {
+      // In production, Bland AI uses 'agents' endpoints for persistent configuration
+      const response = await fetch('https://api.bland.ai/v1/agents/config', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.BLAND_AI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(config),
+      });
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Bland AI config error:', error);
+      return { success: false, error: 'Failed to update neural settings' };
+    }
+  }
 };
