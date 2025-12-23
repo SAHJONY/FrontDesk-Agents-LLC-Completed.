@@ -1,25 +1,30 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/utils/supabase/client'; // NEW: SSR Standard
+import { Activity, AlertTriangle, Zap } from 'lucide-react';
 
-export default function UsageTracker() {
-  const [usage, setUsage] = useState({ used: 0, limit: 100, plan: 'essential' });
+export const UsageTracker = () => { // Named export to match your PaymentSuccess import
+  const [usage, setUsage] = useState({ used: 0, limit: 100, plan: 'Initializing...' });
   const [loading, setLoading] = useState(true);
-  const supabase = createClientComponentClient();
+  const supabase = createClient(); // UPDATED
 
   useEffect(() => {
     async function getUsage() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('BusinessConfig')
         .select('minutesUsed, minuteLimit, planType')
+        .eq('user_id', user.id)
         .single();
 
       if (data && !error) {
         setUsage({
-          used: data.minutesUsed,
-          limit: data.minuteLimit,
-          plan: data.planType,
+          used: data.minutesUsed || 0,
+          limit: data.minuteLimit || 1000,
+          plan: data.planType || 'Standard',
         });
       }
       setLoading(false);
@@ -27,46 +32,66 @@ export default function UsageTracker() {
     getUsage();
   }, [supabase]);
 
-  if (loading) return <div className="animate-pulse h-20 bg-gray-100 rounded-lg"></div>;
+  if (loading) return (
+    <div className="w-full h-24 bg-white/5 rounded-3xl animate-pulse border border-white/5" />
+  );
 
   const percentage = Math.min(Math.round((usage.used / usage.limit) * 100), 100);
   const isOverLimit = usage.used >= usage.limit;
 
   return (
-    <div className="p-6 border rounded-xl bg-white shadow-sm max-w-md">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
-          AI Agent Minutes
-        </h3>
-        <span className="px-2 py-1 text-xs font-bold rounded bg-blue-100 text-blue-700 uppercase">
-          {usage.plan}
-        </span>
+    <div className="w-full group">
+      <div className="flex justify-between items-end mb-6">
+        <div className="text-left">
+          <div className="flex items-center gap-2 mb-1">
+            <Activity className={`w-3 h-3 ${isOverLimit ? 'text-red-500' : 'text-cyan-500'}`} />
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              Neural Bandwidth
+            </span>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-white italic tracking-tighter">
+              {usage.used.toLocaleString()}
+            </span>
+            <span className="text-slate-600 text-xs font-bold uppercase">
+              / {usage.limit.toLocaleString()} Min
+            </span>
+          </div>
+        </div>
+        
+        <div className="text-right">
+          <span className={`text-xs font-black italic uppercase ${isOverLimit ? 'text-red-500' : 'text-cyan-500'}`}>
+            {percentage}% Capacity
+          </span>
+          <div className="flex items-center gap-1 justify-end mt-1">
+            <Zap className="w-3 h-3 text-amber-500" />
+            <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">
+              Plan: {usage.plan}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="relative pt-1">
-        <div className="flex mb-2 items-center justify-between text-sm">
-          <span className="font-medium text-gray-600">
-            {usage.used} / {usage.limit} mins
-          </span>
-          <span className={`font-bold ${isOverLimit ? 'text-red-500' : 'text-blue-600'}`}>
-            {percentage}%
-          </span>
-        </div>
-        <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
-          <div
-            style={{ width: `${percentage}%` }}
-            className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${
-              isOverLimit ? 'bg-red-500' : 'bg-blue-600'
-            }`}
-          ></div>
+      <div className="relative h-3 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+        {/* Animated Progress Bar */}
+        <div
+          style={{ width: `${percentage}%` }}
+          className={`h-full transition-all duration-1000 ease-out relative ${
+            isOverLimit ? 'bg-red-500' : 'bg-gradient-to-r from-cyan-600 to-blue-500'
+          }`}
+        >
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.2)_50%,transparent_100%)] animate-[shimmer_2s_infinite]" />
         </div>
       </div>
 
       {isOverLimit && (
-        <p className="text-xs text-red-500 font-medium">
-          Limit reached! Upgrade your plan to keep your agents online.
-        </p>
+        <div className="mt-4 flex items-center gap-2 text-red-500">
+          <AlertTriangle className="w-3 h-3" />
+          <p className="text-[9px] font-black uppercase tracking-widest">
+            Bandwidth Exhausted. Agents in standby mode.
+          </p>
+        </div>
       )}
     </div>
   );
-}
+};
