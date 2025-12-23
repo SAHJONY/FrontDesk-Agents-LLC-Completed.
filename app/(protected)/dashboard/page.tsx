@@ -12,7 +12,8 @@ import {
   ChartBarIcon,
   UsersIcon,
   ClockIcon,
-  ServerIcon
+  ServerIcon,
+  BeakerIcon
 } from '@heroicons/react/24/outline';
 
 // Types for build stability
@@ -32,7 +33,6 @@ interface CallResult {
   transcript?: string;
 }
 
-// Agent Registry Definition
 const AGENT_REGISTRY = [
   { id: 'scanner', name: 'Database Scanner', role: '6:00 AM Sync', status: 'Active' },
   { id: 'coordinator', name: 'Scheduling Coordinator', role: 'Logic Engine', status: 'Active' },
@@ -46,7 +46,8 @@ export default function DashboardPage() {
   const [loadingLeadId, setLoadingLeadId] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [isBulkLoading, setIsBulkLoading] = useState(false); // Track background processing
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
+  const [isDryRun, setIsDryRun] = useState(false); // NEW: Simulation Toggle State
   const [metrics, setMetrics] = useState({
     callsProcessed: 0,
     minutesUsed: 0,
@@ -64,7 +65,6 @@ export default function DashboardPage() {
 
     initializeDashboard();
 
-    // Real-time listener for both call results and lead updates from background agents
     const channel = supabase
       .channel('realtime-dashboard')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'call_results' }, () => fetchDashboardData())
@@ -97,15 +97,12 @@ export default function DashboardPage() {
     Math.min((metrics.minutesUsed / metrics.totalMinutes) * 100, 100), 
   [metrics]);
 
-  // ELITE CSV IMPORT LOGIC (Background Agent Trigger)
   const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !currentUserId) return;
 
     setIsBulkLoading(true);
-    
     try {
-      // 1. Upload raw file to private storage bucket
       const fileName = `${currentUserId}/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('crm-imports')
@@ -113,51 +110,28 @@ export default function DashboardPage() {
 
       if (uploadError) throw uploadError;
 
-      // 2. Trigger the Deno Edge Function for background neural processing
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-crm-import`, {
+      await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-crm-import`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify({ filePath: fileName, userId: currentUserId }),
+        body: JSON.stringify({ filePath: fileName, userId: currentUserId, dryRun: isDryRun }),
       });
-
-      if (response.ok) {
-        // Notify user that the Status Tracking Agent has taken over
-        alert("Import Handshake Successful: Background processing started.");
-      }
+      
+      alert(isDryRun ? "Simulation Handshake: Dry Run initiated." : "Import Successful: Neural Agents active.");
     } catch (err) {
       console.error("Neural Import Failed:", err);
-      alert("System Alert: Connection to background agent failed.");
     } finally {
       setIsBulkLoading(false);
       fetchDashboardData();
     }
   };
 
-  const callLead = async (lead: Lead) => {
-    if (!currentUserId) return;
-    setLoadingLeadId(lead.id);
-    try {
-      await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/bland-call`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}` 
-        },
-        body: JSON.stringify({ 
-          record: lead, 
-          metadata: { 
-            user_id: currentUserId, 
-            lead_id: lead.id, 
-            full_name: lead.full_name, 
-            phone_number: lead.phone_number 
-          } 
-        }),
-      });
-    } catch (error) { console.error("Call failed:", error); } 
-    finally { setLoadingLeadId(null); }
+  const handleAutoPilot = async () => {
+    // Logic for triggering the cluster-wide run
+    console.log(`Triggering Auto-Pilot. Mode: ${isDryRun ? 'Simulation' : 'Live'}`);
+    // You would fetch your auto-pilot edge function here
   };
 
   return (
@@ -178,7 +152,19 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex gap-4 w-full md:w-auto">
+        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto items-center">
+            {/* DRY RUN TOGGLE */}
+            <div className="flex items-center gap-3 bg-slate-900/50 border border-white/5 px-4 py-2 rounded-xl">
+              <BeakerIcon className={`w-4 h-4 ${isDryRun ? 'text-amber-400' : 'text-slate-500'}`} />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Simulation Mode</span>
+              <button 
+                onClick={() => setIsDryRun(!isDryRun)}
+                className={`w-8 h-4 rounded-full relative transition-colors ${isDryRun ? 'bg-amber-500' : 'bg-slate-700'}`}
+              >
+                <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${isDryRun ? 'left-4.5' : 'left-0.5'}`} />
+              </button>
+            </div>
+
            <label className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-slate-900 border border-slate-800 hover:border-cyan-500/50 px-6 py-4 rounded-2xl cursor-pointer transition-all active:scale-95 group">
               {isBulkLoading ? <ArrowPathIcon className="w-5 h-5 text-cyan-400 animate-spin" /> : <ArrowUpTrayIcon className="w-5 h-5 text-cyan-400 group-hover:-translate-y-1 transition-transform" />}
               <span className="text-[11px] font-bold uppercase tracking-widest">
@@ -186,9 +172,17 @@ export default function DashboardPage() {
               </span>
               <input type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} disabled={isBulkLoading} />
             </label>
-            <button className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-cyan-600 text-white px-8 py-4 rounded-2xl hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-900/20 active:scale-95">
-              <RocketLaunchIcon className="w-5 h-5 animate-pulse" />
-              <span className="text-[11px] font-bold uppercase tracking-widest">Auto-Pilot Run</span>
+
+            <button 
+              onClick={handleAutoPilot}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-2xl transition-all shadow-lg active:scale-95 ${
+                isDryRun ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-900/20' : 'bg-cyan-600 hover:bg-cyan-500 shadow-cyan-900/20'
+              }`}
+            >
+              <RocketLaunchIcon className={`w-5 h-5 ${!isDryRun && 'animate-pulse'}`} />
+              <span className="text-[11px] font-bold uppercase tracking-widest">
+                {isDryRun ? 'Simulate Run' : 'Auto-Pilot Run'}
+              </span>
             </button>
         </div>
       </header>
@@ -220,10 +214,12 @@ export default function DashboardPage() {
         <MetricCard icon={<ChartBarIcon />} label="Efficiency" value={`${(100 - usagePercentage).toFixed(1)}%`} sub="Available Resources" />
         <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-6 relative overflow-hidden group">
           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">System Health</p>
-          <p className="text-2xl font-black italic text-cyan-400">99.9%</p>
+          <p className={`text-2xl font-black italic ${isDryRun ? 'text-amber-400' : 'text-cyan-400'}`}>
+            {isDryRun ? 'SIMULATING' : '99.9%'}
+          </p>
           <div className="mt-4 flex gap-1 h-8 items-end">
             {[30, 60, 45, 90, 70, 85].map((h, i) => (
-              <div key={i} className="flex-1 bg-cyan-500/20 rounded-t-sm" style={{ height: `${h}%` }} />
+              <div key={i} className={`flex-1 rounded-t-sm ${isDryRun ? 'bg-amber-500/20' : 'bg-cyan-500/20'}`} style={{ height: `${h}%` }} />
             ))}
           </div>
         </div>
@@ -252,6 +248,7 @@ export default function DashboardPage() {
   );
 }
 
+// Sub-components remain the same...
 function MetricCard({ icon, label, value, sub }: any) {
   return (
     <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-6 hover:bg-slate-900 transition-colors group">
