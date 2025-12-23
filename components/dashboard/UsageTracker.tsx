@@ -1,97 +1,179 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client'; // NEW: SSR Standard
-import { Activity, AlertTriangle, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { Activity, Phone, MessageSquare, Mail } from 'lucide-react';
 
-export const UsageTracker = () => { // Named export to match your PaymentSuccess import
-  const [usage, setUsage] = useState({ used: 0, limit: 100, plan: 'Initializing...' });
+interface UsageStats {
+  callMinutes: number;
+  smsCount: number;
+  emailCount: number;
+  chatCount: number;
+  plan: string;
+  limits: {
+    callMinutes: number;
+    sms: number;
+  };
+}
+
+export default function UsageTracker() {
+  const supabase = createClient();
+  const [stats, setStats] = useState<UsageStats>({
+    callMinutes: 0,
+    smsCount: 0,
+    emailCount: 0,
+    chatCount: 0,
+    plan: 'starter',
+    limits: {
+      callMinutes: 1000,
+      sms: 500,
+    },
+  });
   const [loading, setLoading] = useState(true);
-  const supabase = createClient(); // UPDATED
 
   useEffect(() => {
-    async function getUsage() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    fetchUsageStats();
+  }, []);
 
-      const { data, error } = await supabase
-        .from('BusinessConfig')
-        .select('minutesUsed, minuteLimit, planType')
-        .eq('user_id', user.id)
+  async function fetchUsageStats() {
+    try {
+      // Fetch current user's usage stats
+      const { data: usage } = await supabase
+        .from('usage_stats')
+        .select('*')
         .single();
 
-      if (data && !error) {
-        setUsage({
-          used: data.minutesUsed || 0,
-          limit: data.minuteLimit || 1000,
-          plan: data.planType || 'Standard',
+      if (usage) {
+        setStats({
+          callMinutes: usage.call_minutes || 0,
+          smsCount: usage.sms_count || 0,
+          emailCount: usage.email_count || 0,
+          chatCount: usage.chat_count || 0,
+          plan: usage.plan || 'starter',
+          limits: {
+            callMinutes: usage.call_minutes_limit || 1000,
+            sms: usage.sms_limit || 500,
+          },
         });
       }
+    } catch (error) {
+      console.error('Error fetching usage stats:', error);
+    } finally {
       setLoading(false);
     }
-    getUsage();
-  }, [supabase]);
+  }
 
-  if (loading) return (
-    <div className="w-full h-24 bg-white/5 rounded-3xl animate-pulse border border-white/5" />
-  );
+  const callPercentage = (stats.callMinutes / stats.limits.callMinutes) * 100;
+  const smsPercentage = (stats.smsCount / stats.limits.sms) * 100;
 
-  const percentage = Math.min(Math.round((usage.used / usage.limit) * 100), 100);
-  const isOverLimit = usage.used >= usage.limit;
+  if (loading) {
+    return (
+      <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
+        <div className="animate-pulse">
+          <div className="h-4 bg-white/10 rounded w-1/2 mb-4"></div>
+          <div className="h-20 bg-white/10 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full group">
-      <div className="flex justify-between items-end mb-6">
-        <div className="text-left">
-          <div className="flex items-center gap-2 mb-1">
-            <Activity className={`w-3 h-3 ${isOverLimit ? 'text-red-500' : 'text-cyan-500'}`} />
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              Neural Bandwidth
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-white italic tracking-tighter">
-              {usage.used.toLocaleString()}
-            </span>
-            <span className="text-slate-600 text-xs font-bold uppercase">
-              / {usage.limit.toLocaleString()} Min
-            </span>
-          </div>
-        </div>
-        
-        <div className="text-right">
-          <span className={`text-xs font-black italic uppercase ${isOverLimit ? 'text-red-500' : 'text-cyan-500'}`}>
-            {percentage}% Capacity
-          </span>
-          <div className="flex items-center gap-1 justify-end mt-1">
-            <Zap className="w-3 h-3 text-amber-500" />
-            <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">
-              Plan: {usage.plan}
-            </span>
-          </div>
-        </div>
+    <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <Activity className="w-5 h-5 text-cyan-500" />
+        <h3 className="text-sm font-black uppercase tracking-widest text-white">
+          Usage This Month
+        </h3>
       </div>
 
-      <div className="relative h-3 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-        {/* Animated Progress Bar */}
-        <div
-          style={{ width: `${percentage}%` }}
-          className={`h-full transition-all duration-1000 ease-out relative ${
-            isOverLimit ? 'bg-red-500' : 'bg-gradient-to-r from-cyan-600 to-blue-500'
-          }`}
-        >
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.2)_50%,transparent_100%)] animate-[shimmer_2s_infinite]" />
+      <div className="space-y-6">
+        {/* Call Minutes */}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-cyan-500" />
+              <span className="text-xs font-bold text-slate-400">Call Minutes</span>
+            </div>
+            <span className="text-xs font-black text-white">
+              {stats.callMinutes} / {stats.limits.callMinutes}
+            </span>
+          </div>
+          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                callPercentage >= 90
+                  ? 'bg-red-500'
+                  : callPercentage >= 75
+                  ? 'bg-amber-500'
+                  : 'bg-cyan-500'
+              }`}
+              style={{ width: `${Math.min(callPercentage, 100)}%` }}
+            />
+          </div>
         </div>
-      </div>
 
-      {isOverLimit && (
-        <div className="mt-4 flex items-center gap-2 text-red-500">
-          <AlertTriangle className="w-3 h-3" />
-          <p className="text-[9px] font-black uppercase tracking-widest">
-            Bandwidth Exhausted. Agents in standby mode.
-          </p>
+        {/* SMS Count */}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-emerald-500" />
+              <span className="text-xs font-bold text-slate-400">SMS Messages</span>
+            </div>
+            <span className="text-xs font-black text-white">
+              {stats.smsCount} / {stats.limits.sms === -1 ? '∞' : stats.limits.sms}
+            </span>
+          </div>
+          {stats.limits.sms !== -1 && (
+            <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  smsPercentage >= 90
+                    ? 'bg-red-500'
+                    : smsPercentage >= 75
+                    ? 'bg-amber-500'
+                    : 'bg-emerald-500'
+                }`}
+                style={{ width: `${Math.min(smsPercentage, 100)}%` }}
+              />
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Email Count */}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-purple-500" />
+              <span className="text-xs font-bold text-slate-400">Emails Sent</span>
+            </div>
+            <span className="text-xs font-black text-white">{stats.emailCount}</span>
+          </div>
+        </div>
+
+        {/* Plan Badge */}
+        <div className="pt-4 border-t border-white/5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+              Current Plan
+            </span>
+            <span className="px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 rounded-lg text-xs font-black uppercase">
+              {stats.plan}
+            </span>
+          </div>
+        </div>
+
+        {/* Upgrade Warning */}
+        {(callPercentage >= 80 || smsPercentage >= 80) && (
+          <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+            <p className="text-xs text-amber-500 font-bold">
+              ⚠️ You're approaching your usage limits. Consider upgrading your plan.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
-};
+}
+
+// Named export for compatibility
+export { UsageTracker };
