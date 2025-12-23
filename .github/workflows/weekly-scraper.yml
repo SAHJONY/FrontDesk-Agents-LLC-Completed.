@@ -1,0 +1,25 @@
+name: Global Lead Ingestion
+on:
+  schedule:
+    # Runs every Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch: # Allows you to run it manually from GitHub UI
+
+jobs:
+  scrape-and-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install Dependencies
+        run: npm install axios
+        
+      - name: Execute Global Scraper
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+        run: npx ts-node scripts/automation/global-scraper.ts
