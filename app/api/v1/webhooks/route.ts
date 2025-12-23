@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { billingService } from '@/services/billing';
 import { whatsappAgent } from '@/services/whatsappAgent';
-import { automationService } from '@/services/automation.service';
+import { aiCeoAgent } from '@/services/automation.service';
 
 export async function POST(req: Request) {
   try {
@@ -27,9 +27,12 @@ export async function POST(req: Request) {
         break;
 
       case 'automation.trigger':
-        if (data.ruleId) {
-          await automationService.executeRule(data.ruleId, data.context || {});
-        }
+        await aiCeoAgent.orchestrate({
+          productId: productId || 'unknown',
+          clientId,
+          type,
+          data,
+        });
         break;
 
       case 'stripe.webhook':
