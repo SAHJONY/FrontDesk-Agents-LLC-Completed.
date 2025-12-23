@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const [loadingLeadId, setLoadingLeadId] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
   const [metrics, setMetrics] = useState({
     callsProcessed: 0,
     minutesUsed: 0,
@@ -94,6 +95,44 @@ export default function DashboardPage() {
     Math.min((metrics.minutesUsed / metrics.totalMinutes) * 100, 100), 
   [metrics]);
 
+  // ELITE CSV IMPORT LOGIC (Category 9.1 Optimized)
+  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !currentUserId) return;
+
+    setIsBulkLoading(true);
+    
+    try {
+      // 1. Upload raw file to private storage
+      const fileName = `imports/${currentUserId}/${Date.now()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('crm-imports')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // 2. Trigger Background Processing Agent
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-crm-import`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({ filePath: fileName, userId: currentUserId }),
+      });
+
+      if (response.ok) {
+        alert("Success: Neural Agent has begun processing the CRM data in the background.");
+        fetchDashboardData();
+      }
+    } catch (err) {
+      console.error("Neural Import Failed:", err);
+      alert("System Alert: Import failed. Check logs.");
+    } finally {
+      setIsBulkLoading(false);
+    }
+  };
+
   const callLead = async (lead: Lead) => {
     if (!currentUserId) return;
     setLoadingLeadId(lead.id);
@@ -138,9 +177,11 @@ export default function DashboardPage() {
 
         <div className="flex gap-4 w-full md:w-auto">
            <label className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-slate-900 border border-slate-800 hover:border-cyan-500/50 px-6 py-4 rounded-2xl cursor-pointer transition-all active:scale-95 group">
-              <ArrowUpTrayIcon className="w-5 h-5 text-cyan-400 group-hover:-translate-y-1 transition-transform" />
-              <span className="text-[11px] font-bold uppercase tracking-widest">Import CRM</span>
-              <input type="file" accept=".csv" className="hidden" />
+              {isBulkLoading ? <ArrowPathIcon className="w-5 h-5 text-cyan-400 animate-spin" /> : <ArrowUpTrayIcon className="w-5 h-5 text-cyan-400 group-hover:-translate-y-1 transition-transform" />}
+              <span className="text-[11px] font-bold uppercase tracking-widest">
+                {isBulkLoading ? 'Processing...' : 'Import CRM'}
+              </span>
+              <input type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" disabled={isBulkLoading} />
             </label>
             <button className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-cyan-600 text-white px-8 py-4 rounded-2xl hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-900/20 active:scale-95">
               <RocketLaunchIcon className="w-5 h-5 animate-pulse" />
