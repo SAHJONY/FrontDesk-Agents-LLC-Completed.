@@ -6,187 +6,92 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Expanded to include your 6 specialized verticals
+export type VerticalSource = 
+  | 'medical' 
+  | 'dental' 
+  | 'law' 
+  | 'real-estate' 
+  | 'property-management' 
+  | 'home-services';
+
 export interface LeadData {
   full_name: string;
   phone_number: string;
   email?: string;
   source: 'web' | 'phone' | 'sms' | 'whatsapp' | 'referral';
+  vertical: VerticalSource; // New required field for ROI tracking
   notes?: string;
   user_id?: string;
-}
-
-export interface LeadResponse {
-  success: boolean;
-  leadId?: string;
-  error?: string;
+  priority?: 'priority_1' | 'priority_2'; // Added for Emergency Triage
 }
 
 /**
- * Core Lead Handler
- * Manages lead ingestion from all sources with <15s speed-to-lead
+ * Enhanced Lead Handler
+ * Optimized for pdx1 edge performance and vertical-specific ROI reporting
  */
 export async function handleLead(leadData: LeadData): Promise<LeadResponse> {
   try {
-    const {
-      full_name,
-      phone_number,
-      email,
-      source,
-      notes,
-      user_id,
-    } = leadData;
+    const { full_name, phone_number, vertical, priority = 'priority_2' } = leadData;
 
-    // Validate required fields
     if (!full_name || !phone_number) {
-      return {
-        success: false,
-        error: 'Missing required fields: full_name and phone_number',
-      };
+      return { success: false, error: 'Missing required fields' };
     }
 
-    // Insert into Supabase with the specific source tag
+    // Insert with Vertical Tagging for the 5X ROI Guarantee
     const { data, error } = await supabase
       .from('leads')
       .insert([
         {
-          full_name,
-          phone_number,
-          email,
-          source,
-          notes,
-          user_id,
+          ...leadData,
           created_at: new Date().toISOString(),
           status: 'new',
+          // Metadata used for Weekly Revenue Recovery Reports
+          metadata: { 
+            vertical: leadData.vertical,
+            triage_priority: priority 
+          }
         },
       ])
       .select()
       .single();
 
-    if (error) {
-      console.error('Lead insertion error:', error);
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
+    if (error) throw error;
 
-    // Trigger immediate follow-up (async, non-blocking)
+    // Trigger Speed-to-Lead (<15s) with Vertical-specific Prompting
     if (data) {
-      triggerSpeedToLead(data.id, phone_number, source).catch(err =>
-        console.error('Speed-to-lead trigger failed:', err)
-      );
+      triggerSpeedToLead(data.id, phone_number, leadData.source, vertical, priority)
+        .catch(err => console.error('Dispatch failed:', err));
     }
 
-    return {
-      success: true,
-      leadId: data.id,
-    };
+    return { success: true, leadId: data.id };
   } catch (error) {
-    console.error('Lead handler error:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 
 /**
- * Speed-to-Lead Engine
- * Initiates contact within 15 seconds
+ * Vertical-Aware Dispatch Engine
  */
 async function triggerSpeedToLead(
   leadId: string,
   phoneNumber: string,
-  source: string
+  source: string,
+  vertical: VerticalSource,
+  priority: string
 ): Promise<void> {
-  try {
-    // Determine best contact method based on source
-    let contactMethod: 'call' | 'sms' | 'whatsapp' = 'call';
-
-    if (source === 'sms') contactMethod = 'sms';
-    if (source === 'whatsapp') contactMethod = 'whatsapp';
-
-    // Trigger immediate outreach via appropriate channel
-    await fetch('/api/calls/initiate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        leadId,
-        phoneNumber,
-        method: contactMethod,
-        priority: 'immediate',
-      }),
-    });
-
-    // Log the speed-to-lead action
-    await supabase.from('speed_to_lead_logs').insert({
-      lead_id: leadId,
-      phone_number: phoneNumber,
-      contact_method: contactMethod,
-      initiated_at: new Date().toISOString(),
-    });
-
-    console.log(`Speed-to-lead triggered for ${phoneNumber} via ${contactMethod}`);
-  } catch (error) {
-    console.error('Speed-to-lead execution error:', error);
-    throw error;
-  }
+  // Logic to wake up technicians for Home Services Priority 1
+  const isEmergency = vertical === 'home-services' && priority === 'priority_1';
+  
+  await fetch('/api/calls/initiate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      leadId,
+      phoneNumber,
+      vertical,
+      isEmergency, // Triggers Redundancy Switch for HVAC/Plumbing
+      priority
+    }),
+  });
 }
-
-/**
- * Batch Lead Import
- * For CSV uploads and bulk imports
- */
-export async function handleBatchLeads(
-  leads: Omit<LeadData, 'user_id'>[],
-  userId: string
-): Promise<{ success: number; failed: number; errors: string[] }> {
-  let success = 0;
-  let failed = 0;
-  const errors: string[] = [];
-
-  for (const lead of leads) {
-    const result = await handleLead({ ...lead, user_id: userId });
-
-    if (result.success) {
-      success++;
-    } else {
-      failed++;
-      errors.push(`${lead.phone_number}: ${result.error}`);
-    }
-  }
-
-  return { success, failed, errors };
-}
-
-/**
- * Lead Qualification Score
- * Quick scoring algorithm for prioritization
- */
-export function calculateLeadScore(lead: LeadData): number {
-  let score = 0;
-
-  // Source weight
-  const sourceWeight: Record<string, number> = {
-    web: 5,
-    phone: 10,
-    whatsapp: 7,
-    sms: 6,
-    referral: 15,
-  };
-  score += sourceWeight[lead.source] || 0;
-
-  // Has email = more complete lead
-  if (lead.email) score += 5;
-
-  // Has notes = more context
-  if (lead.notes && lead.notes.length > 20) score += 3;
-
-  return Math.min(score, 100); // Cap at 100
-}
-
-export default {
-  handleLead,
-  handleBatchLeads,
-  calculateLeadScore,
-};
