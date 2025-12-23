@@ -1,9 +1,27 @@
 'use client';
 
+import React from 'react';
 import { calculateLeadScore } from '@/lib/core/lead-scorer';
 import { getProprietaryName } from '@/lib/core/brand-mask';
 
-export default function PriorityQueue({ leads }) {
+// 1. Define the Lead interface to satisfy TypeScript and pdx1 build checks
+interface LeadSignal {
+  // Add specific signal types here if known, otherwise record
+  [key: string]: any;
+}
+
+interface Lead {
+  id: string;
+  name: string;
+  source: string;
+  signals: LeadSignal;
+}
+
+interface PriorityQueueProps {
+  leads: Lead[];
+}
+
+export default function PriorityQueue({ leads }: PriorityQueueProps) {
   return (
     <div className="bg-[#000d1a] border border-white/5 rounded-[45px] overflow-hidden shadow-2xl">
       <div className="px-10 py-8 bg-white/[0.02] border-b border-white/5 flex justify-between items-center">
@@ -14,6 +32,7 @@ export default function PriorityQueue({ leads }) {
       <table className="w-full text-left">
         <tbody className="divide-y divide-white/5">
           {leads.map((lead) => {
+            // Logic handled by imported scorers
             const { score, priority } = calculateLeadScore(lead.signals);
             return (
               <tr key={lead.id} className="hover:bg-white/[0.01] transition-colors group">
