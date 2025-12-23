@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { languages, defaultLanguage, isSupportedLanguage } from './config/languages'
 
@@ -73,10 +73,13 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          // Update the request cookies to ensure middleware has the latest session
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          // Refresh the response object to include updated headers
           response = NextResponse.next({
             request,
           })
+          // Sync cookies to the response for the browser
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )
@@ -85,10 +88,10 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Validate session
+  // Validate session securely
   const { data: { user } } = await supabase.auth.getUser()
   
-  // Protected routes pattern
+  // Pattern to protect localized and non-localized sensitive routes
   const isProtectedRoute = /^\/(?:[a-z]{2}\/)?(dashboard|admin|settings|owner|analytics|profile)/.test(pathname)
 
   if (!user && isProtectedRoute) {
