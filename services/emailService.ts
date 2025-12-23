@@ -8,7 +8,7 @@ export const emailService = {
       from: 'FrontDesk Agents <onboarding@frontdeskagents.com>',
       to: [email],
       subject: `Welcome to the Swarm, ${name}`,
-      html: `<h1>Strategic Partnership Initialized</h1><p>Plan: ${plan}</p>`
+      html: `<h1>Strategic Partnership Initialized</h1><p>Your AI FrontDesk is now active on the <strong>${plan}</strong> tier.</p>`
     });
   },
   
@@ -16,8 +16,8 @@ export const emailService = {
     return await resend.emails.send({
       from: 'FrontDesk Medic <reports@frontdeskagents.com>',
       to: [to],
-      subject,
-      html,
+      subject: subject,
+      html: html,
       tags: [{ name: 'category', value: category }]
     });
   }
