@@ -10,7 +10,8 @@ export default async function ApproveTaskPage({ params }: PageProps) {
   // Await the params in Next.js 15
   const { taskId } = await params;
   
-  const supabase = createClient();
+  // Await createClient() in Next.js 15
+  const supabase = await createClient();
 
   // Fetch the task
   const { data: task, error } = await supabase
