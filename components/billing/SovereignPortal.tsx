@@ -1,8 +1,15 @@
 'use client';
 
+import React from 'react';
 import { ShieldCheckIcon, BanknotesIcon } from '@heroicons/react/24/solid';
 
-export default function BillingPortal({ balance, roiImpact }) {
+// 1. Defined Interface to satisfy pdx1 build requirements
+interface BillingPortalProps {
+  balance: number;
+  roiImpact: number;
+}
+
+export default function BillingPortal({ balance, roiImpact }: BillingPortalProps) {
   return (
     <div className="bg-[#000d1a] border border-white/5 rounded-[45px] p-10">
       <div className="flex justify-between items-start mb-12">
