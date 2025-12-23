@@ -1,30 +1,24 @@
-import { render } from '@react-email/render';
-import { EscalationTemplate } from './emails/EscalationTemplate';
+import { Resend } from 'resend';
 
-// ... existing code ...
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const emailService = {
-  // ... existing sendWelcomeEmail ...
-
-  async triggerEscalation(to: string, agentName: string, taskDescription: string, taskId: string) {
-    try {
-      const approvalLink = `${process.env.NEXT_PUBLIC_APP_URL}/approve/${taskId}`;
-      const emailHtml = await render(
-        EscalationTemplate({ agentName, taskDescription, approvalLink })
-      );
-
-      const msg = {
-        to,
-        from: 'alerts@frontdeskagents.com',
-        subject: `[ESCALATION] ${agentName} requires oversight`,
-        html: emailHtml,
-        headers: { 'Importance': 'high', 'X-Priority': '1' } // Force high priority in inboxes
-      };
-
-      await sgMail.send(msg);
-      console.log(`[ALERTS] Escalation protocol sent for task ${taskId}`);
-    } catch (error: any) {
-      await medicAgent.reportIncident(error, 'Escalation Email Failure');
-    }
+  async sendWelcomeEmail(email: string, name: string, plan: string) {
+    return await resend.emails.send({
+      from: 'FrontDesk Agents <onboarding@frontdeskagents.com>',
+      to: [email],
+      subject: `Welcome to the Swarm, ${name}`,
+      html: `<h1>Strategic Partnership Initialized</h1><p>Plan: ${plan}</p>`
+    });
+  },
+  
+  async sendTransactionalEmail(to: string, subject: string, html: string, category: string) {
+    return await resend.emails.send({
+      from: 'FrontDesk Medic <reports@frontdeskagents.com>',
+      to: [to],
+      subject,
+      html,
+      tags: [{ name: 'category', value: category }]
+    });
   }
 };
