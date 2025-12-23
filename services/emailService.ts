@@ -1,162 +1,79 @@
-// services/email.service.ts
-import sgMail from '@sendgrid/mail';
+// services/emailService.ts
 import { Resend } from 'resend';
 
-// Initialize SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY || '');
-
-export interface EmailOptions {
-  to: string | string[];
-  from?: string;
-  subject: string;
-  text?: string;
-  html?: string;
-  replyTo?: string;
-}
-
-export interface EmailResponse {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-}
-
-/**
- * Email Service
- * Handles email sending through SendGrid and Resend
- */
 export const emailService = {
   /**
-   * Send email via SendGrid
+   * ONBOARDING: Dispatched when a new client uplink is established.
    */
-  async sendWithSendGrid(options: EmailOptions): Promise<EmailResponse> {
-    try {
-      const msg = {
-        to: options.to,
-        from: options.from || process.env.SENDGRID_FROM_EMAIL || 'noreply@frontdeskagents.com',
-        subject: options.subject,
-        text: options.text,
-        html: options.html,
-        replyTo: options.replyTo,
-      };
-
-      const response = await sgMail.send(msg);
-
-      return {
-        success: true,
-        messageId: response[0].headers['x-message-id'],
-      };
-    } catch (error) {
-      console.error('SendGrid error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  },
-
-  /**
-   * Send email via Resend
-   */
-  async sendWithResend(options: EmailOptions): Promise<EmailResponse> {
-    try {
-      const { data, error } = await resend.emails.send({
-        from: options.from || process.env.RESEND_FROM_EMAIL || 'FrontDesk Agents <noreply@frontdeskagents.com>',
-        to: Array.isArray(options.to) ? options.to : [options.to],
-        subject: options.subject,
-        text: options.text,
-        html: options.html,
-        reply_to: options.replyTo,
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      return {
-        success: true,
-        messageId: data?.id,
-      };
-    } catch (error) {
-      console.error('Resend error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  },
-
-  /**
-   * Send email (auto-selects provider based on environment)
-   */
-  async send(options: EmailOptions): Promise<EmailResponse> {
-    // Prefer Resend, fallback to SendGrid
-    const useResend = process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.length > 0;
-
-    if (useResend) {
-      return this.sendWithResend(options);
-    } else {
-      return this.sendWithSendGrid(options);
-    }
-  },
-
-  /**
-   * Send welcome email
-   */
-  async sendWelcomeEmail(to: string, name: string): Promise<EmailResponse> {
-    return this.send({
-      to,
-      subject: 'Welcome to FrontDesk Agents LLC',
+  async sendWelcomeEmail(email: string, name: string, plan: string) {
+    return await resend.emails.send({
+      from: 'FrontDesk Agents <onboarding@frontdeskagents.com>',
+      to: [email],
+      subject: `Strategic Partnership Initialized | ${name}`,
       html: `
-        <h1>Welcome ${name}!</h1>
-        <p>Thank you for joining FrontDesk Agents LLC. Your AI-powered front office is now active.</p>
-        <p>Get started by logging into your dashboard.</p>
-      `,
-      text: `Welcome ${name}! Thank you for joining FrontDesk Agents LLC. Your AI-powered front office is now active.`,
-    });
-  },
-
-  /**
-   * Send magic link email
-   */
-  async sendMagicLink(to: string, magicLink: string): Promise<EmailResponse> {
-    return this.send({
-      to,
-      subject: 'Your Secure Access Link - FrontDesk Agents',
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Your Secure Access Link</h2>
-          <p>Click the button below to access your FrontDesk Agents portal:</p>
-          <a href="${magicLink}" style="display: inline-block; padding: 12px 24px; background: #06b6d4; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">
-            Access Portal
-          </a>
-          <p style="color: #64748b; font-size: 14px;">This link will expire in 24 hours.</p>
-          <p style="color: #64748b; font-size: 14px;">If you didn't request this, please ignore this email.</p>
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 40px; background: #000; color: #fff; border-radius: 24px;">
+          <h1 style="color: #06b6d4; text-transform: uppercase; letter-spacing: 2px;">Welcome to the Swarm</h1>
+          <p style="color: #94a3b8; font-size: 16px;">Your AI FrontDesk infrastructure has been provisioned.</p>
+          <div style="background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #1e293b; margin: 20px 0;">
+            <p style="margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase;">Assigned Tier</p>
+            <p style="margin: 5px 0 0 0; color: #fff; font-weight: bold; font-size: 20px;">${plan}</p>
+          </div>
+          <p style="font-size: 13px; color: #475569;">Access your Command Center to begin training your agents.</p>
         </div>
-      `,
-      text: `Click this link to access your FrontDesk Agents portal: ${magicLink}\n\nThis link will expire in 24 hours.`,
+      `
     });
   },
 
   /**
-   * Send notification email
+   * MEDIC AUDIT: Dispatched by the Daily Cron Job for system health.
    */
-  async sendNotification(to: string, subject: string, message: string): Promise<EmailResponse> {
-    return this.send({
-      to,
+  async sendAuditReport(to: string, metrics: { totalCalls: number, hotLeads: number, conversions: string }) {
+    return await resend.emails.send({
+      from: 'FrontDesk Medic <reports@frontdeskagents.com>',
+      to: [to],
+      subject: `[SYSTEM AUDIT] ${new Date().toLocaleDateString()} - Performance Manifest`,
+      html: `
+        <div style="font-family: sans-serif; background: #000; color: #fff; padding: 30px; border-radius: 20px; border: 1px solid #1e293b;">
+          <h2 style="color: #10b981; margin-bottom: 20px;">Medic System Audit</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #0f172a; color: #94a3b8;">Throughput</td>
+              <td style="padding: 10px; border-bottom: 1px solid #0f172a; text-align: right; color: #fff;">${metrics.totalCalls} Calls</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #0f172a; color: #94a3b8;">High-Intent (Hot)</td>
+              <td style="padding: 10px; border-bottom: 1px solid #0f172a; text-align: right; color: #fff;">${metrics.hotLeads}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; color: #10b981;">Efficiency</td>
+              <td style="padding: 10px; text-align: right; color: #10b981; font-weight: bold;">${metrics.conversions}%</td>
+            </tr>
+          </table>
+        </div>
+      `
+    });
+  },
+  
+  /**
+   * TRANSACTIONAL: General purpose alerts (e.g., Protocol Zero triggers).
+   */
+  async sendTransactionalEmail(to: string, subject: string, html: string, category: string) {
+    return await resend.emails.send({
+      from: 'FrontDesk System <alerts@frontdeskagents.com>',
+      to: [to],
       subject,
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>${subject}</h2>
-          <p>${message}</p>
-        </div>
-      `,
-      text: message,
+      html,
+      tags: [{ name: 'category', value: category }]
     });
-  },
+  }
 };
 
-// Export the service
-export { emailService as default };
+// Export named function for compatibility
+export async function sendTransactionalEmail(to: string, subject: string, html: string, category: string) {
+  return emailService.sendTransactionalEmail(to, subject, html, category);
+}
+
+// Export default
+export default emailService;
