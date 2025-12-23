@@ -1,9 +1,9 @@
-// 1. Import the Supabase client (adjust path if your client is elsewhere)
+// 1. Explicit import for the production compiler
 import { supabase } from '@/lib/supabase/client';
 
 /**
  * Motor de Reconciliación: Cruce de llamadas vs. Atribución
- * Detects "Ghost Revenue" by comparing AI conversions against reported data.
+ * Identifies gaps between AI conversions and reported revenue.
  */
 export async function runFranchiseeAudit(franchiseeId: string) {
   // 1. Obtener llamadas que la IA marcó como "Exitosas/Venta"
@@ -19,17 +19,17 @@ export async function runFranchiseeAudit(franchiseeId: string) {
     .select('call_id')
     .eq('franchisee_id', franchiseeId);
 
-  // Error handling for production stability
+  // 3. Error handling for pdx1 build stability
   if (callsError || revenueError) {
-    console.error('Reconciliation fetch error:', callsError || revenueError);
+    console.error('Audit Engine Error:', callsError || revenueError);
     return [];
   }
 
-  // 3. Identificar brechas (Llamadas convertidas no reportadas)
-  // We use optional chaining and null-coalescing (?? []) to satisfy strict type checks
+  // 4. Identificar brechas (Llamadas convertidas no reportadas)
+  // We use (?? []) to prevent ".filter of undefined" errors during strict type checking
   const missingCalls = (successfulCalls ?? []).filter(call => 
     !(reportedRevenue ?? []).some(report => report.call_id === call.id)
   );
 
-  return missingCalls; // Estos son los "ingresos fantasma" detectados
+  return missingCalls; 
 }
