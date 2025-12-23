@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     // Route to appropriate service based on webhook type
     switch (type) {
       case 'whatsapp.message':
-        await whatsappAgent.processMessage({
+        await whatsappAgent.processIncoming({
           from: data.from,
           to: data.to,
           body: data.body,
