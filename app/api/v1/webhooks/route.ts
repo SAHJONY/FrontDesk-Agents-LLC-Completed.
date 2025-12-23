@@ -1,49 +1,58 @@
+// app/api/v1/webhooks/route.ts
 import { NextResponse } from 'next/server';
-import { aiCeoAgent } from '@/services/automation.service';
+import { billingService } from '@/services/billing';
+import { whatsappAgent } from '@/services/whatsappAgent';
+import { automationService } from '@/services/automation.service';
 
-/**
- * GLOBAL GATEWAY: The AI CEO's Communication Channel
- * This route receives signals from all 15 products worldwide.
- */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
-    // 1. Extract Global Context and Industry Intelligence
-    const industryContext = req.headers.get('x-industry-type') || 'GENERAL';
-    const region = req.headers.get('x-region') || 'US-EAST';
-    const productId = req.headers.get('x-product-id') || body.productId || 'UNKNOWN';
+    const { type, productId, clientId, data } = body;
 
-    console.log(`[GATEWAY] Inbound signal for ${productId} in industry ${industryContext}`);
+    // Route to appropriate service based on webhook type
+    switch (type) {
+      case 'whatsapp.message':
+        await whatsappAgent.processMessage({
+          from: data.from,
+          to: data.to,
+          body: data.body,
+          mediaUrl: data.mediaUrl,
+        });
+        break;
 
-    // 2. The AI CEO takes the wheel
-    // Orchestrates the 15 products based on region and industry RL policies
-    const response = await aiCeoAgent.orchestrate({
-      productId,
-      industry: industryContext,
-      region: region,
-      payload: body,
-      // Pass clientId if present to maintain cross-product memory
-      clientId: body.clientId 
-    });
+      case 'billing.payment_failed':
+        if (data.customerId) {
+          await billingService.handleFailedPayment(data.customerId);
+        }
+        break;
 
-    // 3. HIPAA & Global Standard Response
-    return NextResponse.json({
+      case 'automation.trigger':
+        if (data.ruleId) {
+          await automationService.executeRule(data.ruleId, data.context || {});
+        }
+        break;
+
+      case 'stripe.webhook':
+        // Handle Stripe webhooks
+        // This would typically verify the signature and process the event
+        console.log('Stripe webhook received:', data);
+        break;
+
+      default:
+        console.log('Unknown webhook type:', type);
+    }
+
+    return NextResponse.json({ 
       success: true,
-      timestamp: new Date().toISOString(),
-      data: response
+      message: 'Webhook processed successfully' 
     });
-
-  } catch (error: any) {
-    console.error('[CEO HANDOFF FAILED]', error);
-    
-    // Return standardized error for global clients
+  } catch (error) {
+    console.error('Webhook processing error:', error);
     return NextResponse.json(
       { 
-        status: 'error', 
-        message: 'CEO Handoff Failed',
-        details: error.message 
-      }, 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      },
       { status: 500 }
     );
   }
