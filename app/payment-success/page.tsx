@@ -2,58 +2,75 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import UsageTracker from '@/components/dashboard/UsageTracker';
+import { CheckCircle, ArrowRight, CreditCard, Sparkles } from 'lucide-react';
+// REMOVED: import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/utils/supabase/client'; // NEW: SSR Standard
+import { UsageTracker } from '@/components/dashboard/UsageTracker';
 
 export default function PaymentSuccessPage() {
   const [userName, setUserName] = useState<string | null>(null);
-  const supabase = createClientComponentClient();
+  const supabase = createClient(); // UPDATED
 
   useEffect(() => {
     async function getProfile() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) setUserName(user.email?.split('@')[0] || 'Agent');
+      if (user) setUserName(user.email?.split('@')[0] || 'Strategic Partner');
     }
     getProfile();
   }, [supabase]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-100">
-        <div className="flex justify-center mb-6">
-          <CheckCircleIcon className="w-20 h-20 text-green-500 animate-bounce" />
+    <div className="min-h-screen bg-[#000d1a] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Radial Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-xl w-full bg-zinc-950 rounded-[45px] shadow-2xl p-12 text-center border border-white/5 relative z-10">
+        <div className="flex justify-center mb-8">
+          <div className="p-5 bg-emerald-500/10 rounded-3xl border border-emerald-500/20">
+            <CheckCircle className="w-12 h-12 text-emerald-500 animate-pulse" />
+          </div>
         </div>
         
-        <h1 className="text-3xl font-extrabold text-slate-900 mb-2">
-          Payment Successful!
+        <h1 className="text-4xl font-black text-white mb-4 italic tracking-tighter uppercase">
+          Recharge Complete
         </h1>
-        <p className="text-slate-600 mb-8">
-          Welcome to the next level, {userName}. Your AI FrontDesk Agents have been recharged and are ready for duty.
+        <p className="text-slate-400 mb-10 text-lg leading-relaxed">
+          Welcome back, <span className="text-white font-bold">{userName}</span>. Your neural infrastructure has been refueled and all agent nodes are online.
         </p>
 
-        {/* This component will now show the updated 2,500 or 10,000 limit */}
-        <div className="bg-slate-50 rounded-xl p-6 mb-8 border border-slate-200">
-          <h2 className="text-sm font-bold text-slate-500 uppercase mb-4 tracking-widest">
-            Updated Status
+        {/* Global Infrastructure Status Card */}
+        <div className="bg-white/[0.02] rounded-[30px] p-8 mb-10 border border-white/5 relative group">
+          <div className="absolute top-4 right-4">
+            <Sparkles className="w-4 h-4 text-cyan-500 opacity-30 group-hover:opacity-100 transition-opacity" />
+          </div>
+          <h2 className="text-[10px] font-black text-slate-500 uppercase mb-6 tracking-[0.2em]">
+            Current Resource Allocation
           </h2>
           <UsageTracker />
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <Link 
-            href="/admin/dashboard"
-            className="flex items-center justify-center w-full py-3 px-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-lg transition duration-200 group"
+            href="/dashboard"
+            className="flex items-center justify-center w-full py-5 px-8 bg-white text-black font-black uppercase text-xs tracking-[0.2em] rounded-2xl hover:bg-cyan-500 hover:text-white transition-all duration-300 shadow-xl group"
           >
-            Go to Dashboard
-            <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            Enter Command Center
+            <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-2 transition-transform" />
           </Link>
           
-          <p className="text-xs text-slate-400">
-            A receipt has been sent to your email. Your new limits are applied instantly thanks to our automated global infrastructure.
-          </p>
+          <div className="flex items-center justify-center gap-2 text-slate-600">
+            <CreditCard className="w-3 h-3" />
+            <p className="text-[9px] font-bold uppercase tracking-widest">
+              Receipt transmitted to encrypted email on file
+            </p>
+          </div>
         </div>
       </div>
+      
+      {/* Visual connection to the OS branding */}
+      <p className="mt-8 text-[10px] text-slate-700 font-black uppercase tracking-[0.5em]">
+        FrontDesk Agents LLC • Global Neural Grid
+      </p>
     </div>
   );
 }
