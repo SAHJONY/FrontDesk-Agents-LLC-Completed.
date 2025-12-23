@@ -38,7 +38,8 @@ export const AuditLog = ({ logs }: { logs: AuditEntry[] }) => {
                 <td className="px-6 py-4">
                   <span className="px-2 py-1 bg-blue-500/10 text-blue-400 rounded text-xs border border-blue-500/20">
                     {log.agent}
-                  </td>
+                  </span> {/* FIXED: Added closing span tag */}
+                </td>
                 <td className="px-6 py-4 max-w-xs truncate">
                   {log.decision}
                 </td>
@@ -61,4 +62,3 @@ export const AuditLog = ({ logs }: { logs: AuditEntry[] }) => {
     </div>
   );
 };
-            
