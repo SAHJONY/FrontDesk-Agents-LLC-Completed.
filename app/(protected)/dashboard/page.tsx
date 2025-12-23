@@ -46,7 +46,7 @@ export default function DashboardPage() {
   const [loadingLeadId, setLoadingLeadId] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [isBulkLoading, setIsBulkLoading] = useState(false);
+  const [isBulkLoading, setIsBulkLoading] = useState(false); // Track background processing
   const [metrics, setMetrics] = useState({
     callsProcessed: 0,
     minutesUsed: 0,
@@ -64,9 +64,11 @@ export default function DashboardPage() {
 
     initializeDashboard();
 
+    // Real-time listener for both call results and lead updates from background agents
     const channel = supabase
       .channel('realtime-dashboard')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'call_results' }, () => fetchDashboardData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => fetchDashboardData())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -95,7 +97,7 @@ export default function DashboardPage() {
     Math.min((metrics.minutesUsed / metrics.totalMinutes) * 100, 100), 
   [metrics]);
 
-  // ELITE CSV IMPORT LOGIC (Category 9.1 Optimized)
+  // ELITE CSV IMPORT LOGIC (Background Agent Trigger)
   const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !currentUserId) return;
@@ -103,15 +105,15 @@ export default function DashboardPage() {
     setIsBulkLoading(true);
     
     try {
-      // 1. Upload raw file to private storage
-      const fileName = `imports/${currentUserId}/${Date.now()}-${file.name}`;
+      // 1. Upload raw file to private storage bucket
+      const fileName = `${currentUserId}/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('crm-imports')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      // 2. Trigger Background Processing Agent
+      // 2. Trigger the Deno Edge Function for background neural processing
       const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-crm-import`, {
         method: 'POST',
         headers: { 
@@ -122,14 +124,15 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
-        alert("Success: Neural Agent has begun processing the CRM data in the background.");
-        fetchDashboardData();
+        // Notify user that the Status Tracking Agent has taken over
+        alert("Import Handshake Successful: Background processing started.");
       }
     } catch (err) {
       console.error("Neural Import Failed:", err);
-      alert("System Alert: Import failed. Check logs.");
+      alert("System Alert: Connection to background agent failed.");
     } finally {
       setIsBulkLoading(false);
+      fetchDashboardData();
     }
   };
 
@@ -179,9 +182,9 @@ export default function DashboardPage() {
            <label className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-slate-900 border border-slate-800 hover:border-cyan-500/50 px-6 py-4 rounded-2xl cursor-pointer transition-all active:scale-95 group">
               {isBulkLoading ? <ArrowPathIcon className="w-5 h-5 text-cyan-400 animate-spin" /> : <ArrowUpTrayIcon className="w-5 h-5 text-cyan-400 group-hover:-translate-y-1 transition-transform" />}
               <span className="text-[11px] font-bold uppercase tracking-widest">
-                {isBulkLoading ? 'Processing...' : 'Import CRM'}
+                {isBulkLoading ? 'Processing' : 'Import CRM'}
               </span>
-              <input type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" disabled={isBulkLoading} />
+              <input type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} disabled={isBulkLoading} />
             </label>
             <button className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-cyan-600 text-white px-8 py-4 rounded-2xl hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-900/20 active:scale-95">
               <RocketLaunchIcon className="w-5 h-5 animate-pulse" />
