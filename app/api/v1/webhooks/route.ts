@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
       case 'billing.payment_failed':
         if (data.customerId) {
-          await billingService.handleFailedPayment(data.customerId);
+          await billingService.handlePayment(data);
         }
         break;
 
