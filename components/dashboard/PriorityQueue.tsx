@@ -4,17 +4,18 @@ import React from 'react';
 import { calculateLeadScore } from '@/lib/core/lead-scorer';
 import { getProprietaryName } from '@/lib/core/brand-mask';
 
-// 1. Define the Lead interface to satisfy TypeScript and pdx1 build checks
-interface LeadSignal {
-  // Add specific signal types here if known, otherwise record
-  [key: string]: any;
+// 1. Define the exact shape expected by the calculateLeadScore function
+interface LeadSignals {
+  sentiment: "Hot 🔥" | "Warm" | "Cold";
+  channelCount: number;
+  interactionDuration: number;
 }
 
 interface Lead {
   id: string;
   name: string;
   source: string;
-  signals: LeadSignal;
+  signals: LeadSignals; // Updated from the generic index signature
 }
 
 interface PriorityQueueProps {
@@ -32,7 +33,7 @@ export default function PriorityQueue({ leads }: PriorityQueueProps) {
       <table className="w-full text-left">
         <tbody className="divide-y divide-white/5">
           {leads.map((lead) => {
-            // Logic handled by imported scorers
+            // TypeScript now correctly maps lead.signals to the function parameters
             const { score, priority } = calculateLeadScore(lead.signals);
             return (
               <tr key={lead.id} className="hover:bg-white/[0.01] transition-colors group">
