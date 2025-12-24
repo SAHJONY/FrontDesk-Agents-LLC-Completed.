@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { handleBatchLeads } from '../../lib/core/lead-handler';
 
-/** * NATIONWIDE DYNAMIC GRID 
- * We iterate through every major US market to ensure total coverage.
+/** * NATIONWIDE DYNAMIC GRID - LOCATION INDIVIDUAL EDITION
+ * Captures specific street addresses and unique identifiers for every business.
  */
 const usGrid = [
   { state: 'TX', cities: ['Houston', 'Dallas', 'Austin', 'San Antonio'] },
@@ -15,7 +15,6 @@ const usGrid = [
   { state: 'PA', cities: ['Philadelphia', 'Pittsburgh'] },
   { state: 'OH', cities: ['Columbus', 'Cleveland', 'Cincinnati'] },
   { state: 'CA', cities: ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento'] }
-  // You can continue adding all 50 states here
 ];
 
 const winterVerticals = ['plumbing', 'hvac', 'heating-repair'];
@@ -27,14 +26,14 @@ async function runFullNationwideScrape() {
   for (const region of usGrid) {
     for (const city of region.cities) {
       for (const industry of winterVerticals) {
-        console.log(`🇺🇸 NATIONWIDE SCRAPE: ${industry} in ${city}, ${region.state}`);
+        console.log(`🇺🇸 TARGETING INDIVIDUALS: ${industry} in ${city}, ${region.state}`);
 
         try {
-          const query = `${industry} in ${city}, ${region.state}`;
           const response = await axios.get(`https://serpapi.com/search`, {
             params: {
-              q: query,
+              q: `${industry} in ${city}, ${region.state}`,
               engine: 'google_maps',
+              type: 'search',
               api_key: apiKey
             }
           });
@@ -44,26 +43,31 @@ async function runFullNationwideScrape() {
           const prospects = response.data.local_results.map(biz => ({
             full_name: biz.title,
             phone_number: biz.phone,
-            source: 'nationwide-automated-v1',
-            vertical: 'home-services', // Prioritizing winter emergency services
-            notes: `State: ${region.state} | City: ${city} | Dec 2025 Winter Push`,
+            // INDIVIDUAL DATA CAPTURE
+            address: biz.address, 
+            place_id: biz.place_id, // Unique Google ID for this specific location
+            source: 'location-individual-targeting',
+            vertical: 'home-services', 
+            notes: `Individual Shop: ${biz.title} | Street: ${biz.address}`,
             metadata: {
               city: city,
               state: region.state,
               rating: biz.rating,
-              reviews: biz.reviews
+              reviews: biz.reviews,
+              // Splitting address for hyper-local AI referencing
+              street_address: biz.address ? biz.address.split(',')[0] : 'Unknown Street'
             }
           }));
 
           // PUSH TO SOVEREIGN LEAD HANDLER
           const result = await handleBatchLeads(prospects, process.env.SYSTEM_BOT_ID);
-          console.log(`✅ Success for ${city}: ${result.success} leads processed.`);
+          console.log(`✅ ${city} Individuals: ${result.success} saved.`);
 
-          // PREVENT API THROTTLING (Rate Limit Protection)
+          // RATE LIMIT PROTECTION
           await new Promise(r => setTimeout(r, 2000));
 
         } catch (error) {
-          console.error(`❌ Fail in ${city}, ${region.state}:`, error.message);
+          console.error(`❌ Fail in ${city}:`, error.message);
         }
       }
     }
