@@ -1,20 +1,25 @@
+import { createClient } from '@/lib/supabase/server'; // FIX: Add missing import
+
 export async function checkBillingGuard(clientId: string) {
-  const supabase = createClient();
+  // FIX: In Next.js 15, server clients must be awaited
+  const supabase = await createClient();
   
   // 1. Obtener el límite mensual y el gasto actual del cliente
-  const { data: config } = await supabase
-    .from('client_billing')
-    .select('monthly_spend_cap, current_spend')
+  const { data: config, error } = await supabase
+    .from('client_billing_configs')
+    .select('monthly_limit, current_spend, status')
     .eq('client_id', clientId)
     .single();
 
-  if (!config) return true; // Si no hay límite, procede (Sovereign Mode)
+  if (error || !config) return { allowed: false, reason: 'Config not found' };
 
-  // 2. Si el gasto supera el 90%, disparar alerta al CEO Command Center
-  if (config.current_spend >= config.monthly_spend_cap * 0.9) {
-    await triggerCEOAlert(`⚠️ SOFT CAP: Cliente ${clientId} al 90% de su presupuesto.`);
-  }
+  // 2. Simple logic to prevent over-dispatched costs
+  const isWithinLimit = config.current_spend < config.monthly_limit;
+  const isActive = config.status === 'active';
 
-  // 3. Bloqueo preventivo si supera el 100%
-  return config.current_spend < config.monthly_spend_cap;
+  return {
+    allowed: isWithinLimit && isActive,
+    currentSpend: config.current_spend,
+    limit: config.monthly_limit
+  };
 }
