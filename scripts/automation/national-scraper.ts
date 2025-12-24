@@ -2,7 +2,6 @@ import axios from 'axios';
 import { handleBatchLeads } from '../../lib/core/lead-handler';
 
 /** * UNIVERSAL INDUSTRY MATRIX
- * We map every high-ticket niche to a core 'Vertical' in your system.
  */
 const industryMatrix = {
   'home-services': ['plumbing', 'hvac', 'roofing', 'electrical', 'landscaping'],
@@ -11,20 +10,43 @@ const industryMatrix = {
   'automotive': ['auto repair', 'collision center', 'transmission shop']
 };
 
-const usGrid = [
-  { state: 'TX', cities: ['Houston', 'Dallas', 'Austin', 'San Antonio'] },
-  { state: 'FL', cities: ['Miami', 'Orlando', 'Tampa', 'Jacksonville'] },
-  { state: 'CA', cities: ['Los Angeles', 'San Diego', 'San Francisco'] },
-  // ... System iterates through all 50 states
-];
+/**
+ * PHASE II: REGIONAL CLUSTERS
+ * We now group cities into "High-Density Corridors" for strategic dominance.
+ */
+const usClusters = {
+  'TEXAS_TRIANGLE': {
+    state: 'TX',
+    cities: ['Houston', 'Dallas', 'Austin', 'San Antonio', 'Fort Worth', 'Waco']
+  },
+  'FL_CORRIDOR': {
+    state: 'FL',
+    cities: ['Miami', 'Orlando', 'Tampa', 'Fort Lauderdale', 'West Palm Beach']
+  },
+  'NE_MEGALOPOLIS': {
+    state: 'NY/PA/MA',
+    cities: ['New York City', 'Philadelphia', 'Boston', 'Washington DC', 'Baltimore', 'Newark']
+  },
+  'CALI_COAST': {
+    state: 'CA',
+    cities: ['Los Angeles', 'San Francisco', 'San Diego', 'San Jose', 'Sacramento']
+  },
+  'MIDWEST_HUB': {
+    state: 'IL/MI/OH',
+    cities: ['Chicago', 'Detroit', 'Indianapolis', 'Columbus', 'Milwaukee']
+  }
+};
 
 async function runUniversalNationwideScrape() {
   const apiKey = process.env.SERPAPI_KEY;
   if (!apiKey) throw new Error("CRITICAL: SERPAPI_KEY missing.");
 
-  for (const region of usGrid) {
+  // 1. Iterate through regional clusters
+  for (const [clusterName, region] of Object.entries(usClusters)) {
+    console.log(`📡 CLUSTER ACTIVATED: ${clusterName}`);
+
     for (const city of region.cities) {
-      // Loop through every Industry Sector
+      // 2. Loop through every Industry Sector
       for (const [vertical, niches] of Object.entries(industryMatrix)) {
         for (const niche of niches) {
           console.log(`🌍 UNIVERSAL DEPLOYMENT: ${niche} | ${city}, ${region.state}`);
@@ -32,7 +54,7 @@ async function runUniversalNationwideScrape() {
           try {
             const response = await axios.get(`https://serpapi.com/search`, {
               params: {
-                q: `${niche} in ${city}, ${region.state}`,
+                q: `${niche} in ${city}`,
                 engine: 'google_maps',
                 type: 'search',
                 api_key: apiKey
@@ -46,12 +68,13 @@ async function runUniversalNationwideScrape() {
               phone_number: biz.phone,
               address: biz.address, 
               place_id: biz.place_id,
-              source: 'universal-omni-sniper',
-              vertical: vertical, // Automatically assigned based on matrix
-              notes: `Industry: ${niche} | Individual Target: ${biz.title}`,
+              source: `cluster-${clusterName.toLowerCase()}`,
+              vertical: vertical,
+              notes: `Cluster: ${clusterName} | Industry: ${niche}`,
               metadata: {
                 city,
                 state: region.state,
+                cluster: clusterName,
                 niche,
                 rating: biz.rating,
                 street_address: biz.address ? biz.address.split(',')[0] : 'Unknown'
@@ -59,10 +82,10 @@ async function runUniversalNationwideScrape() {
             }));
 
             const result = await handleBatchLeads(prospects, process.env.SYSTEM_BOT_ID);
-            console.log(`✅ ${city} [${niche}]: ${result.success} Ingested.`);
+            console.log(`✅ ${city} [${niche}]: ${result.success} Ingested via ${clusterName}.`);
 
-            // Protection against Google/SerpApi blocking
-            await new Promise(r => setTimeout(r, 2000));
+            // Rate limit protection
+            await new Promise(r => setTimeout(r, 1500));
 
           } catch (error) {
             console.error(`❌ Fail in ${city} for ${niche}:`, error.message);
