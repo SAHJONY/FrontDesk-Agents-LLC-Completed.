@@ -7,12 +7,17 @@ export default function EmergencyOverride() {
 
   const triggerNationwideSniper = async () => {
     setStatus('🚀 Deploying Sniper...');
+    
     // Calls your internal API which triggers the scraper script
     await fetch('/api/admin/force-scrape', {
       method: 'POST',
-      body: JSON.stringify({ city, industry: 'plumbing' }),
-      headers: { 'x-platform-secret': process.env.NEXT_PUBLIC_INTERNAL_KEY }
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-platform-secret': process.env.NEXT_PUBLIC_INTERNAL_KEY || ''
+      },
+      body: JSON.stringify({ city, industry: 'plumbing' })
     });
+    
     setStatus('✅ Targets Ingested. AI Dispatch Armed.');
   };
 
