@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createServerSupabase } from '@/lib/supabase/server';
 import { getSeasonalContext } from '@/lib/core/seasonal-logic';
 import { getClusterContext } from '@/lib/prompts/cluster-logic';
 
 export async function POST(req: Request) {
   try {
     const { leadId, clientId, phoneNumber, vertical, businessName, city, cluster } = await req.json();
-    const supabase = createClient();
+    const supabase = createServerSupabase();
 
     // 1. VERIFY SOVEREIGN AUTH
     const authHeader = req.headers.get('x-platform-secret');
@@ -74,7 +74,11 @@ export async function POST(req: Request) {
     const data = await response.json();
     return NextResponse.json({ success: true, call_id: data.call_id });
 
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: any) {
+    console.error('Call initiation error:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: error?.message || 'Call initiation failed' 
+    }, { status: 500 });
   }
 }
