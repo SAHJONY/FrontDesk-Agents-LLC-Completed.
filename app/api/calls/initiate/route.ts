@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getSeasonalContext } from '@/lib/core/seasonal-logic';
+import { getClusterContext } from '@/lib/prompts/cluster-logic';
 
 export async function POST(req: Request) {
   try {
-    const { leadId, clientId, phoneNumber, vertical, businessName, city } = await req.json();
+    const { leadId, clientId, phoneNumber, vertical, businessName, city, cluster } = await req.json();
     const supabase = createClient();
 
     // 1. VERIFY SOVEREIGN AUTH
@@ -13,8 +14,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. FETCH SEASONAL CONTEXT (Dec 23, 2025 Reality)
+    // 2. FETCH CONTEXTUAL INTELLIGENCE
     const seasonal = getSeasonalContext();
+    const clusterInfo = getClusterContext(cluster); // NEW: Fetches landmarks & neighbors
 
     // 3. FETCH CLIENT CRM CONFIG
     const { data: clientConfig, error: crmError } = await supabase
@@ -27,25 +29,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Client CRM not configured' }, { status: 400 });
     }
 
-    // 4. CONSTRUCT THE UNIVERSAL OMNI-PROMPT
-    // This merges the Industry, the Season, and the Local Geography
+    // 4. CONSTRUCT THE HYPER-LOCAL OMNI-PROMPT
     const promptBase = `
-      ROLE: Professional Dispatcher for ${businessName} in ${city}.
-      VERTICAL: ${vertical}
-      CURRENT_SEASON: ${seasonal.season}
+      ROLE: Expert Local Dispatcher for ${businessName} in ${city}.
+      GEOGRAPHIC_CONTEXT: You are operating in the ${cluster} region. 
+      LANDMARKS: Use local references like ${clusterInfo.landmarks.join(' or ')} to build trust.
+      NETWORK: Mention that we are currently coordinating emergency crews across ${clusterInfo.neighbors}.
       
-      CORE MISSION: 
-      It is currently the ${seasonal.season} season. You must prioritize ${seasonal.keywords.join(', ')}.
-      If a caller mentions these, utilize "Crisis Mode" logic to secure the booking immediately.
+      SEASONAL_MODE: It is ${seasonal.season}. Prioritize: ${seasonal.keywords.join(', ')}.
       
-      CRM INTEGRATION:
-      Verify all bookings via ${clientConfig.crm_provider_url}.
-      Life-safety emergencies must be transferred to: ${clientConfig.emergency_phone}.
+      MISSION: If a caller has a ${seasonal.keywords[0]}, use "Crisis Mode" (High-Urgency Tone).
       
-      TONE_TRIGGER: ${seasonal.tone_trigger}
+      CRM_PROTOCOL:
+      Verify availability via ${clientConfig.crm_provider_url}.
+      Transfers for life-safety go to: ${clientConfig.emergency_phone}.
+      
+      TONE: ${clusterInfo.vibe} / ${seasonal.tone_trigger}.
     `;
 
-    // 5. EXECUTE AI DISPATCH (Bland AI Handshake)
+    // 5. EXECUTE DISPATCH
     const response = await fetch('https://api.bland.ai/v1/calls', {
       method: 'POST',
       headers: {
@@ -60,11 +62,11 @@ export async function POST(req: Request) {
           crm_key: clientConfig.crm_api_key,
           crm_type: clientConfig.crm_provider,
           emergency_contact: clientConfig.emergency_phone,
-          seasonal_priority: seasonal.keywords[0]
+          seasonal_priority: seasonal.keywords[0],
+          cluster_id: cluster
         },
         wait_for_greeting: true,
         record: true,
-        // High-priority low-latency routing for winter emergencies
         amd: true 
       }),
     });
