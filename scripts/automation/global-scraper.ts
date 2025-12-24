@@ -1,31 +1,64 @@
-/**
- * FRONTDESK AGENTS - GLOBAL GROWTH SCRAPER
- * Targets: HVAC, Medical, Law across Worldwide Markets
- */
 import axios from 'axios';
-import { handleBatchLeads } from './lib/core/lead-handler';
+import { handleBatchLeads } from '../../lib/core/lead-handler';
 
-async function scrapeGlobalProspects(city, industry) {
-  console.log(`🚀 Scaping ${industry} in ${city}...`);
-  
-  // 1. Query Search API for businesses in target vertical
-  const query = `${industry} companies in ${city}`;
-  const response = await axios.get(`https://serpapi.com/search?q=${query}&engine=google_maps&api_key=YOUR_KEY`);
-  
-  const prospects = response.data.local_results.map(biz => ({
-    full_name: biz.title,
-    phone_number: biz.phone,
-    source: 'referral', // Tagged for high-priority outreach
-    vertical: industry === 'hvac' ? 'home-services' : 'medical',
-    notes: `Global Scrape: ${city}. Rating: ${biz.rating}. Reviews: ${biz.reviews}`,
-  }));
+// Nationwide Target List
+const targetMarkets = [
+  { city: 'Houston, TX', industry: 'hvac' },
+  { city: 'Dallas, TX', industry: 'plumbing' },
+  { city: 'Miami, FL', industry: 'medical' },
+  { city: 'Phoenix, AZ', industry: 'dentist' },
+  { city: 'Atlanta, GA', industry: 'law-firms' }
+];
 
-  // 2. Push to your Sovereign Engine in batches
-  const result = await handleBatchLeads(prospects, 'SYSTEM_BOT_ID');
-  console.log(`✅ Success: ${result.success} | ❌ Failed: ${result.failed}`);
+async function scrapeNationalProspects() {
+  const apiKey = process.env.SERPAPI_KEY; // Pulled from your hidden .env
+  
+  for (const market of targetMarkets) {
+    console.log(`🚀 Nationwide Push: Scaping ${market.industry} in ${market.city}...`);
+    
+    try {
+      const query = `${market.industry} in ${market.city}`;
+      const response = await axios.get(`https://serpapi.com/search`, {
+        params: {
+          q: query,
+          engine: 'google_maps',
+          api_key: apiKey
+        }
+      });
+
+      const prospects = response.data.local_results.map(biz => ({
+        full_name: biz.title,
+        phone_number: biz.phone,
+        source: 'automated-scraper', 
+        vertical: mapVertical(market.industry),
+        notes: `US Market: ${market.city} | Rating: ${biz.rating}`,
+        metadata: {
+          city: market.city,
+          rating: biz.rating,
+          reviews: biz.reviews
+        }
+      }));
+
+      // Push to your Sovereign Lead Handler
+      const result = await handleBatchLeads(prospects, process.env.SYSTEM_BOT_ID);
+      console.log(`✅ ${market.city} Results: ${result.success} Success | ${result.failed} Failed`);
+
+    } catch (error) {
+      console.error(`❌ Error scraping ${market.city}:`, error.message);
+    }
+  }
 }
 
-// Example: Target high-density markets
-scrapeGlobalProspects('Houston', 'hvac');      // Local
-scrapeGlobalProspects('London', 'medical');     // Europe
-scrapeGlobalProspects('Sydney', 'law-firms');   // Oceania
+// Helper to ensure leads go to the right vertical funnel
+function mapVertical(industry) {
+  const map = {
+    'hvac': 'home-services',
+    'plumbing': 'home-services',
+    'medical': 'medical',
+    'dentist': 'dental',
+    'law-firms': 'law'
+  };
+  return map[industry] || 'general';
+}
+
+scrapeNationalProspects();
