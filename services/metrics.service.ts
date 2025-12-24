@@ -1,46 +1,23 @@
-import { MetricData } from '@/types/metrics';
+// metrics.service.ts
+import { createClient } from '@/lib/supabase/server'; // 1. Point to the correct file
+import { telegramBot } from '@/lib/telegram';
 
-export interface OperationalMetrics {
-  calls: MetricData;
-  conversion: MetricData;
-  satisfaction: MetricData;
-  error: MetricData;
-  automationSuccess: MetricData;
+export async function processMetrics() {
+  // 2. Initialize the client inside the function for Next.js 15
+  const supabase = await createClient(); 
+
+  const { data, error } = await supabase
+    .from('metrics')
+    .select('*')
+    .limit(10);
+
+  if (error) {
+    console.error('Metrics Sync Error:', error.message);
+    return;
+  }
+  
+  // Logic for Telegram alerts if metrics spike (e.g., Freeze alerts)
+  if (data.length > 100) {
+    await telegramBot.sendMessage('🚀 Lead volume spike detected in Houston!');
+  }
 }
-
-export const fetchOperationalMetrics = (): Promise<OperationalMetrics> => {
-  const simulatedData: OperationalMetrics = {
-    calls: {
-      value: "2,560",
-      trend: 12.5,
-      unit: "%",
-      direction: 'up',
-    },
-    conversion: {
-      value: "18.1%",
-      trend: 2.1,
-      unit: "%",
-      direction: 'up',
-    },
-    satisfaction: {
-      value: "97%",
-      trend: -0.1,
-      unit: "%",
-      direction: 'down',
-    },
-    error: {
-      value: "0.5%",
-      trend: -0.2,
-      unit: "%",
-      direction: 'up',
-    },
-    automationSuccess: {
-      value: "85%",
-      trend: 1.5,
-      unit: "%",
-      direction: 'up',
-    },
-  };
-
-  return Promise.resolve(simulatedData);
-};
