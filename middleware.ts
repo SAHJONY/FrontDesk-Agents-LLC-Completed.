@@ -4,10 +4,22 @@ import { languages, defaultLanguage, isSupportedLanguage } from './config/langua
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const country = request.geo?.country || 'US' // Geo-detection at the Edge
+  const city = request.geo?.city || 'Global'
+  
+  // --- 1. THE GEOGRAPHIC CHAMELEON: MARKET DETECTION ---
+  // We classify markets to determine pricing, currency, and "local" feel
+  let userRegion = 'WESTERN'
+  const growthMarkets = ['VN', 'IN', 'PH', 'ID', 'PK', 'TH', 'BD', 'LK', 'NP']
+  const mediumMarkets = ['TR', 'BR', 'MX', 'EG', 'CO', 'AR', 'CL', 'PE', 'ZA', 'NG', 'KE']
+  
+  if (growthMarkets.includes(country)) userRegion = 'GROWTH'
+  else if (mediumMarkets.includes(country)) userRegion = 'MEDIUM'
+
+  // --- 2. LANGUAGE & LOCALE DETECTION ---
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
   const acceptLanguage = request.headers.get('accept-language')
   
-  // --- 1. DETECCIÓN DE IDIOMA ---
   let detectedLocale = defaultLanguage
   if (cookieLocale && isSupportedLanguage(cookieLocale)) {
     detectedLocale = cookieLocale
@@ -18,7 +30,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- 2. LOCALIZACIÓN DE URL ---
+  // --- 3. URL LOCALIZATION ENFORCEMENT ---
   const segments = pathname.split('/').filter(Boolean)
   const firstSegment = segments[0]
   const hasValidLocale = firstSegment && isSupportedLanguage(firstSegment)
@@ -30,22 +42,14 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/premium') || 
     ['/favicon.ico', '/robots.txt', '/sitemap.xml'].includes(pathname)
 
+  // Redirect to localized path (e.g., /en/dashboard)
   if (!hasValidLocale && !isSpecialPath) {
     const url = request.nextUrl.clone()
     url.pathname = `/${detectedLocale}${pathname}`
     return NextResponse.redirect(url)
   }
 
-  // --- 3. DETECCIÓN DE REGIÓN (Western vs Growth) ---
-  const country = request.geo?.country || 'US'
-  let userRegion = 'WESTERN'
-  const growthMarkets = ['VN', 'IN', 'PH', 'ID', 'PK', 'TH', 'BD', 'LK', 'NP']
-  const mediumMarkets = ['TR', 'BR', 'MX', 'EG', 'CO', 'AR', 'CL', 'PE', 'ZA', 'NG', 'KE']
-  
-  if (growthMarkets.includes(country)) userRegion = 'GROWTH'
-  else if (mediumMarkets.includes(country)) userRegion = 'MEDIUM'
-
-  // --- 4. MODO MANTENIMIENTO ---
+  // --- 4. MAINTENANCE & ACCESS CONTROL ---
   if (process.env.MAINTENANCE_MODE === 'true') {
     const isExcluded = pathname.startsWith('/api') || pathname.includes('/admin') || pathname.includes('/auth') || pathname.includes('/coming-soon')
     if (!isExcluded) {
@@ -55,7 +59,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- 5. SUPABASE SSR AUTH & ADMIN LOCKDOWN ---
+  // --- 5. AUTH & SOVEREIGN SECURITY (Supabase SSR) ---
   let response = NextResponse.next({
     request: { headers: request.headers }
   })
@@ -79,11 +83,9 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
   
-  // Protección de rutas sensibles
   const isAdminRoute = /^\/(?:[a-z]{2}\/)?(admin|owner|analytics)/.test(pathname)
   const isProtectedRoute = /^\/(?:[a-z]{2}\/)?(dashboard|settings|profile)/.test(pathname)
 
-  // A. Redirección si no hay sesión
   if (!user && (isProtectedRoute || isAdminRoute)) {
     const url = request.nextUrl.clone()
     url.pathname = `/${detectedLocale}/login`
@@ -91,20 +93,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // B. EL FILTRO MONOPOLY: Bloqueo absoluto de rutas Admin por ID
+  // ADMIN LOCKDOWN: Stealth Mode
   if (isAdminRoute && user?.id !== process.env.ADMIN_OWNER_ID) {
     const url = request.nextUrl.clone()
-    url.pathname = '/404' // El intruso ni siquiera sabe que la página existe
+    url.pathname = '/404' 
     return NextResponse.redirect(url)
   }
 
-  // --- 6. HEADERS DE METADATOS ---
+  // --- 6. NEURAL LOCALIZATION HEADERS ---
+  // These headers allow your frontend components to say: "As a [Local] Platform..."
   const selectedLang = languages.find(l => l.code === detectedLocale)
   
   response.headers.set('x-detected-locale', detectedLocale)
   response.headers.set('x-detected-dir', selectedLang?.dir || 'ltr')
   response.headers.set('x-user-region', userRegion)
   response.headers.set('x-user-country', country)
+  response.headers.set('x-user-city', city) // For hyper-local "Houston Node" style branding
   
   response.cookies.set('NEXT_LOCALE', detectedLocale, {
     path: '/',
