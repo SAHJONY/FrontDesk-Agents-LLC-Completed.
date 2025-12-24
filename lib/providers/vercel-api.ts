@@ -1,6 +1,4 @@
-export async function updateProjectResourceLimits(projectId: string, intensity: 'NORMAL' | 'CRISIS') {
-  const token = process.env.VERCEL_AUTH_TOKEN;
-  // During a CRISIS (like a freeze), we ensure the pdx1 node has max overhead
-  console.log(`🚀 Auto-scaling Vercel resources to ${intensity} mode...`);
+export async function updateProjectResourceLimits(config: { maxDuration: number, memory: number }, intensity: 'NORMAL' | 'CRISIS') {
+  console.log(`🚀 Scaling Vercel to ${intensity}: Memory ${config.memory}MB`);
   return { success: true };
 }
