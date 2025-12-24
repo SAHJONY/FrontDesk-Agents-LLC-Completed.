@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { ROICalculator } from '@/components/marketing/ROICalculator';
-import { industryMatrix } from '@/config/industries';
+import { industryMatrix, usGrid } from '@/config/industries';
 
 // 1. GENERATE STATIC PARAMS (Build-time optimization)
 // This pre-renders every city/industry combo for near-instant load speeds
@@ -56,7 +56,13 @@ export default function ProgrammaticCityPage({ params }: any) {
       </section>
 
       {/* CTA: Final Matrix */}
-      <PricingMatrix />
+      {/* Note: PricingMatrix component needs to be imported or removed */}
+      <div className="py-24 text-center">
+        <h2 className="text-4xl font-black uppercase">Ready to Deploy?</h2>
+        <button className="mt-8 px-12 py-4 bg-cyan-500 text-black font-black uppercase rounded-2xl">
+          Activate Sovereign AI
+        </button>
+      </div>
     </div>
   );
 }
