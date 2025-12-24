@@ -5,17 +5,14 @@ export async function initiateAutoScalar(clusterName: string, intensity: 'NORMAL
   console.log(`📡 SCALING PROTOCOL: Initiating ${intensity} mode for ${clusterName}`);
 
   if (intensity === 'CRISIS') {
-    // 1. Upgrade Vercel Edge Function concurrency
-    await updateProjectResourceLimits({ maxDuration: 300, memory: 3008 });
+    // 1. Upgrade Vercel Edge Function concurrency - Added 2nd argument
+    await updateProjectResourceLimits({ maxDuration: 300, memory: 3008 }, 'CRISIS');
     
-    // 2. Expand Supabase Connection Pool for high-volume logging
-    await scaleDatabasePool({ mode: 'transaction', size: 100 });
-    
-    // 3. Notify CEO Command Center
-    console.log("🚀 INFRASTRUCTURE REINFORCED: Infinite Scale Active.");
+    // 2. Expand Supabase Connection Pool - Added 2nd argument
+    await scaleDatabasePool({ mode: 'transaction', size: 100 }, 'CRISIS');
   } else {
-    // Revert to Standard Efficiency (Cost-Saving Mode)
-    await updateProjectResourceLimits({ maxDuration: 60, memory: 1024 });
-    await scaleDatabasePool({ mode: 'session', size: 20 });
+    // Standard operating parameters
+    await updateProjectResourceLimits({ maxDuration: 15, memory: 1024 }, 'NORMAL');
+    await scaleDatabasePool({ mode: 'session', size: 20 }, 'NORMAL');
   }
 }
