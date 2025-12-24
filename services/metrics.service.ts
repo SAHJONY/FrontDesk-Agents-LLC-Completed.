@@ -1,23 +1,27 @@
 // metrics.service.ts
-import { createClient } from '@/lib/supabase/server'; // Point to the server client
+import { createClient } from '@/lib/supabase/server'; // Point to the correct server helper
 import { telegramBot } from '@/lib/telegram';
 
 export const metricsService = {
-  async trackEvent(eventName: string, payload: any) {
-    // Initialize the client within the method
+  async logLeadMetric(leadData: any) {
+    // Initialize the client inside the function
     const supabase = await createClient();
 
     const { error } = await supabase
       .from('metrics')
-      .insert([{ event_name: eventName, data: payload, created_at: new Date() }]);
+      .insert([{ 
+        type: 'LEAD_INBOUND', 
+        details: leadData, 
+        timestamp: new Date().toISOString() 
+      }]);
 
     if (error) {
-      console.error('Failed to log metric:', error.message);
+      console.error('❌ Metrics Log Failed:', error.message);
     }
-
-    // Trigger emergency alert if this is a high-priority freeze lead
-    if (payload.priority === 'priority_1') {
-      await telegramBot.sendMessage(`🚨 URGENT: High-priority lead captured in Houston!`);
+    
+    // Alerting logic for Houston Freeze leads
+    if (leadData.priority === 'CRISIS') {
+      await telegramBot.sendMessage(`🚨 FREEZE ALERT: Emergency lead captured for ${leadData.vertical}`);
     }
   }
 };
