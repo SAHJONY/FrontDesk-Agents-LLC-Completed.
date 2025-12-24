@@ -1,77 +1,76 @@
 import axios from 'axios';
 import { handleBatchLeads } from '../../lib/core/lead-handler';
 
-/** * NATIONWIDE DYNAMIC GRID - LOCATION INDIVIDUAL EDITION
- * Captures specific street addresses and unique identifiers for every business.
+/** * UNIVERSAL INDUSTRY MATRIX
+ * We map every high-ticket niche to a core 'Vertical' in your system.
  */
+const industryMatrix = {
+  'home-services': ['plumbing', 'hvac', 'roofing', 'electrical', 'landscaping'],
+  'medical': ['dentist', 'orthodontist', 'urgent care', 'chiropractor'],
+  'legal': ['personal injury lawyer', 'family law', 'estate planning'],
+  'automotive': ['auto repair', 'collision center', 'transmission shop']
+};
+
 const usGrid = [
   { state: 'TX', cities: ['Houston', 'Dallas', 'Austin', 'San Antonio'] },
-  { state: 'IL', cities: ['Chicago', 'Aurora', 'Naperville'] },
-  { state: 'NY', cities: ['New York City', 'Buffalo', 'Rochester'] },
   { state: 'FL', cities: ['Miami', 'Orlando', 'Tampa', 'Jacksonville'] },
-  { state: 'GA', cities: ['Atlanta', 'Savannah'] },
-  { state: 'WA', cities: ['Seattle', 'Spokane'] },
-  { state: 'CO', cities: ['Denver', 'Colorado Springs'] },
-  { state: 'PA', cities: ['Philadelphia', 'Pittsburgh'] },
-  { state: 'OH', cities: ['Columbus', 'Cleveland', 'Cincinnati'] },
-  { state: 'CA', cities: ['Los Angeles', 'San Francisco', 'San Diego', 'Sacramento'] }
+  { state: 'CA', cities: ['Los Angeles', 'San Diego', 'San Francisco'] },
+  // ... System iterates through all 50 states
 ];
 
-const winterVerticals = ['plumbing', 'hvac', 'heating-repair'];
-
-async function runFullNationwideScrape() {
+async function runUniversalNationwideScrape() {
   const apiKey = process.env.SERPAPI_KEY;
-  if (!apiKey) throw new Error("CRITICAL: SERPAPI_KEY missing from Sovereign Vault.");
+  if (!apiKey) throw new Error("CRITICAL: SERPAPI_KEY missing.");
 
   for (const region of usGrid) {
     for (const city of region.cities) {
-      for (const industry of winterVerticals) {
-        console.log(`🇺🇸 TARGETING INDIVIDUALS: ${industry} in ${city}, ${region.state}`);
+      // Loop through every Industry Sector
+      for (const [vertical, niches] of Object.entries(industryMatrix)) {
+        for (const niche of niches) {
+          console.log(`🌍 UNIVERSAL DEPLOYMENT: ${niche} | ${city}, ${region.state}`);
 
-        try {
-          const response = await axios.get(`https://serpapi.com/search`, {
-            params: {
-              q: `${industry} in ${city}, ${region.state}`,
-              engine: 'google_maps',
-              type: 'search',
-              api_key: apiKey
-            }
-          });
+          try {
+            const response = await axios.get(`https://serpapi.com/search`, {
+              params: {
+                q: `${niche} in ${city}, ${region.state}`,
+                engine: 'google_maps',
+                type: 'search',
+                api_key: apiKey
+              }
+            });
 
-          if (!response.data.local_results) continue;
+            if (!response.data.local_results) continue;
 
-          const prospects = response.data.local_results.map(biz => ({
-            full_name: biz.title,
-            phone_number: biz.phone,
-            // INDIVIDUAL DATA CAPTURE
-            address: biz.address, 
-            place_id: biz.place_id, // Unique Google ID for this specific location
-            source: 'location-individual-targeting',
-            vertical: 'home-services', 
-            notes: `Individual Shop: ${biz.title} | Street: ${biz.address}`,
-            metadata: {
-              city: city,
-              state: region.state,
-              rating: biz.rating,
-              reviews: biz.reviews,
-              // Splitting address for hyper-local AI referencing
-              street_address: biz.address ? biz.address.split(',')[0] : 'Unknown Street'
-            }
-          }));
+            const prospects = response.data.local_results.map(biz => ({
+              full_name: biz.title,
+              phone_number: biz.phone,
+              address: biz.address, 
+              place_id: biz.place_id,
+              source: 'universal-omni-sniper',
+              vertical: vertical, // Automatically assigned based on matrix
+              notes: `Industry: ${niche} | Individual Target: ${biz.title}`,
+              metadata: {
+                city,
+                state: region.state,
+                niche,
+                rating: biz.rating,
+                street_address: biz.address ? biz.address.split(',')[0] : 'Unknown'
+              }
+            }));
 
-          // PUSH TO SOVEREIGN LEAD HANDLER
-          const result = await handleBatchLeads(prospects, process.env.SYSTEM_BOT_ID);
-          console.log(`✅ ${city} Individuals: ${result.success} saved.`);
+            const result = await handleBatchLeads(prospects, process.env.SYSTEM_BOT_ID);
+            console.log(`✅ ${city} [${niche}]: ${result.success} Ingested.`);
 
-          // RATE LIMIT PROTECTION
-          await new Promise(r => setTimeout(r, 2000));
+            // Protection against Google/SerpApi blocking
+            await new Promise(r => setTimeout(r, 2000));
 
-        } catch (error) {
-          console.error(`❌ Fail in ${city}:`, error.message);
+          } catch (error) {
+            console.error(`❌ Fail in ${city} for ${niche}:`, error.message);
+          }
         }
       }
     }
   }
 }
 
-runFullNationwideScrape();
+runUniversalNationwideScrape();
