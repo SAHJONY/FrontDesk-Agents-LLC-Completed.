@@ -1,19 +1,22 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getSeasonalContext } from '@/lib/core/seasonal-logic';
 
 export async function POST(req: Request) {
   try {
-    const { leadId, clientId, phoneNumber, vertical } = await req.json();
+    const { leadId, clientId, phoneNumber, vertical, businessName, city } = await req.json();
     const supabase = createClient();
 
-    // 1. VERIFY SOVEREIGN AUTH (Internal Security)
+    // 1. VERIFY SOVEREIGN AUTH
     const authHeader = req.headers.get('x-platform-secret');
     if (authHeader !== process.env.PLATFORM_INTERNAL_KEY) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. FETCH CLIENT CRM CONFIG (The "Last Mile" Secret)
-    // This pulls the private API keys you collected in the Onboarding Form.
+    // 2. FETCH SEASONAL CONTEXT (Dec 23, 2025 Reality)
+    const seasonal = getSeasonalContext();
+
+    // 3. FETCH CLIENT CRM CONFIG
     const { data: clientConfig, error: crmError } = await supabase
       .from('client_configurations')
       .select('crm_api_key, crm_provider, emergency_phone, crm_provider_url')
@@ -21,16 +24,28 @@ export async function POST(req: Request) {
       .single();
 
     if (crmError || !clientConfig) {
-      console.error("CRM Config Missing:", crmError);
       return NextResponse.json({ error: 'Client CRM not configured' }, { status: 400 });
     }
 
-    // 3. CONSTRUCT THE HYPER-LOCAL PROMPT (Neural Logic)
-    const promptBase = `You are a dispatcher for a ${vertical} firm. 
-    Use the following CRM Endpoint to verify availability: ${clientConfig.crm_provider_url}.
-    If it is a life-safety emergency, transfer to: ${clientConfig.emergency_phone}`;
+    // 4. CONSTRUCT THE UNIVERSAL OMNI-PROMPT
+    // This merges the Industry, the Season, and the Local Geography
+    const promptBase = `
+      ROLE: Professional Dispatcher for ${businessName} in ${city}.
+      VERTICAL: ${vertical}
+      CURRENT_SEASON: ${seasonal.season}
+      
+      CORE MISSION: 
+      It is currently the ${seasonal.season} season. You must prioritize ${seasonal.keywords.join(', ')}.
+      If a caller mentions these, utilize "Crisis Mode" logic to secure the booking immediately.
+      
+      CRM INTEGRATION:
+      Verify all bookings via ${clientConfig.crm_provider_url}.
+      Life-safety emergencies must be transferred to: ${clientConfig.emergency_phone}.
+      
+      TONE_TRIGGER: ${seasonal.tone_trigger}
+    `;
 
-    // 4. PASS CRM DATA TO AI MEMORY (Bland AI Handshake)
+    // 5. EXECUTE AI DISPATCH (Bland AI Handshake)
     const response = await fetch('https://api.bland.ai/v1/calls', {
       method: 'POST',
       headers: {
@@ -41,14 +56,16 @@ export async function POST(req: Request) {
         phone_number: phoneNumber,
         task: promptBase,
         voice: "nat",
-        // request_data allows the AI to use these variables in its own internal tools
         request_data: { 
           crm_key: clientConfig.crm_api_key,
           crm_type: clientConfig.crm_provider,
-          emergency_contact: clientConfig.emergency_phone
+          emergency_contact: clientConfig.emergency_phone,
+          seasonal_priority: seasonal.keywords[0]
         },
         wait_for_greeting: true,
-        record: true
+        record: true,
+        // High-priority low-latency routing for winter emergencies
+        amd: true 
       }),
     });
 
