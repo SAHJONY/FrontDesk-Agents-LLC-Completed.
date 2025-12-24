@@ -46,7 +46,7 @@ export default function ProgrammaticCityPage({ params }: any) {
       </section>
 
       {/* ROI Engine (Context-Aware) */}
-      <ROICalculator defaultIndustry={industry} defaultCity={city} />
+      <ROICalculator />
 
       {/* Social Proof: Localized */}
       <section className="py-12 bg-white/5 border-y border-white/10">
