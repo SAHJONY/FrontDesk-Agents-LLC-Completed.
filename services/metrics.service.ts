@@ -1,23 +1,23 @@
 // metrics.service.ts
-import { createClient } from '@/lib/supabase/server'; // 1. Point to the correct file
+import { createClient } from '@/lib/supabase/server'; // Point to the server client
 import { telegramBot } from '@/lib/telegram';
 
-export async function processMetrics() {
-  // 2. Initialize the client inside the function for Next.js 15
-  const supabase = await createClient(); 
+export const metricsService = {
+  async trackEvent(eventName: string, payload: any) {
+    // Initialize the client within the method
+    const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from('metrics')
-    .select('*')
-    .limit(10);
+    const { error } = await supabase
+      .from('metrics')
+      .insert([{ event_name: eventName, data: payload, created_at: new Date() }]);
 
-  if (error) {
-    console.error('Metrics Sync Error:', error.message);
-    return;
+    if (error) {
+      console.error('Failed to log metric:', error.message);
+    }
+
+    // Trigger emergency alert if this is a high-priority freeze lead
+    if (payload.priority === 'priority_1') {
+      await telegramBot.sendMessage(`🚨 URGENT: High-priority lead captured in Houston!`);
+    }
   }
-  
-  // Logic for Telegram alerts if metrics spike (e.g., Freeze alerts)
-  if (data.length > 100) {
-    await telegramBot.sendMessage('🚀 Lead volume spike detected in Houston!');
-  }
-}
+};
