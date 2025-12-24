@@ -1,25 +1,43 @@
-name: Global Lead Ingestion
+name: Nationwide Lead Ingestion
 on:
   schedule:
-    # Runs every Sunday at 00:00 UTC
+    # Runs every Sunday at 00:00 UTC (Saturday night in the US)
     - cron: '0 0 * * 0'
-  workflow_dispatch: # Allows you to run it manually from GitHub UI
+  workflow_dispatch: # For manual nationwide "on-demand" pushes
 
 jobs:
   scrape-and-feed:
     runs-on: ubuntu-latest
+    # Added timeout to allow for full 50-state traversal
+    timeout-minutes: 60 
+    
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
           
       - name: Install Dependencies
-        run: npm install axios
+        run: |
+          npm install axios ts-node typescript @types/node
         
-      - name: Execute Global Scraper
+      - name: Execute Nationwide Expansion
         env:
+          # Your Sovereign Vault Keys
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
-        run: npx ts-node scripts/automation/global-scraper.ts
+          SYSTEM_BOT_ID: ${{ secrets.SYSTEM_BOT_ID }}
+          # Ensure the script points to your updated national file
+        run: npx ts-node scripts/automation/national-scraper.ts
+
+      - name: Send Monday Briefing
+        if: success()
+        env:
+          ADMIN_MOBILE_NUMBER: ${{ secrets.ADMIN_MOBILE_NUMBER }}
+          BLAND_AI_KEY: ${{ secrets.BLAND_AI_KEY }}
+        run: npx ts-node scripts/automation/monday-briefing.ts
+        
