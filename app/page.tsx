@@ -24,7 +24,17 @@ export default function HomePage() {
     setLoadingPlan(planId);
     try {
       const result = await createCheckoutSession(planId);
-      if (result?.url) {
+      
+      if ('error' in result) {
+        // Handle error case
+        if (result.error === 'auth_required') {
+          window.location.href = '/login?error=auth_required';
+        } else {
+          alert(`Terminal Error: ${result.error}`);
+        }
+        setLoadingPlan(null);
+      } else if (result.url) {
+        // Success - redirect to checkout
         window.location.href = result.url;
       }
     } catch (error) {
