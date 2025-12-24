@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
   const acceptLanguage = request.headers.get('accept-language')
   
-  // --- 1. LANGUAGE DETECTION ---
+  // --- 1. DETECCIÓN DE IDIOMA ---
   let detectedLocale = defaultLanguage
   if (cookieLocale && isSupportedLanguage(cookieLocale)) {
     detectedLocale = cookieLocale
@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- 2. URL LOCALIZATION ---
+  // --- 2. LOCALIZACIÓN DE URL ---
   const segments = pathname.split('/').filter(Boolean)
   const firstSegment = segments[0]
   const hasValidLocale = firstSegment && isSupportedLanguage(firstSegment)
@@ -36,11 +36,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (hasValidLocale && firstSegment !== detectedLocale) {
-    detectedLocale = firstSegment
-  }
-
-  // --- 3. REGION & PRICING DETECTION (Western vs Growth) ---
+  // --- 3. DETECCIÓN DE REGIÓN (Western vs Growth) ---
   const country = request.geo?.country || 'US'
   let userRegion = 'WESTERN'
   const growthMarkets = ['VN', 'IN', 'PH', 'ID', 'PK', 'TH', 'BD', 'LK', 'NP']
@@ -49,7 +45,7 @@ export async function middleware(request: NextRequest) {
   if (growthMarkets.includes(country)) userRegion = 'GROWTH'
   else if (mediumMarkets.includes(country)) userRegion = 'MEDIUM'
 
-  // --- 4. MAINTENANCE MODE ---
+  // --- 4. MODO MANTENIMIENTO ---
   if (process.env.MAINTENANCE_MODE === 'true') {
     const isExcluded = pathname.startsWith('/api') || pathname.includes('/admin') || pathname.includes('/auth') || pathname.includes('/coming-soon')
     if (!isExcluded) {
@@ -59,7 +55,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- 5. SUPABASE SSR AUTH REFRESH (The Critical Patch) ---
+  // --- 5. SUPABASE SSR AUTH & ADMIN LOCKDOWN ---
   let response = NextResponse.next({
     request: { headers: request.headers }
   })
@@ -69,17 +65,10 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
+        getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet) {
-          // Update the request cookies to ensure middleware has the latest session
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          // Refresh the response object to include updated headers
-          response = NextResponse.next({
-            request,
-          })
-          // Sync cookies to the response for the browser
+          response = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )
@@ -88,20 +77,28 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Validate session securely
   const { data: { user } } = await supabase.auth.getUser()
   
-  // Pattern to protect localized and non-localized sensitive routes
-  const isProtectedRoute = /^\/(?:[a-z]{2}\/)?(dashboard|admin|settings|owner|analytics|profile)/.test(pathname)
+  // Protección de rutas sensibles
+  const isAdminRoute = /^\/(?:[a-z]{2}\/)?(admin|owner|analytics)/.test(pathname)
+  const isProtectedRoute = /^\/(?:[a-z]{2}\/)?(dashboard|settings|profile)/.test(pathname)
 
-  if (!user && isProtectedRoute) {
+  // A. Redirección si no hay sesión
+  if (!user && (isProtectedRoute || isAdminRoute)) {
     const url = request.nextUrl.clone()
     url.pathname = `/${detectedLocale}/login`
     url.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(url)
   }
 
-  // --- 6. METADATA HEADERS & COOKIE SYNC ---
+  // B. EL FILTRO MONOPOLY: Bloqueo absoluto de rutas Admin por ID
+  if (isAdminRoute && user?.id !== process.env.ADMIN_OWNER_ID) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/404' // El intruso ni siquiera sabe que la página existe
+    return NextResponse.redirect(url)
+  }
+
+  // --- 6. HEADERS DE METADATOS ---
   const selectedLang = languages.find(l => l.code === detectedLocale)
   
   response.headers.set('x-detected-locale', detectedLocale)
