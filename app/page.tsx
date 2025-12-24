@@ -7,7 +7,7 @@ import {
   Activity, MessageSquare, Flame, Check, Clock, Phone, ArrowRight, TrendingUp 
 } from 'lucide-react';
 
-// NEW: Import the Stripe Server Action and ROI Calculator
+// SECURE ASSETS: Stripe Integration
 import { createCheckoutSession } from '@/app/actions/stripe';
 import { Plans } from '@/config/plans';
 import { ROICalculator } from '@/components/marketing/ROICalculator';
@@ -16,14 +16,21 @@ export default function HomePage() {
   const [spotsLeft] = useState(42);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
-  // Secure checkout handler
+  /**
+   * SOVEREIGN UPLINK: Initiates the Stripe Secure Vault Checkout
+   * This calls the Server Action to generate a protected redirect.
+   */
   const handlePurchase = async (planId: string) => {
     setLoadingPlan(planId);
     try {
-      await createCheckoutSession(planId);
+      const result = await createCheckoutSession(planId);
+      if (result?.url) {
+        window.location.href = result.url;
+      }
     } catch (error) {
       console.error("Uplink Failure:", error);
       setLoadingPlan(null);
+      alert("Terminal Error: Secure Checkout could not be established.");
     }
   };
 
@@ -41,11 +48,13 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* --- NAVIGATION & HERO --- */}
-      {/* (Omitted for brevity - Keep your existing Hero/Nav logic here) */}
+      {/* --- HERO SECTION --- */}
+      {/* Content omitted for brevity - Keep your existing high-impact hero here */}
 
       {/* --- NEURAL ROI PROJECTION --- */}
-      <ROICalculator />
+      <section className="py-24 bg-black/50 border-y border-white/5">
+        <ROICalculator />
+      </section>
 
       {/* --- FINANCIAL MATRIX (PRICING) --- */}
       <section id="pricing" className="py-48 bg-black relative border-t border-white/5">
@@ -57,7 +66,7 @@ export default function HomePage() {
 
           <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             
-            {/* STARTER */}
+            {/* STARTER TIER */}
             <div className="p-12 rounded-[48px] bg-white/5 border border-white/10 flex flex-col group hover:border-cyan-500/50 transition-all">
               <div className="flex justify-between items-start mb-6">
                 <span className="text-cyan-500 text-[9px] font-black uppercase tracking-widest">Entry Protocol</span>
@@ -72,9 +81,9 @@ export default function HomePage() {
                 <p className="text-xs font-bold text-white uppercase tracking-tighter">$10/Appt • 5% Recovery</p>
               </div>
               <ul className="space-y-6 mb-16 flex-1 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                {["5 Workforce Agents", "Guardian Standard", "Weekly ROI Manifests"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-4"><Check className="w-4 h-4 text-cyan-500" /> {f}</li>
-                ))}
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-cyan-500" /> 5 Workforce Agents</li>
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-cyan-500" /> Guardian Standard</li>
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-cyan-500" /> Weekly ROI Manifests</li>
               </ul>
               <button 
                 onClick={() => handlePurchase(Plans.STARTER)}
@@ -85,7 +94,7 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* PROFESSIONAL */}
+            {/* PROFESSIONAL TIER (THE "TEXAS FREEZE" SPECIAL) */}
             <div className="p-12 rounded-[48px] bg-gradient-to-br from-cyan-500/20 to-transparent border-2 border-cyan-500 shadow-[0_0_100px_rgba(6,182,212,0.15)] flex flex-col relative scale-105 z-10">
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-cyan-500 text-[#000814] px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest italic">HIPAA COMPLIANT</div>
               <h3 className="text-2xl font-black italic uppercase text-white mb-2 tracking-tighter pt-4">Professional</h3>
@@ -97,9 +106,9 @@ export default function HomePage() {
                 <p className="text-xs font-bold text-white uppercase tracking-tighter">$15/Appt • 10% Recovery</p>
               </div>
               <ul className="space-y-6 mb-16 flex-1 text-white text-xs font-bold uppercase tracking-widest">
-                {["10 Workforce Agents", "Guardian HIPAA", "Medic Self-Healing"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-4"><Check className="w-4 h-4 text-cyan-500" /> {f}</li>
-                ))}
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-cyan-500" /> 10 Workforce Agents</li>
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-cyan-500" /> Guardian HIPAA</li>
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-cyan-500" /> Medic Self-Healing</li>
               </ul>
               <button 
                 onClick={() => handlePurchase(Plans.PROFESSIONAL)}
@@ -110,7 +119,7 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* ENTERPRISE */}
+            {/* ENTERPRISE TIER */}
             <div className="p-12 rounded-[48px] bg-white/5 border border-white/10 flex flex-col group hover:border-purple-500/50 transition-all">
               <span className="text-purple-500 text-[9px] font-black uppercase tracking-widest mb-6">Sovereign Control</span>
               <h3 className="text-2xl font-black italic uppercase text-white mb-2 tracking-tighter">Enterprise</h3>
@@ -122,9 +131,9 @@ export default function HomePage() {
                 <p className="text-xs font-bold text-white uppercase tracking-tighter">$25/Appt • 15% Recovery</p>
               </div>
               <ul className="space-y-6 mb-16 flex-1 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                {["All 15 Agents", "Guardian Maximum", "Medic Zero-Latency"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-4"><Check className="w-4 h-4 text-purple-500" /> {f}</li>
-                ))}
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-purple-500" /> All 15 Agents</li>
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-purple-500" /> Guardian Maximum</li>
+                <li className="flex items-center gap-4"><Check className="w-4 h-4 text-purple-500" /> Medic Zero-Latency</li>
               </ul>
               <button 
                 onClick={() => handlePurchase(Plans.ENTERPRISE)}
@@ -139,9 +148,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      {/* ... */}
-
       <style jsx global>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
@@ -153,4 +159,4 @@ export default function HomePage() {
       `}</style>
     </div>
   );
-                }
+}
