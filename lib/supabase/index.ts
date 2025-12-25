@@ -1,4 +1,2 @@
-// This acts as a traffic controller for your Supabase clients
+// lib/supabase/index.ts
 export * from './server';
-// If you have a browser client file:
-// export * from './client'; 
