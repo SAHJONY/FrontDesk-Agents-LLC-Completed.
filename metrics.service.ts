@@ -1,22 +1,19 @@
 // services/automation.service.ts
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase'; // FIX 1: Import the creation function
 import { metricsService } from './metrics.service';
 import { telegramBot } from '@/lib/telegram';
 
 export class AutomationService {
   /**
-   * Orquestación de Reacción Automática:
-   * Si la eficiencia cae, el sistema toma medidas correctivas.
+   * Orquestación de Reacción Automática
    */
   async monitorAndOptimize(businessId: string) {
-    const metrics = await metricsService.getGlobalPerformanceReport(); //
+    const metrics = await metricsService.getGlobalPerformanceReport();
 
-    // 1. Umbral de Alerta: Si la eficiencia de la IA cae bajo el 80%
     if (metrics.aiEfficiencyScore < 80) {
       await this.triggerQualityRecovery(businessId);
     }
 
-    // 2. Notificación de Ingresos: Reporte de rendimiento al CEO
     if (metrics.revenueGenerated > 0) {
       await telegramBot.sendMessage(`Reloj de Ingresos: El negocio ha generado $${metrics.revenueGenerated} hoy.`);
     }
@@ -26,12 +23,13 @@ export class AutomationService {
    * Recuperación de Calidad: Re-ajusta los bloques de conocimiento
    */
   private async triggerQualityRecovery(businessId: string) {
+    const supabase = await createClient(); // FIX 2: Await the client
+    
     console.warn(`Alerta de Calidad para ${businessId}. Re-optimizando agentes...`);
     
-    // Notifica al CEO vía Telegram
     await telegramBot.sendAlert(`🚨 ALERTA: La eficiencia de la IA en ${businessId} bajó al 80%. Iniciando re-ajuste.`);
 
-    // Ejecuta el "Surgical Reactivation" de servicios críticos
+    // Ejecuta el "Surgical Reactivation"
     await supabase.rpc('optimize_agent_knowledge', { target_id: businessId });
   }
 
@@ -39,9 +37,10 @@ export class AutomationService {
    * El Botón de Pánico Global (Global Kill-Switch)
    */
   async triggerPanic(reason: string) {
+    const supabase = await createClient(); // FIX 3: Await the client
+    
     console.error(`PANIC TRIGGERED: ${reason}`);
     
-    // Bloqueo total de las rutas de API de los 15 servicios
     const { error } = await supabase
       .from('system_config')
       .update({ global_lock: true, lock_reason: reason })
