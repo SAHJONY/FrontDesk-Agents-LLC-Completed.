@@ -1,14 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-
-// --- INLINE CONFIGURATION (Fixes Portland "Module not found" Error) ---
-const languages = [
-  { code: 'en', name: 'English', dir: 'ltr' },
-  { code: 'es', name: 'Español', dir: 'ltr' },
-  { code: 'ar', name: 'العربية', dir: 'rtl' }
-];
-const defaultLanguage = 'en';
-const isSupportedLanguage = (lang: string) => languages.some(l => l.code === lang);
+import { languages, defaultLanguage, isSupportedLanguage } from '@/config/languages'
 
 // FIX 1: Type extension for Vercel Edge Geo-detection
 interface SovereignRequest extends NextRequest {
