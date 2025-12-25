@@ -1,13 +1,11 @@
-// services/metrics.service.ts
-import { createClient } from '@/lib/supabase/server'; // Pointing to your new server logic
+// 1. Change the import to get the creation function
+import { createClient } from '@/lib/supabase'; 
 import { telegramBot } from '@/lib/telegram';
 
 export const metricsService = {
   async recordSovereignEvent(eventName: string, payload: any) {
-    // FIX: Await the client creation as per Next.js 15 requirements
+    // 2. Await the client creation inside the async function
     const supabase = await createClient();
-    
-    console.log(`[METRICS] Recording ${eventName}...`);
     
     const { error } = await supabase
       .from('global_metrics')
@@ -19,8 +17,6 @@ export const metricsService = {
 
     if (error) {
       console.error("[METRICS_ERROR]:", error.message);
-      // Optional: Send alert to Telegram
-      await telegramBot.sendMessage(`🚨 Metric Alert: ${error.message}`);
     }
   }
 };
