@@ -1,24 +1,26 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+// services/metrics.service.ts
+import { createClient } from '@/lib/supabase/server'; // Pointing to your new server logic
+import { telegramBot } from '@/lib/telegram';
 
-export async function createClient() {
-  const cookieStore = await cookies();
+export const metricsService = {
+  async recordSovereignEvent(eventName: string, payload: any) {
+    // FIX: Await the client creation as per Next.js 15 requirements
+    const supabase = await createClient();
+    
+    console.log(`[METRICS] Recording ${eventName}...`);
+    
+    const { error } = await supabase
+      .from('global_metrics')
+      .insert({
+        event_type: eventName,
+        metadata: payload,
+        timestamp: new Date().toISOString()
+      });
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options);
-        },
-        remove(name: string, options: any) {
-          cookieStore.set(name, '', options);
-        },
-      },
+    if (error) {
+      console.error("[METRICS_ERROR]:", error.message);
+      // Optional: Send alert to Telegram
+      await telegramBot.sendMessage(`🚨 Metric Alert: ${error.message}`);
     }
-  );
-}
+  }
+};
