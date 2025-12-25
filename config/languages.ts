@@ -1,5 +1,4 @@
-// /config/languages.ts
-
+// This file now properly exports all members to resolve TypeScript visibility errors
 export const languages = [
   { code: 'en', name: 'English', dir: 'ltr' },
   { code: 'es', name: 'Español', dir: 'ltr' },
