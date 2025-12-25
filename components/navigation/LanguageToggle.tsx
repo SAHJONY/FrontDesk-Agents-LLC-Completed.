@@ -11,10 +11,13 @@ export default function LanguageToggle() {
   const [isOpen, setIsOpen] = useState(false);
 
   // Extract current locale from the URL (e.g., /en/dashboard -> en)
-  const currentLocale = pathname.split('/')[1] || 'en';
+  // Handle null pathname in Next.js 15
+  const currentLocale = pathname?.split('/')[1] || 'en';
   const activeLanguage = languages.find(l => l.code === currentLocale) || languages[0];
 
   const handleLanguageChange = (newLocale: string) => {
+    if (!pathname) return;
+    
     // Replace the locale segment in the current path
     const pathSegments = pathname.split('/');
     pathSegments[1] = newLocale;
