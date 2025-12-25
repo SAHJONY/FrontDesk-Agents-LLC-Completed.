@@ -5,15 +5,18 @@ import { Activity } from 'lucide-react';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({ 
+export default async function RootLayout({ 
   children, 
   params 
 }: { 
   children: React.ReactNode, 
-  params: { locale: string } 
+  params: Promise<{ locale: string }> 
 }) {
+  // Await params in Next.js 15
+  const { locale } = await params;
+
   return (
-    <html lang={params.locale || 'en'}>
+    <html lang={locale || 'en'}>
       <body className={`${inter.className} bg-[#010204] text-white antialiased`}>
         
         {/* GLOBAL COMMAND BAR - FIXED ATTACHMENT */}
@@ -31,7 +34,6 @@ export default function RootLayout({
               <span>Node HKG: Active</span>
               <span>Node BER: Filtering</span>
             </div>
-
             {/* Mirror div for seamless loop */}
             <div className="absolute top-0 flex gap-12 animate-marquee2 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.4em] text-cyan-500/80">
               <span>Node NYC: Optimal</span>
@@ -70,7 +72,6 @@ export default function RootLayout({
         <div className="pt-9">
           {children}
         </div>
-
       </body>
     </html>
   );
