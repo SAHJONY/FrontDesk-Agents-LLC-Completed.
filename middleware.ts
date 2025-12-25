@@ -2,24 +2,20 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { languages, defaultLanguage, isSupportedLanguage } from './config/languages'
 
-// FIX: Define a custom type to allow geo-detection at the Edge
+// FIX 1: Type extension for Vercel Edge Geo-detection
 interface SovereignRequest extends NextRequest {
   geo?: {
     country?: string;
     city?: string;
-    region?: string;
   };
 }
 
 export async function middleware(request: SovereignRequest) {
   const { pathname } = request.nextUrl
-  
-  // FIX: Access geo properties safely via the extended interface
-  const country = request.geo?.country || 'US' 
+  const country = request.geo?.country || 'US'
   const city = request.geo?.city || 'Global'
   
   // --- 1. THE GEOGRAPHIC CHAMELEON: MARKET DETECTION ---
-  // We serve any customer as if it is a local platform
   let userRegion = 'WESTERN'
   const growthMarkets = ['VN', 'IN', 'PH', 'ID', 'PK', 'TH', 'BD', 'LK', 'NP']
   const mediumMarkets = ['TR', 'BR', 'MX', 'EG', 'CO', 'AR', 'CL', 'PE', 'ZA', 'NG', 'KE']
@@ -32,12 +28,14 @@ export async function middleware(request: SovereignRequest) {
   const acceptLanguage = request.headers.get('accept-language')
   
   let detectedLocale = defaultLanguage
+  
+  // FIX 2: Explicit casting (Type Assertion) to satisfy the 'Language' type assignment
   if (cookieLocale && isSupportedLanguage(cookieLocale)) {
-    detectedLocale = cookieLocale
+    detectedLocale = cookieLocale as any
   } else if (acceptLanguage) {
     const preferredLang = acceptLanguage.split(',')[0].split('-')[0].toLowerCase()
     if (isSupportedLanguage(preferredLang)) {
-      detectedLocale = preferredLang
+      detectedLocale = preferredLang as any
     }
   }
 
