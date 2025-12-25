@@ -2,13 +2,24 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { languages, defaultLanguage, isSupportedLanguage } from './config/languages'
 
-export async function middleware(request: NextRequest) {
+// FIX: Define a custom type to allow geo-detection at the Edge
+interface SovereignRequest extends NextRequest {
+  geo?: {
+    country?: string;
+    city?: string;
+    region?: string;
+  };
+}
+
+export async function middleware(request: SovereignRequest) {
   const { pathname } = request.nextUrl
-  const country = request.geo?.country || 'US' // Geo-detection at the Edge
+  
+  // FIX: Access geo properties safely via the extended interface
+  const country = request.geo?.country || 'US' 
   const city = request.geo?.city || 'Global'
   
   // --- 1. THE GEOGRAPHIC CHAMELEON: MARKET DETECTION ---
-  // We classify markets to determine pricing, currency, and "local" feel
+  // We serve any customer as if it is a local platform
   let userRegion = 'WESTERN'
   const growthMarkets = ['VN', 'IN', 'PH', 'ID', 'PK', 'TH', 'BD', 'LK', 'NP']
   const mediumMarkets = ['TR', 'BR', 'MX', 'EG', 'CO', 'AR', 'CL', 'PE', 'ZA', 'NG', 'KE']
@@ -42,7 +53,6 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/premium') || 
     ['/favicon.ico', '/robots.txt', '/sitemap.xml'].includes(pathname)
 
-  // Redirect to localized path (e.g., /en/dashboard)
   if (!hasValidLocale && !isSpecialPath) {
     const url = request.nextUrl.clone()
     url.pathname = `/${detectedLocale}${pathname}`
@@ -93,7 +103,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // ADMIN LOCKDOWN: Stealth Mode
   if (isAdminRoute && user?.id !== process.env.ADMIN_OWNER_ID) {
     const url = request.nextUrl.clone()
     url.pathname = '/404' 
@@ -101,14 +110,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- 6. NEURAL LOCALIZATION HEADERS ---
-  // These headers allow your frontend components to say: "As a [Local] Platform..."
   const selectedLang = languages.find(l => l.code === detectedLocale)
   
   response.headers.set('x-detected-locale', detectedLocale)
   response.headers.set('x-detected-dir', selectedLang?.dir || 'ltr')
   response.headers.set('x-user-region', userRegion)
   response.headers.set('x-user-country', country)
-  response.headers.set('x-user-city', city) // For hyper-local "Houston Node" style branding
+  response.headers.set('x-user-city', city)
   
   response.cookies.set('NEXT_LOCALE', detectedLocale, {
     path: '/',
