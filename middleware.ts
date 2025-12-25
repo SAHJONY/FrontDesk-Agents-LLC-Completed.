@@ -1,6 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { languages, defaultLanguage, isSupportedLanguage } from './config/languages'
+
+// FIX: Use the absolute alias to resolve the path correctly in the Portland environment
+import { languages, defaultLanguage, isSupportedLanguage } from '@/config/languages'
 
 // FIX 1: Type extension for Vercel Edge Geo-detection
 interface SovereignRequest extends NextRequest {
@@ -36,7 +38,6 @@ export async function middleware(request: SovereignRequest) {
   
   let detectedLocale: string = defaultLanguage
   
-  // Check cookie locale
   if (cookieLocale && isSupportedLanguage(cookieLocale)) {
     detectedLocale = cookieLocale
   } else if (acceptLanguage) {
