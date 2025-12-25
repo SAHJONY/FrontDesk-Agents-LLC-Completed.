@@ -34,15 +34,15 @@ export async function middleware(request: SovereignRequest) {
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
   const acceptLanguage = request.headers.get('accept-language')
   
-  let detectedLocale = defaultLanguage
+  let detectedLocale: string = defaultLanguage
   
-  // FIX 2: Explicit casting (Type Assertion) to satisfy the 'Language' type assignment
+  // Check cookie locale
   if (cookieLocale && isSupportedLanguage(cookieLocale)) {
-    detectedLocale = cookieLocale as any
+    detectedLocale = cookieLocale
   } else if (acceptLanguage) {
     const preferredLang = acceptLanguage.split(',')[0].split('-')[0].toLowerCase()
     if (isSupportedLanguage(preferredLang)) {
-      detectedLocale = preferredLang as any
+      detectedLocale = preferredLang
     }
   }
 
