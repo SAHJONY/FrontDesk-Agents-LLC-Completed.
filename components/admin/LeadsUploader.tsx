@@ -1,13 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { CloudArrowUpIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function LeadsUploader() {
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const supabase = createClientComponentClient();
+  
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -43,6 +47,7 @@ export default function LeadsUploader() {
       }
       setUploading(false);
     };
+
     reader.readAsText(file);
   };
 
