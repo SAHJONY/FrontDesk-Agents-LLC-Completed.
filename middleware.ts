@@ -10,6 +10,13 @@ interface SovereignRequest extends NextRequest {
   };
 }
 
+// Add type for cookie objects
+type CookieOptions = {
+  name: string;
+  value: string;
+  options?: any;
+}
+
 export async function middleware(request: SovereignRequest) {
   const { pathname } = request.nextUrl
   const country = request.geo?.country || 'US'
@@ -78,7 +85,7 @@ export async function middleware(request: SovereignRequest) {
     {
       cookies: {
         getAll() { return request.cookies.getAll() },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieOptions[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           response = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
