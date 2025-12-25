@@ -17,8 +17,10 @@ export const MarketConfigs = {
     voice: 'Neural-AU-English-Senior',
     label: 'APAC Node'
   }
-};
+} as const;
+
+export type MarketCode = keyof typeof MarketConfigs;
 
 export const getMarketConfig = (locale: string) => {
-  return MarketConfigs[locale] || MarketConfigs.US;
+  return MarketConfigs[locale as MarketCode] || MarketConfigs.US;
 };
