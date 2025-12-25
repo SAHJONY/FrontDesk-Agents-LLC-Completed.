@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr'; // Added type import
 import { cookies } from 'next/headers';
 
 export async function createClient() {
@@ -12,15 +12,14 @@ export async function createClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        // FIX: Added explicit type for cookiesToSet
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
           } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+            // Handled by middleware
           }
         },
       },
@@ -28,5 +27,4 @@ export async function createClient() {
   );
 }
 
-// Add this alias to fix your "Attempted import error"
 export const createServerSupabase = createClient;
