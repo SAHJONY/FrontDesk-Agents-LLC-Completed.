@@ -1,19 +1,12 @@
-// services/metrics.service.ts
-import { createClient } from '@/lib/supabase'; 
+// File: metrics.service.ts
+import { createClient } from '@/lib/supabase'; // FIX: Import function, not variable
 import { telegramBot } from '@/lib/telegram';
 
-/**
- * Sovereign Metrics Service
- * Handles the recording of global events and telemetry 
- * for the FrontDesk Agents LLC ecosystem.
- */
 export const metricsService = {
   async recordSovereignEvent(eventName: string, payload: any) {
     try {
-      // Initialize the dynamic Supabase client for Next.js 15
-      const supabase = await createClient();
-      
-      console.log(`[METRICS] Initiating record for event: ${eventName}`);
+      // FIX: Dynamically generate the client and await it
+      const supabase = await createClient(); 
       
       const { error } = await supabase
         .from('global_metrics')
@@ -24,14 +17,10 @@ export const metricsService = {
         });
 
       if (error) {
-        console.error("[METRICS_DATABASE_ERROR]:", error.message);
-        // Alert the control center via Telegram if the database write fails
-        if (telegramBot) {
-          await telegramBot.sendMessage(`⚠️ Metric Failure: ${eventName} - ${error.message}`);
-        }
+        console.error("[METRICS_ERROR]:", error.message);
       }
-    } catch (err: any) {
-      console.error("[METRICS_CRITICAL_SYSTEM_ERROR]:", err.message);
+    } catch (err) {
+      console.error("[METRICS_SYSTEM_ERROR]:", err);
     }
   }
 };
