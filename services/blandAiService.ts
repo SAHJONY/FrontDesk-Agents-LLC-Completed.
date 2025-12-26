@@ -29,7 +29,6 @@ export const blandAiService = {
   
   /**
    * SECURITY: Checks database to verify daily node limits.
-   * Prevents runaway infrastructure costs and API abuse.
    */
   async checkUsage(): Promise<boolean> {
     try {
@@ -57,7 +56,7 @@ export const blandAiService = {
       }
 
       if (usageToday >= integration.daily_limit) {
-        throw new Error(`Daily limit of ${integration.daily_limit} calls reached for this node.`);
+        throw new Error(`Daily limit of ${integration.daily_limit} calls reached.`);
       }
       return true;
     } catch (error) {
@@ -70,9 +69,8 @@ export const blandAiService = {
    * INITIATE CALL: The main entry point for SARA.AI voice dispatch.
    */
   async makeCall(request: CallRequest): Promise<CallResponse> {
-    // 1. Verify Node Authorization & Usage Limits
     const isAllowed = await this.checkUsage();
-    if (!isAllowed) return { success: false, error: "Node limit reached or infrastructure disabled." };
+    if (!isAllowed) return { success: false, error: "Node limit reached or disabled." };
 
     try {
       const response = await fetch('https://api.bland.ai/v1/calls', {
@@ -88,7 +86,6 @@ export const blandAiService = {
           voice_id: process.env.BLAND_AI_VOICE_ID || 'nat', 
           record: true,
           reduce_latency: true,
-          // CRITICAL: Link the webhook for post-call telemetry
           webhook: `${process.env.NEXT_PUBLIC_APP_URL}/api/voice/webhook`,
           metadata: {
             market_locale: request.locale || 'en',
@@ -104,7 +101,6 @@ export const blandAiService = {
 
       const data = await response.json();
 
-      // 2. Track Consumption: Record this transaction in the forensic ledger
       if (hasConsumption(db)) {
         await db.consumption.create({ 
           data: { 
@@ -122,7 +118,28 @@ export const blandAiService = {
   },
 
   /**
-   * CONFIGURATION: Updates agent personality/system prompt dynamically.
+   * TELEMETRY: Retrieves the current state and transcript of a live call.
+   */
+  async getCallStatus(callId: string) {
+    try {
+      const response = await fetch(`https://api.bland.ai/v1/calls/${callId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${process.env.BLAND_AI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error('Bland AI Status Fetch Error:', error);
+      return null;
+    }
+  },
+
+  /**
+   * CONFIGURATION: Updates agent settings dynamically.
    */
   async configureAgent(config: any): Promise<any> {
     try {
