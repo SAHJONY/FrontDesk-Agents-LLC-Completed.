@@ -1,0 +1,44 @@
+import axios from 'axios';
+
+const SEARCH_QUERY = "Emergency HVAC Houston";
+const SERPER_API_KEY = process.env.SERPER_API_KEY;
+
+async function huntAlphaProspects() {
+  console.log(`🔎 Hunting for: ${SEARCH_QUERY}...`);
+
+  // 1. Get Top 20 local businesses from Google Maps
+  const searchResponse = await axios.post('https://google.serper.dev/maps', {
+    q: SEARCH_QUERY,
+    gl: "us",
+    hl: "en"
+  }, {
+    headers: { 'X-API-KEY': SERPER_API_KEY }
+  });
+
+  const businesses = searchResponse.data.maps;
+
+  for (const biz of businesses) {
+    if (!biz.website) continue;
+
+    console.log(`🎯 Found: ${biz.title}. Analyzing...`);
+
+    // 2. Pipe the URL into your Auto-Configure route
+    try {
+      const configResponse = await axios.post('https://your-domain.com/api/onboarding/auto-configure', {
+        url: biz.website
+      });
+
+      const { businessInfo, blandConfig } = configResponse.data.data;
+
+      // 3. Log the "Alpha" potential
+      console.log(`✅ ${biz.title} Configured.`);
+      console.log(`💰 Est. Ticket: $${businessInfo.avgTicketValue}`);
+      console.log(`📞 Ready to Blitz: ${biz.address}`);
+      
+    } catch (e) {
+      console.log(`❌ Skipped ${biz.title}: No data found.`);
+    }
+  }
+}
+
+huntAlphaProspects();
