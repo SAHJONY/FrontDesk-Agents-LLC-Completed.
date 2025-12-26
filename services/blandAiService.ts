@@ -13,7 +13,7 @@ export interface CallRequest {
   phoneNumber: string;
   task: string;
   transferPhone?: string;
-  locale?: string; // Standardized ISO (e.g., 'sw-KE' for Swahili, 'ar-AE' for Arabic)
+  locale?: string; // Standardized ISO (e.g., 'yo-NG' for Yoruba, 'ar-AE' for Arabic)
   voiceId?: string;
 }
 
@@ -40,7 +40,10 @@ export const blandAiService = {
         where: { provider: 'bland_ai' }
       });
 
-      if (!integration || !integration.enabled) return false;
+      if (!integration || !integration.enabled) {
+        console.warn('⚠️ SARA Node is currently disabled.');
+        return false;
+      }
 
       let usageToday = 0;
       if (hasConsumption(db)) {
@@ -54,13 +57,12 @@ export const blandAiService = {
 
       return usageToday < integration.daily_limit;
     } catch (error) {
-      console.error('🛡️ Usage Guard Error:', error);
       return false; 
     }
   },
 
   /**
-   * INITIATE CALL: Universal Neural Dispatch for Worldwide Markets.
+   * INITIATE CALL: Universal Neural Dispatch for Global Markets.
    */
   async makeCall(request: CallRequest): Promise<CallResponse> {
     const isAllowed = await this.checkUsage();
@@ -77,21 +79,21 @@ export const blandAiService = {
           phone_number: request.phoneNumber,
           task: request.task,
           transfer_phone_number: request.transferPhone,
-          // Language detection & script handling (LTR/RTL)
+          // Support for LTR and RTL scripts automatically handled by neural core
           language: request.locale || 'en-US',
           voice_id: request.voiceId || process.env.BLAND_AI_VOICE_ID || 'nat', 
           record: true,
           reduce_latency: true,
-          // Advanced Neural Tuning for Tonal Languages (Africa/Asia)
+          // NEURAL TUNING: Adjusts stability and tone for African/Asian tonal languages
           voice_settings: {
             speed: 1.0,
             stability: 0.8,
-            tone_adjustment: request.locale?.match(/(yo|ig|ha|sw|zh|vi)/) ? 0.7 : 0.5
+            tone_adjustment: request.locale?.match(/(yo|ig|ha|sw|zh|vi|th)/) ? 0.75 : 0.5
           },
           webhook: `${process.env.NEXT_PUBLIC_APP_URL}/api/voice/webhook`,
           metadata: {
-            market_locale: request.locale || 'en',
-            source: 'Sovereign_Worldwide_V3'
+            market_locale: request.locale || 'en-US',
+            source: 'Sovereign_Universal_v3'
           }
         }),
       });
@@ -120,7 +122,7 @@ export const blandAiService = {
   },
 
   /**
-   * TELEMETRY: Retrieves the current state and transcript of a live call.
+   * TELEMETRY: Retrieves live call state for the CallMonitor.
    */
   async getCallStatus(callId: string) {
     try {
@@ -135,25 +137,6 @@ export const blandAiService = {
       return response.ok ? await response.json() : null;
     } catch (error) {
       return null;
-    }
-  },
-
-  /**
-   * CONFIGURATION: Updates agent settings dynamically.
-   */
-  async configureAgent(config: any): Promise<any> {
-    try {
-      const response = await fetch('https://api.bland.ai/v1/agents/config', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.BLAND_AI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(config),
-      });
-      return { success: response.ok, data: await response.json() };
-    } catch (error) {
-      return { success: false, error: 'Failed to update neural settings' };
     }
   }
 };
