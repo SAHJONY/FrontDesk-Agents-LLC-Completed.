@@ -3,13 +3,11 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Stripe with the correct API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
   typescript: true,
 });
 
-// Use Service Role Key to bypass RLS for administrative updates
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -20,143 +18,122 @@ export async function POST(req: Request) {
     const body = await req.text();
     const signature = req.headers.get('stripe-signature');
 
-    if (!signature) {
-      return NextResponse.json(
-        { error: 'No signature provided' },
-        { status: 400 }
-      );
-    }
+    if (!signature) return NextResponse.json({ error: 'No signature' }, { status: 400 });
 
-    // Verify webhook signature
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
     let event: Stripe.Event;
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err) {
-      console.error('Webhook signature verification failed:', err);
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    // Handle the event
     switch (event.type) {
       case 'checkout.session.completed':
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(session);
-        break;
-
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated':
-        const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionChange(subscription);
+        await handleSovereignOnboarding(session);
         break;
 
       case 'customer.subscription.deleted':
-        const deletedSubscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionDeleted(deletedSubscription);
+        const deletedSub = event.data.object as Stripe.Subscription;
+        await handleSubscriptionDeleted(deletedSub);
         break;
 
       case 'invoice.payment_failed':
-        const invoice = event.data.object as Stripe.Invoice;
-        await handlePaymentFailed(invoice);
+        const failedInvoice = event.data.object as Stripe.Invoice;
+        await handlePaymentFailed(failedInvoice);
         break;
 
       case 'invoice.payment_succeeded':
         const successInvoice = event.data.object as Stripe.Invoice;
         await handlePaymentSucceeded(successInvoice);
         break;
-
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Webhook error:', error);
-    return NextResponse.json(
-      { error: 'Webhook handler failed' },
-      { status: 500 }
-    );
+    console.error('❌ Sovereign Webhook Error:', error);
+    return NextResponse.json({ error: 'Handler failed' }, { status: 500 });
   }
 }
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+/**
+ * CORE ONBOARDING LOGIC
+ * Triggers Shadow Node provisioning and Human-First Onboarding Email
+ */
+async function handleSovereignOnboarding(session: Stripe.Checkout.Session) {
   const customerId = session.customer as string;
+  const customerEmail = session.customer_details?.email;
   const subscriptionId = session.subscription as string;
 
-  // Update user's billing info in database
-  await supabase
-    .from('billing')
-    .upsert({
-      customer_id: customerId,
-      subscription_id: subscriptionId,
-      status: 'active',
-      updated_at: new Date().toISOString(),
-    });
+  // 1. Update Billing Table
+  await supabase.from('billing').upsert({
+    customer_id: customerId,
+    subscription_id: subscriptionId,
+    status: 'active',
+    email: customerEmail,
+    updated_at: new Date().toISOString(),
+  });
 
-  console.log(`Checkout completed for customer: ${customerId}`);
-}
+  // 2. Provision Shadow Node & Identity Keys
+  // This creates the isolated environment for their Human Agent
+  const { data: node, error: nodeError } = await supabase
+    .from('business_nodes')
+    .insert([{
+      owner_email: customerEmail,
+      stripe_customer_id: customerId,
+      status: 'provisioning',
+      agent_name: 'Sara', // Default starting persona
+      vault_enabled: true
+    }])
+    .select()
+    .single();
 
-async function handleSubscriptionChange(subscription: Stripe.Subscription) {
-  const customerId = subscription.customer as string;
-  const status = subscription.status;
-  const priceId = subscription.items.data[0]?.price.id;
+  if (nodeError) throw new Error(`Node Provisioning Failed: ${nodeError.message}`);
 
-  await supabase
-    .from('billing')
-    .update({
-      subscription_id: subscription.id,
-      status,
-      price_id: priceId,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('customer_id', customerId);
+  // 3. Trigger the Sovereign Onboarding Email
+  // We send the Dashboard link + Onboarding Manual
+  await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/notifications/onboard`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.INTERNAL_API_KEY! },
+    body: JSON.stringify({
+      email: customerEmail,
+      nodeId: node.id,
+      dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/setup/${node.id}`
+    }),
+  });
 
-  console.log(`Subscription ${subscription.id} status: ${status}`);
+  console.log(`🛡️ Sovereign Node Provisioned for: ${customerEmail}`);
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
+  
+  // Mark node for decommissioning
+  await supabase
+    .from('business_nodes')
+    .update({ status: 'decommissioning' })
+    .eq('stripe_customer_id', customerId);
 
   await supabase
     .from('billing')
-    .update({
-      status: 'canceled',
-      updated_at: new Date().toISOString(),
-    })
+    .update({ status: 'canceled', updated_at: new Date().toISOString() })
     .eq('customer_id', customerId);
-
-  console.log(`Subscription canceled for customer: ${customerId}`);
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-
   await supabase
     .from('billing')
-    .update({
-      status: 'past_due',
-      updated_at: new Date().toISOString(),
-    })
+    .update({ status: 'past_due', updated_at: new Date().toISOString() })
     .eq('customer_id', customerId);
-
-  // TODO: Send email notification to customer
-  console.log(`Payment failed for customer: ${customerId}`);
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-
   await supabase
     .from('billing')
-    .update({
-      status: 'active',
-      updated_at: new Date().toISOString(),
-    })
+    .update({ status: 'active', updated_at: new Date().toISOString() })
     .eq('customer_id', customerId);
-
-  console.log(`Payment succeeded for customer: ${customerId}`);
 }
