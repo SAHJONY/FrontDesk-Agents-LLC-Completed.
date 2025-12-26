@@ -6,6 +6,7 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    // Essential for your Revenue Dashboard components
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
@@ -18,13 +19,14 @@ const config: Config = {
           dark: "#010204",
           cyan: "#06b6d4",
           slate: "#64748b",
+          emergency: "#ef4444", // High-urgency red for Sara's alerts
         }
       },
       // Autonomous Font Mapping
       fontFamily: {
         sans: ['var(--font-geist-sans)'],
         mono: ['var(--font-geist-mono)'],
-        // Dynamic fallback for RTL markets
+        // Dynamic fallback for RTL markets (Global Expansion ready)
         arabic: ['Noto Sans Arabic', 'sans-serif'],
       },
       animation: {
@@ -32,7 +34,7 @@ const config: Config = {
         marquee2: 'marquee2 30s linear infinite',
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-in': 'fadeIn 0.8s ease-out forwards',
-        // Scanning effect for Shadow Scraper logs
+        // Scanning effect for Shadow Scraper logs in the Command Center
         'scan': 'scan 2s linear infinite',
       },
       keyframes: {
@@ -49,15 +51,15 @@ const config: Config = {
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         scan: {
-          '0%': { transform: 'translateY(-100%)' },
-          '100%': { transform: 'translateY(100%)' },
+          '0%': { top: '-10%' },
+          '100%': { top: '110%' },
         }
       },
     },
   },
   plugins: [
-    // This plugin enables logical properties (ps-4 instead of pl-4)
-    // allowing the UI to flip autonomously for Arabic/RTL nodes.
+    // Requirement for Worldwide Universal markets (Arabic, Hebrew, etc.)
+    // IMPORTANT: Ensure you run 'npm install tailwindcss-rtl' before deploying
     require('tailwindcss-rtl'),
   ],
 };
