@@ -17,14 +17,49 @@ export const getAutonomousLanguageConfig = (code: string): GlobalConfig => {
   // Use Intl API to get the native name of the language
   const languageNames = new Intl.DisplayNames(['en'], { type: 'language' });
   const name = languageNames.of(cleanCode) || 'International';
-
+  
   // Determine direction autonomously
   const dir = RTL_LANGS.includes(cleanCode) ? 'rtl' : 'ltr';
-
+  
   // Generate Flag Emoji from ISO Country Code (fallback logic)
   const flag = code.toUpperCase().replace(/./g, char => 
     String.fromCodePoint(char.charCodeAt(0) + 127397)
   );
-
+  
   return { code: cleanCode, name, dir, flag };
 };
+
+// Export for backward compatibility with middleware
+export type Language = GlobalConfig;
+
+// Default language for the platform
+export const defaultLanguage: GlobalConfig = {
+  code: "en",
+  name: "English",
+  flag: "🇺🇸",
+  dir: "ltr",
+};
+
+// Predefined list of supported languages for middleware routing
+export const languages: GlobalConfig[] = [
+  { code: "en", name: "English", flag: "🇺🇸", dir: "ltr" },
+  { code: "es", name: "Español", flag: "🇪🇸", dir: "ltr" },
+  { code: "fr", name: "Français", flag: "🇫🇷", dir: "ltr" },
+  { code: "de", name: "Deutsch", flag: "🇩🇪", dir: "ltr" },
+  { code: "it", name: "Italiano", flag: "🇮🇹", dir: "ltr" },
+  { code: "pt", name: "Português", flag: "🇵🇹", dir: "ltr" },
+  { code: "nl", name: "Nederlands", flag: "🇳🇱", dir: "ltr" },
+  { code: "zh", name: "简体中文", flag: "🇨🇳", dir: "ltr" },
+  { code: "ja", name: "日本語", flag: "🇯🇵", dir: "ltr" },
+  { code: "ko", name: "한국어", flag: "🇰🇷", dir: "ltr" },
+  { code: "ar", name: "العربية", flag: "🇸🇦", dir: "rtl" },
+  { code: "he", name: "עברית", flag: "🇮🇱", dir: "rtl" },
+  { code: "fa", name: "فارسی", flag: "🇮🇷", dir: "rtl" },
+];
+
+/**
+ * Check if a language code is in our supported list
+ */
+export function isSupportedLanguage(code: string): boolean {
+  return languages.some(lang => lang.code === code.toLowerCase());
+}
