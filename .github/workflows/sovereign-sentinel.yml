@@ -31,4 +31,25 @@ jobs:
 
     - name: Audit Dependencies
       run: npm audit --audit-level=high
-      
+
+  notify:
+    name: Dispatch Security Status
+    needs: analyze
+    runs-on: ubuntu-latest
+    if: always() # Ensures you get an alert even if the scan fails
+    steps:
+      - name: Send Status to Mission Control
+        run: |
+          status="${{ needs.analyze.result }}"
+          if [ "$status" = "success" ]; then
+            emoji="🛡️"
+            msg="SOVEREIGN_SENTINEL: SCAN_CLEARED. Repository is secure."
+          else
+            emoji="🚨"
+            msg="SOVEREIGN_SENTINEL: SECURITY_BREACH_DETECTED. Logic integrity compromised."
+          fi
+          
+          curl -X POST -H 'Content-Type: application/json' \
+          --data "{\"content\": \"$emoji **$msg**\n**Branch:** ${{ github.ref_name }}\n**Commit:** ${{ github.sha }}\"}" \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
+          
