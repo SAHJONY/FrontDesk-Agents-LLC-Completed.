@@ -1,0 +1,14 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🛡️  SOVEREIGN_GUARD: Scanning for leaked secrets..."
+
+# Scan for common patterns (Bland AI, Supabase Service Keys, AES Keys)
+# If any matches are found, the commit will exit with code 1 and stop.
+if git diff --cached | grep -E "sk-[a-zA-Z0-9]{32}|(service_role|SHADOW_VAULT_KEY).*=.*['\"].+['\"]"; then
+  echo "🚨  CRITICAL_ERROR: Secret detected in staged files!"
+  echo "Please remove the key and use .env variables instead."
+  exit 1
+fi
+
+echo "✅  GUARD_CLEARED: No secrets detected. Proceeding..."
