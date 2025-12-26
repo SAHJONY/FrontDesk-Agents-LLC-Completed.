@@ -1,4 +1,3 @@
-// app/api/onboarding/auto-configure/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
@@ -6,7 +5,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Simple website scraping function
 async function scrapeBusinessWebsite(url: string): Promise<string> {
   try {
     const response = await fetch(url, {
@@ -14,25 +12,18 @@ async function scrapeBusinessWebsite(url: string): Promise<string> {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       },
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch website: ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
     const html = await response.text();
     
-    // Strip HTML tags and get text content
-    const textContent = html
+    return html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
-      .trim();
-
-    // Limit to first 8000 characters to avoid token limits
-    return textContent.substring(0, 8000);
+      .trim()
+      .substring(0, 8000);
   } catch (error) {
-    console.error('Error scraping website:', error);
+    console.error('Scrape error:', error);
     throw new Error('Failed to scrape website content');
   }
 }
@@ -40,116 +31,70 @@ async function scrapeBusinessWebsite(url: string): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const { url } = await request.json();
+    if (!url) return NextResponse.json({ error: 'URL is required' }, { status: 400 });
 
-    if (!url) {
-      return NextResponse.json(
-        { error: 'Website URL is required' },
-        { status: 400 }
-      );
-    }
-
-    // Step 1: Scrape the business website
     const webText = await scrapeBusinessWebsite(url);
 
-    // Step 2: Use AI to extract specifications
+    // Step 1: Extract Business Intelligence
     const specs = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
-          content: `You are an AI assistant that analyzes website content to extract business information.
-Extract the following information and return as JSON:
-{
-  "businessName": "string",
-  "businessType": "string",
-  "services": ["array of services"],
-  "contact": {
-    "phone": "string or null",
-    "email": "string or null",
-    "address": "string or null"
-  },
-  "hours": "string or null",
-  "description": "brief description"
-}`,
+          content: `Extract business data for a high-urgency dispatch system. 
+          Identify: 
+          1. businessName 
+          2. businessType (e.g., HVAC, Law, Plumbing) 
+          3. primaryEmergency (The #1 problem they solve fast)
+          4. avgTicketValue (Estimate based on industry: e.g., HVAC=$2500, Plumbing=$600)
+          5. tone (High-authority/Professional)`
         },
-        {
-          role: 'user',
-          content: `Analyze this website content and extract business information:\n\n${webText}`,
-        },
+        { role: 'user', content: webText },
       ],
-      temperature: 0.3,
       response_format: { type: 'json_object' },
     });
 
-    const businessInfo = specs.choices[0]?.message?.content;
-    
-    if (!businessInfo) {
-      throw new Error('No response from OpenAI');
-    }
+    const parsedInfo = JSON.parse(specs.choices[0].message.content || '{}');
 
-    const parsedInfo = JSON.parse(businessInfo);
-
-    // Step 3: Generate voice agent configuration based on business info
+    // Step 2: Generate Bland AI Specific "Emergency Dispatch" Configuration
     const agentConfig = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
-          content: `You are an AI assistant that configures voice agents for businesses.
-Create a voice agent configuration and return as JSON:
-{
-  "greeting": "Professional greeting message",
-  "systemPrompt": "Instructions for the voice agent",
-  "callRouting": {
-    "sales": "instructions",
-    "support": "instructions",
-    "appointments": "instructions"
-  },
-  "knowledgeBase": ["key facts about the business"],
-  "tone": "professional/friendly/casual"
-}`,
+          content: `Create a Bland AI "Emergency Dispatch" configuration. 
+          Use the "Nearby Truck" psychological trigger. 
+          The output must be a strict JSON object for a voice agent.`
         },
         {
           role: 'user',
-          content: `Create a voice agent configuration for this business:\n\n${JSON.stringify(parsedInfo, null, 2)}`,
+          content: `Configure an agent for: ${JSON.stringify(parsedInfo)}`
         },
       ],
-      temperature: 0.7,
       response_format: { type: 'json_object' },
     });
 
-    const voiceConfig = agentConfig.choices[0]?.message?.content;
-    
-    if (!voiceConfig) {
-      throw new Error('No voice config response from OpenAI');
-    }
+    const voiceConfig = JSON.parse(agentConfig.choices[0].message.content || '{}');
 
-    const parsedConfig = JSON.parse(voiceConfig);
-
+    // Step 3: Return ready-to-deploy data
     return NextResponse.json({
       success: true,
       data: {
         businessInfo: parsedInfo,
-        voiceAgentConfig: parsedConfig,
-        sourceUrl: url,
+        blandConfig: {
+          pathway_id: "emergency_dispatch_v1", // Ties into your pre-built pathway
+          task: `You are Sara from ${parsedInfo.businessName}. A tech is nearby. Focus on ${parsedInfo.primaryEmergency}.`,
+          first_sentence: `Hi, this is Sara from ${parsedInfo.businessName} Emergency Dispatch. We have a unit finishing a call in your neighborhood right now...`,
+          voice: "sara",
+          request_data: {
+            business_name: parsedInfo.businessName,
+            avg_ticket_value: parsedInfo.avgTicketValue
+          }
+        },
         configuredAt: new Date().toISOString(),
       },
     });
-  } catch (error) {
-    console.error('Error in auto-configure route:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to auto-configure',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
-
-export async function GET() {
-  return NextResponse.json(
-    { message: 'Use POST method with a URL to auto-configure' },
-    { status: 405 }
-  );
 }
