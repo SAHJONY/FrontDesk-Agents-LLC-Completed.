@@ -1,10 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 
+/**
+ * SOVEREIGN LEAD INGESTION
+ * Updated to support Human-First Identity tracking and Vault Encryption
+ */
+
 export async function handleLeadIngestion(leadData: any) {
   const supabase = await createClient(); 
-  const { full_name, phone_number, source, vertical } = leadData;
+  const { 
+    full_name, 
+    phone_number, 
+    source, 
+    vertical, 
+    assigned_persona // Track which 'Human' agent handled this
+  } = leadData;
   
-  // Insert into Supabase with the specific source tag
   const { data, error } = await supabase
     .from('leads')
     .insert([{ 
@@ -12,20 +22,25 @@ export async function handleLeadIngestion(leadData: any) {
       phone_number, 
       source, 
       vertical,
+      assigned_persona: assigned_persona || 'Sara', // Defaults to your lead human persona
       status: 'new',
+      is_encrypted: true, // Signal for Shadow Vault encryption
       created_at: new Date().toISOString()
     }])
     .select();
   
   if (error) {
-    console.error('❌ Lead Ingestion Error:', error.message);
+    console.error('❌ Sovereign Lead Ingestion Error:', error.message);
     return { success: false, error: error.message };
   }
   
   return { success: true, leadId: data[0].id };
 }
 
-// New function for batch lead processing
+/**
+ * BATCH LEAD PROCESSING (SHADOW SEQUENCE)
+ * Used by the global scraper to populate the vault at scale
+ */
 export async function handleBatchLeads(leads: any[], systemBotId?: string) {
   const supabase = await createClient();
   
@@ -35,7 +50,15 @@ export async function handleBatchLeads(leads: any[], systemBotId?: string) {
   
   for (const lead of leads) {
     try {
-      const { full_name, phone_number, source, vertical, notes, metadata } = lead;
+      const { 
+        full_name, 
+        phone_number, 
+        source, 
+        vertical, 
+        notes, 
+        metadata,
+        assigned_persona 
+      } = lead;
       
       const { data, error } = await supabase
         .from('leads')
@@ -44,15 +67,17 @@ export async function handleBatchLeads(leads: any[], systemBotId?: string) {
           phone_number,
           source: source || 'automated-scraper',
           vertical: vertical || 'general',
+          assigned_persona: assigned_persona || 'Alex', // Default outbound persona
           notes: notes || null,
           metadata: metadata || null,
           status: 'new',
+          is_encrypted: true,
           created_at: new Date().toISOString()
         }])
         .select();
       
       if (error) {
-        console.error(`❌ Failed to insert lead ${full_name}:`, error.message);
+        console.error(`❌ Vault Failure for ${full_name}:`, error.message);
         failedCount++;
         results.push({ success: false, lead: full_name, error: error.message });
       } else {
