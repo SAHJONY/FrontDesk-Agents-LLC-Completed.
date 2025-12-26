@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 1. UNIVERSAL COLOR ENGINE */
+:root {
+  color-scheme: dark;
+  --bg-dark: #010204;
+  --fg-light: #f8fafc;
+  --brand-cyan: #06b6d4;
+  --brand-slate: #64748b;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-dark);
+    color: var(--fg-light);
+    @apply antialiased selection:bg-brand-cyan/30 overflow-x-hidden transition-colors duration-500;
+  }
+
+  /* 2. WORLDWIDE LINGUISTIC MAPPING */
+  [dir="rtl"] {
+    @apply text-right;
+  }
+
+  [dir="ltr"] {
+    @apply text-left;
+  }
+}
+
+@layer components {
+  /* 3. SOVEREIGN CARD SYSTEM */
+  .titan-card {
+    @apply bg-[#050505] border border-white/5 rounded-[32px] p-8 transition-all duration-300 hover:border-brand-cyan/20;
+  }
+
+  /* 4. NEURAL MESH OVERLAY */
+  .neural-grid {
+    background-image: radial-gradient(circle at 2px 2px, rgba(6, 182, 212, 0.07) 1px, transparent 0);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(to bottom, black 70%, transparent);
+  }
+
+  /* 5. CUSTOM SCROLLBAR */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full hover:bg-brand-cyan transition-colors;
+  }
+}
+
+@layer utilities {
+  /* 6. HIGH-FIDELITY ANIMATIONS */
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer-effect 2s infinite linear;
+  }
+}
+
+@keyframes shimmer-effect {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
