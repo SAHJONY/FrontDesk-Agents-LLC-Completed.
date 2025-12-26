@@ -1,7 +1,8 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'; // Added type import
+// lib/supabase/server.ts
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export async function createClient() {
+export async function createServerSupabase() {
   const cookieStore = await cookies();
 
   return createServerClient(
@@ -12,14 +13,14 @@ export async function createClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        // FIX: Added explicit type for cookiesToSet
+        // Explicitly typed to satisfy the Portland build compiler
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Handled by middleware
+            // Handled by middleware for autonomous session management
           }
         },
       },
@@ -27,4 +28,5 @@ export async function createClient() {
   );
 }
 
-export const createServerSupabase = createClient;
+// Export for easier importing in your API routes
+export const createClient = createServerSupabase;
