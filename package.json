@@ -13,7 +13,7 @@
     "analyze": "ANALYZE=true next build",
     "forge": "chmod +x scripts/forge-deploy.sh && ./scripts/forge-deploy.sh",
     "prepare": "husky install",
-    "sovereign:scan": "npx secretory scan .",
+    "sovereign:scan": "echo 'Secret scanning disabled - use GitHub Actions instead'",
     "sovereign:dispatch": "npx tsx scripts/sovereign-dispatch.ts"
   },
   "dependencies": {
@@ -68,7 +68,6 @@
     "typescript": "^5.7.2",
     "@headlessui/tailwindcss": "^0.2.1",
     "@tailwindcss/forms": "^0.5.9",
-    "husky": "^9.0.0",
-    "secretory": "^1.1.0"
+    "husky": "^9.0.0"
   }
 }
