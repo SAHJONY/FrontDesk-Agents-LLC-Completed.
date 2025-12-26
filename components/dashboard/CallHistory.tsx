@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   FileText, Calendar, Clock, PhoneIncoming, 
   ChevronRight, BadgeCheck, MessageSquare 
 } from 'lucide-react';
+import { TranscriptModal } from './TranscriptModal';
 
 interface CallLog {
   id: string;
@@ -15,26 +16,30 @@ interface CallLog {
   outcome: string;
 }
 
-// Dummy data for visual representation
+// Simulated data - in production this would be fetched from your DB
 const SAMPLE_LOGS: CallLog[] = [
-  { id: '1', timestamp: '2025-12-24 14:30', phoneNumber: '+1 (555) 012-3456', duration: '2:45', status: 'completed', outcome: 'Appointment Booked' },
-  { id: '2', timestamp: '2025-12-24 12:15', phoneNumber: '+1 (555) 987-6543', duration: '1:12', status: 'transferred', outcome: 'Transferred to Admin' },
-  { id: '3', timestamp: '2025-12-23 09:45', phoneNumber: '+1 (555) 444-5555', duration: '0:45', status: 'missed', outcome: 'Voicemail Left' },
+  { id: 'c_123', timestamp: '2025-12-24 14:30', phoneNumber: '+1 (555) 012-3456', duration: '2:45', status: 'completed', outcome: 'Appointment Booked' },
+  { id: 'c_456', timestamp: '2025-12-24 12:15', phoneNumber: '+1 (555) 987-6543', duration: '1:12', status: 'transferred', outcome: 'Transferred to Admin' },
+  { id: 'c_789', timestamp: '2025-12-23 09:45', phoneNumber: '+1 (555) 444-5555', duration: '0:45', status: 'missed', outcome: 'Voicemail Left' },
 ];
 
 export const CallHistory = () => {
+  const [selectedCall, setSelectedCall] = useState<CallLog | null>(null);
+
   return (
     <div className="bg-[#050505] border border-white/5 rounded-[32px] overflow-hidden">
+      {/* HEADER */}
       <div className="p-8 border-b border-white/5 flex justify-between items-center">
         <div>
           <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Call Logs</h3>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Forensic Activity Audit</p>
         </div>
-        <button className="text-[10px] font-black uppercase tracking-widest text-cyan-500 flex items-center gap-2 hover:opacity-70">
+        <button className="text-[10px] font-black uppercase tracking-widest text-cyan-500 flex items-center gap-2 hover:opacity-70 transition-opacity">
           Export Data <FileText className="w-3 h-3" />
         </button>
       </div>
 
+      {/* TABLE */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -79,7 +84,10 @@ export const CallHistory = () => {
                   </div>
                 </td>
                 <td className="p-6 text-right">
-                  <button className="p-2 bg-white/5 rounded-lg border border-white/5 group-hover:bg-cyan-500 group-hover:text-black transition-all">
+                  <button 
+                    onClick={() => setSelectedCall(log)}
+                    className="p-2 bg-white/5 rounded-lg border border-white/5 group-hover:bg-cyan-500 group-hover:text-black transition-all"
+                  >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </td>
@@ -88,6 +96,20 @@ export const CallHistory = () => {
           </tbody>
         </table>
       </div>
+
+      {/* TRANSCRIPT MODAL INTEGRATION */}
+      <TranscriptModal 
+        isOpen={!!selectedCall}
+        onClose={() => setSelectedCall(null)}
+        callId={selectedCall?.id || ''}
+        phoneNumber={selectedCall?.phoneNumber || ''}
+        // In a real app, you would pass the actual transcript array here
+        transcript={[
+          { role: 'assistant', content: 'Hello! Thank you for calling Gotham Medical. I am SARA, how can I help you today?' },
+          { role: 'user', content: 'I need to book a consultation for next Tuesday.' },
+          { role: 'assistant', content: 'I can certainly help with that. Let me check the availability for Tuesday morning...' }
+        ]}
+      />
     </div>
   );
 };
