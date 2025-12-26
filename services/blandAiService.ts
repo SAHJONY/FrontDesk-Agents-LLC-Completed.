@@ -85,11 +85,14 @@ export const blandAiService = {
           phone_number: request.phoneNumber,
           task: request.task,
           transfer_phone_number: request.transferPhone,
-          voice_id: process.env.BLAND_AI_VOICE_ID || 'nat', // 'nat' is the premium high-fidelity voice
+          voice_id: process.env.BLAND_AI_VOICE_ID || 'nat', 
           record: true,
           reduce_latency: true,
+          // CRITICAL: Link the webhook for post-call telemetry
+          webhook: `${process.env.NEXT_PUBLIC_APP_URL}/api/voice/webhook`,
           metadata: {
-            market_locale: request.locale || 'en'
+            market_locale: request.locale || 'en',
+            source: 'Sovereign_Dashboard_v3'
           }
         }),
       });
