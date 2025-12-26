@@ -66,7 +66,7 @@ export default function HomePage() {
               GLOBAL <br /><span className="text-cyan-500">ENTERPRISE NODES</span>
             </h1>
             <p className="text-lg lg:text-xl text-slate-400 max-w-2xl font-medium mb-12 uppercase tracking-wide">
-              Provisioning high-fidelity, sovereign AI intelligence for global service leaders. Forensic-grade automation across 6,000+ dialects.
+              Provisioning high-fidelity, sovereign AI intelligence for global service leaders. Forensic-grade automation across 65+ languages including African & Middle Eastern dialects.
             </p>
             <div className="flex flex-wrap gap-6">
               <Link href="#pricing" className="px-10 lg:px-14 py-6 lg:py-7 bg-cyan-500 text-black font-black uppercase text-xs tracking-widest rounded-xl shadow-[0_20px_50px_rgba(6,182,212,0.3)] hover:scale-105 transition-all inline-block">
@@ -85,7 +85,7 @@ export default function HomePage() {
               <div className="text-cyan-500 font-black text-xs uppercase tracking-[0.4em] mb-4">Market Sovereignty</div>
               <h2 className="text-5xl font-black uppercase italic mb-8">Adaptive <span className="text-cyan-500">Intelligence</span></h2>
               <p className="text-slate-400 text-lg mb-8 leading-relaxed italic">
-                Our proprietary "Shadow Logic" constructs high-fidelity agents for high-stakes verticals.
+                Our proprietary "Shadow Logic" constructs high-fidelity agents for high-stakes verticals, tuned for specific regional prosody.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 {[
@@ -137,7 +137,7 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h3 className="text-5xl font-black uppercase italic mb-4 text-white tracking-tighter leading-none">Linguistic <br/>Sovereignty</h3>
-                  <p className="text-slate-400 max-w-md font-bold text-xs tracking-widest uppercase">Autonomous directionality mapping across global territories.</p>
+                  <p className="text-slate-400 max-w-md font-bold text-xs tracking-widest uppercase">Autonomous directionality mapping across 65+ global territories.</p>
                 </div>
             </div>
 
@@ -160,7 +160,7 @@ export default function HomePage() {
             <Zap className="w-8 h-8" />
         </div>
         <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.5em]">
-          All Nodes Encrypted via Aegis Protocol • 2025 FrontDesk Agents
+          All Nodes Encrypted via Aegis Protocol • 2025 FrontDesk Agents LLC
         </p>
       </footer>
     </div>
