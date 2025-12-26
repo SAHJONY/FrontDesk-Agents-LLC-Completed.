@@ -1,0 +1,36 @@
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+export async function POST(req: NextRequest) {
+  const { url, market_context } = await req.json();
+
+  // 1. Scrape & Analyze (Using the logic we built)
+  const webText = await scrapeWebsite(url); // Helper function as defined previously
+  
+  const aiAnalysis = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: `Analyze this website for a ${market_context.vertical} business in ${market_context.city}. Extract business name and specific emergency services.` },
+      { role: 'user', content: webText }
+    ],
+    response_format: { type: 'json_object' }
+  });
+
+  const bizData = JSON.parse(aiAnalysis.choices[0].message.content || '{}');
+
+  // 2. Generate the Localized Bland AI Config
+  const blandConfig = {
+    phone_number: bizData.phone || "{{phone_number}}",
+    task: `You are Sara, the Emergency Dispatcher for ${bizData.businessName} in ${market_context.city}. 
+           A technician is finishing a call nearby. Frame the call in ${market_context.currency}.`,
+    voice: "sara",
+    first_sentence: `Hi, this is Sara from ${bizData.businessName} Dispatch in ${market_context.city}. We have a unit right on your block...`,
+    wait_for_greeting: true,
+    interruption_threshold: 50,
+    model: "enhanced"
+  };
+
+  return NextResponse.json({ success: true, data: { bizData, blandConfig } });
+}
