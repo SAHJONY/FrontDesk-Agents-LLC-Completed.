@@ -1,73 +1,113 @@
 'use client';
 
-import React from 'react';
-import { XMarkIcon, PhoneIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
-
-interface TranscriptLine {
-  role: 'assistant' | 'user';
-  content: string;
-}
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 interface TranscriptModalProps {
   isOpen: boolean;
   onClose: () => void;
-  callId: string;
-  phoneNumber: string;
-  transcript: TranscriptLine[];
+  transcript: string;
+  callData?: {
+    duration?: string;
+    timestamp?: string;
+    phoneNumber?: string;
+  };
 }
 
-export const TranscriptModal = ({ isOpen, onClose, callId, phoneNumber, transcript }: TranscriptModalProps) => {
-  if (!isOpen) return null;
-
+export default function TranscriptModal({ 
+  isOpen, 
+  onClose, 
+  transcript,
+  callData 
+}: TranscriptModalProps) {
   return (
-    <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-      <div className="w-full max-w-2xl bg-[#050505] border border-white/10 rounded-[40px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-        
-        {/* HEADER */}
-        <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-cyan-500/10 rounded-2xl">
-              <PhoneIcon className="w-5 h-5 text-cyan-500" />
-            </div>
-            <div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-white">Forensic Transcript</h3>
-              <p className="text-[9px] font-mono text-slate-500 uppercase">{phoneNumber} • {callId}</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-500">
-            <XMarkIcon className="w-6 h-6" />
-          </button>
-        </div>
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
 
-        {/* TRANSCRIPT BODY */}
-        <div className="h-[450px] overflow-y-auto p-8 space-y-6 bg-black/40 font-mono text-xs leading-relaxed">
-          {transcript.map((line, i) => (
-            <div key={i} className={`flex flex-col ${line.role === 'assistant' ? 'items-start' : 'items-end'}`}>
-              <span className="text-[8px] font-black uppercase tracking-widest text-slate-600 mb-2">
-                {line.role === 'assistant' ? 'SARA Node' : 'Remote Lead'}
-              </span>
-              <div className={`max-w-[85%] p-4 rounded-3xl border ${
-                line.role === 'assistant' 
-                ? 'bg-cyan-500/5 border-cyan-500/20 text-cyan-50 rounded-tl-none' 
-                : 'bg-white/5 border-white/10 text-slate-300 rounded-tr-none'
-              }`}>
-                {line.content}
-              </div>
-            </div>
-          ))}
-        </div>
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Call Transcript
+                  </Dialog.Title>
+                  <button
+                    type="button"
+                    className="text-gray-400 hover:text-gray-500"
+                    onClick={onClose}
+                  >
+                    <XMarkIcon className="h-6 w-6" />
+                  </button>
+                </div>
 
-        {/* FOOTER */}
-        <div className="p-6 bg-white/[0.02] border-t border-white/5 flex justify-between items-center">
-          <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-500">
-            <ShieldCheckIcon className="w-4 h-4 text-emerald-500" />
-            Encryption: Verified AES-256
+                {callData && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm">
+                    <div className="grid grid-cols-2 gap-2">
+                      {callData.phoneNumber && (
+                        <div>
+                          <span className="font-semibold">Phone:</span> {callData.phoneNumber}
+                        </div>
+                      )}
+                      {callData.duration && (
+                        <div>
+                          <span className="font-semibold">Duration:</span> {callData.duration}
+                        </div>
+                      )}
+                      {callData.timestamp && (
+                        <div className="col-span-2">
+                          <span className="font-semibold">Time:</span> {callData.timestamp}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-2 max-h-96 overflow-y-auto">
+                  <div className="prose prose-sm max-w-none">
+                    <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
+                      {transcript || 'No transcript available'}
+                    </pre>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex justify-end">
+                  <button
+                    type="button"
+                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    onClick={onClose}
+                  >
+                    Close
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
-          <button onClick={onClose} className="px-6 py-2 bg-white text-black text-[9px] font-black uppercase tracking-[0.2em] rounded-xl">
-            Close Audit
-          </button>
         </div>
-      </div>
-    </div>
+      </Dialog>
+    </Transition>
   );
-};
+}
