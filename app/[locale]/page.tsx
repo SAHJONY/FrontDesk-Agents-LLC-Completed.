@@ -100,7 +100,8 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <div className="lg:w-1/2 w-full aspect-video bg-white/[0.02] border border-white/10 rounded-[48px] flex flex-col items-center justify-center p-12">
+            <div className="lg:w-1/2 w-full aspect-video bg-white/[0.02] border border-white/10 rounded-[48px] flex flex-col items-center justify-center p-12 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Shield className="w-16 h-16 text-cyan-500 mb-6 animate-pulse" />
               <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500">Vaulted Architecture</span>
             </div>
@@ -120,13 +121,15 @@ export default function HomePage() {
       </section>
 
       {/* --- PRICING GRID --- */}
-      <PricingGrid />
+      <div id="pricing">
+        <PricingGrid />
+      </div>
 
       {/* --- INFRASTRUCTURE: Aegis & Linguistic Core --- */}
       <section id="infrastructure" className="py-32 bg-black border-t border-white/5">
         <div className="container mx-auto px-12">
           <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 relative h-[450px] rounded-[48px] border border-white/5 overflow-hidden group p-12 flex flex-col justify-between">
+            <div className="lg:col-span-2 relative h-[450px] rounded-[48px] border border-white/5 overflow-hidden group p-12 flex flex-col justify-between hover:border-white/20 transition-all">
                 <div className="flex items-center gap-4">
                   <Languages className="w-12 h-12 text-cyan-500" />
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 italic">LTR / RTL Native Core</span>
@@ -137,8 +140,8 @@ export default function HomePage() {
                 </div>
             </div>
 
-            <div className="relative h-[450px] rounded-[48px] bg-cyan-500 p-12 text-black overflow-hidden flex flex-col justify-between">
-              <Lock className="w-12 h-12" />
+            <div className="relative h-[450px] rounded-[48px] bg-cyan-500 p-12 text-black overflow-hidden flex flex-col justify-between group cursor-pointer">
+              <Lock className="w-12 h-12 group-hover:scale-110 transition-transform" />
               <div>
                 <h3 className="text-4xl font-black uppercase italic leading-none mb-4">Aegis <br/>Shield</h3>
                 <p className="font-black text-[10px] uppercase tracking-widest">Enterprise-grade autonomous injection neutralization.</p>
@@ -147,6 +150,18 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      
+      {/* --- FOOTER STATUS --- */}
+      <footer className="py-20 border-t border-white/5 text-center bg-black">
+        <div className="flex justify-center gap-8 mb-8 opacity-20">
+            <Shield className="w-8 h-8" />
+            <Globe className="w-8 h-8" />
+            <Zap className="w-8 h-8" />
+        </div>
+        <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.5em]">
+          All Nodes Encrypted via Aegis Protocol • 2025 FrontDesk Agents
+        </p>
+      </footer>
 
     </div>
   );
