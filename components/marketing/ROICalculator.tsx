@@ -20,13 +20,13 @@ export const ROICalculator = () => {
   const netProfit = projectedRevenue - totalCost;
 
   return (
-    <section className="py-24 bg-[#000814] border-y border-white/5 rounded-[48px]">
+    <section className="py-24 bg-[#000814] border-y border-white/5 rounded-[48px] overflow-hidden">
       <div className="container mx-auto px-8 max-w-6xl">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           
           {/* INPUT CONTROLS */}
           <div className="text-left">
-            <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-6">
+            <h2 className="text-4xl lg:text-5xl font-black italic uppercase tracking-tighter mb-6">
               Neural ROI <span className="text-cyan-500">Projection</span>
             </h2>
             <p className="text-slate-400 font-medium leading-relaxed mb-12 uppercase tracking-widest text-[10px]">
@@ -37,8 +37,10 @@ export const ROICalculator = () => {
               {/* Lead Volume Slider */}
               <div className="space-y-4">
                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
-                  <label className="flex items-center gap-2"><Users className="w-3 h-3" /> Monthly Inbound Leads</label>
-                  <span className="text-white font-mono">{leads}</span>
+                  <label className="flex items-center gap-2">
+                    <Users className="w-3 h-3 text-cyan-500" /> Monthly Inbound Leads
+                  </label>
+                  <span className="text-white font-mono bg-white/5 px-2 py-1 rounded">{leads}</span>
                 </div>
                 <input 
                   type="range" min="10" max="1000" step="10" 
@@ -50,8 +52,10 @@ export const ROICalculator = () => {
               {/* Conversion/Booking Slider */}
               <div className="space-y-4">
                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
-                  <label className="flex items-center gap-2"><TrendingUp className="w-3 h-3" /> AI Booking Rate</label>
-                  <span className="text-white font-mono">{closeRate}%</span>
+                  <label className="flex items-center gap-2">
+                    <TrendingUp className="w-3 h-3 text-cyan-500" /> AI Booking Rate
+                  </label>
+                  <span className="text-white font-mono bg-white/5 px-2 py-1 rounded">{closeRate}%</span>
                 </div>
                 <input 
                   type="range" min="1" max="50" step="1" 
@@ -61,7 +65,7 @@ export const ROICalculator = () => {
               </div>
             </div>
 
-            <div className="mt-12 p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+            <div className="mt-12 p-6 bg-white/[0.02] border border-white/5 rounded-2xl backdrop-blur-md">
               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
                 * Calculation based on <span className="text-white">${subscription} Base</span> + <span className="text-white">${appointmentFee} per appointment</span>. <br />
                 Projected revenue assumes a <span className="text-cyan-500">${avgDealValue.toLocaleString()} average deal value</span>.
@@ -70,26 +74,24 @@ export const ROICalculator = () => {
           </div>
 
           {/* TELEMETRY RESULTS CARD */}
-          <div className="bg-zinc-950 border border-white/10 rounded-[40px] p-10 relative overflow-hidden shadow-2xl">
-            {/* Visual Flare */}
-            <div className="absolute top-0 right-0 p-8 opacity-5">
-              <DollarSign className="w-48 h-48 text-cyan-500" />
-            </div>
+          <div className="bg-zinc-950 border border-white/10 rounded-[40px] p-10 relative overflow-hidden shadow-2xl group">
+            {/* Visual Background Element */}
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-500/10 blur-[100px] rounded-full group-hover:bg-cyan-500/20 transition-all duration-700" />
 
             <div className="relative z-10 space-y-8">
               <div>
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Projected Gross Revenue</p>
-                <p className="text-7xl font-black text-white italic tracking-tighter">
+                <p className="text-6xl lg:text-7xl font-black text-white italic tracking-tighter">
                   ${projectedRevenue.toLocaleString()}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-sm">
+                <div className="p-6 titan-card bg-white/[0.02] border border-white/5">
                   <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Infrastructure Burn</p>
                   <p className="text-xl font-bold text-red-400">-${totalCost.toLocaleString()}</p>
                 </div>
-                <div className="p-6 bg-cyan-500/10 border border-cyan-500/20 rounded-3xl backdrop-blur-sm">
+                <div className="p-6 titan-card bg-cyan-500/5 border border-cyan-500/20">
                   <p className="text-[8px] font-black text-cyan-500 uppercase tracking-widest mb-1">Net Neural Profit</p>
                   <p className="text-xl font-bold text-emerald-400">+${netProfit.toLocaleString()}</p>
                 </div>
@@ -110,3 +112,4 @@ export const ROICalculator = () => {
     </section>
   );
 };
+
