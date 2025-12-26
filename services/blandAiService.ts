@@ -5,6 +5,7 @@ export interface CallRequest {
   phoneNumber: string;
   task: string;
   transferPhone?: string;
+  locale?: string;
 }
 
 export interface CallResponse {
@@ -13,10 +14,9 @@ export interface CallResponse {
   error?: string;
 }
 
-// Type guard for DB consumption tracking
+// Type guard for DB consumption tracking to ensure type safety with Prisma/Supabase
 function hasConsumption(obj: any): obj is typeof db & { 
   consumption: { 
-    getDailyUsage: (provider: string) => Promise<number>;
     create: (data: any) => Promise<void>;
     findMany: (params: any) => Promise<any[]>;
   } 
@@ -28,7 +28,8 @@ function hasConsumption(obj: any): obj is typeof db & {
 export const blandAiService = {
   
   /**
-   * SECURITY: Checks database to see if the daily call limit is reached.
+   * SECURITY: Checks database to verify daily node limits.
+   * Prevents runaway infrastructure costs and API abuse.
    */
   async checkUsage(): Promise<boolean> {
     try {
@@ -36,35 +37,42 @@ export const blandAiService = {
         where: { provider: 'bland_ai' }
       });
 
-      if (!integration || !integration.enabled) return false;
+      if (!integration || !integration.enabled) {
+        console.warn('⚠️ SARA Node is currently disabled in Integrations Control.');
+        return false;
+      }
 
       let usageToday = 0;
       if (hasConsumption(db)) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        
         const consumption = await db.consumption.findMany({
-          where: { provider: 'bland_ai', created_at: { gte: today } }
+          where: { 
+            provider: 'bland_ai', 
+            created_at: { gte: today } 
+          }
         });
         usageToday = consumption?.length || 0;
       }
 
       if (usageToday >= integration.daily_limit) {
-        throw new Error(`Daily limit of ${integration.daily_limit} calls reached.`);
+        throw new Error(`Daily limit of ${integration.daily_limit} calls reached for this node.`);
       }
       return true;
     } catch (error) {
-      console.error('Usage Check Error:', error);
+      console.error('🛡️ Usage Guard Error:', error);
       return false; 
     }
   },
 
   /**
-   * INITIATE CALL: The main entry point for SARA.AI voice calls.
+   * INITIATE CALL: The main entry point for SARA.AI voice dispatch.
    */
   async makeCall(request: CallRequest): Promise<CallResponse> {
-    // 1. Check if we are allowed to make the call
+    // 1. Verify Node Authorization & Usage Limits
     const isAllowed = await this.checkUsage();
-    if (!isAllowed) return { success: false, error: "Usage limit reached or service disabled." };
+    if (!isAllowed) return { success: false, error: "Node limit reached or infrastructure disabled." };
 
     try {
       const response = await fetch('https://api.bland.ai/v1/calls', {
@@ -77,28 +85,41 @@ export const blandAiService = {
           phone_number: request.phoneNumber,
           task: request.task,
           transfer_phone_number: request.transferPhone,
-          voice_id: process.env.BLAND_AI_VOICE_ID || 'default',
+          voice_id: process.env.BLAND_AI_VOICE_ID || 'nat', // 'nat' is the premium high-fidelity voice
+          record: true,
+          reduce_latency: true,
+          metadata: {
+            market_locale: request.locale || 'en'
+          }
         }),
       });
 
-      if (!response.ok) throw new Error(`Bland AI API error: ${response.statusText}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Bland AI Handshake Failed: ${errorData.message || response.statusText}`);
+      }
 
       const data = await response.json();
 
-      // 2. Track successful usage in DB
+      // 2. Track Consumption: Record this transaction in the forensic ledger
       if (hasConsumption(db)) {
-        await db.consumption.create({ data: { provider: 'bland_ai' } });
+        await db.consumption.create({ 
+          data: { 
+            provider: 'bland_ai',
+            metadata: { call_id: data.call_id, locale: request.locale }
+          } 
+        });
       }
 
       return { success: true, callId: data.call_id };
     } catch (error) {
-      console.error('Bland AI service error:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      console.error('❌ Neural Dispatch Failure:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown neural error' };
     }
   },
 
   /**
-   * CONFIGURATION: Updates agent personality/system prompt.
+   * CONFIGURATION: Updates agent personality/system prompt dynamically.
    */
   async configureAgent(config: any): Promise<any> {
     try {
