@@ -67,7 +67,7 @@ export async function middleware(request: SovereignRequest) {
   }
 
   // --- 5. AUTH & SOVEREIGN SECURITY (Supabase SSR) ---
-  // Create an initial response
+  // Create an initial response that will be modified by setAll
   let response = NextResponse.next({
     request: { headers: request.headers }
   })
@@ -79,8 +79,13 @@ export async function middleware(request: SovereignRequest) {
       cookies: {
         getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet) {
+          // 1. Sync cookies with the request to ensure Auth state persists in this execution
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          
+          // 2. Refresh the response object with the updated request headers
           response = NextResponse.next({ request })
+          
+          // 3. Sync cookies with the final response sent to the browser
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )
@@ -89,7 +94,7 @@ export async function middleware(request: SovereignRequest) {
     }
   )
 
-  // This is required to refresh the session if it's expired
+  // This call triggers setAll() if the session is refreshed
   const { data: { user } } = await supabase.auth.getUser()
   
   const isAdminRoute = /^\/(?:[a-z]{2}\/)?(admin|owner|analytics)/.test(pathname)
@@ -102,7 +107,6 @@ export async function middleware(request: SovereignRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Security check for admin access
   if (isAdminRoute && user?.id !== process.env.ADMIN_OWNER_ID) {
     const url = request.nextUrl.clone()
     url.pathname = '/404' 
@@ -118,7 +122,6 @@ export async function middleware(request: SovereignRequest) {
   response.headers.set('x-user-country', country)
   response.headers.set('x-user-city', city)
   
-  // Set the locale cookie for persistence
   response.cookies.set('NEXT_LOCALE', detectedLocale, {
     path: '/',
     maxAge: 31536000,
