@@ -1,20 +1,30 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
+import { useParams } from 'next/navigation';
 import { 
-  MicrophoneIcon, 
-  WrenchScrewdriverIcon, 
+  Cpu, 
+  Zap, 
+  ShieldCheck, 
   ArrowPathIcon,
-  ShieldCheckIcon
+  WrenchScrewdriverIcon,
+  MicrophoneIcon
 } from '@heroicons/react/24/outline';
 
-export default async function VoiceAIConfigPage({ 
-  params 
-}: { 
-  params: Promise<{ locale: string }> 
-}) {
-  // Await the params to identify the market context
-  const { locale } = await params;
+// Import our new functional components
+import { CallMonitor } from '@/components/dashboard/CallMonitor';
+import { CallHistory } from '@/components/dashboard/CallHistory';
 
-  // Configuration tied to the Sovereign Node
+export default function VoiceAIConfigPage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'en';
+  
+  // State for Live Interaction
+  const [activeCallId, setActiveCallId] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Sovereign Node Configuration
   const currentConfig = {
     enabled: true,
     mode: 'Standard (Scraping + CRM + Booking)',
@@ -24,74 +34,134 @@ export default async function VoiceAIConfigPage({
     node: locale.toUpperCase()
   };
 
-  return (
-    <div className="p-8 md:p-12 w-full max-w-7xl mx-auto">
-      {/* Header with Locale Context */}
-      <div className="mb-10">
-        <h1 className="text-3xl font-extrabold text-white mb-2 flex items-center">
-          <MicrophoneIcon className="w-8 h-8 mr-3 text-cyan-500" />
-          SARA.AI Activation <span className="ml-3 text-sm font-mono text-slate-500 border border-white/10 px-2 py-1 rounded">NODE: {currentConfig.node}</span>
-        </h1>
-        <p className="text-gray-400">
-          Deploy your 24/7, human-like voice agent for instant conversions in the {locale === 'en' ? 'English' : locale} market.
-        </p>
-      </div>
+  const handleInitiateCall = async () => {
+    if (!phoneNumber) return;
+    setLoading(true);
+    try {
+      const response = await fetch('/api/voice/make-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setActiveCallId(data.callId);
+      }
+    } catch (error) {
+      console.error("Neural Link failed to initialize");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      {/* Deployment Status Card */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 mb-10 backdrop-blur-md">
-        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <ShieldCheckIcon className="w-5 h-5 text-green-400" />
-          System Status
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-4 bg-black/40 rounded-xl border border-white/5">
-            <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Service Mode</p>
-            <p className="text-lg font-bold text-cyan-400">{currentConfig.mode}</p>
-          </div>
-          <div className="p-4 bg-black/40 rounded-xl border border-white/5">
-            <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Knowledge Refresh</p>
-            <p className="text-lg font-bold text-white flex items-center justify-between">
-              {currentConfig.last_refresh}
-              <button className="text-cyan-500 hover:text-white transition">
-                <ArrowPathIcon className="w-5 h-5" />
-              </button>
+  return (
+    <div className="min-h-screen bg-[#010204] text-white p-8 md:p-12 pt-24">
+      <div className="max-w-7xl mx-auto space-y-10">
+        
+        {/* HEADER: Market Context */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+            <h1 className="text-4xl font-black uppercase italic tracking-tighter flex items-center">
+              <MicrophoneIcon className="w-10 h-10 mr-4 text-cyan-500" />
+              SARA.AI <span className="text-cyan-500 ml-2 text-2xl">Activation</span>
+            </h1>
+            <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">
+              Node: {currentConfig.node} • Aegis Shield v2.5
             </p>
           </div>
-          <div className="p-4 bg-black/40 rounded-xl border border-white/5">
-            <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Industry Profile</p>
-            <p className="text-lg font-bold text-white">{currentConfig.industry}</p>
+          <div className="flex gap-4">
+            <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-3 flex items-center gap-4">
+              <Cpu className="w-6 h-6 text-cyan-500" />
+              <div>
+                <p className="text-[8px] font-black text-slate-500 uppercase">Logic Engine</p>
+                <p className="text-xs font-bold uppercase italic">Bland-v3 Hybrid</p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      
-      {/* Installation Script Container */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 space-y-6">
-        <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white flex items-center">
-                <WrenchScrewdriverIcon className="w-6 h-6 mr-2 text-yellow-500" />
-                Installation Script
-            </h2>
-            <button className="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all">
-                REGENERATE KEY
-            </button>
-        </div>
 
-        <p className="text-gray-400 text-sm">
-          Copy and paste this script into the <code className="text-cyan-400">&lt;head&gt;</code> or before the closing <code className="text-cyan-400">&lt;/body&gt;</code> tag of the client website.
-        </p>
-        
-        {/* The Actual Script Block */}
-        <div className="bg-black p-5 rounded-xl font-mono text-sm overflow-x-auto border border-white/10 text-yellow-500 select-all">
-          {`<script src="https://frontdesk-agents.com/sara.js" data-node="${locale}" data-key="${currentConfig.widget_script_key}"></script>`}
-        </div>
-        
-        <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-          <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 animate-pulse" />
-          <p className="text-xs text-red-400 leading-relaxed">
-            <strong>COMPLIANCE NOTICE:</strong> Enabling SARA.AI requires adherence to local call recording and data privacy laws for the <strong>{locale.toUpperCase()}</strong> region.
-          </p>
+        <div className="grid lg:grid-cols-12 gap-10">
+          
+          {/* LEFT COLUMN: Configuration & Script */}
+          <div className="lg:col-span-5 space-y-10">
+            
+            {/* SYSTEM STATUS */}
+            <div className="bg-white/[0.02] border border-white/10 rounded-[32px] p-8 backdrop-blur-md">
+              <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-green-500" />
+                Infrastructure Status
+              </h2>
+              <div className="space-y-4">
+                <div className="p-4 bg-black/40 rounded-xl border border-white/5">
+                  <p className="text-[9px] uppercase tracking-widest text-slate-500 mb-1">Last Knowledge Refresh</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-bold">{currentConfig.last_refresh}</p>
+                    <ArrowPathIcon className="w-4 h-4 text-cyan-500 cursor-pointer hover:rotate-180 transition-transform duration-500" />
+                  </div>
+                </div>
+                <div className="p-4 bg-black/40 rounded-xl border border-white/5">
+                  <p className="text-[9px] uppercase tracking-widest text-slate-500 mb-1">Industry Profile</p>
+                  <p className="text-sm font-bold text-cyan-400">{currentConfig.industry}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* NEURAL LINK INITIATION */}
+            <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-[32px] p-8">
+              <h2 className="text-sm font-black uppercase tracking-widest text-white mb-6 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-cyan-500" />
+                Manual Neural Link
+              </h2>
+              <input 
+                type="tel" 
+                placeholder="+1 000 000 0000"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="w-full bg-black/60 border border-white/10 rounded-xl p-4 text-white focus:border-cyan-500 focus:outline-none mb-4"
+              />
+              <button 
+                onClick={handleInitiateCall}
+                disabled={loading}
+                className="w-full py-4 bg-cyan-500 text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-xl hover:scale-105 transition-all shadow-lg"
+              >
+                {loading ? 'Initializing...' : 'Initiate Outbound Link'}
+              </button>
+            </div>
+
+            {/* INSTALLATION SCRIPT */}
+            <div className="bg-white/[0.02] border border-white/10 rounded-[32px] p-8 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2">
+                  <WrenchScrewdriverIcon className="w-4 h-4 text-yellow-500" />
+                  Node Script
+                </h2>
+                <span className="text-[8px] font-bold px-2 py-1 bg-white/5 rounded text-slate-500">v1.2</span>
+              </div>
+              <div className="bg-black p-4 rounded-xl font-mono text-[11px] border border-white/10 text-yellow-500/80 overflow-x-auto select-all">
+                {`<script src="https://frontdesk-agents.com/sara.js" data-node="${locale}" data-key="${currentConfig.widget_script_key}"></script>`}
+              </div>
+              <p className="text-[9px] text-slate-500 uppercase tracking-tighter leading-relaxed">
+                Paste into the <code className="text-cyan-500">&lt;head&gt;</code> of the client website for widget deployment.
+              </p>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: History & Forensic Data */}
+          <div className="lg:col-span-7 space-y-10">
+            <CallHistory />
+          </div>
+
         </div>
       </div>
+
+      {/* OVERLAY: Active Call Monitor */}
+      {activeCallId && (
+        <CallMonitor 
+          callId={activeCallId} 
+          onClose={() => setActiveCallId(null)} 
+        />
+      )}
     </div>
   );
-          }
+}
