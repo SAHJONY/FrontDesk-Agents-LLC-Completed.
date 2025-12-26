@@ -7,11 +7,12 @@ export const ROICalculator = () => {
   const [leads, setLeads] = useState(100);
   const [closeRate, setCloseRate] = useState(10);
   
-  // Logic based on Professional Tier ($899)
+  // Logic based on Professional Tier Pricing Architecture
   const subscription = 899;
   const appointmentFee = 15;
   const avgDealValue = 2000;
 
+  // Calculation Engine
   const appointmentsSet = Math.round(leads * (closeRate / 100));
   const performanceFees = appointmentsSet * appointmentFee;
   const totalCost = subscription + performanceFees;
@@ -19,24 +20,25 @@ export const ROICalculator = () => {
   const netProfit = projectedRevenue - totalCost;
 
   return (
-    <section className="py-24 bg-[#000814] border-y border-white/5">
+    <section className="py-24 bg-[#000814] border-y border-white/5 rounded-[48px]">
       <div className="container mx-auto px-8 max-w-6xl">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           
+          {/* INPUT CONTROLS */}
           <div className="text-left">
             <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-6">
               Neural ROI <span className="text-cyan-500">Projection</span>
             </h2>
             <p className="text-slate-400 font-medium leading-relaxed mb-12 uppercase tracking-widest text-[10px]">
-              Simulate the impact of a Professional Tier deployment on your current lead volume.
+              Simulate the impact of a Professional Tier deployment on your current lead volume and conversion performance.
             </p>
 
             <div className="space-y-10">
-              {/* Lead Slider */}
+              {/* Lead Volume Slider */}
               <div className="space-y-4">
                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
-                  <label className="flex items-center gap-2"><Users className="w-3 h-3" /> Monthly Leads</label>
-                  <span className="text-white">{leads}</span>
+                  <label className="flex items-center gap-2"><Users className="w-3 h-3" /> Monthly Inbound Leads</label>
+                  <span className="text-white font-mono">{leads}</span>
                 </div>
                 <input 
                   type="range" min="10" max="1000" step="10" 
@@ -45,49 +47,61 @@ export const ROICalculator = () => {
                 />
               </div>
 
-              {/* Conversion Slider */}
+              {/* Conversion/Booking Slider */}
               <div className="space-y-4">
                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
-                  <label className="flex items-center gap-2"><TrendingUp className="w-3 h-3" /> Booking Rate</label>
-                  <span className="text-white">{closeRate}%</span>
+                  <label className="flex items-center gap-2"><TrendingUp className="w-3 h-3" /> AI Booking Rate</label>
+                  <span className="text-white font-mono">{closeRate}%</span>
                 </div>
                 <input 
-                  type="range" min="1" max="30" step="1" 
+                  type="range" min="1" max="50" step="1" 
                   value={closeRate} onChange={(e) => setCloseRate(Number(e.target.value))}
                   className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-500"
                 />
               </div>
             </div>
+
+            <div className="mt-12 p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] leading-relaxed">
+                * Calculation based on <span className="text-white">${subscription} Base</span> + <span className="text-white">${appointmentFee} per appointment</span>. <br />
+                Projected revenue assumes a <span className="text-cyan-500">${avgDealValue.toLocaleString()} average deal value</span>.
+              </p>
+            </div>
           </div>
 
-          {/* RESULTS CARD */}
-          <div className="bg-zinc-950 border border-white/10 rounded-[40px] p-10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10">
-              <DollarSign className="w-32 h-32 text-cyan-500" />
+          {/* TELEMETRY RESULTS CARD */}
+          <div className="bg-zinc-950 border border-white/10 rounded-[40px] p-10 relative overflow-hidden shadow-2xl">
+            {/* Visual Flare */}
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+              <DollarSign className="w-48 h-48 text-cyan-500" />
             </div>
 
             <div className="relative z-10 space-y-8">
               <div>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Projected Monthly Revenue</p>
-                <p className="text-6xl font-black text-white italic tracking-tighter">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Projected Gross Revenue</p>
+                <p className="text-7xl font-black text-white italic tracking-tighter">
                   ${projectedRevenue.toLocaleString()}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl">
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Infrastructure Cost</p>
-                  <p className="text-xl font-bold text-red-400">${totalCost.toLocaleString()}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-sm">
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Infrastructure Burn</p>
+                  <p className="text-xl font-bold text-red-400">-${totalCost.toLocaleString()}</p>
                 </div>
-                <div className="p-6 bg-cyan-500/10 border border-cyan-500/20 rounded-3xl">
+                <div className="p-6 bg-cyan-500/10 border border-cyan-500/20 rounded-3xl backdrop-blur-sm">
                   <p className="text-[8px] font-black text-cyan-500 uppercase tracking-widest mb-1">Net Neural Profit</p>
-                  <p className="text-xl font-bold text-emerald-400">${netProfit.toLocaleString()}</p>
+                  <p className="text-xl font-bold text-emerald-400">+${netProfit.toLocaleString()}</p>
                 </div>
               </div>
 
-              <button className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-cyan-500 hover:text-white transition-all flex items-center justify-center gap-3">
+              <button className="w-full py-6 bg-white text-black rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-cyan-500 hover:text-white transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
                 Secure This Infrastructure <ArrowRight className="w-4 h-4" />
               </button>
+              
+              <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-widest">
+                Sovereign Node Activation Required for Live Deployment
+              </p>
             </div>
           </div>
 
