@@ -6,7 +6,7 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    // Essential for your Revenue Dashboard components
+    // Essential for your Revenue Dashboard components (Tremor integration)
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
@@ -14,19 +14,19 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        // Elite Global Branding
+        // Elite Global Branding & Sovereign Palette
         brand: {
           dark: "#010204",
           cyan: "#06b6d4",
           slate: "#64748b",
-          emergency: "#ef4444", // High-urgency red for Sara's alerts
+          emergency: "#ef4444", // High-urgency red for critical system alerts
         }
       },
       // Autonomous Font Mapping
       fontFamily: {
         sans: ['var(--font-geist-sans)'],
         mono: ['var(--font-geist-mono)'],
-        // Dynamic fallback for RTL markets (Global Expansion ready)
+        // Dynamic fallback for RTL markets (MENA Region Sovereignty)
         arabic: ['Noto Sans Arabic', 'sans-serif'],
       },
       animation: {
@@ -59,8 +59,10 @@ const config: Config = {
   },
   plugins: [
     // Requirement for Worldwide Universal markets (Arabic, Hebrew, etc.)
-    // IMPORTANT: Ensure you run 'npm install tailwindcss-rtl' before deploying
+    // Provides logical properties like ps (padding-start) and me (margin-end)
     require('tailwindcss-rtl'),
+    // Form styling for Shadow Node activation pages
+    require('@tailwindcss/forms'),
   ],
 };
 
