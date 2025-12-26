@@ -1,0 +1,39 @@
+import axios from 'axios';
+
+// The Universal Market Grid
+const TARGET_MARKETS = [
+  { city: "Houston", country: "US", vertical: "HVAC", intent: "Emergency", currency: "USD" },
+  { city: "London", country: "GB", vertical: "Plumbing", intent: "Urgent", currency: "GBP" },
+  { city: "Sydney", country: "AU", vertical: "Locksmith", intent: "Emergency", currency: "AUD" }
+];
+
+async function runGlobalHunt() {
+  for (const market of TARGET_MARKETS) {
+    const query = `${market.intent} ${market.vertical} in ${market.city}, ${market.country}`;
+    console.log(`🌐 Scoping Global Market: ${query}`);
+
+    try {
+      const { data } = await axios.post('https://google.serper.dev/maps', {
+        q: query,
+        gl: market.country.toLowerCase(),
+        hl: "en"
+      }, {
+        headers: { 'X-API-KEY': process.env.SERPER_API_KEY }
+      });
+
+      for (const biz of data.maps) {
+        if (!biz.website) continue;
+        
+        // Push to your auto-configure endpoint
+        await axios.post(`${process.env.NEXT_PUBLIC_APP_URL}/api/onboarding/auto-configure`, {
+          url: biz.website,
+          market_context: market // Passes vertical, city, and currency
+        });
+      }
+    } catch (err) {
+      console.error(`Failed market: ${market.city}`, err);
+    }
+  }
+}
+
+runGlobalHunt();
