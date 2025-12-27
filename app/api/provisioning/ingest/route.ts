@@ -7,22 +7,34 @@ import { getPrompt } from '@/lib/ai/prompts';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
-  const { targetUrl, customerId } = await req.json();
-  const cookieStore = cookies();
-  
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() },
-      },
-    }
-  );
-
   try {
+    const { targetUrl, customerId } = await req.json();
+    
+    // NEXT.JS 15 FIX: Await the cookies() function
+    const cookieStore = await cookies();
+    
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Handle server component cookie setting limitation
+            }
+          },
+        },
+      }
+    );
+
     // 1. PHASE ONE: RAW DATA EXTRACTION
-    // Using Jina Reader for high-fidelity markdown conversion
     const crawlerResponse = await fetch(`https://r.jina.ai/${targetUrl}`, {
       headers: { 'X-Return-Format': 'markdown' }
     });
@@ -47,13 +59,12 @@ export async function POST(req: Request) {
     const structuredIntelligence = JSON.parse(completion.choices[0].message.content || '{}');
 
     // 3. PHASE THREE: PERSISTENCE
-    // Store in the knowledge_assets table for the AI agent to reference
     const { error: dbError } = await supabase
       .from('knowledge_assets')
       .upsert({
         customer_id: customerId,
-        content: rawMarkdown, // Full text for vector search
-        metadata: structuredIntelligence, // Structured JSON for quick lookups
+        content: rawMarkdown,
+        metadata: structuredIntelligence,
         source_url: targetUrl,
         updated_at: new Date().toISOString()
       });
@@ -74,9 +85,16 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error('INGEST_ERROR:', error);
     
-    // Log failure for Owner oversight
-    await supabase.from('provisioning_logs').insert({
-      customer_id: customerId,
+    // We recreate a minimal client for error logging if the main one failed
+    const cookieStore = await cookies();
+    const errorClient = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { getAll() { return cookieStore.getAll() } } }
+    );
+
+    await errorClient.from('provisioning_logs').insert({
+      customer_id: (await req.json()).customerId,
       message: `Ingest Failed: ${error.message}`,
       status: 'error'
     });
