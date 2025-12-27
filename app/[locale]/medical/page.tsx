@@ -1,54 +1,46 @@
 'use client';
 
+import React from 'react';
 import { Stethoscope, Activity, ShieldCheck, HeartPulse } from 'lucide-react';
 
-export const MedicalVerticalSection = () => {
+// FIXED: Added default export wrapper to comply with Next.js App Router standards
+export default function MedicalVerticalPage() {
   return (
-    <section className="py-24 bg-[#020408] border-y border-white/5">
-      <div className="container mx-auto px-8">
-        <div className="flex flex-col lg:flex-row gap-16 items-center">
-          <div className="lg:w-1/2">
-            <div className="flex items-center gap-3 text-cyan-500 mb-6">
-              <Activity className="w-5 h-5 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Vertical: Healthcare Logistics</span>
-            </div>
-            <h2 className="text-5xl font-black uppercase italic tracking-tighter mb-8 text-white">
-              The <span className="text-cyan-500">Autonomous</span> Clinic
-            </h2>
-            <p className="text-slate-400 text-lg mb-10 leading-relaxed italic">
-              Eliminate patient leakage. Deploy a medical-grade SARA node that understands clinical terminology and handles intake with 100% accuracy.
-            </p>
-            
-            <div className="space-y-6">
-              {[
-                { title: 'Intelligent Triage', desc: 'Identify emergencies vs. routine bookings instantly.' },
-                { title: 'EHR Synchronization', desc: 'Data flows directly into your management system.' },
-                { title: 'Patient Recall', desc: 'Autonomous outbound follow-ups for routine checkups.' }
-              ].map((feature, i) => (
-                <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 transition-all">
-                  <div className="p-2 bg-cyan-500/10 rounded-lg h-fit">
-                    <ShieldCheck className="w-4 h-4 text-cyan-500" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase text-white mb-1">{feature.title}</h4>
-                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{feature.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="lg:w-1/2 relative">
-            <div className="absolute -inset-4 bg-cyan-500/10 blur-3xl rounded-full" />
-            <div className="relative aspect-square rounded-[40px] border border-white/10 bg-black p-12 flex flex-col items-center justify-center text-center overflow-hidden">
-               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-               <HeartPulse className="w-24 h-24 text-cyan-500 mb-8" />
-               <h3 className="text-2xl font-black uppercase italic text-white mb-4">HIPAA <br/>Sovereignty</h3>
-               <p className="text-[10px] text-slate-500 uppercase font-black tracking-[0.3em]">Neural Mesh Encrypted • Zero Data Leakage</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <main className="min-h-screen bg-[#020305] pt-32">
+      <MedicalVerticalSection />
+    </main>
   );
-};
+}
+
+function MedicalVerticalSection() {
+  return (
+    <div className="container mx-auto px-8 lg:px-16">
+      <div className="max-w-4xl">
+        <div className="inline-flex items-center gap-3 px-4 py-1 bg-cyan-500/10 border border-cyan-500/20 mb-8">
+          <HeartPulse className="w-3 h-3 text-cyan-500" />
+          <span className="text-cyan-500 text-[9px] font-black uppercase tracking-[0.4em]">Vertical: Health-Tech Sovereign</span>
+        </div>
+        <h1 className="text-6xl font-black uppercase tracking-tighter mb-8 italic">
+          Medical <span className="text-slate-500">Intake Nodes</span>
+        </h1>
+        <p className="text-xl text-slate-400 font-light leading-relaxed mb-16 border-l border-white/10 pl-8 italic">
+          HIPAA-compliant agentic workflows designed for high-volume clinical environments. Automated triage, scheduling, and patient synthesis.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-8 pb-32">
+        {[
+          { icon: Stethoscope, title: "Clinical Triage", desc: "Autonomous patient assessment protocols." },
+          { icon: Activity, title: "Real-time Sync", desc: "Direct EHR/EMR telemetry integration." },
+          { icon: ShieldCheck, title: "Vault Security", desc: "Zero-knowledge encryption for PHI data." }
+        ].map((feat, i) => (
+          <div key={i} className="p-10 border border-white/5 bg-white/[0.02] rounded-sm">
+            <feat.icon className="w-8 h-8 text-cyan-500 mb-6" />
+            <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-white mb-3">{feat.title}</h4>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest leading-loose">{feat.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
