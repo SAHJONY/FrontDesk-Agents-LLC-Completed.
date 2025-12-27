@@ -1,21 +1,34 @@
 'use client';
 
 import React from 'react';
-import { Activity, Globe, PhoneIncoming, Shield, BarChart3, Clock } from 'lucide-react';
+import { Activity, Globe, PhoneIncoming, Shield, BarChart3 } from 'lucide-react';
 import { LineChart, Card, Title, Text, Metric, Flex, Badge } from '@tremor/react';
 
-/**
- * COMMAND CENTER SPECIFICATION
- * This interface represents the 'Glass Cockpit' for the Sovereign Node.
- * Ensure @tremor/react is installed: npm install @tremor/react
- */
+// Define the interface for our Sovereign Stats
+interface SovereignStats {
+  callVolume: { time: string; calls: number }[];
+  industry: string;
+  language: string;
+  mrr: number;
+}
 
-export default function CommandCenter({ stats = { 
-  callVolume: [], 
-  industry: 'Medical', 
-  language: 'English',
-  mrr: 0 
-} }: { stats?: any }) {
+/**
+ * COMMAND CENTER VIEW
+ * Extracted from the page level to solve the Next.js 'invalid default export' error.
+ * This component handles the high-fidelity UI rendering.
+ */
+export default function CommandCenterView({ 
+  stats = { 
+    callVolume: [], 
+    industry: 'Medical', 
+    language: 'English',
+    mrr: 0 
+  },
+  locale = 'en'
+}: { 
+  stats?: SovereignStats;
+  locale?: string;
+}) {
   
   return (
     <div className="min-h-screen bg-[#010204] p-8 space-y-8 selection:bg-cyan-500/30">
@@ -32,7 +45,7 @@ export default function CommandCenter({ stats = {
               Global Node: <span className="text-cyan-500">ACTIVE</span>
             </h1>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
-              Layer: Sovereign Production // Node_ID: SYST-882
+              Jurisdiction: {locale.toUpperCase()} // Node_ID: SYST-882
             </p>
           </div>
         </div>
@@ -52,7 +65,7 @@ export default function CommandCenter({ stats = {
       {/* --- CORE ANALYTICS GRID --- */}
       <div className="grid lg:grid-cols-3 gap-8">
         
-        {/* Call Volume Card (Tremor Integrated) */}
+        {/* Call Volume Card */}
         <Card className="bg-white/[0.02] border-white/10 rounded-[2rem] p-8 shadow-2xl">
           <Flex alignItems="start">
             <div className="space-y-1">
@@ -67,7 +80,8 @@ export default function CommandCenter({ stats = {
             className="mt-10 h-40"
             data={stats.callVolume.length > 0 ? stats.callVolume : [
               { time: "00:00", calls: 45 }, { time: "04:00", calls: 32 },
-              { time: "08:00", calls: 89 }, { time: "12:00", calls: 124 }
+              { time: "08:00", calls: 89 }, { time: "12:00", calls: 124 },
+              { time: "16:00", calls: 98 }, { time: "20:00", calls: 67 }
             ]}
             index="time"
             categories={["calls"]}
@@ -79,7 +93,7 @@ export default function CommandCenter({ stats = {
           />
         </Card>
 
-        {/* Industry Intelligence: Neural Identity */}
+        {/* Industry Intelligence */}
         <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] p-8 flex flex-col justify-between group hover:border-cyan-500/30 transition-all duration-500">
            <div className="space-y-6">
              <div className="flex items-center gap-3">
@@ -97,7 +111,6 @@ export default function CommandCenter({ stats = {
 
         {/* Regional Routing Card */}
         <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] p-8 relative overflow-hidden group">
-          {/* Decorative Grid Background */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
           
           <div className="relative z-10 h-full flex flex-col justify-between">
