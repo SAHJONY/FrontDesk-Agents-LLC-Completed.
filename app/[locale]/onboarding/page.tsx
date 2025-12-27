@@ -22,9 +22,13 @@ export default function OnboardingPage() {
   const params = useParams();
   const locale = params?.locale as string;
   
-  // FIX: Add null check for searchParams
-  const planId = (searchParams?.get('plan') as PlanTier) || PlanTier.PROFESSIONAL;
-  const selectedPlan = PlanData.find(p => p.id === planId) || PlanData[1];
+  /**
+   * FIX: BUILD ERROR RESOLUTION
+   * Changed PlanTier.PROFESSIONAL to PlanTier.CORE_STATION to align with 
+   * your new Infrastructure Provisioning structure.
+   */
+  const planId = (searchParams?.get('plan') as PlanTier) || PlanTier.CORE_STATION;
+  const selectedPlan = PlanData.find(p => p.id === planId) || PlanData[0];
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -46,7 +50,9 @@ export default function OnboardingPage() {
         body: JSON.stringify({ 
           priceId: selectedPlan.stripePriceId, 
           locale: locale || 'en',
-          customerEmail: formData.email 
+          customerEmail: formData.email,
+          // metadata passed to Stripe to trigger the Aegis Silo in the webhook
+          planTier: selectedPlan.id 
         }),
       });
 
@@ -54,7 +60,7 @@ export default function OnboardingPage() {
       if (url) {
         window.location.href = url;
       } else {
-        throw new Error(error);
+        throw new Error(error || 'Failed to initialize secure checkout.');
       }
     } catch (err) {
       console.error("Infrastructure Provisioning Failed", err);
@@ -66,7 +72,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-[#010204] text-white pt-24 pb-12 px-6 selection:bg-cyan-500/30">
       <div className="max-w-4xl mx-auto">
         
-        {/* PROGRESS HEADER */}
+        {/* PROGRESS HEADER: VISUALIZING NEURAL INITIALIZATION */}
         <div className="flex items-center justify-between mb-12">
           <div className="flex gap-4">
             {[1, 2, 3].map((num) => (
@@ -118,7 +124,11 @@ export default function OnboardingPage() {
                     </select>
                   </div>
                 </div>
-                <button onClick={nextStep} className="w-full py-5 bg-cyan-500 text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-lg">
+                <button 
+                  onClick={nextStep} 
+                  disabled={!formData.businessName}
+                  className="w-full py-5 bg-cyan-500 text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-lg disabled:opacity-50 disabled:hover:scale-100"
+                >
                   Confirm Parameters <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -152,7 +162,11 @@ export default function OnboardingPage() {
                      Aegis Ingestion Nodes will perform a forensic mapping of your assets.
                    </p>
                 </div>
-                <button onClick={nextStep} className="w-full py-5 bg-cyan-500 text-black font-black uppercase text-[10px] tracking-[0.2em] rounded-xl flex items-center justify-center gap-3">
+                <button 
+                  onClick={nextStep} 
+                  disabled={!formData.website || !formData.email}
+                  className="w-full py-5 bg-cyan-500 text-black font-black uppercase text-[10px] tracking-[0.2em] rounded-xl flex items-center justify-center gap-3 disabled:opacity-50"
+                >
                   Initiate Sync <Cpu className="w-4 h-4" />
                 </button>
               </div>
@@ -160,7 +174,7 @@ export default function OnboardingPage() {
 
             {step === 3 && (
               <div className="space-y-6 text-center py-12 animate-in zoom-in duration-1000">
-                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/30">
                   <CheckCircle2 className="w-10 h-10 text-green-500" />
                 </div>
                 <h1 className="text-4xl font-black uppercase italic tracking-tighter">
@@ -172,7 +186,7 @@ export default function OnboardingPage() {
                 <button 
                   onClick={handleCheckout}
                   disabled={loading}
-                  className="px-12 py-5 bg-white text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50 flex items-center gap-3 mx-auto shadow-2xl"
+                  className="px-12 py-5 bg-white text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50 flex items-center gap-3 mx-auto shadow-[0_0_30px_rgba(255,255,255,0.1)]"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   Provision Asset via Secure Checkout
@@ -181,7 +195,7 @@ export default function OnboardingPage() {
             )}
           </div>
 
-          {/* SUMMARY SIDEBAR */}
+          {/* SUMMARY SIDEBAR: THE AEGIS SPECIFICATION */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white/[0.02] border border-white/10 rounded-[32px] p-8 sticky top-24 backdrop-blur-md shadow-2xl">
               <div className="flex items-center gap-2 text-cyan-500 mb-6">
@@ -197,13 +211,13 @@ export default function OnboardingPage() {
               <div className="space-y-4 mb-8">
                 {selectedPlan.features.slice(0, 4).map((f, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <ShieldCheck className="w-3 h-3 text-cyan-500" />
+                    <ShieldCheck className="w-3 h-3 text-cyan-500 shadow-sm" />
                     <span className="text-[9px] font-black uppercase tracking-tight text-slate-300">{f}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/5 group hover:border-cyan-500/30 transition-colors">
                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1 italic">Success Synthesis Fee</p>
                 <p className="text-sm font-bold text-white tracking-tighter">${selectedPlan.appointmentFee || '10'} / Outcome</p>
               </div>
