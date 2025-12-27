@@ -17,7 +17,10 @@ import {
 
 export default function OnboardingPage() {
   const searchParams = useSearchParams();
-  const { locale } = useParams();
+  
+  // FIX: Cast params to ensure the build machine recognizes 'locale'
+  const params = useParams();
+  const locale = params?.locale as string;
   
   const planId = searchParams.get('plan') as PlanTier || PlanTier.PROFESSIONAL;
   const selectedPlan = PlanData.find(p => p.id === planId) || PlanData[1];
@@ -28,12 +31,11 @@ export default function OnboardingPage() {
     businessName: '',
     industry: 'Medical / Healthcare',
     website: '',
-    email: '' // In a real app, grab this from your Auth context
+    email: '' 
   });
 
   const nextStep = () => setStep(prev => prev + 1);
 
-  // TRIGGER STRIPE CHECKOUT
   const handleCheckout = async () => {
     setLoading(true);
     try {
@@ -41,7 +43,7 @@ export default function OnboardingPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          priceId: selectedPlan.stripePriceId, // Ensure this exists in your PlanData
+          priceId: selectedPlan.stripePriceId, 
           locale: locale || 'en',
           customerEmail: formData.email 
         }),
@@ -54,7 +56,7 @@ export default function OnboardingPage() {
         throw new Error(error);
       }
     } catch (err) {
-      console.error("Checkout Initialization Failed", err);
+      console.error("Infrastructure Provisioning Failed", err);
       setLoading(false);
     }
   };
@@ -76,13 +78,12 @@ export default function OnboardingPage() {
             ))}
           </div>
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-500 animate-pulse">
-            System Initialization: {Math.round((step / 3) * 100)}%
+            Neural Initialization: {Math.round((step / 3) * 100)}%
           </span>
         </div>
 
         <div className="grid lg:grid-cols-5 gap-12">
           
-          {/* MAIN FORM AREA */}
           <div className="lg:col-span-3 space-y-8">
             {step === 1 && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -90,12 +91,12 @@ export default function OnboardingPage() {
                   Node <span className="text-cyan-500">Parameters</span>
                 </h1>
                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                  Define operational scope for {locale?.toString().toUpperCase()} market.
+                  Define operational scope for {locale?.toUpperCase() || 'GLOBAL'} jurisdiction.
                 </p>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Business Entity Name</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Institutional Entity Name</label>
                     <input 
                       type="text" 
                       placeholder="e.g. Gotham MedSpa"
@@ -104,15 +105,15 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Target Industry</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Vertical Alignment</label>
                     <select 
                       onChange={(e) => setFormData({...formData, industry: e.target.value})}
                       className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-cyan-500 focus:outline-none appearance-none"
                     >
                         <option>Medical / Healthcare</option>
                         <option>Legal Services</option>
-                        <option>HVAC / Technical Trades</option>
-                        <option>Real Estate</option>
+                        <option>Technical Trades</option>
+                        <option>Real Estate Sovereign</option>
                     </select>
                   </div>
                 </div>
@@ -125,21 +126,21 @@ export default function OnboardingPage() {
             {step === 2 && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-700">
                 <h1 className="text-4xl font-black uppercase italic tracking-tighter">
-                  Knowledge <span className="text-cyan-500">Injection</span>
+                  Knowledge <span className="text-cyan-500">Ingestion</span>
                 </h1>
                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                  Neural ingestion of business intelligence.
+                  Neural Mirroring of institutional intelligence.
                 </p>
                 <div className="space-y-4">
                    <input 
                     type="url" 
-                    placeholder="https://your-business.com"
+                    placeholder="https://your-business-asset.com"
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-cyan-500 focus:outline-none transition-all placeholder:text-slate-800"
                     onChange={(e) => setFormData({...formData, website: e.target.value})}
                   />
                   <input 
                     type="email" 
-                    placeholder="Billing Email"
+                    placeholder="Executive Billing Email"
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-cyan-500 focus:outline-none transition-all placeholder:text-slate-800"
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
@@ -147,11 +148,11 @@ export default function OnboardingPage() {
                 <div className="p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-xl flex items-center gap-4">
                    <Globe className="w-6 h-6 text-cyan-500" />
                    <p className="text-[8px] font-black text-slate-400 uppercase leading-relaxed tracking-[0.2em]">
-                     Aegis Crawler will perform a deep-mesh scrape of your services and pricing.
+                     Aegis Ingestion Nodes will perform a forensic mapping of your assets.
                    </p>
                 </div>
                 <button onClick={nextStep} className="w-full py-5 bg-cyan-500 text-black font-black uppercase text-[10px] tracking-[0.2em] rounded-xl flex items-center justify-center gap-3">
-                  Initiate Scrape <Cpu className="w-4 h-4" />
+                  Initiate Sync <Cpu className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -165,15 +166,15 @@ export default function OnboardingPage() {
                   Node <span className="text-green-500">Authorized</span>
                 </h1>
                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest max-w-xs mx-auto">
-                  Provisioning infrastructure for {formData.businessName || 'Global Entity'}.
+                  Provisioning workforce for {formData.businessName || 'Sovereign Entity'}.
                 </p>
                 <button 
                   onClick={handleCheckout}
                   disabled={loading}
-                  className="px-12 py-5 bg-white text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50 flex items-center gap-3 mx-auto"
+                  className="px-12 py-5 bg-white text-black font-black uppercase text-[10px] tracking-[0.3em] rounded-xl hover:bg-cyan-500 hover:text-white transition-all disabled:opacity-50 flex items-center gap-3 mx-auto shadow-2xl"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  Proceed to Secure Checkout
+                  Provision Asset via Secure Checkout
                 </button>
               </div>
             )}
@@ -181,15 +182,15 @@ export default function OnboardingPage() {
 
           {/* SUMMARY SIDEBAR */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white/[0.02] border border-white/10 rounded-[32px] p-8 sticky top-24 backdrop-blur-md">
+            <div className="bg-white/[0.02] border border-white/10 rounded-[32px] p-8 sticky top-24 backdrop-blur-md shadow-2xl">
               <div className="flex items-center gap-2 text-cyan-500 mb-6">
                 <Lock className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Protocol Tier</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">Infrastructure Tier</span>
               </div>
               
               <h3 className="text-2xl font-black uppercase italic mb-2 tracking-tighter">{selectedPlan.name}</h3>
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6 border-b border-white/5 pb-6">
-                Monthly Node Access: <span className="text-white">${selectedPlan.price}</span>
+                Monthly Yield Access: <span className="text-white">${selectedPlan.price}</span>
               </p>
 
               <div className="space-y-4 mb-8">
@@ -202,8 +203,8 @@ export default function OnboardingPage() {
               </div>
 
               <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Performance Fee</p>
-                <p className="text-sm font-bold text-white tracking-tighter">${selectedPlan.appointmentFee || '10'} / Appointment</p>
+                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1 italic">Success Synthesis Fee</p>
+                <p className="text-sm font-bold text-white tracking-tighter">${selectedPlan.appointmentFee || '10'} / Outcome</p>
               </div>
             </div>
           </div>
