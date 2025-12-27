@@ -2,7 +2,9 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { languages, defaultLanguage, isSupportedLanguage } from '@/config/languages'
 
-// FIX 1: Type extension for Vercel Edge Geo-detection
+// Sovereign Owner Credentials
+const OWNER_EMAIL = "sahjonyllc@outlook.com";
+
 interface SovereignRequest extends NextRequest {
   geo?: {
     country?: string;
@@ -16,10 +18,10 @@ export async function middleware(request: SovereignRequest) {
   const country = request.geo?.country || 'US'
   const city = request.geo?.city || 'Global'
   
-  // --- 1. THE GEOGRAPHIC CHAMELEON: MARKET DETECTION ---
+  // --- 1. THE GEOGRAPHIC CHAMELEON ---
   const overrideRegion = request.cookies.get('NEXT_LOCALE_OVERRIDE')?.value
-  
   let userRegion = 'WESTERN'
+  
   const growthMarkets = ['VN', 'IN', 'PH', 'ID', 'PK', 'TH', 'BD', 'LK', 'NP']
   const mediumMarkets = ['TR', 'BR', 'MX', 'EG', 'CO', 'AR', 'CL', 'PE', 'ZA', 'NG', 'KE']
   
@@ -31,11 +33,10 @@ export async function middleware(request: SovereignRequest) {
     userRegion = 'MEDIUM'
   }
 
-  // --- 2. LANGUAGE & LOCALE DETECTION ---
+  // --- 2. LOCALE DETECTION ---
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
   const acceptLanguage = request.headers.get('accept-language')
-  
-  let detectedLocale: string = defaultLanguage
+  let detectedLocale: string = defaultLanguage.code
   
   if (cookieLocale && isSupportedLanguage(cookieLocale)) {
     detectedLocale = cookieLocale
@@ -58,24 +59,13 @@ export async function middleware(request: SovereignRequest) {
     pathname.startsWith('/premium') || 
     ['/favicon.ico', '/robots.txt', '/sitemap.xml'].includes(pathname)
 
-  // Redirect if no locale is present in the URL
   if (!hasValidLocale && !isSpecialPath) {
     const url = request.nextUrl.clone()
     url.pathname = `/${detectedLocale}${pathname === '/' ? '' : pathname}`
     return NextResponse.redirect(url)
   }
 
-  // --- 4. MAINTENANCE MODE ---
-  if (process.env.MAINTENANCE_MODE === 'true') {
-    const isExcluded = pathname.startsWith('/api') || pathname.includes('/admin') || pathname.includes('/auth') || pathname.includes('/coming-soon')
-    if (!isExcluded) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/${detectedLocale}/coming-soon`
-      return NextResponse.redirect(url)
-    }
-  }
-
-  // --- 5. AUTH & SOVEREIGN SECURITY (Supabase SSR) ---
+  // --- 4. AUTH & SOVEREIGN OWNER BYPASS ---
   let response = NextResponse.next({
     request: { headers: request.headers }
   })
@@ -99,21 +89,28 @@ export async function middleware(request: SovereignRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
   
-  // Regex to detect protected routes regardless of the locale prefix
+  // Identify if the user is the Sovereign Owner
+  const isOwner = user?.email === OWNER_EMAIL;
+
   const isAdminRoute = /^\/(?:[a-z]{2}\/)?(admin|owner|analytics)/.test(pathname)
-  const isProtectedRoute = /^\/(?:[a-z]{2}\/)?(dashboard|settings|profile|provisioning)/.test(pathname)
+  const isProtectedRoute = /^\/(?:[a-z]{2}\/)?(dashboard|settings|profile|provisioning|command-center)/.test(pathname)
 
-  if (!user && (isProtectedRoute || isAdminRoute)) {
-    const url = request.nextUrl.clone()
-    url.pathname = `/${detectedLocale}/login`
-    url.searchParams.set('redirectTo', pathname)
-    return NextResponse.redirect(url)
-  }
+  // 5. PROTECTION LOGIC (Owner Bypass)
+  if (!isOwner) {
+    // Regular user protection
+    if (!user && (isProtectedRoute || isAdminRoute)) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${detectedLocale}/login`
+      url.searchParams.set('redirectTo', pathname)
+      return NextResponse.redirect(url)
+    }
 
-  if (isAdminRoute && user?.id !== process.env.ADMIN_OWNER_ID) {
-    const url = request.nextUrl.clone()
-    url.pathname = `/${detectedLocale}/404` 
-    return NextResponse.redirect(url)
+    // Regular admin route protection
+    if (isAdminRoute && user?.id !== process.env.ADMIN_OWNER_ID) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${detectedLocale}/404` 
+      return NextResponse.redirect(url)
+    }
   }
 
   // --- 6. NEURAL LOCALIZATION HEADERS ---
@@ -123,10 +120,8 @@ export async function middleware(request: SovereignRequest) {
   response.headers.set('x-detected-locale', currentLocaleCode)
   response.headers.set('x-detected-dir', selectedLang?.dir || 'ltr')
   response.headers.set('x-user-region', userRegion)
-  response.headers.set('x-user-country', country)
-  response.headers.set('x-user-city', city)
+  response.headers.set('x-is-owner', isOwner ? 'true' : 'false')
   
-  // Persist the locale in a cookie for subsequent requests
   response.cookies.set('NEXT_LOCALE', currentLocaleCode, {
     path: '/',
     maxAge: 31536000,
@@ -137,14 +132,5 @@ export async function middleware(request: SovereignRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (svg, png, etc)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)'],
 }
