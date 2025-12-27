@@ -11,6 +11,13 @@ import {
   Server
 } from 'lucide-react';
 
+/**
+ * CORE ARCHITECTURE DEFINITION
+ * This constant satisfies the TypeScript compiler and provides version 
+ * control for your infrastructure deployments.
+ */
+const CORE_ARCHITECTURE = "v2.1.0-AEGIS";
+
 const PROVISIONING_STEPS = [
   { id: 'AUTH', name: 'Identity Verification', icon: Lock },
   { id: 'NODE', name: 'Node Configuration', icon: Server },
@@ -24,6 +31,7 @@ export default function ProvisioningPage() {
 
   const handleNext = () => {
     setLoading(true);
+    // Simulating Neural Ingestion Latency
     setTimeout(() => {
       setLoading(false);
       if (activeStep < PROVISIONING_STEPS.length - 1) {
@@ -63,7 +71,7 @@ export default function ProvisioningPage() {
         {/* STEP 1: INITIAL IDENTITY */}
         {activeStep === 0 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h2 className="text-4xl font-bold uppercase tracking-tighter mb-4 italic">Executive <span className="text-cyan-500 text-white opacity-50">Authorization</span></h2>
+            <h2 className="text-4xl font-bold uppercase tracking-tighter mb-4 italic">Executive <span className="text-cyan-500">Authorization</span></h2>
             <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.4em] mb-12">Verify Institutional Credentials</p>
             
             <div className="space-y-6 mb-12">
@@ -108,6 +116,21 @@ export default function ProvisioningPage() {
           </div>
         )}
 
+        {/* STEP 3: SYNC (Simulated Intelligence Sync) */}
+        {activeStep === 2 && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 text-center">
+             <Cpu className="w-16 h-16 text-cyan-500 mx-auto mb-8 animate-spin-slow" />
+             <h2 className="text-4xl font-bold uppercase tracking-tighter mb-4 italic">Intelligence <span className="text-slate-500">Sync</span></h2>
+             <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.4em] mb-12">Mapping Local Assets to Global Neural Grid</p>
+             <button 
+              onClick={handleNext}
+              className="w-full py-6 bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 font-black uppercase text-[10px] tracking-[0.4em] hover:bg-cyan-500 hover:text-black transition-all"
+            >
+              Initiate Neural Handshake
+            </button>
+          </div>
+        )}
+
         {/* STEP 4: GOVERNANCE FINALIZATION */}
         {activeStep === 3 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 text-center">
@@ -132,4 +155,4 @@ export default function ProvisioningPage() {
       </p>
     </div>
   );
-    }
+}
