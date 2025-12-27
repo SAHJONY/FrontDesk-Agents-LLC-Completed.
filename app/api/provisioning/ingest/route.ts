@@ -7,9 +7,11 @@ import { getPrompt } from '@/lib/ai/prompts';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
+  // Extract body once to avoid "body used" errors in catch block
+  const body = await req.json();
+  const { targetUrl, customerId } = body;
+
   try {
-    const { targetUrl, customerId } = await req.json();
-    
     // NEXT.JS 15 FIX: Await the cookies() function
     const cookieStore = await cookies();
     
@@ -21,7 +23,8 @@ export async function POST(req: Request) {
           getAll() {
             return cookieStore.getAll();
           },
-          setAll(cookiesToSet) {
+          // FIX: Explicitly type the parameter to satisfy strict TS rules
+          setAll(cookiesToSet: any[]) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options)
@@ -34,7 +37,7 @@ export async function POST(req: Request) {
       }
     );
 
-    // 1. PHASE ONE: RAW DATA EXTRACTION
+    // 1. PHASE ONE: RAW DATA EXTRACTION (Forensic Scraping)
     const crawlerResponse = await fetch(`https://r.jina.ai/${targetUrl}`, {
       headers: { 'X-Return-Format': 'markdown' }
     });
@@ -44,7 +47,7 @@ export async function POST(req: Request) {
       throw new Error("Insufficient data captured from target URL.");
     }
 
-    // 2. PHASE TWO: FORENSIC SYNTHESIS (OpenAI)
+    // 2. PHASE TWO: FORENSIC SYNTHESIS (Sovereign AI Processing)
     const { system, user } = getPrompt('websiteScraper', rawMarkdown);
 
     const completion = await openai.chat.completions.create({
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
 
     const structuredIntelligence = JSON.parse(completion.choices[0].message.content || '{}');
 
-    // 3. PHASE THREE: PERSISTENCE
+    // 3. PHASE THREE: PERSISTENCE (Silo Storage)
     const { error: dbError } = await supabase
       .from('knowledge_assets')
       .upsert({
@@ -85,7 +88,6 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error('INGEST_ERROR:', error);
     
-    // We recreate a minimal client for error logging if the main one failed
     const cookieStore = await cookies();
     const errorClient = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -93,8 +95,9 @@ export async function POST(req: Request) {
       { cookies: { getAll() { return cookieStore.getAll() } } }
     );
 
+    // Log failure for Sovereign Portal oversight
     await errorClient.from('provisioning_logs').insert({
-      customer_id: (await req.json()).customerId,
+      customer_id: customerId,
       message: `Ingest Failed: ${error.message}`,
       status: 'error'
     });
