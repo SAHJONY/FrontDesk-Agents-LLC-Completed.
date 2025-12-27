@@ -5,28 +5,41 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { 
   Command, Lock, ShieldCheck, Globe, Cpu, 
-  BarChart3, Landmark, Briefcase, Boxes, 
-  Activity, Layers, Fingerprint, TrendingUp,
-  ShieldAlert, Database, Zap
+  Activity, Zap, ShieldAlert, Database, 
+  Landmark, TrendingUp, ArrowRight
 } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
 
 // Institutional System Designators (Sovereign Lexicon)
 const CORE_ARCHITECTURE = "SOVEREIGN-NEURAL-INFRASTRUCTURE";
 const WORKFORCE_ID = "FRONTDESK-AGENTS-WORKFORCE";
 const SECURITY_PROTOCOL = "AEGIS-CRYPTOGRAPHIC-SILO";
 
+// These components should exist in your components/marketing folder
 import { ROICalculator } from '@/components/marketing/ROICalculator';
 import { PricingGrid } from '@/components/marketing/PricingGrid';
 import { ScarcityEngine } from '@/components/marketing/ScarcityEngine';
 
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const params = useParams();
   const locale = (params?.locale as string) || 'en';
+  const supabase = createClient();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
+
+    // Check for Owner Status to show Executive Override
+    const checkOwner = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email === "sahjonyllc@outlook.com") {
+        setIsOwner(true);
+      }
+    };
+    checkOwner();
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -48,11 +61,17 @@ export default function HomePage() {
           
           <div className="hidden lg:flex items-center gap-12 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">
             <Link href="#infrastructure" className="hover:text-white transition-all underline-offset-8 hover:underline italic">Nodes</Link>
-            <Link href="#sovereignty" className="hover:text-white transition-all underline-offset-8 hover:underline italic">Sovereignty</Link>
             <Link href="#capital" className="hover:text-white transition-all underline-offset-8 hover:underline italic">Outcome Maximization</Link>
-            <Link href={`/${locale}/login`} className="flex items-center gap-3 px-8 py-3 bg-white/5 border border-white/10 rounded-sm hover:bg-white hover:text-black transition-all duration-500 shadow-xl">
-              <ShieldAlert className="w-4 h-4 text-cyan-500" /> Executive Override
-            </Link>
+            
+            {isOwner ? (
+              <Link href={`/${locale}/owner/system`} className="flex items-center gap-3 px-8 py-3 bg-red-500/10 border border-red-500/50 text-red-500 rounded-sm hover:bg-red-500 hover:text-white transition-all duration-500">
+                <ShieldCheck className="w-4 h-4" /> ROOT ACCESS
+              </Link>
+            ) : (
+              <Link href={`/${locale}/login`} className="flex items-center gap-3 px-8 py-3 bg-white/5 border border-white/10 rounded-sm hover:bg-white hover:text-black transition-all duration-500 shadow-xl">
+                <ShieldAlert className="w-4 h-4 text-cyan-500" /> Executive Override
+              </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -92,13 +111,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* --- ARCHITECTURE: NEURAL MIRRORING --- */}
+      {/* --- ARCHITECTURE SECTION --- */}
       <section id="infrastructure" className="py-48 bg-[#050608] border-y border-white/5 relative">
-        <div className="container mx-auto px-8 lg:px-16 relative z-10">
+        <div className="container mx-auto px-8 lg:px-16">
           <div className="grid lg:grid-cols-2 gap-32 items-center">
             <div className="space-y-16">
               <div>
-                <h3 className="text-[11px] font-black text-cyan-500 uppercase tracking-[0.6em] mb-6 italic text-glow">Neural Ingestion Nodes</h3>
+                <h3 className="text-[11px] font-black text-cyan-500 uppercase tracking-[0.6em] mb-6 italic">Neural Ingestion Nodes</h3>
                 <h2 className="text-6xl font-bold uppercase tracking-tighter mb-10 leading-[0.9]">Autonomous <br/>Asset Synthesis</h2>
                 <p className="text-slate-400 text-lg leading-relaxed font-light">
                   Our Knowledge Ingestion Nodes perform forensic mapping of your enterprise logic, creating a digital twin of your highest-performing human intelligence.
@@ -123,44 +142,39 @@ export default function HomePage() {
             
             <div className="relative aspect-square flex items-center justify-center">
               <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-transparent rounded-full blur-3xl animate-pulse" />
-              <div className="relative z-10 bg-black/40 backdrop-blur-3xl border border-white/10 p-24 shadow-2xl rounded-sm">
-                 <Cpu className="w-40 h-40 text-white/5 mb-10" />
-                 <div className="text-center">
-                    <span className="block text-[10px] font-black text-cyan-500 uppercase tracking-[0.8em]">FrontDesk Core Node</span>
-                    <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-2 italic">Strategic Simulation Active</span>
-                 </div>
+              <div className="relative z-10 bg-black/40 backdrop-blur-3xl border border-white/10 p-24 shadow-2xl rounded-sm text-center">
+                 <Cpu className="w-40 h-40 text-white/5 mx-auto mb-10" />
+                 <span className="block text-[10px] font-black text-cyan-500 uppercase tracking-[0.8em]">FrontDesk Core Node</span>
+                 <span className="block text-[8px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-2 italic">Strategic Simulation Active</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* --- OUTCOME MAXIMIZATION ANALYTICS --- */}
+      {/* --- ROI CALCULATOR SECTION --- */}
       <section id="capital" className="py-56 bg-black relative">
-        <div className="container mx-auto px-8 lg:px-16">
-          <div className="max-w-4xl mx-auto text-center mb-32">
-             <div className="inline-block p-1 border border-cyan-500/20 mb-8">
-               <div className="px-4 py-1 bg-cyan-500/10 text-cyan-500 text-[9px] font-black uppercase tracking-[0.4em]">Success Synthesis Audit</div>
-             </div>
-            <h2 className="text-7xl font-black uppercase tracking-tighter mb-8 leading-none italic">Iterative Outcome <span className="text-slate-500">Maximization</span></h2>
-            <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.5em] max-w-xl mx-auto leading-relaxed">
-               Evaluating historical synthesis events to project institutional-grade capital yield through workforce automation.
+        <div className="container mx-auto px-8 lg:px-16 text-center">
+          <div className="max-w-4xl mx-auto mb-32">
+            <h2 className="text-7xl font-black uppercase tracking-tighter mb-8 italic">Outcome <span className="text-slate-500">Maximization</span></h2>
+            <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.5em] mb-16">
+               Projecting institutional-grade capital yield through workforce automation.
             </p>
+            <ROICalculator />
           </div>
-          <ROICalculator />
         </div>
       </section>
 
-      {/* --- PRICING & PROVISIONING --- */}
+      {/* --- PRICING SECTION --- */}
       <div id="pricing" className="pb-56 bg-[#020305]">
         <ScarcityEngine />
         <PricingGrid />
       </div>
 
-      {/* --- FOOTER: SOVEREIGN STANDARDS --- */}
+      {/* --- FOOTER --- */}
       <footer className="py-32 border-t border-white/5 bg-[#010203] text-center">
         <div className="container mx-auto px-8">
-          <div className="flex justify-center gap-16 mb-16 grayscale opacity-20 hover:grayscale-0 transition-all duration-1000">
+          <div className="flex justify-center gap-16 mb-16 opacity-20">
             <ShieldCheck className="w-8 h-8" />
             <Globe className="w-8 h-8" />
             <Landmark className="w-8 h-8" />
@@ -170,7 +184,7 @@ export default function HomePage() {
             CONFIDENTIAL // INFRASTRUCTURE SECURED VIA {SECURITY_PROTOCOL}
           </p>
           <p className="text-[9px] font-medium text-slate-800 uppercase tracking-[0.3em]">
-            © 2025 FrontDesk Agents LLC • Sovereign Neural Node Infrastructure
+            © 2025 FrontDesk Agents LLC • {WORKFORCE_ID}
           </p>
         </div>
       </footer>
