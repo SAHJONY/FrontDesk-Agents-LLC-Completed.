@@ -1,3 +1,8 @@
+/**
+ * SOVEREIGN GLOBALIZATION ENGINE
+ * This file handles autonomous UI flipping and language configuration.
+ */
+
 // Define all known Right-to-Left (RTL) scripts for autonomous UI flipping
 export const RTL_LANGS = ['ar', 'he', 'fa', 'ur', 'dv', 'ps', 'sd', 'yi'];
 
@@ -9,22 +14,32 @@ export interface GlobalConfig {
 }
 
 /**
- * Autonomously generates configuration for any language code provided by the Shadow Scraper.
+ * Autonomously generates configuration for any language code provided.
+ * This is the 'Intelligence' behind your Geographic Chameleon.
  */
 export const getAutonomousLanguageConfig = (code: string): GlobalConfig => {
   const cleanCode = code.toLowerCase().trim();
   
   // Use Intl API to get the native name of the language
-  const languageNames = new Intl.DisplayNames(['en'], { type: 'language' });
-  const name = languageNames.of(cleanCode) || 'International';
+  let name = 'International';
+  try {
+    const languageNames = new Intl.DisplayNames(['en'], { type: 'language' });
+    name = languageNames.of(cleanCode) || 'International';
+  } catch (e) {
+    console.warn(`Intl API could not resolve name for: ${cleanCode}`);
+  }
   
   // Determine direction autonomously
   const dir = RTL_LANGS.includes(cleanCode) ? 'rtl' : 'ltr';
   
-  // Generate Flag Emoji from ISO Country Code (fallback logic)
-  const flag = code.toUpperCase().replace(/./g, char => 
-    String.fromCodePoint(char.charCodeAt(0) + 127397)
-  );
+  // Generate Flag Emoji from ISO Country Code
+  // Fallback to Globe if the code isn't 2 chars (e.g., 'zh-Hans')
+  let flag = '🌐';
+  if (cleanCode.length === 2) {
+    flag = cleanCode.toUpperCase().replace(/./g, char => 
+      String.fromCodePoint(char.charCodeAt(0) + 127397)
+    );
+  }
   
   return { code: cleanCode, name, dir, flag };
 };
@@ -61,5 +76,6 @@ export const languages: GlobalConfig[] = [
  * Check if a language code is in our supported list
  */
 export function isSupportedLanguage(code: string): boolean {
+  if (!code) return false;
   return languages.some(lang => lang.code === code.toLowerCase());
 }
