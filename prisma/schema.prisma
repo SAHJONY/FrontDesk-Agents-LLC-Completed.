@@ -1,119 +1,42 @@
-generator client {
-  provider = "prisma-client-js"
-}
+// --- THE SOVEREIGN AGENTIC CRM CORE ---
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// 1. BUSINESS & WORKSPACE (The Tenant Identity)
 model BusinessConfig {
   id                String   @id @default(cuid())
   userId            String   @unique
-  businessName      String?
-  industry          String?  // 'Medical', 'Legal', 'Trades', etc.
-  websiteUrl        String?
+  industry          String?  
   
-  // Custom CRM Fields (Vertical Specific)
-  // Stores industry-specific data points like 'Patient ID' or 'Case Type'
-  customSchema      Json?    @default("{}") 
+  // Agentic Workforce Configuration
+  agentSettings     Json?    // Stores RL parameters for different agents
+  workflowLogic     Json?    // The "Brain" - Rules for autonomous decisions
   
-  // Intelligence Config
-  services          String[]
-  businessHours     Json?    
-  faq               Json?    
-  toneOfVoice       String   @default("profesional y amable")
-  cancellationPolicy String?
-
-  // Connectivity
-  phoneNumber       String?  @unique
-  blandInboundId    String?  
-  
-  // Market Localization (Worldwide Upgrade)
+  // Intelligence Moat
   locale            String   @default("en-US")
   currency          String   @default("USD")
-
-  // Subscription
-  paymentProvider   String?  
-  subscriptionId    String?  @unique
-  status            String   @default("pending")
   
-  // CRM Relations
-  calls             CallLog[]
-  leads             Lead[]       // New: The Sovereign CRM Lead Bank
-  pipelines         Pipeline[]   // New: Industry-specific sales stages
+  leads             Lead[]
+  agents            Agent[]      // The specific workforce assigned to this client
+  callLogs          CallLog[]
   
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
 }
 
-// 2. SOVEREIGN CRM LEADS (The Client's Proprietary Database)
+model Agent {
+  id              String   @id @default(cuid())
+  businessId      String
+  role            String   // 'Sales', 'Support', 'Triage'
+  intelligence    String   @default("SARA-V3-RL") // RL-powered model ID
+  successRate     Float    @default(0.0) // Real-time performance tracking
+  totalActions    Int      @default(0)
+  business        BusinessConfig @relation(fields: [businessId], references: [id])
+}
+
 model Lead {
   id              String   @id @default(cuid())
   businessId      String
+  status          String   @default("COLD")
+  intent_data     Json?    // Detailed psychological profile of the lead
+  engagement_log  Json[]   // Every interaction across Voice, SMS, WhatsApp
+  
   business        BusinessConfig @relation(fields: [businessId], references: [id])
-  
-  firstName       String?
-  lastName        String?
-  phone           String
-  email           String?
-  
-  // AI Lead Scoring
-  status          String   @default("NEW") // "QUALIFIED", "BOOKED", "LOST", "NURTURE"
-  leadScore       Int      @default(0)     // 0-100 based on SARA's evaluation
-  industryData    Json?    @default("{}")  // Specifics like 'Dental_Procedure_Type'
-  
-  lastContacted   DateTime @default(now())
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([phone])
-}
-
-// 3. PIPELINE STAGES (Vertical-Specific Workflows)
-model Pipeline {
-  id              String   @id @default(cuid())
-  businessId      String
-  business        BusinessConfig @relation(fields: [businessId], references: [id])
-  name            String   // 'Intake', 'Consultation', 'Contract Signed'
-  order           Int      @default(0)
-}
-
-// 4. FORENSIC CALL LOGS (Linked to CRM Leads)
-model CallLog {
-  id              String   @id @default(cuid())
-  businessId      String
-  business        BusinessConfig @relation(fields: [businessId], references: [id])
-  
-  customerPhone   String
-  callDuration    Int?      
-  transcript      String?   @db.Text
-  summary         String?   @db.Text
-  
-  // Post-Call Intelligence
-  wasBooked       Boolean  @default(false)
-  sentiment       String?   
-  estimatedValue  Float    @default(0.0)
-  
-  blandCallId     String   @unique
-  recordingUrl    String?
-  
-  createdAt       DateTime @default(now())
-}
-
-// 5. INFRASTRUCTURE CONTROL (Daily Guard)
-model IntegrationsControl {
-  id            String   @id @default("bland_ai")
-  provider      String   @unique @default("bland_ai")
-  enabled       Boolean  @default(true)
-  daily_limit   Int      @default(100)
-}
-
-model PlatformStats {
-  id              Int      @id @default(1)
-  totalCalls      Int      @default(0)
-  totalBookings   Int      @default(0)
-  totalRevenue    Float    @default(0.0)
-  lastUpdated     DateTime @updatedAt
 }
