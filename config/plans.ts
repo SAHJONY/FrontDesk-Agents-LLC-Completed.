@@ -1,68 +1,50 @@
-/**
- * SOVEREIGN PLAN ENUMERATION
- * Used for routing, database flags, and logic checks.
- */
 export enum PlanTier {
-  STARTER = 'starter',
-  PROFESSIONAL = 'professional',
-  ENTERPRISE = 'enterprise',
+  SATELLITE = 'satellite',
+  ORBITAL = 'orbital',
+  SOVEREIGN = 'sovereign'
 }
 
-export interface Plan {
-  id: PlanTier; // Linked to the Enum
-  name: string;
-  description: string;
-  price: number;
-  appointmentFee: number;
-  features: string[];
-  cta: string;
-  highlight?: boolean;
-}
-
-export const PlanData: Plan[] = [
+export const PlanData = [
   {
-    id: PlanTier.STARTER,
-    name: 'Starter Node',
-    description: 'Entry-level AI receptionist for low-volume single clinics.',
-    price: 499,
-    appointmentFee: 20,
+    id: PlanTier.SATELLITE,
+    name: "Satellite Node",
+    price: "499",
+    appointmentFee: "15",
+    description: "For emerging firms requiring 24/7 autonomous front-desk presence.",
     features: [
-      'Single SARA.AI Voice Agent',
-      'Basic Website Knowledge Scrape',
-      'Email Lead Notifications',
-      'Standard Security Shield'
+      "2 Concurrent Voice Paths",
+      "Standard Knowledge Sync",
+      "Governance Kill-Switch",
+      "Data Export Guarantee"
     ],
-    cta: 'Initialize Starter',
+    stripePriceId: "price_satellite_123"
   },
   {
-    id: PlanTier.PROFESSIONAL,
-    name: 'Professional',
-    description: 'High-fidelity intelligence for growing healthcare practices.',
-    price: 899,
-    appointmentFee: 15,
-    highlight: true,
+    id: PlanTier.ORBITAL,
+    name: "Orbital Command",
+    price: "1499",
+    appointmentFee: "10",
+    description: "High-yield infrastructure for established medical and legal practices.",
     features: [
-      'Multi-Dialect Voice Agents',
-      'Deep-Mesh Knowledge Base',
-      'SMS & Appointment Booking',
-      'Aegis Shield v2.5 Encryption',
-      'Priority Neural Processing'
+      "10 Concurrent Voice Paths",
+      "Deep-Mesh Asset Ingestion",
+      "Human-in-the-Loop Thresholds",
+      "Sovereign Memory Silos (No Cross-Learning)"
     ],
-    cta: 'Deploy Infrastructure',
+    stripePriceId: "price_orbital_456"
   },
   {
-    id: PlanTier.ENTERPRISE,
-    name: 'Enterprise Mesh',
-    description: 'Global-scale infrastructure for multi-location groups.',
-    price: 2499,
-    appointmentFee: 10,
+    id: PlanTier.SOVEREIGN,
+    name: "Sovereign Enterprise",
+    price: "4999",
+    appointmentFee: "5",
+    description: "Custom neural infrastructure for multi-location institutional operations.",
     features: [
-      'Infinite Market Scaling',
-      'Custom Voice Persona Synthesis',
-      'Dedicated Sovereign Node',
-      '24/7 Forensic Audit Logs',
-      'Custom API Webhooks'
+      "Unlimited Voice Synthesis",
+      "Custom Protocol Development",
+      "Full Forensic API Access",
+      "Economic Risk-Share (SLA Backed)"
     ],
-    cta: 'Contact Command',
+    stripePriceId: "price_sovereign_789"
   }
 ];
