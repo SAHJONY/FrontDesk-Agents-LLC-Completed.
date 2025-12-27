@@ -7,6 +7,7 @@ interface SovereignRequest extends NextRequest {
   geo?: {
     country?: string;
     city?: string;
+    region?: string;
   };
 }
 
@@ -16,14 +17,12 @@ export async function middleware(request: SovereignRequest) {
   const city = request.geo?.city || 'Global'
   
   // --- 1. THE GEOGRAPHIC CHAMELEON: MARKET DETECTION ---
-  // Check if user has a manual region override cookie
   const overrideRegion = request.cookies.get('NEXT_LOCALE_OVERRIDE')?.value
   
   let userRegion = 'WESTERN'
   const growthMarkets = ['VN', 'IN', 'PH', 'ID', 'PK', 'TH', 'BD', 'LK', 'NP']
   const mediumMarkets = ['TR', 'BR', 'MX', 'EG', 'CO', 'AR', 'CL', 'PE', 'ZA', 'NG', 'KE']
   
-  // Logic: Override > Geo-Detection > Default
   if (overrideRegion) {
     userRegion = overrideRegion
   } else if (growthMarkets.includes(country)) {
@@ -59,13 +58,14 @@ export async function middleware(request: SovereignRequest) {
     pathname.startsWith('/premium') || 
     ['/favicon.ico', '/robots.txt', '/sitemap.xml'].includes(pathname)
 
+  // Redirect if no locale is present in the URL
   if (!hasValidLocale && !isSpecialPath) {
     const url = request.nextUrl.clone()
-    url.pathname = `/${detectedLocale}${pathname}`
+    url.pathname = `/${detectedLocale}${pathname === '/' ? '' : pathname}`
     return NextResponse.redirect(url)
   }
 
-  // --- 4. MAINTENANCE & ACCESS CONTROL ---
+  // --- 4. MAINTENANCE MODE ---
   if (process.env.MAINTENANCE_MODE === 'true') {
     const isExcluded = pathname.startsWith('/api') || pathname.includes('/admin') || pathname.includes('/auth') || pathname.includes('/coming-soon')
     if (!isExcluded) {
@@ -99,8 +99,9 @@ export async function middleware(request: SovereignRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
   
+  // Regex to detect protected routes regardless of the locale prefix
   const isAdminRoute = /^\/(?:[a-z]{2}\/)?(admin|owner|analytics)/.test(pathname)
-  const isProtectedRoute = /^\/(?:[a-z]{2}\/)?(dashboard|settings|profile)/.test(pathname)
+  const isProtectedRoute = /^\/(?:[a-z]{2}\/)?(dashboard|settings|profile|provisioning)/.test(pathname)
 
   if (!user && (isProtectedRoute || isAdminRoute)) {
     const url = request.nextUrl.clone()
@@ -111,21 +112,22 @@ export async function middleware(request: SovereignRequest) {
 
   if (isAdminRoute && user?.id !== process.env.ADMIN_OWNER_ID) {
     const url = request.nextUrl.clone()
-    url.pathname = '/404' 
+    url.pathname = `/${detectedLocale}/404` 
     return NextResponse.redirect(url)
   }
 
   // --- 6. NEURAL LOCALIZATION HEADERS ---
-  const selectedLang = languages.find(l => l.code === detectedLocale)
+  const currentLocaleCode = hasValidLocale ? firstSegment : detectedLocale
+  const selectedLang = languages.find(l => l.code === currentLocaleCode)
   
-  response.headers.set('x-detected-locale', detectedLocale)
+  response.headers.set('x-detected-locale', currentLocaleCode)
   response.headers.set('x-detected-dir', selectedLang?.dir || 'ltr')
   response.headers.set('x-user-region', userRegion)
   response.headers.set('x-user-country', country)
   response.headers.set('x-user-city', city)
   
-  // Sync the override if selected, otherwise set detected
-  response.cookies.set('NEXT_LOCALE', detectedLocale, {
+  // Persist the locale in a cookie for subsequent requests
+  response.cookies.set('NEXT_LOCALE', currentLocaleCode, {
     path: '/',
     maxAge: 31536000,
     sameSite: 'lax',
@@ -136,6 +138,13 @@ export async function middleware(request: SovereignRequest) {
 
 export const config = {
   matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (svg, png, etc)
+     */
     '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
-    }
+}
