@@ -1,57 +1,65 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27-ac',
-});
-
-// Use the Webhook Secret from your Stripe Dashboard
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+import stripe from '@/lib/stripe'; // Your Stripe init file
+import { createClient } from '@/utils/supabase/server'; // Your Supabase init
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const headersList = await headers();
-  const sig = headersList.get('stripe-signature');
+  const signature = (await headers()).get('Stripe-Signature') as string;
 
-  let event: Stripe.Event;
+  let event;
 
   try {
-    if (!sig || !endpointSecret) {
-      throw new Error('Missing stripe-signature or endpoint secret');
-    }
-    event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
-  } catch (err: any) {
-    console.error(`⚠️  Webhook signature verification failed: ${err.message}`);
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
+  } catch (error: any) {
+    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
-  // Handle the specific event
-  switch (event.type) {
-    case 'checkout.session.completed':
-      const session = event.data.object as Stripe.Checkout.Session;
-      
-      // 1. Extract metadata passed during checkout
-      const customerEmail = session.customer_details?.email;
-      const nodeLocale = session.metadata?.node_locale || 'en';
-      
-      console.log(`✅ Payment Success: Initializing Node for ${customerEmail} in market: ${nodeLocale}`);
+  const supabase = await createClient();
 
-      // 2. LOGIC: ACTIVATE THE NODE
-      // This is where you would update your database (Supabase/Prisma)
-      // e.g., await db.user.update({ where: { email: customerEmail }, data: { status: 'ACTIVE' } })
-      
-      break;
+  // 1. HANDLE SUCCESSFUL INITIAL PROVISIONING
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const customerId = session.customer as string;
+    const planType = session.metadata?.plan_tier; // e.g., 'CORE_STATION'
 
-    case 'customer.subscription.deleted':
-      // Handle cancellation: Disable the SARA.AI node
-      const subscription = event.data.object as Stripe.Subscription;
-      console.log(`❌ Subscription deleted for customer: ${subscription.customer}`);
-      break;
+    // Update Customer Profile to "Provisioning" Status
+    const { error } = await supabase
+      .from('customers')
+      .update({
+        stripe_customer_id: customerId,
+        plan_tier: planType,
+        status: 'provisioning', // Triggers the Onboarding UI
+        silo_id: `SILO-${Math.random().toString(36).toUpperCase().substring(2, 9)}`,
+        provisioned_at: new Date().toISOString(),
+      })
+      .eq('email', session.customer_details?.email);
 
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+    if (error) console.error('Sovereign Provisioning Error:', error);
   }
 
-  return NextResponse.json({ received: true });
+  // 2. HANDLE SUCCESS SYNTHESIS FEES (METETERED BILLING)
+  if (event.type === 'invoice.created') {
+    // Logic to add success fees based on "Outcomes" generated in the last 30 days
+    console.log('Calculating Capital Yield for Invoice...');
+  }
+
+  // 3. HANDLE SUBSCRIPTION CANCELLATION (EXECUTIVE DEACTIVATION)
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object;
+    
+    // Deactivate the Neural Node immediately
+    await supabase
+      .from('customers')
+      .update({ status: 'deactivated', is_active: false })
+      .eq('stripe_customer_id', subscription.customer);
+      
+    console.log('Sovereign Node Deactivated via Executive Kill-Switch (Billing).');
+  }
+
+  return new NextResponse(null, { status: 200 });
 }
