@@ -1,103 +1,106 @@
 'use client';
 
 import React from 'react';
-import { Check, Shield, Globe, Cpu, Zap } from 'lucide-react';
+import { Check, Cpu, Zap, Shield, Crown, ChevronRight } from 'lucide-react';
 
-const tiers = [
+const TIERS = [
   {
-    name: 'Sovereign Node',
-    id: 'tier-sovereign',
-    price: '$2,450',
-    description: 'Entry-level institutional provisioning for single-market operations.',
-    features: [
-      'SYSTEM-PROTOCOL-7 Access',
-      'Single Region Deployment',
-      'Non-Linear RL Core (Standard)',
-      '10,000 Provisioned Minutes',
-      'Aegis Shield Protection'
-    ],
-    cta: 'Initialize Node',
-    featured: false,
+    name: 'Foundation Node',
+    id: 'satellite',
+    price: '$2,500',
+    description: 'Establish 24/7 baseline operational presence with core triage logic.',
+    modules: ['Front-Desk Mirror', 'Neural Qualifier', 'Institutional Triage', 'Basic Asset Sync'],
+    features: ['Single Aegis Silo', 'Standard Telemetry', 'Executive Override Protocol'],
+    highlight: false
   },
   {
-    name: 'Enterprise Matrix',
-    id: 'tier-matrix',
-    price: '$7,800',
-    description: 'Multi-node infrastructure for high-velocity global conglomerates.',
-    features: [
-      'Omni-Pivot Continuity Logic',
-      'Multi-Region Deployment',
-      'Priority RL Training Sync',
-      '50,000 Provisioned Minutes',
-      'White-Glove Implementation',
-      'Executive Board Reporting'
-    ],
-    cta: 'Deploy Matrix',
-    featured: true,
+    name: 'Growth Accelerator',
+    id: 'orbital',
+    price: '$7,500',
+    description: 'Aggressive revenue capture and churn defense for expanding enterprises.',
+    modules: ['All Foundation Modules', 'Sovereign Closer', 'Abandoned Intent Recovery', 'Retention Guardian'],
+    features: ['High-Priority Node Compute', 'Forensic Telemetry', 'Strategic Equilibrium Modeling'],
+    highlight: true
+  },
+  {
+    name: 'Sovereign Enterprise',
+    id: 'sovereign',
+    price: 'Custom',
+    description: 'Total autonomous infrastructure transformation for global institutions.',
+    modules: ['Full 20+ Module Catalog', 'Forensic Auditor', 'Language Localization', 'Neural Ingestion Bridge'],
+    features: ['Dedicated Cluster Ingestion', 'Unlimited Aegis Silo Scaling', 'Immutable Compliance Logs'],
+    highlight: false
   }
 ];
 
 export const PricingGrid = () => {
   return (
-    <div className="py-24 sm:py-32 bg-[#020305]">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center mb-20">
-          <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500 mb-4">Capital Yield Tiers</h2>
-          <p className="text-4xl font-bold tracking-tight text-white sm:text-5xl uppercase italic">
-            Institutional <span className="text-slate-500">Provisioning</span>
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 max-w-5xl mx-auto">
-          {tiers.map((tier) => (
-            <div
-              key={tier.id}
-              className={`relative flex flex-col justify-between p-10 rounded-sm border ${
-                tier.featured 
-                  ? 'bg-white/5 border-cyan-500/50 shadow-[0_0_50px_rgba(6,182,212,0.1)]' 
-                  : 'bg-transparent border-white/10'
-              }`}
-            >
+    <section className="container mx-auto px-8 lg:px-16 py-24 bg-black">
+      <div className="text-center mb-20">
+        <h2 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.6em] mb-4">Infrastructure Provisioning</h2>
+        <h3 className="text-5xl font-black text-white uppercase italic tracking-tighter">Choose Your <span className="text-slate-600">Yield Tier</span></h3>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {TIERS.map((tier) => (
+          <div 
+            key={tier.id} 
+            className={`relative flex flex-col p-10 border transition-all duration-500 ${
+              tier.highlight 
+              ? 'bg-gradient-to-b from-cyan-950/20 to-black border-cyan-500/50 shadow-[0_0_50px_rgba(6,182,212,0.1)]' 
+              : 'bg-[#050608] border-white/5 hover:border-white/20'
+            }`}
+          >
+            {tier.highlight && (
+              <div className="absolute top-0 right-10 -translate-y-1/2 bg-cyan-500 text-black text-[9px] font-black uppercase px-4 py-1 tracking-widest">
+                Recommended Allocation
+              </div>
+            )}
+
+            <div className="mb-8">
+              <h4 className="text-2xl font-black text-white uppercase italic mb-2 tracking-tighter">{tier.name}</h4>
+              <p className="text-slate-500 text-[11px] font-bold uppercase tracking-wider leading-relaxed">{tier.description}</p>
+            </div>
+
+            <div className="mb-8 pb-8 border-b border-white/5">
+              <span className="text-4xl font-black text-white">{tier.price}</span>
+              {tier.price !== 'Custom' && <span className="text-slate-600 text-[10px] font-bold uppercase ml-2 tracking-widest">/ Month Provisioning</span>}
+            </div>
+
+            <div className="flex-grow space-y-8 mb-12">
               <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-white">
-                    {tier.name}
-                  </h3>
-                  {tier.featured && (
-                    <span className="px-3 py-1 bg-cyan-500 text-black text-[8px] font-black uppercase tracking-widest">
-                      High Yield
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-baseline gap-x-2 mb-4">
-                  <span className="text-5xl font-bold tracking-tighter text-white">{tier.price}</span>
-                  <span className="text-sm font-semibold leading-6 text-slate-500 uppercase tracking-widest">/mo</span>
-                </div>
-                <p className="text-[11px] leading-relaxed text-slate-400 uppercase tracking-widest mb-10">
-                  {tier.description}
-                </p>
-                <ul role="list" className="space-y-4 mb-10 text-[10px] font-bold uppercase tracking-widest text-slate-300">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex gap-x-3 items-center">
-                      <Check className="h-4 w-4 flex-none text-cyan-500" aria-hidden="true" />
-                      {feature}
+                <span className="text-[9px] font-black text-cyan-500 uppercase tracking-widest block mb-4 italic underline underline-offset-4">Active Neural Modules</span>
+                <ul className="space-y-3">
+                  {tier.modules.map((mod) => (
+                    <li key={mod} className="flex items-center gap-3 text-[11px] font-medium text-slate-300">
+                      <Cpu size={12} className="text-cyan-500 opacity-50" /> {mod}
                     </li>
                   ))}
                 </ul>
               </div>
-              <button
-                className={`w-full py-5 text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 ${
-                  tier.featured
-                    ? 'bg-cyan-500 text-black hover:bg-white'
-                    : 'bg-white/5 text-white border border-white/10 hover:bg-white hover:text-black'
-                }`}
-              >
-                {tier.cta}
-              </button>
+
+              <div>
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-4">System Governance</span>
+                <ul className="space-y-3">
+                  {tier.features.map((feat) => (
+                    <li key={feat} className="flex items-center gap-3 text-[11px] font-medium text-slate-400">
+                      <Shield size={12} className="text-white/20" /> {feat}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          ))}
-        </div>
+
+            <button className={`w-full py-5 text-[11px] font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-2 ${
+              tier.highlight 
+              ? 'bg-cyan-500 text-black hover:bg-white' 
+              : 'bg-white text-black hover:bg-cyan-500'
+            }`}>
+              Initiate Ingestion <ChevronRight size={14} />
+            </button>
+          </div>
+        ))}
       </div>
-    </div>
+    </section>
   );
 };
