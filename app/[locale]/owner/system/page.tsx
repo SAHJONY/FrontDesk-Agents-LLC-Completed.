@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, Activity, Users, Zap, Terminal, Database } from 'lucide-react';
-import { Card, Title, AreaChart, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell, Badge, Metric, Flex } from '@tremor/react';
+import { ShieldCheck, Activity, Terminal, Database } from 'lucide-react';
+import { Card, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell, Badge, Metric, Flex } from '@tremor/react';
 import { createClient } from '@/utils/supabase/client';
 
 export default function SovereignPortal() {
@@ -18,18 +18,28 @@ export default function SovereignPortal() {
         .select('*, provisioning_logs(count)')
         .order('created_at', { ascending: false });
 
-      if (!error) setStats(data);
+      if (!error && data) {
+        setStats(data);
+      }
       setLoading(false);
     };
     fetchGlobalData();
-  }, []);
+  }, [supabase]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#020408] flex items-center justify-center">
+        <Activity className="w-12 h-12 text-red-500 animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#020408] text-white p-8 font-sans selection:bg-red-500/30">
       {/* --- OWNER HEADER --- */}
       <div className="flex items-center justify-between mb-12 border-b border-red-500/20 pb-8">
         <div>
-          <Flex className="gap-2 items-center">
+          <Flex className="gap-2 items-center justify-start">
             <ShieldCheck className="w-8 h-8 text-red-500" />
             <h1 className="text-3xl font-black uppercase italic tracking-tighter">Sovereign <span className="text-red-500">Portal</span></h1>
           </Flex>
@@ -46,26 +56,27 @@ export default function SovereignPortal() {
       {/* --- TOP METRICS --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="bg-white/[0.02] border-white/10 ring-0">
-          <Text className="text-slate-400 uppercase text-[10px] font-black tracking-widest">Global Nodes</Text>
+          <p className="text-slate-400 uppercase text-[10px] font-black tracking-widest mb-2">Global Nodes</p>
           <Metric className="text-white font-black">{stats.length}</Metric>
         </Card>
         <Card className="bg-white/[0.02] border-white/10 ring-0 border-s-4 border-s-red-500">
-          <Text className="text-slate-400 uppercase text-[10px] font-black tracking-widest">Total Sovereign MRR</Text>
+          <p className="text-slate-400 uppercase text-[10px] font-black tracking-widest mb-2">Total Sovereign MRR</p>
           <Metric className="text-white font-black tabular-nums">
-            ${stats.reduce((acc, curr) => acc + (curr.mrr || 0), 0).toLocaleString()}
+            ${stats.reduce((acc, curr) => acc + (Number(curr.mrr) || 0), 0).toLocaleString()}
           </Metric>
         </Card>
         <Card className="bg-white/[0.02] border-white/10 ring-0">
-          <Text className="text-slate-400 uppercase text-[10px] font-black tracking-widest">Active Neural Sessions</Text>
+          <p className="text-slate-400 uppercase text-[10px] font-black tracking-widest mb-2">Active Neural Sessions</p>
           <Metric className="text-white font-black">1,402</Metric>
         </Card>
       </div>
 
       {/* --- GLOBAL NODE MANAGEMENT --- */}
       <Card className="bg-white/[0.02] border-white/10 ring-0">
-        <Title className="text-white uppercase text-xs font-black tracking-widest mb-6 flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-red-500" /> Active Global Infrastructure
-        </Title>
+        <div className="flex items-center gap-2 mb-6">
+          <Terminal className="w-4 h-4 text-red-500" />
+          <h3 className="text-white uppercase text-xs font-black tracking-widest">Active Global Infrastructure</h3>
+        </div>
         <Table>
           <TableHead>
             <TableRow className="border-white/5">
@@ -81,7 +92,7 @@ export default function SovereignPortal() {
                 <TableCell className="text-white font-bold">{item.email}</TableCell>
                 <TableCell>
                   <Badge color={item.status === 'active' ? 'emerald' : 'yellow'}>
-                    {item.status.toUpperCase()}
+                    {(item.status || 'pending').toUpperCase()}
                   </Badge>
                 </TableCell>
                 <TableCell className="font-mono text-[10px] text-slate-400">{item.locale || 'EN'}</TableCell>
