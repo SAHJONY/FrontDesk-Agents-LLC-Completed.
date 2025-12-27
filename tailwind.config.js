@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 const config: Config = {
   // Ensure the engine scans all files for autonomous class generation
@@ -10,6 +11,8 @@ const config: Config = {
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    transparent: "transparent",
+    current: "currentColor",
     extend: {
       colors: {
         background: "var(--background)",
@@ -20,7 +23,37 @@ const config: Config = {
           cyan: "#06b6d4",
           slate: "#64748b",
           emergency: "#ef4444", // High-urgency red for critical system alerts
-        }
+        },
+        // Tremor-specific color mapping for charts
+        tremor: {
+          brand: {
+            faint: colors.blue[50],
+            muted: colors.blue[200],
+            subtle: colors.blue[400],
+            default: "#06b6d4", // Sovereign Cyan
+            emphasis: colors.blue[700],
+            inverted: colors.white,
+          },
+          background: {
+            muted: "#111827",
+            subtle: "#1f2937",
+            default: "#010204",
+            emphasis: colors.gray[200],
+          },
+          border: {
+            default: "rgba(255,255,255,0.1)",
+          },
+          ring: {
+            default: "rgba(255,255,255,0.1)",
+          },
+          content: {
+            subtle: colors.gray[600],
+            default: colors.gray[500],
+            emphasis: colors.gray[200],
+            strong: colors.white,
+            inverted: colors.black,
+          },
+        },
       },
       // Autonomous Font Mapping
       fontFamily: {
@@ -59,7 +92,6 @@ const config: Config = {
   },
   plugins: [
     // Requirement for Worldwide Universal markets (Arabic, Hebrew, etc.)
-    // Provides logical properties like ps (padding-start) and me (margin-end)
     require('tailwindcss-rtl'),
     // Form styling for Shadow Node activation pages
     require('@tailwindcss/forms'),
