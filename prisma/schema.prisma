@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,60 +7,109 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. CONFIGURACIÓN DEL NEGOCIO (Lo que el Crawler llena)
+// 1. BUSINESS & WORKSPACE (The Tenant Identity)
 model BusinessConfig {
   id                String   @id @default(cuid())
-  userId            String   @unique // ID del usuario (Clerk/Supabase Auth)
+  userId            String   @unique
   businessName      String?
-  industry          String?
+  industry          String?  // 'Medical', 'Legal', 'Trades', etc.
   websiteUrl        String?
   
-  // Datos extraídos por la IA
-  services          String[] // Lista de servicios
-  businessHours     Json?    // {weekdays: "9am-6pm", weekends: "10am-2pm"}
-  faq               Json?    // Preguntas y respuestas en formato JSON
+  // Custom CRM Fields (Vertical Specific)
+  // Stores industry-specific data points like 'Patient ID' or 'Case Type'
+  customSchema      Json?    @default("{}") 
+  
+  // Intelligence Config
+  services          String[]
+  businessHours     Json?    
+  faq               Json?    
   toneOfVoice       String   @default("profesional y amable")
   cancellationPolicy String?
 
-  // Telefonía (Bland AI)
-  phoneNumber       String?  @unique // El número asignado al negocio
-  blandInboundId    String?  // ID de configuración en Bland AI
-
-  // Estado de Pago y Suscripción (Stripe o Square)
-  paymentProvider   String?  // "stripe" o "square"
-  subscriptionId    String?  @unique
-  status            String   @default("pending") // "active", "canceled", "pending", "past_due"
+  // Connectivity
+  phoneNumber       String?  @unique
+  blandInboundId    String?  
   
-  // Relaciones
+  // Market Localization (Worldwide Upgrade)
+  locale            String   @default("en-US")
+  currency          String   @default("USD")
+
+  // Subscription
+  paymentProvider   String?  
+  subscriptionId    String?  @unique
+  status            String   @default("pending")
+  
+  // CRM Relations
   calls             CallLog[]
+  leads             Lead[]       // New: The Sovereign CRM Lead Bank
+  pipelines         Pipeline[]   // New: Industry-specific sales stages
+  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
 
-// 2. REGISTRO DE LLAMADAS (Lo que el Post-Call Webhook llena)
+// 2. SOVEREIGN CRM LEADS (The Client's Proprietary Database)
+model Lead {
+  id              String   @id @default(cuid())
+  businessId      String
+  business        BusinessConfig @relation(fields: [businessId], references: [id])
+  
+  firstName       String?
+  lastName        String?
+  phone           String
+  email           String?
+  
+  // AI Lead Scoring
+  status          String   @default("NEW") // "QUALIFIED", "BOOKED", "LOST", "NURTURE"
+  leadScore       Int      @default(0)     // 0-100 based on SARA's evaluation
+  industryData    Json?    @default("{}")  // Specifics like 'Dental_Procedure_Type'
+  
+  lastContacted   DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([phone])
+}
+
+// 3. PIPELINE STAGES (Vertical-Specific Workflows)
+model Pipeline {
+  id              String   @id @default(cuid())
+  businessId      String
+  business        BusinessConfig @relation(fields: [businessId], references: [id])
+  name            String   // 'Intake', 'Consultation', 'Contract Signed'
+  order           Int      @default(0)
+}
+
+// 4. FORENSIC CALL LOGS (Linked to CRM Leads)
 model CallLog {
   id              String   @id @default(cuid())
   businessId      String
   business        BusinessConfig @relation(fields: [businessId], references: [id])
   
   customerPhone   String
-  callDuration    Int?      // En segundos
+  callDuration    Int?      
   transcript      String?   @db.Text
   summary         String?   @db.Text
   
-  // Analítica de la IA
+  // Post-Call Intelligence
   wasBooked       Boolean  @default(false)
-  sentiment       String?   // "positive", "neutral", "negative"
+  sentiment       String?   
   estimatedValue  Float    @default(0.0)
   
-  // Datos de Bland AI
   blandCallId     String   @unique
   recordingUrl    String?
   
   createdAt       DateTime @default(now())
 }
 
-// 3. ANALÍTICAS GLOBALES (Opcional, para el Admin Dashboard)
+// 5. INFRASTRUCTURE CONTROL (Daily Guard)
+model IntegrationsControl {
+  id            String   @id @default("bland_ai")
+  provider      String   @unique @default("bland_ai")
+  enabled       Boolean  @default(true)
+  daily_limit   Int      @default(100)
+}
+
 model PlatformStats {
   id              Int      @id @default(1)
   totalCalls      Int      @default(0)
