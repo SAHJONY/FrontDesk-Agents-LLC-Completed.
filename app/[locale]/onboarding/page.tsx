@@ -22,7 +22,8 @@ export default function OnboardingPage() {
   const params = useParams();
   const locale = params?.locale as string;
   
-  const planId = searchParams.get('plan') as PlanTier || PlanTier.PROFESSIONAL;
+  // FIX: Add null check for searchParams
+  const planId = (searchParams?.get('plan') as PlanTier) || PlanTier.PROFESSIONAL;
   const selectedPlan = PlanData.find(p => p.id === planId) || PlanData[1];
 
   const [step, setStep] = useState(1);
