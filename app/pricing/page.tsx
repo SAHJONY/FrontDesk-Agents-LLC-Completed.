@@ -1,22 +1,16 @@
-// app/pricing/page.tsx
-'use client';
+import PricingCard from '@/components/PricingCard';
 
-import { usePricing } from '@/hooks/usePricing';
-import PricingCard from '@/components/pricing/PricingCard';
+const plans = [
+  { id: 'basic', name: 'Basic', price: 199, minutes: 500, features: ['24/7 Voice Reception', 'Basic Scheduling'] },
+  { id: 'pro', name: 'Professional', price: 399, minutes: 1500, features: ['Multi-language Support', 'CRM Sync'] },
+  { id: 'growth', name: 'Growth', price: 799, minutes: 4000, features: ['Dialect Adaptation', 'Autonomous Tools'] },
+  { id: 'elite', name: 'Elite', price: 1499, minutes: 10000, features: ['RL-Learning Engine', 'Unlimited Fleet'] },
+];
 
 export default function PricingPage() {
-  const { plans, region, loading } = usePricing();
-
-  if (loading) return <div className="h-screen flex items-center justify-center text-white">Detecting Local Node...</div>;
-
   return (
-    <div className="py-20 px-6">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl font-black text-white">SOVEREIGN PRICING</h1>
-        <p className="text-slate-400 mt-2">Current Node: {region} Market</p>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+    <div className="py-20 bg-slate-50 min-h-screen">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-4">
         {plans.map((plan) => (
           <PricingCard key={plan.id} plan={plan} />
         ))}
