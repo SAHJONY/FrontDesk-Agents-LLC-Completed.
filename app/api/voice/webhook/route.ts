@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import OpenAI from 'openai';
 import { agenticOrchestrator } from '@/services/agenticOrchestrator';
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
   try {
@@ -32,8 +35,25 @@ export async function POST(req: Request) {
 
     console.log(`📡 Hive-Mind Signal: ${call_id} [Outcome: ${status}]`);
 
-    // 1. FORENSIC CRM INGESTION
-    // We use the supabase client to avoid the local ORM type error
+    // 1. NEURAL SENTIMENT ANALYSIS (New Intelligence Layer)
+    let sentimentData = { sentiment: 'neutral', intent: 'inquiry', urgency: 1 };
+    
+    if (transcript && transcript !== "No transcript provided") {
+      const analysis = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { 
+            role: "system", 
+            content: "Analyze the call transcript. Provide JSON only: { \"sentiment\": \"positive\"|\"neutral\"|\"negative\", \"intent\": \"booking\"|\"complaint\"|\"inquiry\", \"urgency\": 1-5 }" 
+          },
+          { role: "user", content: transcript }
+        ],
+        response_format: { type: "json_object" }
+      });
+      sentimentData = JSON.parse(analysis.choices[0].message.content || '{}');
+    }
+
+    // 2. FORENSIC CRM INGESTION
     const { data: callLog, error: dbError } = await supabase
       .from('call_logs') 
       .insert({
@@ -45,6 +65,9 @@ export async function POST(req: Request) {
         estimated_value: parseFloat(price || "0") || 0,
         status: status || "unknown",
         summary: variables?.summary || "Pending RL Analysis",
+        sentiment: sentimentData.sentiment,
+        customer_intent: sentimentData.intent,
+        urgency_level: sentimentData.urgency,
         was_booked: status === 'completed' && (
           transcript?.toLowerCase().includes('book') || 
           variables?.booked === 'true'
@@ -55,7 +78,7 @@ export async function POST(req: Request) {
 
     if (dbError) throw dbError;
 
-    // 2. SOVEREIGN CRM LEAD UPDATE
+    // 3. SOVEREIGN CRM LEAD UPDATE
     if (metadata?.businessId && to) {
       await supabase
         .from('leads')
@@ -67,7 +90,7 @@ export async function POST(req: Request) {
         }, { onConflict: 'phone' });
     }
 
-    // 3. AGENTIC HIVE-MIND PIVOT
+    // 4. AGENTIC HIVE-MIND PIVOT
     const bookingConfirmed = status === 'completed' && 
       (transcript?.toLowerCase().includes('confirmed') || variables?.booked === 'true');
     
@@ -76,28 +99,25 @@ export async function POST(req: Request) {
         phone: to,
         businessId: metadata.businessId,
         industry: metadata.industry,
-        locale: metadata.locale || 'en-US'
+        locale: metadata.locale || 'en-US',
+        urgency: sentimentData.urgency // Passing urgency to the pivot logic
       });
     }
 
-    // 4. GLOBAL ROI ANALYTICS SYNC
-    // Note: If platform_stats is managed via standard SQL, we trigger it here
+    // 5. GLOBAL ROI ANALYTICS SYNC
     await supabase.rpc('increment_platform_stats', { 
       is_booking: bookingConfirmed,
-      rev_increment: bookingConfirmed ? (Number(metadata?.dealValue) || 50) : 0
+      rev_increment: bookingConfirmed ? (Number(metadata?.deal_value || metadata?.dealValue) || 50) : 0
     });
 
     return NextResponse.json({ 
       success: true, 
-      agenticAction: !bookingConfirmed ? 'PIVOT_DISPATCHED' : 'CONVERSION_LOGGED',
-      logId: callLog?.id
+      sentiment: sentimentData.sentiment,
+      agenticAction: !bookingConfirmed ? 'PIVOT_DISPATCHED' : 'CONVERSION_LOGGED'
     }, { status: 200 });
 
   } catch (error: any) {
     console.error('❌ Hive-Mind Ingestion Failed:', error.message);
-    return NextResponse.json({ 
-      error: 'Orchestration Error', 
-      details: error.message 
-    }, { status: 500 });
+    return NextResponse.json({ error: 'Orchestration Error', details: error.message }, { status: 500 });
   }
 }
