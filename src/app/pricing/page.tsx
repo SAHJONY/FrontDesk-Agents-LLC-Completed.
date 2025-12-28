@@ -1,9 +1,5 @@
-import dynamic from 'next/dynamic';
-
-// This forces the build engine to look starting from the root of the app directory
-const PricingCard = dynamic(() => import('@/components/PricingCard'), {
-  ssr: true,
-});
+// Now that we're using the src/ structure, this alias will work perfectly
+import PricingCard from '@/src/components/PricingCard';
 
 const plans = [
   { id: 'basic', name: 'Basic', price: 199, minutes: 500, features: ['24/7 Voice Reception', 'Basic Scheduling'] },
@@ -20,7 +16,7 @@ export default function PricingPage() {
           Sovereign Node Deployment
         </h1>
         <p className="mt-4 text-xl text-slate-600">
-          Scale your global financial and agentic intelligence.
+          Fixed-Tier Global Pricing: $199 — $1,499
         </p>
       </div>
       
