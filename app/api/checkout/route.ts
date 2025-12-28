@@ -1,26 +1,42 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { getAdjustedPricing } from '@/services/pricing';
+import { Plans } from '@/services/plans';
 
 /**
  * STRIPE INFRASTRUCTURE CONFIGURATION
- * Updated to match the strict type requirements of the current Stripe SDK.
  */
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  // @ts-ignore - Ignoring version mismatch if SDK hasn't caught up to the string exactly
+  // @ts-ignore
   apiVersion: '2025-02-24.acacia', 
 });
 
 export async function POST(req: Request) {
   try {
-    const { priceId, locale, customerEmail } = await req.json();
+    const { planId, region, locale, customerEmail } = await req.json();
 
-    // 1. Create a Stripe Checkout Session
-    // This initiates the Sovereign Node payment protocol
+    // 1. Recalculate Sovereign Pricing based on permanent platform tiers
+    const regionalPlans = getAdjustedPricing(region);
+    const selectedPlan = regionalPlans.find(p => p.id === planId);
+
+    if (!selectedPlan) {
+      return NextResponse.json({ error: 'Invalid Plan ID for the current node' }, { status: 400 });
+    }
+
+    // 2. Initiate the Sovereign Node payment protocol
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: priceId, 
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `FrontDesk AI: ${selectedPlan.name}`,
+              description: `${selectedPlan.minutes} Neural Minutes included for ${selectedPlan.target}`,
+            },
+            unit_amount: selectedPlan.price * 100, // Stripe expects cents
+            recurring: { interval: 'month' },
+          },
           quantity: 1,
         },
       ],
@@ -30,6 +46,9 @@ export async function POST(req: Request) {
       customer_email: customerEmail,
       metadata: {
         node_locale: locale,
+        region: region,
+        plan_id: planId,
+        minutes_bundle: selectedPlan.minutes,
         deployment_layer: 'sovereign_production'
       },
       // Enables automatic tax calculation based on local market
