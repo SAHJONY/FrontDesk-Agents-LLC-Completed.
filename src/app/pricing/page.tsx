@@ -1,5 +1,9 @@
-// Try this specific path to reach from src/app/pricing/ to src/components/
-import PricingCard from '../../components/PricingCard'; 
+import dynamic from 'next/dynamic';
+
+// This forces the build engine to look starting from the root of the app directory
+const PricingCard = dynamic(() => import('@/components/PricingCard'), {
+  ssr: true,
+});
 
 const plans = [
   { id: 'basic', name: 'Basic', price: 199, minutes: 500, features: ['24/7 Voice Reception', 'Basic Scheduling'] },
