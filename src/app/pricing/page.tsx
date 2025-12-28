@@ -1,29 +1,68 @@
-// Now that we're using the src/ structure, this alias will work perfectly
-import PricingCard from '@/src/components/PricingCard';
+'use client';
 
-const plans = [
-  { id: 'basic', name: 'Basic', price: 199, minutes: 500, features: ['24/7 Voice Reception', 'Basic Scheduling'] },
-  { id: 'pro', name: 'Professional', price: 399, minutes: 1500, features: ['Multi-language Support', 'CRM Sync'] },
-  { id: 'growth', name: 'Growth', price: 799, minutes: 4000, features: ['Dialect Adaptation', 'Autonomous Tools'] },
-  { id: 'elite', name: 'Elite', price: 1499, minutes: 10000, features: ['RL-Learning Engine', 'Unlimited Fleet'] },
-];
+import React from 'react';
+import { PricingCard } from '@/components/PricingCard';
+import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+import { useMarketPricing } from '@/hooks/useMarketPricing';
 
 export default function PricingPage() {
+  const { currency, exchangeRate } = useMarketPricing();
+
+  const tiers = [
+    {
+      name: 'Basic',
+      price: 199,
+      description: 'Essential AI receptionist for single-market entry.',
+      features: ['1 Autonomous Agent', 'Local Phone Number', 'Standard Dashboard'],
+    },
+    {
+      name: 'Professional',
+      price: 399,
+      description: 'Advanced capabilities for growing businesses.',
+      features: ['3 Autonomous Agents', 'CRM Integration', '24/7 Priority Support'],
+    },
+    {
+      name: 'Growth',
+      price: 799,
+      description: 'Scale your operations with multi-agent orchestration.',
+      features: ['10 Autonomous Agents', 'Advanced Analytics', 'Custom Workflows'],
+    },
+    {
+      name: 'Elite',
+      price: 1499,
+      description: 'The full Sovereign Global Financial Hub experience.',
+      features: ['Unlimited Agent Fleet', 'Global Node Activation', 'Executive Export Tools'],
+    },
+  ];
+
   return (
-    <div className="py-20 bg-slate-50 min-h-screen">
-      <div className="text-center mb-16 px-4">
-        <h1 className="text-4xl font-extrabold text-slate-900 sm:text-5xl">
-          Sovereign Node Deployment
-        </h1>
-        <p className="mt-4 text-xl text-slate-600">
-          Fixed-Tier Global Pricing: $199 — $1,499
+    <div className="min-h-screen bg-slate-950 text-white py-20 px-4">
+      <div className="max-w-7xl mx-auto text-center">
+        <h1 className="text-5xl font-bold mb-6">Sovereign Global Pricing</h1>
+        <p className="text-xl text-slate-400 mb-12">
+          Deploy your AI workforce across any market with local-first precision.
         </p>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-4">
-        {plans.map((plan) => (
-          <PricingCard key={plan.id} plan={plan} />
-        ))}
+
+        {/* Global Currency Controller */}
+        <div className="flex justify-center mb-16">
+          <CurrencySwitcher />
+        </div>
+
+        {/* Pricing Matrix */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {tiers.map((tier) => (
+            <PricingCard
+              key={tier.name}
+              tier={tier.name}
+              // Calculate price based on the permanent hub rates and current market exchange
+              price={Math.round(tier.price * exchangeRate)}
+              currency={currency}
+              description={tier.description}
+              features={tier.features}
+              highlight={tier.name === 'Elite'}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
