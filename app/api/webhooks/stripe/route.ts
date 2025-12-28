@@ -5,6 +5,8 @@ import { stripe, STRIPE_WEBHOOK_SECRET } from '@/lib/stripe';
 
 export async function POST(req: Request) {
   const body = await req.text();
+  
+  // FIX: headers() returns a Promise in Next.js 15
   const headersList = await headers();
   const signature = headersList.get('stripe-signature')!;
 
