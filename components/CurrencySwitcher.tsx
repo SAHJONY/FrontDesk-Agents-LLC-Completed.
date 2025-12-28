@@ -1,16 +1,17 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { PRICING_MATRIX } from '@/hooks/useMarketPricing';
+// Fixed the import path to look specifically within the src directory
+import { PRICING_MATRIX } from '@/src/hooks/useMarketPricing';
 
 export default function CurrencySwitcher({ currentRegion }: { currentRegion: string }) {
   const router = useRouter();
   const pathname = usePathname();
 
   const handleSwitch = (region: string) => {
-    // Set a cookie that the Middleware will read on the next request
+    // Set a cookie that the Middleware will read on the next request to maintain local market presence
     document.cookie = `NEXT_LOCALE_OVERRIDE=${region}; path=/; max-age=31536000`;
-    router.refresh(); // Triggers the Sovereign Middleware to update headers
+    router.refresh(); // Triggers the Sovereign Middleware to update regional headers
   };
 
   return (
@@ -25,7 +26,7 @@ export default function CurrencySwitcher({ currentRegion }: { currentRegion: str
               : 'text-zinc-400 hover:text-white'
           }`}
         >
-          {region}
+          {region.toUpperCase()}
         </button>
       ))}
     </div>
