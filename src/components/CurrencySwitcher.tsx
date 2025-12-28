@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-// Using relative path to definitively resolve sibling directory within src/
+// Direct relative pathing to bypass TS alias conflicts
 import { PRICING_MATRIX } from '../hooks/useMarketPricing';
 
 export default function CurrencySwitcher({ currentRegion }: { currentRegion: string }) {
@@ -9,7 +9,7 @@ export default function CurrencySwitcher({ currentRegion }: { currentRegion: str
   const pathname = usePathname();
 
   const handleSwitch = (region: string) => {
-    // Cookie allows the platform to serve the customer as a local platform
+    // Ensuring the platform serves any market as a local platform
     document.cookie = `NEXT_LOCALE_OVERRIDE=${region}; path=/; max-age=31536000`;
     router.refresh(); 
   };
