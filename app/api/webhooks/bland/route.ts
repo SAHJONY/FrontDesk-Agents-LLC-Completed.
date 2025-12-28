@@ -1,24 +1,18 @@
-import { getPrompt } from '@/lib/ai/prompts';
-import OpenAI from 'openai';
+// After inserting lead into Supabase
+const { data: lead } = await supabase.from('leads').insert({ ...analysis }).select().single();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-export async function POST(req: Request) {
-  const data = await req.json(); // Data from Bland.ai
-  const { transcript, call_id } = data;
-
-  // Use your Call Analysis prompt for Outcome Maximization
-  const { system, user } = getPrompt('callAnalysis', transcript);
-
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4-turbo-preview",
-    messages: [{ role: "system", content: system }, { role: "user", content: user }],
-    response_format: { type: "json_object" }
+if (analysis.quality === 'hot') {
+  // Trigger Sovereign Alert
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
+    body: JSON.stringify({
+      from: 'System <sovereign@frontdeskagents.com>',
+      to: 'sahjonyllc@outlook.com',
+      subject: `🔥 HOT LEAD CAPTURED: ${analysis.client_name}`,
+      html: `<strong>Yield Alert:</strong> A high-quality node interaction has been synthesized.<br/>
+             <strong>Intent:</strong> ${analysis.intent}<br/>
+             <strong>Summary:</strong> ${analysis.summary}`
+    })
   });
-
-  const analysis = JSON.parse(completion.choices[0].message.content || '{}');
-
-  // Save the lead to your Sovereign database
-  // (We'll need to create a 'leads' table next)
-  return NextResponse.json({ processed: true });
 }
