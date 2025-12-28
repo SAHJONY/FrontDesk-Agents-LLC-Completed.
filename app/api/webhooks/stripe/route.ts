@@ -1,59 +1,67 @@
-import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { createClient } from '@/utils/supabase/admin'; // Use service_role for DB bypass
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia' as any,
-});
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+import { stripe, STRIPE_WEBHOOK_SECRET } from '@/lib/stripe';
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = headers().get('stripe-signature')!;
+  const headersList = await headers();
+  const signature = headersList.get('stripe-signature')!;
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      STRIPE_WEBHOOK_SECRET
+    );
   } catch (err: any) {
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
+    console.error('⚠️ Webhook signature verification failed:', err.message);
+    return NextResponse.json({ error: 'Webhook Error' }, { status: 400 });
   }
 
-  // Handle Successful Subscription
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const supabase = createClient();
+  // Handle the event
+  switch (event.type) {
+    case 'checkout.session.completed':
+      const session = event.data.object as Stripe.Checkout.Session;
+      console.log('✅ Payment successful:', session.id);
+      
+      // TODO: Update your database with the successful payment
+      // Example:
+      // await supabase.from('customers').update({ 
+      //   status: 'active',
+      //   subscription_id: session.subscription 
+      // }).eq('email', session.customer_email);
+      
+      break;
 
-    // Pull metadata defined in our API route
-    const userEmail = session.customer_email;
-    const minutesToGrant = parseInt(session.metadata?.minutes || '0');
-    const planId = session.metadata?.plan_id;
-    const region = session.metadata?.region;
+    case 'customer.subscription.updated':
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log('🔄 Subscription updated:', subscription.id);
+      
+      // TODO: Update subscription status in your database
+      
+      break;
 
-    if (userEmail && minutesToGrant > 0) {
-      // 1. Update the user's subscription record
-      const { error: subError } = await supabase
-        .from('subscriptions')
-        .upsert({
-          email: userEmail,
-          plan_id: planId,
-          region: region,
-          status: 'active',
-          updated_at: new Date().toISOString(),
-        });
+    case 'customer.subscription.deleted':
+      const deletedSubscription = event.data.object as Stripe.Subscription;
+      console.log('❌ Subscription cancelled:', deletedSubscription.id);
+      
+      // TODO: Handle subscription cancellation
+      
+      break;
 
-      // 2. Grant the Neural Minutes to the agent workforce
-      const { error: balanceError } = await supabase.rpc('increment_minutes', {
-        user_email: userEmail,
-        minutes_count: minutesToGrant
-      });
+    case 'invoice.payment_failed':
+      const invoice = event.data.object as Stripe.Invoice;
+      console.log('⚠️ Payment failed:', invoice.id);
+      
+      // TODO: Handle failed payment (send email, update status, etc.)
+      
+      break;
 
-      if (subError || balanceError) {
-        console.error('Provisioning Error:', subError || balanceError);
-      }
-    }
+    default:
+      console.log(`Unhandled event type: ${event.type}`);
   }
 
   return NextResponse.json({ received: true });
