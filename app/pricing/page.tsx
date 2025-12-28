@@ -1,45 +1,22 @@
-import PricingCard from '../components/PricingCard'; // Using relative path for build stability
+// Fixed with the standard Next.js alias - this points to the root/src folder regardless of nesting
+import PricingCard from '@/components/PricingCard';
 
 const plans = [
-  { 
-    id: 'basic', 
-    name: 'Basic', 
-    price: 199, 
-    minutes: 500, 
-    features: ['24/7 Voice Reception', 'Sovereign Knowledge Vault (5 docs)', 'Basic Scheduling'] 
-  },
-  { 
-    id: 'pro', 
-    name: 'Professional', 
-    price: 399, 
-    minutes: 1500, 
-    features: ['Multi-language Support (3)', 'Agentic Email Drafting', 'CRM Integration'] 
-  },
-  { 
-    id: 'growth', 
-    name: 'Growth', 
-    price: 799, 
-    minutes: 4000, 
-    features: ['Dialect Adaptation', 'Autonomous Tool Use', 'Global Market Expansion'] 
-  },
-  { 
-    id: 'elite', 
-    name: 'Elite', 
-    price: 1499, 
-    minutes: 10000, 
-    features: ['Self-Learning RL Engine', 'Agentic Orchestration', 'Financial Hub Ready'] 
-  },
+  { id: 'basic', name: 'Basic', price: 199, minutes: 500, features: ['24/7 Voice Reception', 'Basic Scheduling'] },
+  { id: 'pro', name: 'Professional', price: 399, minutes: 1500, features: ['Multi-language Support', 'CRM Sync'] },
+  { id: 'growth', name: 'Growth', price: 799, minutes: 4000, features: ['Dialect Adaptation', 'Autonomous Tools'] },
+  { id: 'elite', name: 'Elite', price: 1499, minutes: 10000, features: ['RL-Learning Engine', 'Unlimited Fleet'] },
 ];
 
 export default function PricingPage() {
   return (
     <div className="py-20 bg-slate-50 min-h-screen">
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 px-4">
         <h1 className="text-4xl font-extrabold text-slate-900 sm:text-5xl">
-          Deploy Your Sovereign Workforce
+          Sovereign Node Deployment
         </h1>
-        <p className="mt-4 text-xl text-slate-600">
-          Fixed-tier pricing for global agentic intelligence.
+        <p className="mt-4 text-xl text-slate-600 italic">
+          Permanent Tier Pricing: $199 — $1,499
         </p>
       </div>
       
