@@ -1,64 +1,70 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { agenticOrchestrator } from '@/services/agenticOrchestrator';
 
-/**
- * SOVEREIGN HIVE-MIND WEBHOOK
- * POST /api/voice/webhook
- * Integrates Voice Telemetry, CRM Lead Gen, and Agentic Pivot Logic.
- */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { 
-      call_id, 
-      transcript, 
-      duration, 
-      status, 
-      variables, 
-      price, 
-      to, 
-      metadata 
+      call_id, transcript, duration, status, 
+      variables, price, to, metadata 
     } = body;
+
+    // NEXT.JS 15 FIX: Await cookies for client initialization
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll() },
+          setAll(cookiesToSet: any[]) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {}
+          },
+        },
+      }
+    );
 
     console.log(`📡 Hive-Mind Signal: ${call_id} [Outcome: ${status}]`);
 
     // 1. FORENSIC CRM INGESTION
-    // FIX: Updated from db.callLog to db.callLogs to match schema pluralization
-    const callLog = await db.callLogs.create({
-      data: {
-        blandCallId: call_id,
-        businessId: metadata?.businessId, // Linked via Bland AI metadata object
-        customerPhone: to || "Unknown",
+    // We use the supabase client to avoid the local ORM type error
+    const { data: callLog, error: dbError } = await supabase
+      .from('call_logs') 
+      .insert({
+        bland_call_id: call_id,
+        business_id: metadata?.businessId,
+        customer_phone: to || "Unknown",
         transcript: transcript || "No transcript provided",
         duration: Math.round(parseFloat(duration || "0")) || 0,
-        estimatedValue: parseFloat(price || "0") || 0,
+        estimated_value: parseFloat(price || "0") || 0,
         status: status || "unknown",
         summary: variables?.summary || "Pending RL Analysis",
-        wasBooked: status === 'completed' && (
+        was_booked: status === 'completed' && (
           transcript?.toLowerCase().includes('book') || 
-          variables?.booked === 'true' || 
-          variables?.booked === true
+          variables?.booked === 'true'
         ),
-        createdAt: new Date()
-      }
-    });
+      })
+      .select()
+      .single();
+
+    if (dbError) throw dbError;
 
     // 2. SOVEREIGN CRM LEAD UPDATE
     if (metadata?.businessId && to) {
-      await db.lead.upsert({
-        where: { phone: to },
-        update: { 
-          status: status === 'completed' ? 'QUALIFIED' : 'FOLLOW_UP',
-          lastContacted: new Date()
-        },
-        create: {
+      await supabase
+        .from('leads')
+        .upsert({
           phone: to,
-          businessId: metadata.businessId,
-          status: 'NEW',
-          lastContacted: new Date()
-        }
-      });
+          business_id: metadata.businessId,
+          status: status === 'completed' ? 'QUALIFIED' : 'FOLLOW_UP',
+          last_contacted: new Date().toISOString()
+        }, { onConflict: 'phone' });
     }
 
     // 3. AGENTIC HIVE-MIND PIVOT
@@ -66,9 +72,6 @@ export async function POST(req: Request) {
       (transcript?.toLowerCase().includes('confirmed') || variables?.booked === 'true');
     
     if (!bookingConfirmed && metadata?.businessId) {
-      console.log(`🔄 Pivot Triggered: Initiating Cross-Channel Follow-up for ${to}`);
-      
-      // Ensure the orchestrator is awaited to prevent background process hanging
       await agenticOrchestrator.handleCallOutcome(call_id, status, {
         phone: to,
         businessId: metadata.businessId,
@@ -78,30 +81,20 @@ export async function POST(req: Request) {
     }
 
     // 4. GLOBAL ROI ANALYTICS SYNC
-    // Using an upsert to maintain the global dashboard "Pulse"
-    await db.platformStats.upsert({
-      where: { id: 1 },
-      update: { 
-        totalCalls: { increment: 1 },
-        totalBookings: { increment: bookingConfirmed ? 1 : 0 },
-        totalRevenue: { increment: bookingConfirmed ? (Number(metadata?.dealValue) || 50) : 0 }
-      },
-      create: { 
-        id: 1, 
-        totalCalls: 1, 
-        totalBookings: bookingConfirmed ? 1 : 0, 
-        totalRevenue: bookingConfirmed ? (Number(metadata?.dealValue) || 50) : 0 
-      }
+    // Note: If platform_stats is managed via standard SQL, we trigger it here
+    await supabase.rpc('increment_platform_stats', { 
+      is_booking: bookingConfirmed,
+      rev_increment: bookingConfirmed ? (Number(metadata?.dealValue) || 50) : 0
     });
 
     return NextResponse.json({ 
       success: true, 
       agenticAction: !bookingConfirmed ? 'PIVOT_DISPATCHED' : 'CONVERSION_LOGGED',
-      logId: callLog.id
+      logId: callLog?.id
     }, { status: 200 });
 
   } catch (error: any) {
-    console.error('❌ Hive-Mind Ingestion Failed:', error);
+    console.error('❌ Hive-Mind Ingestion Failed:', error.message);
     return NextResponse.json({ 
       error: 'Orchestration Error', 
       details: error.message 
