@@ -1,0 +1,16 @@
+/src
+  /components
+    /ingest
+      - IngestHub.tsx         (The main drag-and-drop dashboard)
+      - SourceConnector.tsx   (Cards for Drive, Notion, Slack)
+      - UploadProgress.tsx    (Real-time feedback for file processing)
+  /api
+    /ingest
+      - upload.ts             (Handles local file uploads)
+      - sync-drive.ts         (Google Drive OAuth & Sync)
+      - sync-notion.ts        (Notion API Integration)
+  /services
+    /neural
+      - embedder.ts           (Converts text to vectors via OpenAI)
+      - forensic-scraper.ts   (Your existing scraping logic)
+      - rag-engine.ts         (Supabase pgvector retrieval logic)
