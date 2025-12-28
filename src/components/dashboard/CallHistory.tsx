@@ -1,20 +1,21 @@
-// src/components/dashboard/CallHistory.tsx
-
 import React from 'react';
-
-// ... other imports
+// Ensure all sub-components are imported from the unified src path
+import { CallLogItem } from './CallLogItem'; 
 
 export const CallHistory = () => {
   return (
     <div className="space-y-4">
-      {/* Existing component logic */}
+      {/* Sovereign Dashboard Component: 
+          Capturing autonomous agent interactions for global markets.
+      */}
       
-      {/* Update Line 112 with the stringified version below */}
       <CallLogItem
         id="call_001"
         agent="SARA"
         duration="2:45"
         status="completed"
+        phoneNumber="+1 (555) 012-3456"
+        // Stringified array to satisfy 'string' type requirement in Next.js 15
         transcript={JSON.stringify([
           { 
             role: 'assistant', 
@@ -31,7 +32,7 @@ export const CallHistory = () => {
         ])}
       />
       
-      {/* ... rest of the component */}
+      {/* Additional logs will follow this pattern */}
     </div>
   );
 };
