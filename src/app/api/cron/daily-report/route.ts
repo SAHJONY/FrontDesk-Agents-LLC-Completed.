@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-// Ensure these services exist to pull from your database/CRM
-import { getDailyStats } from '@/services/stats';
-import { sendEmailReport } from '@/services/notifications';
+// FIXED: Using relative paths to resolve Portland (pdx1) webpack errors
+import { getDailyStats } from '../../../../services/stats';
+import { sendEmailReport } from '../../../../services/notifications';
 
 export const dynamic = 'force-dynamic';
 
