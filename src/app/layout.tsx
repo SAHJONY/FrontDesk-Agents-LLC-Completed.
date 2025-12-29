@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-// Path adjusted: globals.css is located in the src/ directory
+// FIXED: This now correctly points to the src directory from the app directory
 import "../globals.css"; 
-// Using the @ alias which is configured in your tsconfig.json to point to /src
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -11,10 +10,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Sovereign Global Financial Hub",
   description: "Autonomous AI Receptionist Fleet & Global Financial Infrastructure",
-  // Note: viewport is now handled via the viewport export in Next.js 15
 };
 
-// Next.js 15 Viewport Configuration
+// Next.js 15 requires viewport to be exported separately
 export const viewport = {
   width: "device-width",
   initialScale: 1,
@@ -34,7 +32,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Global Node Activation Wrapper */}
+          {/* Global Node Activation Layer */}
           <main className="relative min-h-screen flex flex-col">
             {children}
           </main>
