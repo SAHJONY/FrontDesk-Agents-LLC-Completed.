@@ -1,30 +1,32 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css"; // Corrected path: relative to /app/layout.tsx
-import { AuthProvider } from "@/context/AuthContext"; // Ensure this exists in /context
+import "./globals.css"; // Corrected: Path is now relative to this file in /app
+import { AuthProvider } from "@/context/AuthContext"; // Corrected: Uses root alias
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"] });
+
+/**
+ * FRONTDESK AGENTS: SOVEREIGN ROOT LAYOUT
+ * * Deployed to Western Corridor (pdx1)
+ * * Workforce: Autonomous RL-Agents
+ */
 
 export const metadata: Metadata = {
-  title: "FrontDesk Agents | Global Revenue Workforce",
-  description: "High-performance AI revenue nodes for global markets.",
-  viewport: "width=device-width, initial-scale=1",
+  title: "FrontDesk Agents | Global Revenue Hub",
+  description: "Autonomous Agentic Workforce for Global Revenue Recovery",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" className={inter.className}>
-      <body className="min-h-screen bg-zinc-50 antialiased">
+    <html lang="en" className="dark">
+      <body className={`${inter.className} bg-black text-white antialiased`}>
+        {/* The AuthProvider enables session persistence for the 30-route fleet */}
         <AuthProvider>
-          {/* Main layout wrapper for the 30-route platform */}
-          <div className="relative flex min-h-screen flex-col">
+          <div className="flex flex-col min-h-screen">
             {children}
           </div>
         </AuthProvider>
