@@ -1,29 +1,34 @@
-export default function DashboardPage() {
+import { CallFeed } from '@/components/dashboard/CallFeed';
+import { RevenueStats } from '@/components/dashboard/RevenueStats';
+import { NodeStatus } from '@/components/dashboard/NodeStatus';
+
+export default async function DashboardPage() {
   return (
-    <div className="p-8 max-w-7xl mx-auto relative z-10">
-      <header className="flex justify-between items-end mb-12">
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <header className="flex justify-between items-end">
         <div>
-          <h1 className="text-4xl font-black italic">FLEET OVERVIEW</h1>
-          <p className="text-brand-cyan font-mono text-sm uppercase tracking-widest">Node Status: Active</p>
+          <h1 className="text-3xl font-bold">Revenue Command Center</h1>
+          <p className="text-gray-500">Global Workforce Status: <span className="text-green-500 font-medium">Active</span></p>
         </div>
-        <div className="text-right">
-          <p className="text-slate-500 text-xs uppercase font-bold tracking-widest">Elite Tier Session</p>
-          <p className="text-white font-bold">Unlimited Fleet Active</p>
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+          <p className="text-xs text-blue-600 uppercase font-bold">Local Market Multiplier</p>
+          <p className="text-2xl font-black text-blue-900">1.0x (Standard)</p>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="titan-card border-brand-cyan/20">
-          <h3 className="text-slate-400 text-xs font-bold uppercase mb-2">Total Appointments</h3>
-          <p className="text-5xl font-black">1,284</p>
-        </div>
-        <div className="titan-card">
-          <h3 className="text-slate-400 text-xs font-bold uppercase mb-2">Revenue Generated</h3>
-          <p className="text-5xl font-black">$42,900</p>
-        </div>
-        <div className="titan-card">
-          <h3 className="text-slate-400 text-xs font-bold uppercase mb-2">AI Optimization</h3>
-          <p className="text-5xl font-black">98.2%</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <RevenueStats />
+        <NodeStatus />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <CallFeed />
+        <div className="bg-white p-6 rounded-xl border shadow-sm">
+          <h2 className="font-bold mb-4">Active Conversion Script</h2>
+          <div className="bg-gray-50 p-4 rounded font-mono text-sm text-gray-700">
+            "You are a Priority Agent. If the customer mentions a cancelled subscription, 
+            offer the loyalty discount and verify the card on file..."
+          </div>
         </div>
       </div>
     </div>
