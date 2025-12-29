@@ -1,18 +1,18 @@
 import './globals.css';
-import React from 'react';
+import { Inter } from 'next/font/google';
+import { AuthProvider } from '@/context/AuthContext';
 
-export const metadata = {
-  title: 'FrontDesk Agents | Global Revenue Workforce',
-  description: 'Autonomous AI sales and receptionist nodes for business operations.',
-};
+const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-[#010204] text-slate-50 antialiased">
-        <div className="relative overflow-hidden">
-          {children}
-        </div>
+      <body className={inter.className}>
+        <AuthProvider>
+          <main className="min-h-screen bg-zinc-50">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );
