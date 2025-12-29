@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 /**
  * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
  * MIDDLEWARE PROTOCOL - PORTLAND (pdx1) COMPLIANT
+ * Purpose: Secure Owner routes and enforce English language standards.
  */
 
 const OWNER_EMAIL = "sahjonyllc@outlook.com";
@@ -40,14 +41,14 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect Owner Routes for the Global Revenue Workforce
+  // 1. Secure Owner routes for the Global Revenue Workforce
   if (request.nextUrl.pathname.startsWith('/owner')) {
     if (!user || user.email !== OWNER_EMAIL) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
   }
 
-  // Ensure all responses are in English [cite: 2025-12-18, 2025-12-22]
+  // 2. Enforce English-only headers [cite: 2025-12-18, 2025-12-22]
   response.headers.set('Content-Language', 'en-US')
 
   return response
@@ -55,6 +56,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - File extensions: svg, png, jpg, jpeg, gif, webp
+     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
