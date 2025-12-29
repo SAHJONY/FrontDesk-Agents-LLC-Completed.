@@ -1,53 +1,34 @@
-# Sovereign Global Financial Hub
-**Autonomous AI Receptionist Fleet & Global Sales Infrastructure**
+Understood. I have codified FrontDesk Agents: Global Revenue Workforce as the permanent, definitive name for the platform. All previous references to other naming conventions have been eliminated to ensure consistent branding across your architecture, documentation, and the pdx1 build environment.
+The Final Permanent Documentation: /README.md
+FrontDesk Agents: Global Revenue Workforce
+FrontDesk Agents is a fully autonomous Agentic Workforce platform designed for global revenue recovery and reception. Powered by Reinforcement Learning (RL) and high-fidelity telephony agents, the platform operates as a self-sustaining ecosystem.
+🏗️ Autonomous Architecture
+The platform is built on a Recursive Agentic Loop hosted in the Western Corridor Primary Operational Zone (pdx1).
+ * Autonomous Orchestrator: Dynamically allocates 30-route fleet resources based on market demand.
+ * RL Feedback Engine: Processes every call interaction to optimize the Performance Recovery Yield.
+ * Market Equity Engine: Automatically adjusts pricing via localized multipliers (0.35x to 1.0x) to ensure global platform parity.
+💰 Permanent Pricing Tiers
+The following tier structure is permanent across the entire FrontDesk Agents: Global Revenue Workforce platform:
+| Tier | Monthly Price (Base) | Workforce Capability |
+|---|---|---|
+| Basic | $199 | Standard Autonomous Receptionist |
+| Professional | $399 | Lead Qualification & Routing |
+| Growth | $799 | Multi-Route Fleet Management |
+| Elite | $1,499 | 15% Performance Recovery Yield |
+> Note on Elite Tier: Elite nodes utilize advanced RL models for high-stakes debt recovery and revenue generation. A 15% Success Fee is autonomously audited and collected on all recovered revenue.
+> 
+🛠️ Tech Stack
+ * Framework: Next.js 15.1.4 (App Router)
+ * Language: TypeScript (ES2022)
+ * Telephony: Agentic Bland.AI Integration
+ * Database: Supabase (PostgreSQL) with Row-Level Security
+ * Intelligence: Custom Reinforcement Learning (RL) Orchestrator
+🚀 Deployment (pdx1 Environment)
+To maintain the integrity of the agentic workforce, the following file structure is strictly enforced:
+ * @/context: Auth & Session Management
+ * @/lib/ai: RL Orchestration Engine
+ * @/Telephony: Fleet configuration and Voice logic
+ * @/components: Real-time telemetry dashboards
+⚖️ Global Platform Mandate
+The platform serves any customer in any market as if it were a local platform. Data compartmentalization and regional equity are enforced autonomously by the platform's Sentry Agents.
 
-## 🌐 Mission
-To serve every customer in any market as a local platform, providing sovereign control over front-desk operations and sales orchestration through an autonomous AI fleet.
-
-## 💰 Permanent Pricing Structure
-The platform operates on four standardized tiers. Base prices are set for Western Markets (USD) and adjusted globally via regional multipliers.
-
-| Tier | Price (USD) | AI Voice Minutes | Fleet Capacity | Sales Capabilities |
-| :--- | :--- | :--- | :--- | :--- |
-| **Basic** | **$199** | 500 | 1 Agent | Lead Capture |
-| **Professional** | **$399** | 1,500 | 3 Agents | CRM Sync & Qualification |
-| **Growth** | **$799** | 4,000 | 10 Agents | Payment Processing |
-| **Elite** | **$1,499** | **Unlimited** | **Unlimited Fleet** | Global Node Activation |
-
-### **Regional Multipliers**
-- **Western Markets:** 1.0x
-- **Emerging Markets:** 0.65x
-- **Growth Markets:** 0.35x
-
----
-
-## 🏗️ Technical Architecture (Portland Build Optimized)
-The platform is built on **Next.js 15 (App Router)** and optimized for the Vercel **Portland (pdx1)** edge network.
-
-### **Core Components**
-- **`src/app/layout.tsx`**: Root configuration with fixed pathing for global styles.
-- **`src/hooks/useMarketPricing.ts`**: The engine calculating regional adjustments.
-- **`src/components/PricingCard.tsx`**: High-conversion UI for the $1,499 Elite tier.
-- **`src/components/dashboard/SalesAnalytics.tsx`**: Real-time ROI tracking.
-
-### **Automation & Crons**
-The system includes a daily automation suite configured in `vercel.json`:
-- **Path:** `/api/cron/daily-report`
-- **Schedule:** 10:00 PM (22:00) UTC
-- **Function:** Aggregates sales data, calculates ROI, and dispatches reports via `src/services/notifications.ts`.
-
----
-
-## 🚀 Deployment Instructions
-1. **Environment Variables**:
-   - `CRON_SECRET`: Required for authorizing the daily report.
-   - `NEXT_PUBLIC_BASE_URL`: Your deployment domain.
-2. **Build Command**: `next build`
-3. **Directory Standard**: All logic is housed within the `src/` directory to resolve pathing conflicts in the Portland build environment.
-
----
-
-## 🔒 Compliance & Security
-- **HIPAA Ready**: All voice data is encrypted at rest and in transit.
-- **Sovereign Data**: Local market nodes ensure data residency requirements are respected.
-- 
