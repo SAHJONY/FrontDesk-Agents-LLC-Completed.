@@ -6,62 +6,45 @@ import { CurrencySwitcher } from '@/components/CurrencySwitcher';
 import { useMarketPricing } from '@/hooks/useMarketPricing';
 
 export default function PricingPage() {
-  const { currency, exchangeRate } = useMarketPricing();
-
-  const tiers = [
-    {
-      name: 'Basic',
-      price: 199,
-      description: 'Essential AI receptionist for single-market entry.',
-      features: ['1 Autonomous Agent', 'Local Phone Number', 'Standard Dashboard'],
-    },
-    {
-      name: 'Professional',
-      price: 399,
-      description: 'Advanced capabilities for growing businesses.',
-      features: ['3 Autonomous Agents', 'CRM Integration', '24/7 Priority Support'],
-    },
-    {
-      name: 'Growth',
-      price: 799,
-      description: 'Scale your operations with multi-agent orchestration.',
-      features: ['10 Autonomous Agents', 'Advanced Analytics', 'Custom Workflows'],
-    },
-    {
-      name: 'Elite',
-      price: 1499,
-      description: 'The full Sovereign Global Financial Hub experience.',
-      features: ['Unlimited Agent Fleet', 'Global Node Activation', 'Executive Export Tools'],
-    },
-  ];
+  const { plans, region, setRegion, currency } = useMarketPricing();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white py-20 px-4">
-      <div className="max-w-7xl mx-auto text-center">
-        <h1 className="text-5xl font-bold mb-6">Sovereign Global Pricing</h1>
-        <p className="text-xl text-slate-400 mb-12">
-          Deploy your AI workforce across any market with local-first precision.
+    <div className="min-h-screen bg-slate-950 py-20 px-4 sm:px-6 lg:px-8">
+      {/* Header Section */}
+      <div className="max-w-7xl mx-auto text-center mb-16">
+        <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-4">
+          Sovereign Global Financial Hub
+        </h1>
+        <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+          Deploy an autonomous AI receptionist fleet at local market rates with global node activation.
         </p>
+      </div>
 
-        {/* Global Currency Controller */}
-        <div className="flex justify-center mb-16">
-          <CurrencySwitcher />
-        </div>
+      {/* Regional Multiplier Toggle */}
+      <div className="max-w-7xl mx-auto">
+        <CurrencySwitcher 
+          currentRegion={region} 
+          onRegionChange={setRegion} 
+        />
 
-        {/* Pricing Matrix */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {tiers.map((tier) => (
-            <PricingCard
-              key={tier.name}
-              tier={tier.name}
-              // Calculate price based on the permanent hub rates and current market exchange
-              price={Math.round(tier.price * exchangeRate)}
-              currency={currency}
-              description={tier.description}
-              features={tier.features}
-              highlight={tier.name === 'Elite'}
+        {/* Established Tier Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+          {plans.map((plan) => (
+            <PricingCard 
+              key={plan.id} 
+              plan={plan} 
+              currencySymbol={currency.symbol} 
             />
           ))}
+        </div>
+
+        {/* Global Compliance Footer */}
+        <div className="mt-20 text-center p-8 rounded-3xl border border-slate-800 bg-slate-900/50">
+          <p className="text-slate-400 text-sm">
+            All tiers include HIPAA-compliant data handling and regional success fee structures. 
+            <br />
+            <span className="text-blue-500 font-semibold">Elite Tier Activation</span> grants immediate access to the Unlimited Agent Fleet.
+          </p>
         </div>
       </div>
     </div>
