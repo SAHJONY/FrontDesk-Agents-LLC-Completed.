@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { PricingCard } from '@/components/PricingCard';
-import { CurrencySwitcher } from '@/components/CurrencySwitcher';
-import { useMarketPricing } from '@/hooks/useMarketPricing';
+// Changed from @/ alias to relative paths to fix Portland build errors
+import { PricingCard } from '../../components/PricingCard';
+import { CurrencySwitcher } from '../../components/CurrencySwitcher';
+import { useMarketPricing } from '../../hooks/useMarketPricing';
 
 export default function PricingPage() {
   const { plans, region, setRegion, currency } = useMarketPricing();
@@ -27,7 +28,7 @@ export default function PricingPage() {
           onRegionChange={setRegion} 
         />
 
-        {/* Established Tier Grid */}
+        {/* Established Tier Grid: $199, $399, $799, $1,499 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
           {plans.map((plan) => (
             <PricingCard 
