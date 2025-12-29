@@ -1,43 +1,77 @@
 import { NextResponse } from 'next/server';
+import { blandAIConfig } from '@/Telephony/blandai-config';
+import { agenticOrchestrator } from '@/lib/ai/orchestrator';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { getBlandAIConfig } from '@/lib/ai/orchestrator';
+
+/**
+ * FRONTDESK AGENTS: AUTONOMOUS CALL INITIATION
+ * * This route executes the outbound agentic workforce logic.
+ * * Optimized for the Western Corridor Primary Operational Zone (pdx1).
+ */
 
 export async function POST(req: Request) {
   try {
-    const { phoneNumber, tenantId, customScript } = await req.json();
+    const { phoneNumber, tenantId, leadName, goal } = await req.json();
 
-    // 1. Fetch Tenant Data to verify Tier & Multiplier
-    const { data: tenant } = await supabaseAdmin
+    // 1. Fetch Tenant Data for Market Equity Calculation [cite: 2025-12-24]
+    const { data: tenant, error: tenantError } = await supabaseAdmin
       .from('tenants')
       .select('tier, regional_multiplier')
       .eq('id', tenantId)
       .single();
 
-    if (!tenant) return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+    if (tenantError || !tenant) {
+      return NextResponse.json({ error: 'Tenant unauthorized' }, { status: 401 });
+    }
 
-    // 2. Get AI personality based on Tier ($199 - $1,499 logic)
-    const nodeConfig = getBlandAIConfig(tenant.tier);
+    // 2. Determine RL Strategy via Agentic Orchestrator
+    const strategy = await agenticOrchestrator.determineStrategy(
+      tenant.tier, 
+      tenant.regional_multiplier
+    );
 
-    // 3. Trigger Bland.AI Call
+    // 3. Inject Autonomous Workforce via Bland.AI
     const response = await fetch('https://api.bland.ai/v1/calls', {
       method: 'POST',
-      headers: { 
-        'authorization': process.env.BLAND_API_KEY!,
-        'Content-Type': 'application/json' 
+      headers: {
+        'authorization': process.env.BLAND_AI_API_KEY || '',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         phone_number: phoneNumber,
-        task: customScript || nodeConfig.system_prompt,
-        voice: nodeConfig.voice,
-        model: nodeConfig.model,
-        webhook: `${process.env.NEXT_PUBLIC_API_URL}/api/webhooks/blandai`,
-        metadata: { tenantId, tier: tenant.tier }
+        task: `You are a ${tenant.tier} level FrontDesk Agent. Your goal is: ${goal}. 
+               Address the lead as ${leadName}. Use a professional, high-conversion tone.`,
+        model: strategy.model,
+        voice: blandAIConfig.voices[tenant.tier as keyof typeof blandAIConfig.voices] || 'maya',
+        interruption_threshold: strategy.tierSettings.interruption_threshold,
+        temperature: strategy.tierSettings.temperature,
+        metadata: {
+          tenantId: tenantId,
+          tier: tenant.tier,
+          multiplier: tenant.regional_multiplier,
+          pdx1_build_id: "2025-12-29-LATEST"
+        }
       })
     });
 
-    const data = await response.json();
-    return NextResponse.json({ success: true, callId: data.call_id });
-  } catch (err) {
-    return NextResponse.json({ error: 'Call initiation failed' }, { status: 500 });
+    const result = await response.json();
+
+    // 4. Log Autonomous Trigger
+    await supabaseAdmin.from('call_logs').insert({
+      tenant_id: tenantId,
+      call_id: result.call_id,
+      status: 'initiated',
+      tier_applied: tenant.tier
+    });
+
+    return NextResponse.json({ 
+      success: true, 
+      callId: result.call_id,
+      strategy_applied: strategy.priority > 0.8 ? 'MAX_YIELD' : 'STANDARD'
+    });
+
+  } catch (error: any) {
+    console.error('FrontDesk Agents Execution Error:', error.message);
+    return NextResponse.json({ error: 'Autonomous Node Failure' }, { status: 500 });
   }
-}
+                                                                    }
