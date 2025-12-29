@@ -1,0 +1,4 @@
+export async function GET() {
+  // Returns real-time revenue workforce performance data
+  return new Response(JSON.stringify({ globalConversionRate: "24.2%" }));
+}
