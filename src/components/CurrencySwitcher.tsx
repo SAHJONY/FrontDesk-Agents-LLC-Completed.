@@ -1,34 +1,41 @@
-'use client';
+import React from 'react';
 
-import { useRouter, usePathname } from 'next/navigation';
-// Direct relative pathing to bypass TS alias conflicts
-import { PRICING_MATRIX } from '../hooks/useMarketPricing';
+interface CurrencySwitcherProps {
+  currentRegion: 'WESTERN' | 'MEDIUM' | 'GROWTH';
+  onRegionChange: (region: 'WESTERN' | 'MEDIUM' | 'GROWTH') => void;
+}
 
-export default function CurrencySwitcher({ currentRegion }: { currentRegion: string }) {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const handleSwitch = (region: string) => {
-    // Ensuring the platform serves any market as a local platform
-    document.cookie = `NEXT_LOCALE_OVERRIDE=${region}; path=/; max-age=31536000`;
-    router.refresh(); 
-  };
+export const CurrencySwitcher: React.FC<CurrencySwitcherProps> = ({ 
+  currentRegion, 
+  onRegionChange 
+}) => {
+  const regions = [
+    { id: 'WESTERN', label: 'Western Markets (1.0x)', icon: '🇺🇸' },
+    { id: 'MEDIUM', label: 'Emerging Markets (0.65x)', icon: '🇧🇷' },
+    { id: 'GROWTH', label: 'Growth Markets (0.35x)', icon: '🇻🇳' },
+  ] as const;
 
   return (
-    <div className="flex items-center gap-2 p-1 bg-zinc-900 rounded-full border border-zinc-800">
-      {Object.keys(PRICING_MATRIX).map((region) => (
-        <button
-          key={region}
-          onClick={() => handleSwitch(region)}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-            currentRegion === region 
-              ? 'bg-brand-cyan text-black' 
-              : 'text-zinc-400 hover:text-white'
-          }`}
-        >
-          {region.toUpperCase()}
-        </button>
-      ))}
+    <div className="flex flex-col items-center gap-4 mb-12">
+      <span className="text-sm font-medium text-slate-400 uppercase tracking-widest">
+        Select Your Global Node
+      </span>
+      <div className="inline-flex p-1 bg-slate-900 border border-slate-800 rounded-xl">
+        {regions.map((region) => (
+          <button
+            key={region.id}
+            onClick={() => onRegionChange(region.id)}
+            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${
+              currentRegion === region.id
+                ? 'bg-blue-600 text-white shadow-lg'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <span className="mr-2">{region.icon}</span>
+            {region.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
-}
+};
