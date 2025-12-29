@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+// Path adjusted: globals.css is located in the src/ directory
+import "../globals.css"; 
+// Using the @ alias which is configured in your tsconfig.json to point to /src
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -9,7 +11,13 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Sovereign Global Financial Hub",
   description: "Autonomous AI Receptionist Fleet & Global Financial Infrastructure",
-  viewport: "width=device-width, initial-scale=1",
+  // Note: viewport is now handled via the viewport export in Next.js 15
+};
+
+// Next.js 15 Viewport Configuration
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -26,7 +34,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Main Content Wrapper for Global Node Activation */}
+          {/* Global Node Activation Wrapper */}
           <main className="relative min-h-screen flex flex-col">
             {children}
           </main>
