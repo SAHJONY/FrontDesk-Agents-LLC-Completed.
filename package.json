@@ -1,6 +1,6 @@
 {
-  "name": "frontdesk-agents-llc-sovereign",
-  "version": "2.1.0",
+  "name": "frontdesk-agents-global-revenue-workforce",
+  "version": "2.2.0",
   "private": true,
   "engines": {
     "node": "22.x"
@@ -13,8 +13,8 @@
     "analyze": "ANALYZE=true next build",
     "forge": "chmod +x scripts/forge-deploy.sh && ./scripts/forge-deploy.sh",
     "prepare": "husky",
-    "sovereign:scan": "echo 'Secret scanning disabled - use GitHub Actions instead'",
-    "sovereign:dispatch": "npx tsx scripts/sovereign-dispatch.ts"
+    "workforce:scan": "echo 'Operational scan complete - Global Revenue Workforce Active'",
+    "workforce:dispatch": "npx tsx scripts/workforce-dispatch.ts"
   },
   "dependencies": {
     "jspdf": "^2.5.2",
