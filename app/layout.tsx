@@ -1,19 +1,16 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css"; // Corrected: Path is now relative to this file in /app
-import { AuthProvider } from "@/context/AuthContext"; // Corrected: Uses root alias
+// FrontDesk Agents: Global Revenue Workforce
+// Root Layout
 
-const inter = Inter({ subsets: ["latin"] });
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { AuthProvider } from '@/context/AuthContext';
 
-/**
- * FRONTDESK AGENTS: SOVEREIGN ROOT LAYOUT
- * * Deployed to Western Corridor (pdx1)
- * * Workforce: Autonomous RL-Agents
- */
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "FrontDesk Agents | Global Revenue Hub",
-  description: "Autonomous Agentic Workforce for Global Revenue Recovery",
+  title: 'FrontDesk Agents - Global Revenue Workforce',
+  description: 'AI-powered business sales and operational platform serving any customer in any market as if it were a local platform',
 };
 
 export default function RootLayout({
@@ -22,13 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-black text-white antialiased`}>
-        {/* The AuthProvider enables session persistence for the 30-route fleet */}
+    <html lang="en">
+      <body className={inter.className}>
         <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            {children}
-          </div>
+          {children}
         </AuthProvider>
       </body>
     </html>
