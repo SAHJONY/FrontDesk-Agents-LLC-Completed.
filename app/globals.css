@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 1. UNIVERSAL COLOR ENGINE */
+:root {
+  color-scheme: dark;
+  --bg-dark: #010204;
+  --fg-light: #f8fafc;
+  --brand-cyan: #06b6d4;
+  --brand-slate: #64748b;
+}
+
+/* Base styling with Autonomous Logic */
+@layer base {
+  body {
+    background-color: var(--bg-dark);
+    color: var(--fg-light);
+    @apply antialiased selection:bg-brand-cyan/30 overflow-x-hidden;
+  }
+}
+
+@layer components {
+  /* 3. SOVEREIGN CARD SYSTEM - Essential for the $1,499 Tier */
+  .titan-card {
+    @apply bg-[#050505] border border-white/5 rounded-3xl p-8 transition-all duration-300;
+    @apply hover:border-brand-cyan/20 hover:shadow-[0_0_40px_-15px_rgba(6,182,212,0.3)];
+  }
+
+  /* 4. NEURAL MESH OVERLAY */
+  .neural-grid {
+    position: relative;
+  }
+  .neural-grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 2px 2px, rgba(6, 182, 212, 0.07) 1px, transparent 0);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(to bottom, black 70%, transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+/* 5. ELITE SCROLLBARS */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  @apply rounded-full hover:bg-brand-cyan transition-colors;
+}
+  
