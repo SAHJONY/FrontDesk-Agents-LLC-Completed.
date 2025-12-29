@@ -1,0 +1,21 @@
+type NodeTier = 'basic' | 'professional' | 'growth' | 'elite';
+
+export const NODE_CONFIGS = {
+  basic: { voice: 'maya', task: 'receptionist', model: 'base' },
+  professional: { voice: 'ryan', task: 'qualification', model: 'enhanced' },
+  growth: { voice: 'nat', task: 'scaling', model: 'enhanced' },
+  elite: { voice: 'stella', task: 'priority_recovery', model: 'turbo' }
+};
+
+export function getBlandAIConfig(tier: NodeTier) {
+  const config = NODE_CONFIGS[tier];
+  return {
+    voice: config.voice,
+    background_track: 'office',
+    request_data: { 
+      tier: tier,
+      is_success_fee_eligible: tier === 'elite' 
+    },
+    system_prompt: `You are a FrontDesk Agent at the ${tier} level. Your goal is ${config.task}.`
+  };
+}
