@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 1. UNIVERSAL COLOR ENGINE */
+:root {
+  color-scheme: dark;
+  --bg-dark: #010204;
+  --fg-light: #f8fafc;
+  --brand-cyan: #06b6d4;
+  --brand-slate: #64748b;
+  
+  /* System UI variables */
+  --background: 0 0% 0%;
+  --foreground: 210 40% 98%;
+}
+
+/* Base styling with Autonomous Logic */
+@layer base {
+  body {
+    background-color: var(--bg-dark);
+    color: var(--fg-light);
+    @apply antialiased selection:bg-brand-cyan/30 overflow-x-hidden transition-colors duration-500;
+  }
+
+  /* 2. WORLDWIDE LINGUISTIC MAPPING */
+  /* This autonomously applies the correct typography and alignment for any market */
+  [dir="rtl"] {
+    @apply text-right;
+    font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+  }
+
+  [dir="ltr"] {
+    @apply text-left;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  /* 3. SOVEREIGN CARD SYSTEM */
+  /* Optimized for the $1,499 Elite Tier visual presentation */
+  .titan-card {
+    @apply bg-[#050505] border border-white/5 rounded-3xl p-8 transition-all duration-300;
+    @apply hover:border-brand-cyan/20 hover:shadow-[0_0_30px_-10px_rgba(6,182,212,0.2)];
+  }
+
+  /* 4. NEURAL MESH OVERLAY */
+  /* Adds depth to the "Global Node" background */
+  .neural-grid {
+    background-image: radial-gradient(circle at 2px 2px, rgba(6, 182, 212, 0.07) 1px, transparent 0);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(to bottom, black 70%, transparent);
+  }
+
+  /* Status pulse for active AI nodes */
+  .status-pulse {
+    @apply relative flex h-2 w-2;
+  }
+  .status-pulse span:first-child {
+    @apply animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-cyan opacity-75;
+  }
+  .status-pulse span:last-child {
+    @apply relative inline-flex rounded-full h-2 w-2 bg-brand-cyan;
+  }
+}
+
+/* 5. ELITE SCROLLBARS */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-cyan);
+}
+  
