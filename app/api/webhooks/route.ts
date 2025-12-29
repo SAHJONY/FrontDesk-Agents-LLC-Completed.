@@ -1,31 +1,42 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { parseBlandWebhook } from '../../../Telephony/blandai-config';
+import { BASE_PRICES } from '../../../services/prices';
 
 /**
- * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
- * REAL-TIME REVENUE & METRICS WEBHOOK
+ * GLOBAL REVENUE WORKFORCE - TELEPHONY WEBHOOK HANDLER
+ * Processes real-time data from Bland.AI to update sales metrics.
  */
-
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const payload = await request.json();
-    const { eventType, revenueAmount, marketNode } = payload;
+    const body = await req.json();
+    
+    // 1. Parse the incoming workforce data from Bland.AI
+    const callData = parseBlandWebhook(body);
 
-    // Logic to ensure we serve as a local platform [cite: 2025-12-24]
-    console.log(`[Fleet Alert]: Processing ${eventType} for node: ${marketNode}`);
+    // 2. Log activity for the Global Revenue Workforce dashboard
+    console.log(`[Workforce Activity]: Call ${callData.callId} status: ${callData.status}`);
 
-    // Success Fee Logic for Elite Tier ($1,499) [cite: 2025-12-28]
-    if (revenueAmount > 0) {
-      const successFee = revenueAmount * 0.15; // 15% Recovery Fee [cite: 2025-12-28]
-      console.log(`[Revenue Sync]: Success fee of $${successFee} calculated for institutional partner.`);
+    // 3. Handle Completed Sales/Calls
+    if (callData.status === 'completed') {
+      // In a production environment, you would update your database here:
+      // - Update app/dashboard/outbound metrics
+      // - Trigger Success Fee logic if the partner is on the Elite ($1,499) tier
+      
+      const isElitePartner = true; // Placeholder for DB lookup [cite: 2025-12-28]
+      
+      if (isElitePartner && callData.analysis?.revenue_generated > 0) {
+        const successFee = callData.analysis.revenue_generated * 0.15;
+        console.log(`[Success Fee Triggered]: $${successFee} for Elite Partner.`);
+      }
     }
 
     return NextResponse.json({ 
-      status: 'Fleet Synchronized', 
-      node: marketNode,
-      timestamp: new Date().toISOString() 
+      received: true, 
+      fleet_status: 'synchronized' 
     }, { status: 200 });
 
   } catch (error) {
-    return NextResponse.json({ status: 'Synchronization Error' }, { status: 500 });
+    console.error('[Webhook Error]:', error);
+    return NextResponse.json({ error: 'Fleet synchronization failed' }, { status: 500 });
   }
 }
