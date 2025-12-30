@@ -1,13 +1,15 @@
 'use client';
 
-// FrontDesk Agents: Global Revenue Workforce
-// Login Page
+/**
+ * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
+ * Entry Node: Secure Multi-Tenant Authentication
+ */
 
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Phone, Lock, Mail, Building } from 'lucide-react';
+import { Shield, Lock, Mail, Building, ChevronRight, Zap } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -16,7 +18,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,122 +27,54 @@ export default function LoginPage() {
     try {
       await login(email, password, subdomain || undefined);
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      setError(err.message || 'Access Denied: Invalid Credentials');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-            <Phone className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 selection:bg-blue-500/30">
+      <div className="max-w-[440px] w-full">
+        {/* Brand Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-zinc-900 border border-zinc-800 rounded-[2rem] mb-6 shadow-[0_0_50px_rgba(37,99,235,0.1)]">
+            <Zap className="w-10 h-10 text-blue-500 fill-blue-500/10" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">FrontDesk Agents</h1>
-          <p className="text-gray-600 mt-2">Global Revenue Workforce</p>
+          <h1 className="text-4xl font-black tracking-tighter uppercase italic leading-none italic">
+            FrontDesk <span className="text-blue-500">Agents</span>
+          </h1>
+          <p className="text-zinc-500 text-[10px] font-mono tracking-[0.5em] uppercase mt-3">
+            Global Revenue Workforce // PDX1 Node
+          </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign In</h2>
+        {/* Login Terminal */}
+        <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50" />
+          
+          <h2 className="text-xl font-black uppercase tracking-tight mb-8">Authorize Access</h2>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[11px] font-bold uppercase tracking-wider flex items-center gap-3">
+              <Shield className="w-4 h-4 shrink-0" />
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
+          
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Email Terminal</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="you@company.com"
+                  className="w-full pl-14 pr-6 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-bold focus:border-blue-500 outline-none transition-all placeholder:text-zinc-700"
+                  placeholder="identity@vault.com"
                   required
                 />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company Subdomain (Optional)
-              </label>
-              <div className="relative">
-                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={subdomain}
-                  onChange={(e) => setSubdomain(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="your-company"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Required if you have multiple accounts
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
-              <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
-                Forgot password?
-              </Link>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
-                Sign up
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        <p className="text-center text-xs text-gray-500 mt-8">
-          © 2025 FrontDesk Agents LLC. All rights reserved.
-        </p>
-      </div>
-    </div>
-  );
-}
+                
