@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-// Correct: from /app/dashboard/ we move up one to /app/ and into /contexts/
 import { useAuth } from '../contexts/AuthContext'; 
 import { LegalComplianceBadge } from '../components/LegalComplianceBadge';
-import { DashboardStats } from '../components/dashboard/DashboardStats';
+// Updated path and import style for Stats
+import DashboardStats from '../components/dashboard/DashboardStats';
 
 export default function DashboardPage() {
   const { profile } = useAuth();
@@ -18,10 +18,14 @@ export default function DashboardPage() {
         </div>
         <LegalComplianceBadge />
       </div>
+      
+      {/* Ensure DashboardStats.tsx exists in app/components/dashboard/ */}
       <DashboardStats />
-      <div className="mt-4 p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
-        <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Billing Architecture</p>
-        <p className="text-sm text-gray-600">Standard Tier Logic: $199 - $1,499 Permanent Pricing</p>
+      
+      <div className="mt-4 p-4 bg-white rounded-lg border border-gray-100 shadow-sm text-center">
+        <p className="text-sm text-gray-600 font-medium">
+          Global Pricing Tiers: $199 | $399 | $799 | $1,499 Permanent
+        </p>
       </div>
     </div>
   );
