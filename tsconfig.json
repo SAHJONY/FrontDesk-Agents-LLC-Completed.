@@ -30,7 +30,9 @@
     ".next/types/**/*.ts",
     "Telephony/**/*.ts",
     "lib/**/*.ts",
-    "context/**/*.tsx"
+    "hooks/**/*.ts",
+    "context/**/*.tsx",
+    "components/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }
