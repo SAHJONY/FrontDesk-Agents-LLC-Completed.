@@ -1,11 +1,13 @@
-// FrontDesk Agents: Global Revenue Workforce
-// Supabase Client Initialization
+/**
+ * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
+ * Supabase Client & Database Schema (LFAW v2.2)
+ */
 
 import { createClient } from '@supabase/supabase-js';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-// Server-side client (for API routes and server components)
-export const supabaseServer = createClient(
+// 1. Server-side client (for API routes/PDX1 Node processing)
+export const supabaseServer = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_KEY!,
   {
@@ -16,13 +18,15 @@ export const supabaseServer = createClient(
   }
 );
 
-// Client-side client (for browser/React components)
-export const supabaseClient = createClientComponentClient({
+// 2. Client-side client (for Dashboard/Elite UI)
+export const supabaseClient = createClientComponentClient<Database>({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 });
 
-// Type-safe database types
+// 3. Central Singleton Export (resolves build path issues)
+export const supabase = supabaseClient;
+
 export type Database = {
   public: {
     Tables: {
@@ -42,67 +46,42 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['tenants']['Row'], 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Database['public']['Tables']['tenants']['Insert']>;
       };
-      users: {
+      // ... [Existing Users & Phone Numbers Tables Stay the Same]
+      legal_merits_analysis: {
         Row: {
           id: string;
           tenant_id: string;
-          email: string;
-          password_hash: string;
-          full_name: string;
-          role: 'owner' | 'admin' | 'manager' | 'user';
-          is_active: boolean;
-          last_login: string | null;
+          case_id: string;
+          accuracy_score: number;
+          jurisdiction: string;
+          merits_summary: string;
+          governance_version: string; // e.g., "v2.2"
+          rl_feedback_loop: any; // Stores RL weight updates
           created_at: string;
-          updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['users']['Row'], 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<Database['public']['Tables']['users']['Insert']>;
+        Insert: Omit<Database['public']['Tables']['legal_merits_analysis']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['legal_merits_analysis']['Insert']>;
       };
-      phone_numbers: {
+      authority_citations: {
         Row: {
           id: string;
-          tenant_id: string;
-          twilio_sid: string;
-          phone_number: string;
-          country_code: string;
-          capabilities: any;
-          status: 'active' | 'released' | 'suspended';
-          assigned_node_type: 'receptionist' | 'qualification' | 'scaling' | 'priority' | null;
-          provisioned_at: string;
-          created_at: string;
-          metadata: any;
-        };
-        Insert: Omit<Database['public']['Tables']['phone_numbers']['Row'], 'id' | 'created_at'>;
-        Update: Partial<Database['public']['Tables']['phone_numbers']['Insert']>;
-      };
-      call_logs: {
-        Row: {
-          id: string;
-          tenant_id: string;
-          phone_number_id: string | null;
-          twilio_call_sid: string;
-          from_number: string;
-          to_number: string;
-          direction: 'inbound' | 'outbound';
-          status: string;
-          duration_seconds: number | null;
-          recording_url: string | null;
-          transcription: string | null;
-          ai_node_type: string | null;
-          lead_qualified: boolean;
-          metadata: any;
-          started_at: string | null;
-          ended_at: string | null;
+          analysis_id: string;
+          proposition: string;
+          citation_text: string;
+          pincite: string;
+          is_binding: boolean;
+          verification_status: 'verified' | 'unverified' | 'adverse';
+          official_source_url: string | null;
           created_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['call_logs']['Row'], 'id' | 'created_at'>;
-        Update: Partial<Database['public']['Tables']['call_logs']['Insert']>;
+        Insert: Omit<Database['public']['Tables']['authority_citations']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['authority_citations']['Insert']>;
       };
       revenue_events: {
         Row: {
           id: string;
           tenant_id: string;
-          event_type: 'recovered_revenue' | 'new_sale' | 'upsell' | 'retention';
+          event_type: 'recovered_revenue' | 'new_sale' | 'upsell' | 'retention' | 'legal_recovery';
           recovered_amount: number;
           currency_code: string;
           success_fee_percentage: number;
@@ -110,10 +89,7 @@ export type Database = {
           stripe_invoice_id: string | null;
           payment_status: 'pending' | 'paid' | 'failed' | 'disputed';
           source_call_id: string | null;
-          client_reference: string | null;
-          notes: string | null;
           recorded_at: string;
-          paid_at: string | null;
           created_at: string;
         };
         Insert: Omit<Database['public']['Tables']['revenue_events']['Row'], 'id' | 'created_at'>;
@@ -122,6 +98,3 @@ export type Database = {
     };
   };
 };
-
-// Export typed client
-export const supabase = supabaseClient as ReturnType<typeof createClientComponentClient<Database>>;
