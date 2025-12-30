@@ -1,5 +1,5 @@
 // lib/ai/orchestrator.ts
-import { blandAIConfig } from '@/Telephony/blandai-config';
+import { blandAIConfig } from '@/lib/telephony/blandai-config';
 
 /**
  * FRONTDESK AGENTS: AGENTIC ORCHESTRATOR

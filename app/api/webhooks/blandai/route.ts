@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { blandAIConfig } from '@/Telephony/blandai-config';
+import { blandAIConfig } from '@/lib/telephony/blandai-config';
 
 export async function POST(req: Request) {
   try {

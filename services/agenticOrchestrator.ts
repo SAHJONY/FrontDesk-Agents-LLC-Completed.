@@ -1,4 +1,4 @@
-import { blandAiService } from './blandAiService';
+import { blandAiService } from '@/lib/services/blandai';
 import { db } from '@/lib/db';
 
 export const agenticOrchestrator = {

@@ -1,6 +1,6 @@
 // app/api/webhooks/route.ts
 import { NextResponse } from 'next/server';
-import { blandAIConfig } from '@/Telephony/blandai-config'; // Absolute path via @ alias
+import { blandAIConfig } from '@/lib/telephony/blandai-config'; // Absolute path via @ alias
 import { supabase } from '@/lib/supabase'; // Ensure this matches your lib structure
 
 export async function POST(req: Request) {

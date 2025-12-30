@@ -4,7 +4,7 @@
  */
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { blandAIConfig } from '@/Telephony/blandai-config';
+import { blandAIConfig } from '@/lib/telephony/blandai-config';
 
 export class FrontDeskOrchestrator {
   // Autonomous RL Loop for Node Optimization
