@@ -1,10 +1,7 @@
 'use client';
 
-/**
- * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
- * Intelligence Core: Authentication & Session State
- *
- */
+// FrontDesk Agents: Global Revenue Workforce
+// Authentication Context Provider
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -18,19 +15,17 @@ interface User {
     id: string;
     companyName: string;
     subdomain: string;
-    tier: 'basic' | 'professional' | 'growth' | 'elite'; // [cite: 2025-12-28]
+    tier: 'basic' | 'professional' | 'growth' | 'elite';
     status: string;
-    regionalMultiplier: number; // For international market parity [cite: 2025-12-24]
+    regionalMultiplier: number;
     countryCode: string;
     currencyCode: string;
-    is_exempt: boolean; // Sovereign Root Immunity
   };
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  isSovereign: boolean; // Flag for root identity frontdeskllc@outlook.com
   login: (email: string, password: string, subdomain?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -41,7 +36,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isSovereign, setIsSovereign] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -57,21 +51,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const response = await fetch('/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
-        
-        // Identity Verification: Grant Sovereign status to root account
-        const isRoot = data.user.email === 'frontdeskllc@outlook.com' || data.user.tenant.is_exempt;
-        setIsSovereign(isRoot);
       } else {
-        localStorage.clear(); 
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
       }
     } catch (error) {
-      console.error('[AUTH] Critical identity check failure:', error);
+      console.error('Auth check failed:', error);
     } finally {
       setLoading(false);
     }
@@ -80,28 +73,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function login(email: string, password: string, subdomain?: string) {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ email, password, subdomain }),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Identity Verification Failed');
+      throw new Error(error.message || 'Login failed');
     }
 
     const data = await response.json();
+    
     localStorage.setItem('token', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     
     setUser(data.user);
-    setIsSovereign(data.user.email === 'frontdeskllc@outlook.com' || data.user.tenant.is_exempt);
     router.push('/dashboard');
   }
 
   async function logout() {
-    localStorage.clear();
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setUser(null);
-    setIsSovereign(false);
     router.push('/login');
   }
 
@@ -110,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, isSovereign, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
