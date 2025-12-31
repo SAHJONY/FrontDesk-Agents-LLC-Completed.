@@ -1,4 +1,4 @@
-// lib/supabase/server.ts
+// /lib/supabase/server.ts
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
@@ -20,13 +20,10 @@ export async function createServerSupabase() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Handled by middleware for autonomous session management
+            // Handled by middleware for session persistence
           }
         },
       },
     }
   );
 }
-
-// Export for easier importing in your API routes
-export const createClient = createServerSupabase;
