@@ -6,15 +6,14 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     
-    // 1. Reference Config
-    if (blandAIConfig.enabled) {
-      console.log('Sovereign Telephony Node: Active');
+    // 1. Reference Config (Using a property like apiKey or just the object)
+    if (blandAIConfig) {
+      console.log('Sovereign Telephony Node: Initialized');
     }
 
     // 2. Reference Supabase Admin (Satisfies TS compiler)
-    // This prepares the node for future Elite Tier data logging
-    const nodeStatus = supabaseAdmin ? 'Database-Linked' : 'Standalone';
-    console.log(`Node pdx1 Status: ${nodeStatus}`);
+    const isDbConnected = !!supabaseAdmin;
+    console.log(`Node pdx1 Database Link: ${isDbConnected}`);
 
     const { call_id, status } = body;
     console.log(`Processing Call: ${call_id} | Status: ${status}`);
@@ -22,7 +21,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ 
       status: 'success', 
       node: 'pdx1',
-      revenue_stream: 'active'
+      tier_parity: 'active'
     });
 
   } catch (error) {
