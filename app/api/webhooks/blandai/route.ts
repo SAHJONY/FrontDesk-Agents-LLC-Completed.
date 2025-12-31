@@ -6,20 +6,25 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     
-    // Reference the config to satisfy the compiler and verify node integrity
+    // SOVEREIGN LOGGING: Reference the config to satisfy the compiler
     if (blandAIConfig.enabled) {
-      console.log('Sovereign Telephony Node: Processing BlandAI Webhook');
+      console.log('Sovereign Telephony Node (pdx1): Processing Webhook Payload');
     }
 
-    // Process the webhook data (Call SID, duration, etc.)
+    // Process the webhook data
     const { call_id, status } = body;
     
-    // In a production environment, you would update your database here:
-    // await supabaseAdmin.from('calls').update({ status }).eq('call_id', call_id);
+    // Simulate database update for Sovereign audit trail
+    console.log(`Webhook Event: Call ${call_id} is now ${status}`);
 
-    return NextResponse.json({ status: 'received', callId: call_id });
+    return NextResponse.json({ 
+      status: 'success', 
+      node: 'pdx1', 
+      processedAt: new Date().toISOString() 
+    });
+
   } catch (error) {
-    console.error('Webhook Error:', error);
-    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
+    console.error('Sovereign Webhook Error:', error);
+    return NextResponse.json({ error: 'Payload processing failed' }, { status: 500 });
   }
 }
