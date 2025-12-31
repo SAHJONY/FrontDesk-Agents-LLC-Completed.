@@ -1,28 +1,27 @@
 import { NextResponse } from 'next/server';
-import { blandAIConfig } from '@/lib/telephony/blandai-config'; // Absolute path via @ alias
-import { supabase } from '@/lib/supabase'; // Ensure this matches your lib structure
+import { blandAIConfig } from '@/lib/telephony/blandai-config';
+import { createServerSupabase } from '@/lib/supabase/server'; // Point to the working SSR file
 
 export async function POST(req: Request) {
   try {
-    // Audit the connection to satisfy the 'unused variable' check
-    const isSovereignActive = !!supabase && !!blandAIConfig;
+    // Initialize the server-side client
+    const supabase = await createServerSupabase();
     
-    if (isSovereignActive) {
-      console.log('Revenue Command Center: Node pdx1 Online');
+    // Audit the connection
+    const isReady = !!supabase && !!blandAIConfig;
+    if (isReady) {
+      console.log('pdx1 Node: Sovereign Revenue Center Online');
     }
 
     const body = await req.json();
-    
-    // Log the event for the Sovereign Global Financial Hub audit trail
-    console.log(`Webhook Received: ${JSON.stringify(body).substring(0, 50)}...`);
 
     return NextResponse.json({ 
-      status: 'success', 
-      market: 'local_parity_enabled',
-      node: 'pdx1' 
+      status: 'Sovereign_Success', 
+      node: 'pdx1',
+      tier: 'Active' 
     });
   } catch (error) {
-    console.error('Command Center Error:', error);
+    console.error('Webhook Error:', error);
     return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
   }
 }
