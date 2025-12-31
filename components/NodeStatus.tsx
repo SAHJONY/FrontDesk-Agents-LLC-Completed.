@@ -3,7 +3,7 @@
 import React from 'react';
 import { Activity, ShieldCheck, Zap } from 'lucide-react';
 
-// This interface resolves the Type Error: Property 'tier' does not exist
+// This Interface is the technical requirement to resolve the build error
 interface NodeStatusProps {
   tier: string;
 }
@@ -11,9 +11,6 @@ interface NodeStatusProps {
 export const NodeStatus = ({ tier }: NodeStatusProps) => {
   return (
     <div className="p-6 bg-zinc-900/40 border border-brand-cyan/20 rounded-2xl backdrop-blur-sm relative overflow-hidden group">
-      {/* Visual Identity Layer */}
-      <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand-cyan/5 rounded-full blur-3xl" />
-      
       <div className="flex justify-between items-start mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -32,15 +29,14 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
       <div className="space-y-4">
         <div className="flex items-center gap-3">
           <div className="h-2.5 w-2.5 rounded-full bg-brand-cyan shadow-[0_0_12px_rgba(0,255,242,0.9)] animate-pulse" />
-          <span className="text-xs font-mono font-bold text-zinc-300 uppercase">PDX1-PORTLAND-PRIMARY</span>
+          <span className="text-xs font-mono font-bold text-zinc-300 uppercase">PDX1-PORTLAND-ACTIVE</span>
         </div>
 
-        <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-green-400">
+        <div className="pt-4 border-t border-white/5 flex items-center justify-between text-green-400">
+          <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Protocol 1.0 Verified</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">1.0 Parity Verified</span>
           </div>
-          <span className="text-[10px] font-mono text-zinc-600 uppercase">Status: Online</span>
         </div>
       </div>
     </div>
