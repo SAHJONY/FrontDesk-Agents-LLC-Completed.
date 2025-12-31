@@ -4,8 +4,8 @@ import React from 'react';
 import { Activity, ShieldCheck, Zap } from 'lucide-react';
 
 /**
- * SOVEREIGN HUB ARCHITECTURE: TELEMETRY NODE
- * This interface satisfies the TypeScript compiler for the pdx1 build.
+ * SOVEREIGN HUB INTERFACE
+ * This interface resolves the build error by defining the expected data contract.
  */
 interface NodeStatusProps {
   tier: string;
@@ -14,7 +14,7 @@ interface NodeStatusProps {
 export const NodeStatus = ({ tier }: NodeStatusProps) => {
   return (
     <div className="p-6 bg-zinc-900/40 border border-brand-cyan/20 rounded-2xl backdrop-blur-md relative overflow-hidden group">
-      {/* Background Hub Glow */}
+      {/* Visual Identity Hub Glow */}
       <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand-cyan/10 rounded-full blur-3xl" />
       
       <div className="flex justify-between items-start mb-6">
