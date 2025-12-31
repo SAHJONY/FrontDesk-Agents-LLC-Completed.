@@ -9,7 +9,9 @@ import {
   AlertCircle,
   FileText 
 } from 'lucide-react';
-import { LegalComplianceBadge } from '@/components/LegalComplianceBadge';
+
+// FIX: Change '@/components/LegalComplianceBadge' to relative path
+import { LegalComplianceBadge } from '../components/LegalComplianceBadge';
 
 export default function LegalRiskAudit() {
   const { user } = useAuth();
@@ -42,23 +44,6 @@ export default function LegalRiskAudit() {
           >
             {isAuditing ? 'Running Sovereign Audit...' : 'Start Risk Scan'}
           </button>
-        </div>
-
-        <div className="p-6 border border-white/10 rounded-xl bg-zinc-900/50">
-          <div className="flex items-center gap-2 mb-4 text-blue-500">
-            <Scale className="w-5 h-5" />
-            <h2 className="font-bold uppercase tracking-wider">Jurisdiction Logic</h2>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs text-zinc-500">
-              <FileText className="w-4 h-4" /> 
-              <span>Local Market Data Protection: ACTIVE</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-zinc-500">
-              <AlertCircle className="w-4 h-4" /> 
-              <span>Liability Shield: TIER ENFORCED</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
