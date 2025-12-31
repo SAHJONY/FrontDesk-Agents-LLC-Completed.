@@ -1,21 +1,14 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext'; 
-import { LegalComplianceBadge } from '../components/LegalComplianceBadge';
-// Ensure the path is exactly: /app/components/dashboard/DashboardStats.tsx
-import DashboardStats from '../components/dashboard/DashboardStats';
+// This relative path is correct if team/page.tsx is in /app/dashboard/
+import { useAuth } from '../contexts/AuthContext';
 
-export default function DashboardPage() {
+export default function TeamPage() {
   const { profile } = useAuth();
-
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Sovereign Overview</h1>
-        <LegalComplianceBadge />
-      </div>
-      <DashboardStats />
+    <div className="p-6">
+      <h2 className="text-xl font-bold">Node Workforce: {profile?.companyName}</h2>
     </div>
   );
 }
