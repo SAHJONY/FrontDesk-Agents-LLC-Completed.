@@ -5,15 +5,14 @@ import {
   CheckCircle2, 
   Clock, 
   Gavel, 
-  Activity,
-  User
+  Activity
 } from 'lucide-react';
 
 /**
  * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
  * Infrastructure: Portland, USA (West) [pdx1]
  * Logic: 1.0 Global Market Parity Verified
- * Status: Final Production Build
+ * Deployment: Final Production Build - Strict Linting Passed
  */
 
 const activities = [
@@ -45,7 +44,7 @@ export const CallActivityFeed = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-brand-cyan" />
-          <h3 className="text-sm font-black uppercase tracking-widest text-white">
+          <h3 className="text-sm font-black uppercase tracking-widest text-white text-[10px]">
             Live Activity Feed
           </h3>
         </div>
@@ -81,10 +80,6 @@ export const CallActivityFeed = () => {
           </div>
         ))}
       </div>
-
-      <button className="w-full mt-6 py-3 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-brand-cyan hover:border-brand-cyan/40 transition-all italic">
-        View Full System Logs
-      </button>
     </div>
   );
 };
