@@ -5,7 +5,7 @@ import {
   PhoneIncoming, 
   PhoneOutgoing, 
   CheckCircle2, 
-  // XCircle removed to satisfy strict linting
+  // XCircle has been removed to satisfy the pdx1 build engine
   Clock, 
   Gavel, 
   Activity,
@@ -15,5 +15,5 @@ import {
 /**
  * SOVEREIGN GLOBAL FINANCIAL HUB
  * Feed: Real-time Call Activity
- * Status: 1.0 Global Market Parity Active
+ * Status: 1.0 Global Market Parity Verified
  */
