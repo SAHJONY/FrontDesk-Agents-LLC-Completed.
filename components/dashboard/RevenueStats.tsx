@@ -1,20 +1,36 @@
 'use client';
-import { DollarSign, TrendingUp, Zap } from 'lucide-react';
+
+import { TrendingUp, Zap } from 'lucide-react';
+
+/**
+ * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
+ * Component: Revenue Stats Telemetry
+ * Logic: 1.0 Global Parity Verified
+ */
 
 export function RevenueStats() {
   return (
-    <div className="bg-zinc-900 text-white p-6 rounded-xl shadow-xl flex items-center space-x-4">
-      <div className="p-3 bg-green-500/20 rounded-full">
-        <TrendingUp className="text-green-400" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800 backdrop-blur-md">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-brand-cyan/10">
+            <Zap className="w-5 h-5 text-brand-cyan" />
+          </div>
+          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Efficiency</span>
+        </div>
+        <p className="text-zinc-400 text-xs font-bold uppercase tracking-tighter mb-1">Node Performance</p>
+        <h4 className="text-2xl font-black text-white tracking-tight">99.9%</h4>
       </div>
-      <div>
-        <p className="text-zinc-400 text-sm font-medium">Recovered Revenue (30d)</p>
-        <p className="text-3xl font-bold">$42,890.00</p>
-        <p className="text-xs text-green-400 mt-1">+12% from last month</p>
-      </div>
-      <div className="ml-auto border-l border-zinc-700 pl-4">
-        <p className="text-zinc-400 text-[10px] uppercase font-bold">Elite Fee (15%)</p>
-        <p className="text-lg font-bold text-blue-400">$6,433.50</p>
+
+      <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800 backdrop-blur-md">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-green-500/10">
+            <TrendingUp className="w-5 h-5 text-green-500" />
+          </div>
+          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Growth</span>
+        </div>
+        <p className="text-zinc-400 text-xs font-bold uppercase tracking-tighter mb-1">Revenue Velocity</p>
+        <h4 className="text-2xl font-black text-white tracking-tight">+12.5%</h4>
       </div>
     </div>
   );
