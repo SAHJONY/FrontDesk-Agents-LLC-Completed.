@@ -4,9 +4,12 @@ import React from 'react';
 import { Activity, ShieldCheck, Zap, Globe } from 'lucide-react';
 
 /**
- * SOVEREIGN GLOBAL FINANCIAL HUB - CORE COMPONENT
- * This interface resolves the 'Property tier does not exist' error.
+ * SOVEREIGN GLOBAL FINANCIAL HUB - CORE TELEMETRY NODE
+ * Infrastructure: Portland, USA (West) [pdx1]
+ * Verification: 1.0 Global Market Parity Logic
  */
+
+// CRITICAL FIX: This interface defines the contract for the 'tier' prop
 interface NodeStatusProps {
   tier: string;
 }
@@ -33,7 +36,7 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
       </div>
       
       <div className="space-y-4">
-        {/* Hardware Status */}
+        {/* Hardware Location & Status */}
         <div className="flex items-center gap-3">
           <div className="h-2.5 w-2.5 rounded-full bg-brand-cyan shadow-[0_0_12px_rgba(0,255,242,0.9)] animate-pulse" />
           <span className="text-xs font-mono font-bold text-zinc-300 uppercase italic">
@@ -41,7 +44,7 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
           </span>
         </div>
 
-        {/* Global Parity Logic */}
+        {/* 1.0 Global-to-Local Parity Logic Display */}
         <div className="pt-4 border-t border-white/5 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-green-400">
@@ -54,7 +57,7 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
           <div className="flex items-center gap-2 text-zinc-500">
             <Globe className="w-3.5 h-3.5" />
             <span className="text-[9px] font-bold uppercase tracking-tighter">
-              Global-to-Local Platform Active
+              All Global Markets Served as Local
             </span>
           </div>
         </div>
