@@ -10,10 +10,10 @@ import {
 } from 'lucide-react';
 
 /**
- * GLOBAL REVENUE & WORKFORCE PLATFORM
- * Node: Portland [pdx1]
- * Logic: 1.0 Global Market Parity
- * Deployment: Final Production Build
+ * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
+ * Infrastructure: Portland, USA (West) [pdx1]
+ * Logic: 1.0 Global Market Parity Verified
+ * Status: Final Production Build
  */
 
 const activities = [
