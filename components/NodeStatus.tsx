@@ -3,7 +3,9 @@
 import React from 'react';
 import { Activity, ShieldCheck, Zap } from 'lucide-react';
 
-// This interface is the missing link for the pdx1 build success
+/** * SOVEREIGN HUB ARCHITECTURE
+ * Defining the technical interface to bridge the Main Hub and the Portland Node.
+ */
 interface NodeStatusProps {
   tier: string;
 }
@@ -11,7 +13,7 @@ interface NodeStatusProps {
 export const NodeStatus = ({ tier }: NodeStatusProps) => {
   return (
     <div className="p-6 bg-zinc-900/40 border border-brand-cyan/20 rounded-2xl backdrop-blur-md relative overflow-hidden group">
-      {/* Sovereign Visual Identity Hub Glow */}
+      {/* Sovereign Visual Identity */}
       <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand-cyan/10 rounded-full blur-3xl" />
       
       <div className="flex justify-between items-start mb-6">
@@ -35,8 +37,8 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
           <span className="text-xs font-mono font-bold text-zinc-300 uppercase italic">PDX1-PORTLAND-ACTIVE</span>
         </div>
 
-        <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-green-400">
+        <div className="pt-4 border-t border-white/5 flex items-center justify-between text-green-400">
+          <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4" />
             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">1.0 Global Parity Verified</span>
           </div>
