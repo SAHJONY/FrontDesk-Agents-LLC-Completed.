@@ -1,11 +1,6 @@
-'use client';
+"use client";
 
-/**
- * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
- * Revenue Analytics: Subscription Yield & Legal Success Fees
- */
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { 
   AreaChart, 
   Area, 
@@ -13,140 +8,88 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer,
-  defs,
-  linearGradient
+  ResponsiveContainer 
 } from 'recharts';
 import { TrendingUp, DollarSign, Zap, Gavel } from 'lucide-react';
 
-export default function RevenueChart({ tenantId, tier }: { tenantId: string; tier: string }) {
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+/**
+ * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
+ * Component: Revenue Analytics
+ * Infrastructure: Node PDX1
+ */
 
-  useEffect(() => {
-    fetchRevenueData();
-  }, [tenantId]);
+const data = [
+  { name: 'Node A', revenue: 4000 },
+  { name: 'Node B', revenue: 7500 },
+  { name: 'Node C', revenue: 6000 },
+  { name: 'Node D', revenue: 9000 },
+  { name: 'Node E', revenue: 11000 },
+  { name: 'Node F', revenue: 14200 },
+];
 
-  async function fetchRevenueData() {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/dashboard/revenue?tenant_id=${tenantId}&days=30`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setData(result.data);
-      }
-    } catch (error) {
-      console.error('[FINANCE] Sync failure:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
+export const RevenueChart = () => {
   return (
-    <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden h-full">
-      {/* Header Context */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+    <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-8 backdrop-blur-xl">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 mb-1">Financial Yield</h3>
-          <p className="text-[10px] text-blue-500 font-mono font-bold uppercase tracking-widest">Revenue Recovery Stream</p>
-        </div>
-        
-        {tier === 'elite' && (
-          <div className="flex items-center gap-3 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-            <Gavel className="w-4 h-4 text-blue-500" />
-            <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">
-              Success Fee Ledger Active (15%)
-            </span>
+          <div className="flex items-center gap-2 mb-1">
+            <Zap className="w-4 h-4 text-brand-cyan" />
+            <h3 className="text-sm font-black uppercase tracking-[0.3em] text-white">
+              Revenue Velocity
+            </h3>
           </div>
-        )}
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+            Global Market Parity 1.0
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-black text-white">$14,200</p>
+          <div className="flex items-center gap-1 justify-end text-green-500">
+            <TrendingUp className="w-3 h-3" />
+            <span className="text-[10px] font-black">+12.5%</span>
+          </div>
+        </div>
       </div>
 
-      
-
-      {/* Chart Terminal */}
       <div className="h-[300px] w-full">
-        {loading ? (
-          <div className="h-full w-full flex items-center justify-center bg-zinc-900/20 rounded-3xl animate-pulse">
-            <Zap className="w-8 h-8 text-zinc-800 animate-bounce" />
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorFee" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#18181b" vertical={false} />
-              <XAxis 
-                dataKey="date" 
-                stroke="#3f3f46" 
-                fontSize={10} 
-                tickLine={false} 
-                axisLine={false}
-                tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-              />
-              <YAxis 
-                stroke="#3f3f46" 
-                fontSize={10} 
-                tickLine={false} 
-                axisLine={false} 
-                tickFormatter={(val) => `$${val}`}
-              />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#09090b', border: '1px solid #27272a', borderRadius: '12px' }}
-                itemStyle={{ fontSize: '10px', fontWeight: '900', textTransform: 'uppercase' }}
-                labelStyle={{ color: '#71717a', fontSize: '9px', marginBottom: '4px' }}
-              />
-              <Area
-                type="monotone"
-                dataKey="revenue"
-                stroke="#3b82f6"
-                strokeWidth={3}
-                fillOpacity={1}
-                fill="url(#colorRev)"
-              />
-              {tier === 'elite' && (
-                <Area
-                  type="monotone"
-                  dataKey="successFees"
-                  stroke="#8b5cf6"
-                  strokeWidth={3}
-                  strokeDasharray="8 8"
-                  fillOpacity={1}
-                  fill="url(#colorFee)"
-                />
-              )}
-            </AreaChart>
-          </ResponsiveContainer>
-        )}
-      </div>
-
-      <div className="mt-8 flex items-center justify-between border-t border-zinc-900 pt-6">
-        <div className="flex gap-6">
-           <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Base Recovery</span>
-           </div>
-           {tier === 'elite' && (
-             <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-purple-500" />
-                <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Merit Success Fees</span>
-             </div>
-           )}
-        </div>
-        <button className="text-[10px] font-black uppercase text-zinc-400 hover:text-white transition-colors">
-          Download CSV Audit
-        </button>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#00F0FF" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#00F0FF" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+            <XAxis 
+              dataKey="name" 
+              stroke="#52525b" 
+              fontSize={10} 
+              tickLine={false} 
+              axisLine={false} 
+            />
+            <YAxis 
+              stroke="#52525b" 
+              fontSize={10} 
+              tickLine={false} 
+              axisLine={false}
+              tickFormatter={(value) => `$${value}`}
+            />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px' }}
+              itemStyle={{ color: '#00F0FF', fontSize: '12px', fontWeight: 'bold' }}
+            />
+            <Area 
+              type="monotone" 
+              dataKey="revenue" 
+              stroke="#00F0FF" 
+              strokeWidth={3}
+              fillOpacity={1} 
+              fill="url(#colorRev)" 
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
-}
+};
