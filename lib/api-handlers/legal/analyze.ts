@@ -21,10 +21,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const decoded = verifyJWT(token);
     if (!decoded) throw new Error('Invalid token');
 
-    // Simulation of the legal workforce logic
+    // Reference .role to match the LEGAL_WORKFORCE_CONFIG structure
     const analysis = {
       status: 'completed',
-      config: LEGAL_WORKFORCE_CONFIG.name,
+      agentRole: LEGAL_WORKFORCE_CONFIG.role,
       timestamp: new Date().toISOString(),
       result: "Contract verified for global compliance."
     };
