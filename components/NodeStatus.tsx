@@ -1,12 +1,11 @@
 "use client";
-
 import React from 'react';
 import { Activity, ShieldCheck, Zap, Globe } from 'lucide-react';
 
 /**
  * SOVEREIGN GLOBAL FINANCIAL HUB
- * Node Architecture: Portland, USA (West) [pdx1]
- * Core Logic: 1.0 Global Market Parity
+ * Core Architecture: 1.0 Global-Local Parity
+ * Deployment Node: Portland, USA (West) [pdx1]
  */
 
 // This interface is the critical fix for the Type Error on page.tsx:29
@@ -17,7 +16,7 @@ interface NodeStatusProps {
 export const NodeStatus = ({ tier }: NodeStatusProps) => {
   return (
     <div className="p-6 bg-zinc-900/40 border border-brand-cyan/20 rounded-2xl backdrop-blur-md relative overflow-hidden group">
-      {/* Sovereign Visual Identity Branding */}
+      {/* Sovereign Visual Hub Identity */}
       <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand-cyan/10 rounded-full blur-3xl" />
       
       <div className="flex justify-between items-start mb-6">
@@ -43,7 +42,6 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
             PDX1-PORTLAND-ACTIVE
           </span>
         </div>
-
         {/* 1.0 Global-to-Local Parity Verification */}
         <div className="pt-4 border-t border-white/5 space-y-2">
           <div className="flex items-center justify-between">
