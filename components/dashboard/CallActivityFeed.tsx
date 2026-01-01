@@ -2,7 +2,6 @@
 
 import { 
   PhoneIncoming, 
-  PhoneOutgoing, 
   CheckCircle2, 
   Clock, 
   Gavel, 
@@ -11,10 +10,10 @@ import {
 } from 'lucide-react';
 
 /**
- * SOVEREIGN GLOBAL FINANCIAL HUB
- * Feed: Real-time Call Activity
- * Infrastructure: Portland, USA (West) [pdx1]
- * Verification: 1.0 Global Market Parity Verified
+ * GLOBAL REVENUE & WORKFORCE PLATFORM
+ * Node: Portland [pdx1]
+ * Logic: 1.0 Global Market Parity
+ * Deployment: Final Production Build
  */
 
 const activities = [
