@@ -4,8 +4,8 @@ import React from 'react';
 import { Activity, ShieldCheck, Zap, Globe } from 'lucide-react';
 
 /**
- * SOVEREIGN HUB CORE - PORTLAND NODE
- * Critical: The 'interface' below resolves the Type Error at line 29 of app/page.tsx
+ * SOVEREIGN GLOBAL FINANCIAL HUB - CORE COMPONENT
+ * This interface resolves the 'Property tier does not exist' error.
  */
 interface NodeStatusProps {
   tier: string;
@@ -14,7 +14,7 @@ interface NodeStatusProps {
 export const NodeStatus = ({ tier }: NodeStatusProps) => {
   return (
     <div className="p-6 bg-zinc-900/40 border border-brand-cyan/20 rounded-2xl backdrop-blur-md relative overflow-hidden group">
-      {/* Sovereign Visual Branding */}
+      {/* Visual Identity: Sovereign Cyan Glow */}
       <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand-cyan/10 rounded-full blur-3xl" />
       
       <div className="flex justify-between items-start mb-6">
@@ -33,6 +33,7 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
       </div>
       
       <div className="space-y-4">
+        {/* Hardware Status */}
         <div className="flex items-center gap-3">
           <div className="h-2.5 w-2.5 rounded-full bg-brand-cyan shadow-[0_0_12px_rgba(0,255,242,0.9)] animate-pulse" />
           <span className="text-xs font-mono font-bold text-zinc-300 uppercase italic">
@@ -40,6 +41,7 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
           </span>
         </div>
 
+        {/* Global Parity Logic */}
         <div className="pt-4 border-t border-white/5 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-green-400">
@@ -52,7 +54,7 @@ export const NodeStatus = ({ tier }: NodeStatusProps) => {
           <div className="flex items-center gap-2 text-zinc-500">
             <Globe className="w-3.5 h-3.5" />
             <span className="text-[9px] font-bold uppercase tracking-tighter">
-              Global Platform Active
+              Global-to-Local Platform Active
             </span>
           </div>
         </div>
