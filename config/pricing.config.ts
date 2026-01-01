@@ -4,7 +4,7 @@ import { Plan } from './plans';
  * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
  * Core Pricing Logic: Permanent Tier Registry
  * Market Strategy: 1.0 Global Parity
- * Deployment Node: pdx1 (Portland)
+ * Status: Final Production Alignment
  */
 
 export interface PricingPlan {
