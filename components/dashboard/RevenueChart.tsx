@@ -10,12 +10,13 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from 'recharts';
-import { TrendingUp, DollarSign, Zap, Gavel } from 'lucide-react';
+import { TrendingUp, Zap } from 'lucide-react';
 
 /**
  * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
  * Component: Revenue Analytics
  * Infrastructure: Node PDX1
+ * Logic: 1.0 Global Parity
  */
 
 const data = [
