@@ -1,12 +1,17 @@
 /**
  * FRONTDESK AGENTS: SESSION HANDLER
  * Node: pdx1 Deployment
- * Logic: Validates active user sessions for dashboard access
+ * Strategy: Explicit Type Casting for JWT Payloads
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseServer } from '@/lib/supabase/client'; 
 import { verifyJWT } from '@/lib/auth/jwt-verify';
+
+// Explicitly define the payload to satisfy the TypeScript linter
+interface CustomJWTPayload {
+  userId: string;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end();
@@ -15,7 +20,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ error: 'Missing token' });
 
-    const decoded = await verifyJWT(token);
+    // Cast the decoded result to our custom interface
+    const decoded = await verifyJWT(token) as unknown as CustomJWTPayload;
     
     const { data: user, error } = await supabaseServer
       .from('users')
