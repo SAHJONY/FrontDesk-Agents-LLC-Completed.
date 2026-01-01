@@ -28,7 +28,8 @@
       "@/api/*": ["./api/*"],
       "@/middleware/*": ["./middleware/*"],
       "@/config/*": ["./config/*"],
-      "@/types/*": ["./types/*"]
+      "@/types/*": ["./types/*"],
+      "@/contexts/*": ["./contexts/*"]
     },
     "plugins": [
       {
