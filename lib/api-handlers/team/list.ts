@@ -24,14 +24,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: 'Invalid security token' });
     }
 
-    // Safety guard for TypeScript strict mode
-    if (!decoded) return res.status(401).json({ error: 'Unauthorized verification failed' });
+    // CRITICAL FIX: Explicit null check for the compiler
+    if (!decoded) {
+      return res.status(401).json({ error: 'Unauthorized: Verification failed' });
+    }
 
     // Admin override for global oversight
     const isSovereignRoot = decoded.email === 'frontdeskllc@outlook.com';
+    
+    // Using optional chaining ?. for extra safety
     const tenantId = isSovereignRoot 
-      ? (req.query.tenant_id as string || decoded.tenant_id) 
-      : decoded.tenant_id;
+      ? (req.query.tenant_id as string || decoded?.tenant_id) 
+      : decoded?.tenant_id;
 
     if (!tenantId) return res.status(401).json({ error: 'Tenant ID required' });
 
