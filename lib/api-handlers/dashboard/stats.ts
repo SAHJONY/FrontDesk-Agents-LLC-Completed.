@@ -1,11 +1,5 @@
-/**
- * FRONTDESK AGENTS: DASHBOARD ANALYTICS
- * Node: pdx1 Deployment
- * Logic: Fetches revenue stats based on tiered access
- */
-
 import { NextApiRequest, NextApiResponse } from 'next';
-import { supabaseServer } from '@/lib/supabase/client'; 
+import { supabaseServer as supabase } from '@/lib/supabase/client';
 import { verifyJWT } from '@/lib/auth/jwt-verify';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,21 +7,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    if (!token) return res.status(401).json({ error: 'Unauthorized: Missing Token' });
 
-    const decoded = await verifyJWT(token) as any;
+    const decoded = verifyJWT(token);
     
-    // Fetch stats linked to the user's specific tier ($199 - $1,499)
-    const { data: stats, error } = await supabaseServer
-      .from('dashboard_stats')
-      .select('*')
-      .eq('user_id', decoded.userId)
-      .single();
+    // pdx1 Build Fix: Strict Null Check
+    if (!decoded) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid Session' });
+    }
+
+    const payload = decoded as any;
+    const tenantId = payload.tenant_id;
+
+    // Fetching Revenue Recovery Data
+    const { data: interactions, error } = await supabase
+      .from('interactions')
+      .select('type, status, created_at, metadata')
+      .eq('tenant_id', tenantId)
+      .eq('handled_by', 'autonomous_agent');
 
     if (error) throw error;
 
-    return res.status(200).json(stats);
-  } catch (err) {
-    return res.status(500).json({ error: 'Failed to load dashboard statistics' });
+    // Logic for Revenue Recovery calculation
+    const afterHours = interactions.filter(i => {
+      const hour = new Date(i.created_at).getHours();
+      return hour > 18 || hour < 8;
+    }).length;
+
+    const overflow = interactions.filter(i => i.metadata?.was_overflow === true).length;
+
+    return res.status(200).json({
+      totalHandled: interactions.length,
+      afterHours,
+      overflow,
+      recoveryMetrics: {
+        totalRecoveredLeads: afterHours + overflow
+      }
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
   }
 }
