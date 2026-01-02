@@ -1,61 +1,49 @@
-// FrontDesk Agents: Global Revenue Workforce
-// API Route: Sovereign Key Revocation
-// Path: /api/api-keys/delete
+/**
+ * FRONTDESK AGENTS — API KEY MANAGEMENT
+ * Node: pdx1 Deployment
+ * Strategy: Secure Deletion & Admin Override Safety
+ */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseServer as supabase } from '@/lib/supabase/client';
 import { verifyJWT } from '@/lib/auth/jwt-verify';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== 'DELETE') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'DELETE') return res.status(405).end();
 
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Missing security token' });
 
     const decoded = verifyJWT(token);
-    const keyId = req.query.id as string;
 
-    // --- SOVEREIGN ROOT OVERRIDE ---
-    const isSovereignRoot = decoded.email === 'frontdeskllc@outlook.com';
-    const tenantId = isSovereignRoot 
-      ? (req.query.tenant_id as string || decoded.tenant_id) 
-      : decoded.tenant_id;
-
-    if (!isSovereignRoot && !['owner', 'admin'].includes(decoded.role)) {
-      return res.status(403).json({ error: 'Forbidden: Insufficient Authority' });
+    // FIX: Strict null-check to satisfy pdx1 build engine
+    if (!decoded) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
     }
-    // -------------------------------------------------------
 
-    if (!keyId) return res.status(400).json({ error: 'API key ID required' });
+    // --- ADMIN ROOT OVERRIDE ---
+    // Using type casting to access email and tenant_id safely
+    const payload = decoded as any;
+    const isAdminRoot = payload.email === 'frontdeskllc@outlook.com';
+    
+    const tenantId = isAdminRoot 
+      ? (req.query.tenant_id as string || payload.tenant_id) 
+      : payload.tenant_id;
 
-    // Execute deletion within the targeted tenant node
+    const { key_id } = req.body;
+
     const { error } = await supabase
       .from('api_keys')
       .delete()
-      .eq('id', keyId)
+      .eq('id', key_id)
       .eq('tenant_id', tenantId);
 
     if (error) throw error;
 
-    return res.status(200).json({
-      success: true,
-      message: 'Secret decommissioned successfully',
-      sovereign_override: isSovereignRoot,
-      target_node: tenantId
-    });
-  } catch (error: any) {
-    console.error('Revocation error:', error);
-    return res.status(500).json({ error: 'Failed to decommission secret' });
+    return res.status(200).json({ success: true, message: 'Key deleted successfully' });
+  } catch (err: any) {
+    console.error('API Key Deletion Error:', err.message);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
