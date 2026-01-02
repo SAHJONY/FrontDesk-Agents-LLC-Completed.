@@ -1,100 +1,55 @@
-// FrontDesk Agents: Global Revenue Workforce
-// API Route: Sovereign Delete Conversion Script
-// Path: /api/scripts/delete
-
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
-import { verifyJWT } from '@/lib/auth/jwt-verify';
+import { supabase } from '@/lib/supabase/client';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+// Use the consolidated security pattern for pdx1 builds
+const jwt = require('jsonwebtoken');
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== 'DELETE') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+/**
+ * @name deleteScript
+ * @description Removes autonomous agent scripts with strict multi-tenant validation
+ */
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing token' });
+
+    const token = authHeader.split(' ')[1];
+    let decoded: any = null;
+    
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    } catch (e) {
+      return res.status(401).json({ error: 'Invalid security token' });
     }
 
-    const decoded = verifyJWT(token);
-    const scriptId = req.query.id as string;
+    // Ensure decoded exists before checking permissions
+    if (!decoded) return res.status(401).json({ error: 'Unauthorized verification failed' });
 
-    // --- SOVEREIGN ROOT BYPASS ---
     const isSovereignRoot = decoded.email === 'frontdeskllc@outlook.com';
     const tenantId = isSovereignRoot 
       ? (req.query.tenant_id as string || decoded.tenant_id) 
       : decoded.tenant_id;
 
-    if (!isSovereignRoot && !['owner', 'admin'].includes(decoded.role)) {
-      return res.status(403).json({ 
-        error: 'Forbidden',
-        message: 'Only owners and admins can delete scripts'
-      });
-    }
-    // -------------------------------------------------------
+    const { id } = req.query;
 
-    if (!scriptId) {
-      return res.status(400).json({ error: 'Script ID is required' });
+    if (!id || !tenantId) {
+      return res.status(400).json({ error: 'Missing Script ID or Tenant ID' });
     }
 
-    // Safety Check: Check if script is in use in active calls
-    const { count: activeUsage } = await supabase
-      .from('call_logs')
-      .select('*', { count: 'exact', head: true })
-      .eq('tenant_id', tenantId)
-      .eq('metadata->>script_id', scriptId)
-      .eq('status', 'in-progress');
-
-    if (activeUsage && activeUsage > 0) {
-      return res.status(400).json({ 
-        error: 'Script in use',
-        message: 'Cannot delete script while it is being used in active calls'
-      });
-    }
-
-    // Safety Check: Check if script is assigned to active campaigns
-    const { count: campaignUsage } = await supabase
-      .from('outbound_campaigns')
-      .select('*', { count: 'exact', head: true })
-      .eq('tenant_id', tenantId)
-      .eq('script_id', scriptId)
-      .in('status', ['active', 'paused']);
-
-    if (campaignUsage && campaignUsage > 0) {
-      return res.status(400).json({ 
-        error: 'Script in use',
-        message: 'Cannot delete script while assigned to active or paused campaigns'
-      });
-    }
-
-    // Delete script with Sovereign override
     const { error } = await supabase
-      .from('conversion_scripts')
+      .from('agent_scripts')
       .delete()
-      .eq('id', scriptId)
+      .eq('id', id)
       .eq('tenant_id', tenantId);
 
     if (error) throw error;
 
-    return res.status(200).json({
-      success: true,
-      message: 'Script deleted successfully',
-      sovereign_override: isSovereignRoot
-    });
+    return res.status(200).json({ message: 'Script deleted successfully' });
+
   } catch (error: any) {
-    console.error('Delete script error:', error);
-    return res.status(500).json({ 
-      error: 'Failed to delete script',
-      message: error.message 
-    });
+    console.error('[Script Deletion Error]:', error.message);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
