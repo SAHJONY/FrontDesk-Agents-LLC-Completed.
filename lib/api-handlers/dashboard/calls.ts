@@ -1,19 +1,37 @@
-// ./lib/api-handlers/dashboard/calls.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import { supabaseServer as supabase } from '@/lib/supabase/client';
+import { verifyJWT } from '@/lib/auth/jwt-verify';
 
-// ... existing imports
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') return res.status(405).end();
 
-const decoded = verifyJWT(token);
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Missing Authorization' });
 
-// 1. Critical Security Gate: Check for null decoded token
-if (!decoded) {
-    return res.status(401).json({ error: 'Unauthorized: Session Expired or Invalid' });
+    const token = authHeader.split(' ')[1];
+    const decoded = verifyJWT(token);
+
+    // CRITICAL FIX: Build Gate for pdx1
+    if (!decoded || typeof decoded === 'string') {
+      return res.status(401).json({ error: 'Unauthorized: Invalid Infrastructure Token' });
+    }
+
+    // Secure access to tenant_id
+    const payload = decoded as { tenant_id: string };
+    const tenantId = (req.query.tenant_id as string) || payload.tenant_id;
+
+    const { data, error } = await supabase
+      .from('interactions')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+
+    return res.status(200).json(data);
+  } catch (err: any) {
+    return res.status(500).json({ error: 'Internal Infrastructure Error' });
+  }
 }
-
-// 2. Safely access tenant_id now that decoded is guaranteed to exist
-// Casting as 'any' or your Specific Interface to ensure tenant_id is recognized
-const payload = decoded as { tenant_id: string };
-const tenantId = (req.query.tenant_id as string) || payload.tenant_id;
-
-const limit = Math.min(parseInt(req.query.limit as string) || 10, 100);
-
-// Strict Multi-tenant Security Gate follows...
