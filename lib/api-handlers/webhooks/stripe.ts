@@ -1,15 +1,16 @@
 /**
  * FRONTDESK AGENTS — STRIPE WEBHOOK HANDLER
  * Node: pdx1 Deployment
- * Logic: Subscription lifecycle management for global tiers
+ * Strategy: Latest API Version Alignment
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 import { supabaseServer as supabase } from '@/lib/supabase/client';
 
+// Updated to the exact version requested by the TypeScript compiler
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia', // Latest stable version
+  apiVersion: '2025-02-24.acacia', 
 });
 
 // Required for Stripe webhook raw body handling in Next.js
@@ -45,13 +46,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the subscription logic
+  // Handle the subscription logic for FrontDesk Agents tiers
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const tenantId = session.client_reference_id;
     const tier = session.metadata?.tier || 'Basic';
 
-    // Update tenant subscription status in Supabase
     await supabase
       .from('tenants')
       .update({ 
