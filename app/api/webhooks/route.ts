@@ -1,26 +1,25 @@
-import { NextResponse } from 'next/server';
-import { blandAIConfig } from '@/lib/telephony/blandai-config';
-import { supabase } from '@/lib/supabase'; 
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+/**
+ * @name WebhookHandler
+ * @description Serves as the local entry point for infrastructure signals
+ */
+export async function POST(req: NextRequest) {
   try {
-    // Audit current node state for Sovereign Hub integrity
-    const isReady = !!supabase && !!blandAIConfig;
-    
-    if (isReady) {
-      console.log('pdx1 Node: Revenue Command Center Operational');
-    }
-
+    // We parse the JSON to ensure it's a valid request
     const body = await req.json();
+    
+    // Log the incoming signal for the Revenue Recovery audit trail
+    console.log('[Webhook Received]:', body?.call_id || 'System Signal');
 
-    // Return success to the local market platform
+    // Return success to the platform
     return NextResponse.json({ 
-      status: 'Sovereign_Success', 
-      node: 'pdx1',
-      market_parity: 'enabled'
-    });
-  } catch (error) {
-    console.error('Sovereign Webhook Error:', error);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+      status: 'success', 
+      timestamp: new Date().toISOString() 
+    }, { status: 200 });
+
+  } catch (error: any) {
+    console.error('[Webhook Error]:', error.message);
+    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
   }
 }
