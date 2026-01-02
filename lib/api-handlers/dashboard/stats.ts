@@ -1,50 +1,37 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { supabaseServer as supabase } from '@/lib/supabase/client';
-import { verifyJWT } from '@/lib/auth/jwt-verify';
+import { supabase } from '@/lib/supabase/client';
+
+const jwt = require('jsonwebtoken');
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') return res.status(405).end();
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Unauthorized: Missing Token' });
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing token' });
 
-    const decoded = verifyJWT(token);
-    
-    // pdx1 Build Fix: Strict Null Check
-    if (!decoded) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid Session' });
+    const token = authHeader.split(' ')[1];
+    let decoded: any = null;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    } catch (e) {
+      return res.status(401).json({ error: 'Invalid token' });
     }
 
-    const payload = decoded as any;
-    const tenantId = payload.tenant_id;
+    const tenantId = (req.query.tenant_id as string) || decoded?.tenant_id;
+    if (!tenantId) return res.status(401).json({ error: 'Unauthorized' });
 
-    // Fetching Revenue Recovery Data
-    const { data: interactions, error } = await supabase
-      .from('interactions')
-      .select('type, status, created_at, metadata')
+    // Fetch aggregate stats for the Elite dashboard
+    const { data, error } = await supabase
+      .from('tenant_stats')
+      .select('*')
       .eq('tenant_id', tenantId)
-      .eq('handled_by', 'autonomous_agent');
+      .single();
 
     if (error) throw error;
+    return res.status(200).json(data);
 
-    // Logic for Revenue Recovery calculation
-    const afterHours = interactions.filter(i => {
-      const hour = new Date(i.created_at).getHours();
-      return hour > 18 || hour < 8;
-    }).length;
-
-    const overflow = interactions.filter(i => i.metadata?.was_overflow === true).length;
-
-    return res.status(200).json({
-      totalHandled: interactions.length,
-      afterHours,
-      overflow,
-      recoveryMetrics: {
-        totalRecoveredLeads: afterHours + overflow
-      }
-    });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Internal Error' });
   }
 }
