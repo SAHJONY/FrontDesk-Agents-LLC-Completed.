@@ -1,77 +1,68 @@
 /**
- * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
- * Financial Sentinel: Stripe Webhook Orchestrator
+ * FRONTDESK AGENTS — STRIPE WEBHOOK HANDLER
+ * Node: pdx1 Deployment
+ * Logic: Subscription lifecycle management for global tiers
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
-import { buffer } from 'micro';
 import { supabaseServer as supabase } from '@/lib/supabase/client';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2024-12-18.acacia', // Latest stable version
 });
 
-export const config = { api: { bodyParser: false } };
+// Required for Stripe webhook raw body handling in Next.js
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+async function getRawBody(readable: NextApiRequest): Promise<Buffer> {
+  const chunks = [];
+  for await (const chunk of readable) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks);
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const sig = req.headers['stripe-signature'] as string;
-  const buf = await buffer(req);
+  if (req.method !== 'POST') return res.status(405).end();
+
+  const sig = req.headers['stripe-signature']!;
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    const rawBody = await getRawBody(req);
+    event = stripe.webhooks.constructEvent(
+      rawBody,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
   } catch (err: any) {
+    console.error(`Webhook Signature Error: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // 1. ELITE SUCCESS FEE RECONCILIATION
-  if (event.type === 'invoice.payment_succeeded') {
-    const invoice = event.data.object as Stripe.Invoice;
-    
-    // Check if this invoice corresponds to a 15% recovery event
-    if (invoice.metadata?.type === 'success_fee') {
-      await supabase
-        .from('revenue_events')
-        .update({
-          payment_status: 'paid',
-          paid_at: new Date().toISOString(),
-          stripe_invoice_id: invoice.id
-        })
-        .eq('id', invoice.metadata.revenue_event_id);
+  // Handle the subscription logic
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const tenantId = session.client_reference_id;
+    const tier = session.metadata?.tier || 'Basic';
+
+    // Update tenant subscription status in Supabase
+    await supabase
+      .from('tenants')
+      .update({ 
+        subscription_tier: tier,
+        status: 'active',
+        stripe_customer_id: session.customer as string
+      })
+      .eq('id', tenantId);
       
-      console.log(`[REVENUE] 15% Success Fee Secured: ${invoice.metadata.revenue_event_id}`);
-    }
+    console.log(`Tier ${tier} activated for Tenant: ${tenantId}`);
   }
 
-  // 2. SUBSCRIPTION & TIER LIFECYCLE [cite: 2025-12-28]
-  if (event.type === 'customer.subscription.updated') {
-    const sub = event.data.object as Stripe.Subscription;
-    const tier = determineTier(sub);
-    const customerId = sub.customer as string;
-
-    // Sync Tenant Tier in Sovereign Ledger
-    const { data: tenant } = await supabase
-      .from('subscriptions')
-      .select('tenant_id')
-      .eq('stripe_customer_id', customerId)
-      .single();
-
-    if (tenant) {
-      await supabase.from('tenants').update({ 
-        tier, 
-        status: sub.status === 'active' ? 'active' : 'past_due' 
-      }).eq('id', tenant.tenant_id);
-    }
-  }
-
-  return res.status(200).json({ received: true });
-}
-
-function determineTier(subscription: Stripe.Subscription): string {
-  const p = subscription.items.data[0].price.id;
-  if (p === process.env.STRIPE_PRICE_ID_ELITE) return 'elite';
-  if (p === process.env.STRIPE_PRICE_ID_GROWTH) return 'growth';
-  if (p === process.env.STRIPE_PRICE_ID_PROFESSIONAL) return 'professional';
-  return 'basic';
+  res.json({ received: true });
 }
