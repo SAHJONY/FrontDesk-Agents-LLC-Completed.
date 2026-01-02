@@ -1,6 +1,6 @@
 /**
  * FRONTDESK AGENTS — CANONICAL IDENTITY
- * Deployment Node: pdx1
+ * Deployment Node: pdx1 | 2026-01-02
  */
 
 export const PLATFORM_CONFIG = {
@@ -10,12 +10,11 @@ export const PLATFORM_CONFIG = {
   pricing: {
     anchor: 1499,
     currency: "USD",
-    billingCycle: "monthly",
     category: "Infrastructure Operating Fee"
   },
-  governance: {
-    auditLogging: true,
-    humanOverride: true,
-    complianceLevel: "Enterprise"
+  salesEnhancement: {
+    intentThreshold: 0.85, // Only hot leads reach human agents
+    handoffMode: "Direct-to-CRM",
+    speedToLeadTarget: "< 5 seconds"
   }
 };
