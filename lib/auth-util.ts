@@ -1,29 +1,19 @@
 import jwt from 'jsonwebtoken';
 
-export interface OwnerSession {
-  tenant_id: string;
-  email: string;
-  tier: string;
-}
-
-/**
- * @name verifyOwner
- * @description Validates that the caller is the specific platform owner.
- */
-export function verifyOwner(authHeader: string | undefined): OwnerSession {
+// GENERAL GATE: For all tenants (Team, Invoices, Settings)
+export function verifyUser(authHeader: string | undefined) {
   if (!authHeader?.startsWith('Bearer ')) throw new Error('Missing token');
-  
   const token = authHeader.split(' ')[1];
   const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
+  if (!decoded) throw new Error('Unauthorized');
+  return decoded; // Returns any valid tenant's info
+}
 
-  // COMPILER FIX: Strict identity and null check
-  if (!decoded || typeof decoded !== 'object' || decoded.email !== 'frontdeskllc@outlook.com') {
-    throw new Error('Sovereign Owner Access Required');
+// SOVEREIGN GATE: For your Private Wholesale Business only
+export function verifySovereignOwner(authHeader: string | undefined) {
+  const decoded = verifyUser(authHeader); // First check if they are a valid user
+  if (decoded.email !== 'frontdeskllc@outlook.com') {
+    throw new Error('Access Denied: Private Business Logic');
   }
-
-  return {
-    tenant_id: decoded.tenant_id,
-    email: decoded.email,
-    tier: decoded.tier
-  };
+  return decoded; // Only returns if it is YOU
 }
