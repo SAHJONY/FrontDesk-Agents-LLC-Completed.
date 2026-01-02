@@ -1,86 +1,56 @@
-// FrontDesk Agents: Global Revenue Workforce
-// API Route: Sovereign Team Removal Logic
-// Path: /api/team/remove
-
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
-import { verifyJWT } from '@/lib/auth/jwt-verify';
+import { supabase } from '@/lib/supabase/client';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+// Use the consolidated security pattern for pdx1 builds
+const jwt = require('jsonwebtoken');
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== 'DELETE') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+/**
+ * @name removeTeamMember
+ * @description Offboards a team member with strict tenant isolation
+ */
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing token' });
 
-    const decoded = verifyJWT(token);
-    const memberId = req.query.id as string;
+    const token = authHeader.split(' ')[1];
+    let decoded: any = null;
+    
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    } catch (e) {
+      return res.status(401).json({ error: 'Invalid security token' });
+    }
 
-    // --- SOVEREIGN ROOT OVERRIDE ---
+    // Safety guard for TypeScript strict mode
+    if (!decoded) return res.status(401).json({ error: 'Unauthorized: Verification failed' });
+
+    // Administrative override check
     const isSovereignRoot = decoded.email === 'frontdeskllc@outlook.com';
     const tenantId = isSovereignRoot 
       ? (req.query.tenant_id as string || decoded.tenant_id) 
       : decoded.tenant_id;
 
-    // Standard owners only manage their own; Root manages all.
-    if (!isSovereignRoot && decoded.role !== 'owner') {
-      return res.status(403).json({ error: 'Forbidden: Owner level required' });
-    }
-    // -------------------------------------------------------
+    const { id } = req.query;
 
-    if (!memberId) return res.status(400).json({ error: 'Member ID required' });
-
-    // Protect Sovereign Identity: You cannot decommission yourself.
-    if (memberId === decoded.sub) {
-      return res.status(400).json({ error: 'Self-decommissioning blocked' });
+    if (!id || !tenantId) {
+      return res.status(400).json({ error: 'Missing Member ID or Tenant ID' });
     }
 
-    // Verify member belongs to the target tenant node
-    const { data: member } = await supabase
-      .from('users')
-      .select('role, tenant_id, email')
-      .eq('id', memberId)
-      .single();
-
-    if (!member || (!isSovereignRoot && member.tenant_id !== tenantId)) {
-      return res.status(404).json({ error: 'Member not found in this node' });
-    }
-
-    // Protection: Standard nodes cannot remove the Root account if it's in their team.
-    if (member.email === 'frontdeskllc@outlook.com') {
-      return res.status(403).json({ error: 'Sovereign Root is immune to removal' });
-    }
-
-    // Execute Soft Delete (Deactivation) with Sovereign traceability
     const { error } = await supabase
-      .from('users')
-      .update({ 
-        is_active: false,
-        updated_at: new Date().toISOString(),
-        deactivated_by: decoded.email
-      })
-      .eq('id', memberId)
+      .from('team_members')
+      .delete()
+      .eq('id', id)
       .eq('tenant_id', tenantId);
 
     if (error) throw error;
 
-    return res.status(200).json({
-      success: true,
-      message: 'Agent decommissioned successfully',
-      sovereign_action: isSovereignRoot
-    });
+    return res.status(200).json({ message: 'Team member removed successfully' });
+
   } catch (error: any) {
-    console.error('Removal error:', error);
-    return res.status(500).json({ error: 'Internal system failure' });
+    console.error('[Team Remove Error]:', error.message);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
