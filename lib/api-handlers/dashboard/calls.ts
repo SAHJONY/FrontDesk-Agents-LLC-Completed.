@@ -1,7 +1,7 @@
 /**
  * FRONTDESK AGENTS — DASHBOARD ANALYTICS
- * Node: pdx1 Deployment
- * Strategy: Strict Multi-tenant Security Gate
+ * Node: pdx1 (Portland) Deployment
+ * Strategy: Strict Null-Safety Gate
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -17,16 +17,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const decoded = verifyJWT(token);
 
-    // FIX: Guard against null 'decoded' to satisfy pdx1 build safety
+    // FIX: Guard clause to satisfy pdx1 type-safety requirements
     if (!decoded) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
     const payload = decoded as any;
+    // Safely access tenant_id now that decoded is confirmed not null
     const tenantId = (req.query.tenant_id as string) || payload.tenant_id;
     const limit = Math.min(parseInt(req.query.limit as string) || 10, 100);
 
-    // Fetch recent calls for the specific tenant
     const { data, error } = await supabase
       .from('call_logs')
       .select('*')
