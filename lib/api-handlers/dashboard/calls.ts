@@ -24,10 +24,11 @@ export default async function handler(
     const token = authHeader.split(' ')[1];
     const decoded = verifyJWT(token);
 
-    // FIX: Null-safety for decoded token to satisfy pdx1 build
-    // Optional chaining added to 'decoded' to prevent null pointer errors
+    // FIX: Using Optional Chaining (?.) to handle potential null 'decoded' object
+    // This satisfies the TypeScript compiler for the Vercel pdx1 build.
     const tenantId = (req.query.tenant_id as string) || decoded?.tenant_id;
 
+    // Strict Gate: If no tenantId is found in the token or query, deny access.
     if (!tenantId) {
       return res.status(401).json({ error: 'Unauthorized: No Tenant ID identified' });
     }
@@ -35,7 +36,7 @@ export default async function handler(
     const limit = Math.min(parseInt(req.query.limit as string) || 10, 100);
     const offset = parseInt(req.query.offset as string) || 0;
 
-    // Strict Multi-tenant Security Gate: Only fetch data for the verified tenantId
+    // Multi-tenant Security: Filter by verified tenantId
     const { data, error, count } = await supabase
       .from('call_logs')
       .select('*, lead_intelligence(intent_score, summary)', { count: 'exact' })
