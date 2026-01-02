@@ -1,21 +1,36 @@
 import React from 'react';
-import { CreditCard } from 'lucide-react';
 
-export const BillingOverview = ({ amount, multiplier }: { amount: number, multiplier: number }) => {
+const TIERS = [
+  { name: 'Basic', price: '$199', features: 'Standard Workforce' },
+  { name: 'Professional', price: '$399', features: 'Advanced Analytics' },
+  { name: 'Growth', price: '$799', features: 'Multi-Market Support' },
+  { name: 'Elite', price: '$1,499', features: 'Full Agentic Access' }
+];
+
+export const BillingOverview = ({ currentTier }: { currentTier: string }) => {
   return (
-    <div className="titan-card bg-gradient-to-br from-[#050505] to-brand-cyan/5">
-      <div className="flex items-center gap-2 mb-6 text-brand-cyan">
-        <CreditCard className="w-4 h-4" />
-        <span className="text-[10px] font-black uppercase tracking-widest">Sovereign Billing Node</span>
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <h3 className="text-lg font-bold mb-4">Your Subscription</h3>
+      
+      {/* Current Active Plan */}
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
+        <p className="text-sm text-blue-600 font-semibold uppercase">Active Plan</p>
+        <p className="text-2xl font-bold">{currentTier}</p>
+        <p className="text-gray-600">
+          {TIERS.find(t => t.name === currentTier)?.price || '$0'} / month
+        </p>
       </div>
-      <div className="space-y-4">
-        <div className="flex justify-between items-end">
-          <span className="text-slate-500 text-xs font-bold uppercase">Net Monthly Amount</span>
-          <span className="text-3xl font-black italic text-white">${amount}</span>
-        </div>
-        <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-          <span className="text-[10px] text-brand-slate uppercase font-bold">Market Multiplier</span>
-          <span className="px-2 py-1 bg-white/5 rounded text-[10px] font-mono text-brand-cyan">{multiplier}x Applied</span>
+
+      {/* Permanent Tier Reference */}
+      <div className="mt-4">
+        <h4 className="text-sm font-medium text-gray-500 mb-2">Platform Tiers</h4>
+        <div className="grid grid-cols-2 gap-2">
+          {TIERS.map((tier) => (
+            <div key={tier.name} className="p-2 border rounded text-center">
+              <p className="text-xs font-bold">{tier.name}</p>
+              <p className="text-sm text-gray-700">{tier.price}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
