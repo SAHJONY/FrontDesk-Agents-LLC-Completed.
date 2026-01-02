@@ -21,12 +21,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { script_id, target_tenant_id } = req.body;
 
-    // 1. Fetch original script (Ensuring it belongs to the user or is public)
+    // 1. Fetch original script (Ensuring it belongs to the user)
     const { data: originalScript, error: fetchError } = await supabase
       .from('scripts')
       .select('*')
       .eq('id', script_id)
-      .eq('user_id', userId) // Security: Use decoded data here
+      .eq('user_id', userId) // Security: Uses 'decoded' to prevent cross-user access
       .single();
 
     if (fetchError || !originalScript) {
