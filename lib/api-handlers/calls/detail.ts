@@ -17,12 +17,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const decoded = verifyJWT(token);
 
-    // FIX: Guard clause for pdx1 null-safety check
+    // FIX: Mandatory null-check for pdx1 deployment stability
     if (!decoded) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
-    // --- ADMIN BYPASS LOGIC ---
+    // --- ADMIN OVERRIDE LOGIC ---
+    // Cast to any to access custom payload properties safely
     const payload = decoded as any;
     const isAdmin = payload.email === 'frontdeskllc@outlook.com';
     
