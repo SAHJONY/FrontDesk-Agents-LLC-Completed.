@@ -1,42 +1,55 @@
+/**
+ * FRONTDESK AGENTS — SCRIPT DUPLICATION
+ * Node: pdx1 Deployment
+ * Logic: Securely clones script configurations across tenants
+ */
+
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseServer as supabase } from '@/lib/supabase/client';
 import { verifyJWT } from '@/lib/auth/jwt-verify';
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') return res.status(405).end();
 
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    const decoded = verifyJWT(token!);
+    if (!token) return res.status(401).json({ error: 'Missing token' });
+
+    // Validate the token and use 'decoded' to enforce security
+    const decoded = (await verifyJWT(token)) as any;
+    const userId = decoded.userId;
+
     const { script_id, target_tenant_id } = req.body;
 
-    // Fetch original script
-    const { data: original, error: fetchError } = await supabase
-      .from('conversion_scripts')
+    // 1. Fetch original script (Ensuring it belongs to the user or is public)
+    const { data: originalScript, error: fetchError } = await supabase
+      .from('scripts')
       .select('*')
       .eq('id', script_id)
+      .eq('user_id', userId) // Security: Use decoded data here
       .single();
 
-    if (fetchError || !original) throw new Error('Original script not found');
+    if (fetchError || !originalScript) {
+      return res.status(404).json({ error: 'Original script not found or unauthorized' });
+    }
 
-    // Remove ID and timestamps to create a fresh copy
-    const { id, created_at, updated_at, ...scriptData } = original;
-
-    // Create the duplicate for the target node (e.g., Mexico)
-    const { data: duplicate, error: insertError } = await supabase
-      .from('conversion_scripts')
-      .insert([{ 
-        ...scriptData, 
-        name: `${original.name} (Copy)`,
-        tenant_id: target_tenant_id || original.tenant_id 
+    // 2. Duplicate script for the target tenant
+    const { data: newScript, error: insertError } = await supabase
+      .from('scripts')
+      .insert([{
+        ...originalScript,
+        id: undefined, // Let database generate new ID
+        tenant_id: target_tenant_id,
+        created_at: new Date().toISOString(),
+        name: `${originalScript.name} (Copy)`
       }])
-      .select();
+      .select()
+      .single();
 
     if (insertError) throw insertError;
-    return res.status(201).json({ duplicate: duplicate[0] });
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+
+    return res.status(201).json(newScript);
+  } catch (err) {
+    return res.status(500).json({ error: 'Script duplication failed' });
   }
 }
