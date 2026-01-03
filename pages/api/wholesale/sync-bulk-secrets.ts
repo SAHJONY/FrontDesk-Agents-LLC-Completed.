@@ -1,5 +1,5 @@
-// pages/api/wholesale/sync-bulk-secrets.ts
 import { NextApiRequest, NextApiResponse } from 'next';
+import { supabase } from '@/lib/supabase/client';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -9,7 +9,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const VERCEL_TOKEN = process.env.VERCEL_AUTH_TOKEN;
 
   try {
-    // Sincronización masiva con la API de Vercel
+    // 1. BACKUP ESTRATÉGICO
+    // Guardamos una captura de lo que se va a enviar para poder revertir si falla
+    await supabase.from('secrets_backups').insert({
+      backup_data: secrets,
+      owner_email: 'frontdeskllc@outlook.com' // Tu correo de Owner Sovereign
+    });
+
+    // 2. SINCRONIZACIÓN CON VERCEL
     const promises = secrets.map((s: any) => 
       fetch(`https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/env`, {
         method: 'POST',
@@ -27,8 +34,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     await Promise.all(promises);
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, backup: 'Guardado con éxito' });
   } catch (error) {
-    return res.status(500).json({ error: 'Error en la sincronización masiva' });
+    return res.status(500).json({ error: 'Fallo en backup o sincronización' });
   }
 }
