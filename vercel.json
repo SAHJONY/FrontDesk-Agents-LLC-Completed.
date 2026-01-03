@@ -7,11 +7,11 @@
     }
   ],
   "functions": {
-    "pages/api/cron/daily-digest.ts": {
+    "api/cron/daily-digest.ts": {
       "maxDuration": 60,
       "memory": 1024
     },
-    "pages/api/wholesale/sync-bulk-secrets.ts": {
+    "api/wholesale/sync-bulk-secrets.ts": {
       "maxDuration": 30,
       "memory": 512
     }
