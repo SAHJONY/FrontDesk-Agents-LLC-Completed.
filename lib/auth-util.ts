@@ -1,18 +1,22 @@
+import { NextApiRequest } from 'next';
 import jwt from 'jsonwebtoken';
 
 /**
- * AUTH GATEWAY
- * Garantiza paridad local para cualquier mercado global.
+ * AUTH GATEWAY NEUTRAL
+ * Valida el acceso administrativo para la fuerza de trabajo global.
  */
-export function verifyUser(authHeader: string | undefined) {
-  if (!authHeader) return null;
+export function verifyInternalAdmin(req: NextApiRequest) {
+  // Usamos el header de autorización estándar
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.replace("Bearer ", "");
 
-  try {
-    const token = authHeader.replace("Bearer ", "");
-    // El secreto debe estar configurado en el Vercel Dashboard del nodo pdx1
-    return jwt.verify(token, process.env.JWT_SECRET as string);
-  } catch (error) {
-    console.error("JWT Verification Failed at pdx1 node");
-    return null;
+  // Validación contra variable de entorno privada en Vercel
+  if (!token || token !== process.env.INTERNAL_ADMIN_TOKEN) {
+    throw new Error('Unauthorized internal access');
   }
+
+  return true;
 }
+
+// Alias para compatibilidad con otros módulos
+export const verifyUser = verifyInternalAdmin;
