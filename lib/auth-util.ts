@@ -1,19 +1,18 @@
 import jwt from 'jsonwebtoken';
 
-// GENERAL GATE: For all tenants (Team, Invoices, Settings)
+/**
+ * AUTH GATEWAY
+ * Garantiza paridad local para cualquier mercado global.
+ */
 export function verifyUser(authHeader: string | undefined) {
-  if (!authHeader?.startsWith('Bearer ')) throw new Error('Missing token');
-  const token = authHeader.split(' ')[1];
-  const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
-  if (!decoded) throw new Error('Unauthorized');
-  return decoded; // Returns any valid tenant's info
-}
+  if (!authHeader) return null;
 
-// SOVEREIGN GATE: For your Private Wholesale Business only
-export function verifySovereignOwner(authHeader: string | undefined) {
-  const decoded = verifyUser(authHeader); // First check if they are a valid user
-  if (decoded.email !== 'frontdeskllc@outlook.com') {
-    throw new Error('Access Denied: Private Business Logic');
+  try {
+    const token = authHeader.replace("Bearer ", "");
+    // El secreto debe estar configurado en el Vercel Dashboard del nodo pdx1
+    return jwt.verify(token, process.env.JWT_SECRET as string);
+  } catch (error) {
+    console.error("JWT Verification Failed at pdx1 node");
+    return null;
   }
-  return decoded; // Only returns if it is YOU
 }
