@@ -1,16 +1,27 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 
-export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+export async function createInternalServerClient() {
+  const cookieStore = await cookies() // En Next 15, cookies() es async
 
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase server environment variables');
-  }
-
-  return createSupabaseClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      persistSession: false,
-    },
-  });
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // Se ignora si se llama desde un Server Component
+          }
+        },
+      },
+    }
+  )
 }
