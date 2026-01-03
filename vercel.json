@@ -8,13 +8,15 @@
   ],
   "functions": {
     "app/api/**/*.ts": {
-      "runtime": "nodejs"
+      "runtime": "nodejs20.x"
     },
     "app/api/cron/daily-digest/route.ts": {
+      "runtime": "nodejs20.x",
       "maxDuration": 60,
       "memory": 1024
     },
     "app/api/wholesale/sync-bulk-secrets/route.ts": {
+      "runtime": "nodejs20.x",
       "maxDuration": 30,
       "memory": 512
     }
