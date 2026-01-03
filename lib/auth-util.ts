@@ -1,21 +1,30 @@
-import { NextApiRequest } from 'next';
 import jwt from 'jsonwebtoken';
 
-/**
- * INTERNAL ADMIN AUTH
- * Valida el acceso para operaciones de la fuerza de trabajo global.
- */
-export function verifyInternalAdmin(req: NextApiRequest) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.replace("Bearer ", "");
+const JWT_SECRET = process.env.JWT_SECRET!;
 
-  // Validación contra el secreto definido en Vercel
-  if (!token || token !== process.env.INTERNAL_ADMIN_TOKEN) {
-    throw new Error('Unauthorized internal access');
-  }
-
-  return true;
+export function verifyUser(authHeader: string | undefined) {
+  if (!authHeader) throw new Error('Missing auth header');
+  const token = authHeader.replace('Bearer ', '');
+  return jwt.verify(token, JWT_SECRET);
 }
 
-// Alias neutral para otros procesos
-export const verifyUser = verifyInternalAdmin;
+export function verifyInternalAdmin(authHeader: string | undefined) {
+  const decoded: any = verifyUser(authHeader);
+  if (decoded.role !== 'internal_admin') {
+    throw new Error('Unauthorized');
+  }
+  return decoded;
+}
+
+/**
+ * REQUIRED BY:
+ * - pages/api/wholesale/get-leads.ts
+ * - app/api/owner/notify-funding.ts
+ */
+export function verifySovereignOwner(authHeader: string | undefined) {
+  const decoded: any = verifyUser(authHeader);
+  if (decoded.role !== 'sovereign_owner') {
+    throw new Error('Unauthorized');
+  }
+  return decoded;
+}
