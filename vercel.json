@@ -2,14 +2,18 @@
   "version": 2,
   "crons": [
     {
-      "path": "/api/cron/daily-report",
-      "schedule": "0 22 * * *"
+      "path": "/api/cron/daily-digest",
+      "schedule": "0 8 * * *" 
     }
   ],
   "functions": {
-    "app/api/cron/daily-report/route.ts": {
+    "pages/api/cron/daily-digest.ts": {
       "maxDuration": 60,
       "memory": 1024
+    },
+    "pages/api/wholesale/sync-bulk-secrets.ts": {
+      "maxDuration": 30,
+      "memory": 512
     }
   },
   "headers": [
@@ -27,6 +31,10 @@
         {
           "key": "Strict-Transport-Security",
           "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "X-Platform-Engine",
+          "value": "Sovereign-Internal"
         }
       ]
     },
@@ -36,7 +44,7 @@
         { "key": "Access-Control-Allow-Credentials", "value": "true" },
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Access-Control-Allow-Methods", "value": "GET,DELETE,PATCH,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" }
+        { "key : "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" }
       ]
     }
   ]
