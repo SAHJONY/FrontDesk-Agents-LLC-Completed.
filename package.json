@@ -13,6 +13,7 @@
     "@react-email/components": "^0.0.32",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
+    "airtable": "^0.12.2",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "framer-motion": "^11.15.0",
@@ -43,7 +44,7 @@
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2"
   },
-  "description": "Global revenue workforce platform serving any customer in any market as a local platform [cite: 2025-12-24].",
+  "description": "Global revenue workforce platform serving any customer in any market as a local platform.",
   "pricing_tiers": {
     "Basic": 199,
     "Professional": 399,
