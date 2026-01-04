@@ -7,15 +7,9 @@ export type TenantContext = {
   orgId?: string | null;
 };
 
-/**
- * AI EVENT HANDLER
- * Core processing for the global revenue workforce.
- * [cite: 2025-12-24] Serving all markets as a local platform.
- */
 export async function handleBlandEvent(payload: any, context: TenantContext) {
   const { tenantId, orgId } = context;
 
-  // Including orgId in the log satisfies the compiler and aids in debugging
   console.log(`Node pdx1: Processing AI event | Tenant: ${tenantId} | Org: ${orgId}`);
 
   // 1. Synchronize lead data
@@ -23,15 +17,21 @@ export async function handleBlandEvent(payload: any, context: TenantContext) {
     await syncLeadToCRM(payload.leadData, tenantId);
   }
 
-  // 2. Schedule no-show prevention
+  // 2. Schedule no-show prevention (Updated to satisfy 5-argument signature)
   if (payload.appointmentTime) {
-    await setupNoShowPrevention(payload.appointmentTime, tenantId);
+    await setupNoShowPrevention(
+      payload.appointmentTime,          // Arg 1: Time
+      tenantId,                         // Arg 2: Tenant
+      payload.customerPhone || '',      // Arg 3: Phone (Required by scheduler)
+      payload.customerName || 'Guest',  // Arg 4: Name (Required by scheduler)
+      payload.serviceType || 'General'  // Arg 5: Context (Required by scheduler)
+    );
   }
 
   return { 
     status: 'success', 
     node: 'pdx1-portland',
-    orgReference: orgId, // Using the variable here as well
+    orgReference: orgId,
     processedAt: new Date().toISOString()
   };
 }
