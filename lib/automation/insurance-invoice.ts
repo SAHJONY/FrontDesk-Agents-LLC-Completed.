@@ -1,18 +1,7 @@
-// lib/automation/insurance-invoice.ts
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { resend } from '@/lib/mail/resend'
+// En tus archivos de automatización de cobros
+import { createInternalServerClient } from '@/lib/supabase/server'
 
-export async function generateMonthlyInsuranceInvoices() {
-  const supabase = createSupabaseServerClient()
-
-  const { data, error } = await supabase
-    .from('insurance_policies')
-    .select('*')
-
-  if (error) {
-    throw error
-  }
-
-  // lógica de facturación aquí
-  return data
+export async function runBillingCycle() {
+  const supabase = await createInternalServerClient()
+  // ... lógica de facturación
 }
