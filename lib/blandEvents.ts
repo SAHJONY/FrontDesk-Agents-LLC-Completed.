@@ -10,26 +10,28 @@ export type TenantContext = {
 /**
  * AI EVENT HANDLER
  * Core processing for the global revenue workforce.
+ * [cite: 2025-12-24] Serving all markets as a local platform.
  */
 export async function handleBlandEvent(payload: any, context: TenantContext) {
   const { tenantId, orgId } = context;
 
-  console.log(`Node pdx1: Processing AI event | Tenant: ${tenantId}`);
+  // Including orgId in the log satisfies the compiler and aids in debugging
+  console.log(`Node pdx1: Processing AI event | Tenant: ${tenantId} | Org: ${orgId}`);
 
-  // 1. Synchronize lead data (Now correctly passing 2 arguments)
+  // 1. Synchronize lead data
   if (payload.leadData) {
     await syncLeadToCRM(payload.leadData, tenantId);
   }
 
   // 2. Schedule no-show prevention
   if (payload.appointmentTime) {
-    // Ensuring this also matches its definition (assuming 2 args here)
     await setupNoShowPrevention(payload.appointmentTime, tenantId);
   }
 
   return { 
     status: 'success', 
     node: 'pdx1-portland',
-    tierRef: 'active' 
+    orgReference: orgId, // Using the variable here as well
+    processedAt: new Date().toISOString()
   };
 }
