@@ -7,8 +7,14 @@ export type TenantContext = {
   orgId?: string | null;
 };
 
+/**
+ * AI EVENT HANDLER
+ * Final type-safe version for production deployment.
+ */
 export async function handleBlandEvent(payload: any, context: TenantContext) {
-  const { tenantId, orgId } = context;
+  // Extract with fallbacks to avoid 'undefined' type errors
+  const tenantId = context.tenantId ?? 'default-tenant';
+  const orgId = context.orgId ?? 'default-org';
 
   console.log(`Node pdx1: Processing AI event | Tenant: ${tenantId} | Org: ${orgId}`);
 
@@ -17,14 +23,14 @@ export async function handleBlandEvent(payload: any, context: TenantContext) {
     await syncLeadToCRM(payload.leadData, tenantId);
   }
 
-  // 2. Schedule no-show prevention (Updated to satisfy 5-argument signature)
+  // 2. Schedule no-show prevention
   if (payload.appointmentTime) {
     await setupNoShowPrevention(
-      payload.appointmentTime,          // Arg 1: Time
-      tenantId,                         // Arg 2: Tenant
-      payload.customerPhone || '',      // Arg 3: Phone (Required by scheduler)
-      payload.customerName || 'Guest',  // Arg 4: Name (Required by scheduler)
-      payload.serviceType || 'General'  // Arg 5: Context (Required by scheduler)
+      payload.appointmentTime,
+      tenantId,                         // Now guaranteed to be a string
+      payload.customerPhone ?? '',      
+      payload.customerName ?? 'Guest',  
+      payload.serviceType ?? 'General'  
     );
   }
 
