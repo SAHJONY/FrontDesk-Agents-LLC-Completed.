@@ -1,26 +1,18 @@
-import { createClient } from '@/lib/supabase/server';
-import { resend } from '@/lib/mail/resend';
+// lib/automation/insurance-invoice.ts
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { resend } from '@/lib/mail/resend'
 
 export async function generateMonthlyInsuranceInvoices() {
-  const supabase = createClient();
+  const supabase = createSupabaseServerClient()
 
-  const { data: invoices, error } = await supabase
-    .from('insurance_invoices')
+  const { data, error } = await supabase
+    .from('insurance_policies')
     .select('*')
-    .eq('status', 'pending');
 
   if (error) {
-    throw error;
+    throw error
   }
 
-  for (const invoice of invoices ?? []) {
-    await resend.emails.send({
-      from: 'billing@frontdeskagents.com',
-      to: invoice.email,
-      subject: 'Your Monthly Insurance Invoice',
-      html: `<p>Your invoice amount is <strong>$${invoice.amount}</strong></p>`,
-    });
-  }
-
-  return { sent: invoices?.length ?? 0 };
+  // lógica de facturación aquí
+  return data
 }
