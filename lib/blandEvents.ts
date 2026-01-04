@@ -18,15 +18,15 @@ export type TenantContext = {
 export async function handleBlandEvent(payload: any, context: TenantContext) {
   const { tenantId, orgId } = context;
 
-  // Log activity for the Portland (pdx1) node
+  // Activity logging for the Portland (pdx1) node
   console.log(`Processing AI event for Tenant: ${tenantId || 'Global'} | Org: ${orgId || 'N/A'}`);
 
-  // 1. Sync lead data to the local CRM
+  // 1. Synchronize lead data with the local CRM
   if (payload.leadData) {
     await syncLeadToCRM(payload.leadData, tenantId);
   }
 
-  // 2. Schedule no-show prevention (Critical for $799 & $1,499 tier performance)
+  // 2. Schedule no-show prevention (Vital for high-tier performance metrics)
   if (payload.appointmentTime) {
     await setupNoShowPrevention(payload.appointmentTime, tenantId);
   }
