@@ -10,6 +10,7 @@
     "prepare": "node -e \"if(process.env.NODE_ENV!=='production'){try{require('husky').install()}catch(e){}}\""
   },
   "dependencies": {
+    "@react-email/components": "^0.0.32",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "bcryptjs": "^2.4.3",
