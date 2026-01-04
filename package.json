@@ -2,18 +2,17 @@
   "name": "frontdesk-agents-global-revenue-workforce",
   "version": "2.2.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "prepare": "node -e \"if(process.env.NODE_ENV!=='production'){try{require('husky').install()}catch(e){}}\""
+    "lint": "next lint"
   },
   "dependencies": {
     "@react-email/components": "^0.0.32",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
-    "airtable": "^0.12.2",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "framer-motion": "^11.15.0",
@@ -26,11 +25,10 @@
     "recharts": "^2.15.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-rtl": "^0.7.3",
+    "twilio": "^4.23.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.9",
-    "@tailwindcss/typography": "^0.5.15",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20.17.10",
@@ -39,16 +37,8 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-next": "15.1.4",
-    "husky": "^9.1.7",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2"
-  },
-  "description": "Global revenue workforce platform serving any customer in any market as a local platform.",
-  "pricing_tiers": {
-    "Basic": 199,
-    "Professional": 399,
-    "Growth": 799,
-    "Elite": 1499
   }
 }
