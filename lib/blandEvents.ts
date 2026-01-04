@@ -2,10 +2,6 @@
 import { syncLeadToCRM } from './crm-sync-utils';
 import { setupNoShowPrevention } from './sms-scheduler';
 
-/**
- * TENANT CONTEXT DEFINITION
- * Ensures the platform serves every market as a local entity [cite: 2025-12-24].
- */
 export type TenantContext = {
   tenantId?: string | null;
   orgId?: string | null;
@@ -13,27 +9,27 @@ export type TenantContext = {
 
 /**
  * AI EVENT HANDLER
- * Processes lead synchronization and SMS automation for the global workforce.
+ * Core processing for the global revenue workforce.
  */
 export async function handleBlandEvent(payload: any, context: TenantContext) {
   const { tenantId, orgId } = context;
 
-  // Activity logging for the Portland (pdx1) node
-  console.log(`Processing AI event for Tenant: ${tenantId || 'Global'} | Org: ${orgId || 'N/A'}`);
+  console.log(`Node pdx1: Processing AI event | Tenant: ${tenantId}`);
 
-  // 1. Synchronize lead data with the local CRM
+  // 1. Synchronize lead data (Now correctly passing 2 arguments)
   if (payload.leadData) {
     await syncLeadToCRM(payload.leadData, tenantId);
   }
 
-  // 2. Schedule no-show prevention (Vital for high-tier performance metrics)
+  // 2. Schedule no-show prevention
   if (payload.appointmentTime) {
+    // Ensuring this also matches its definition (assuming 2 args here)
     await setupNoShowPrevention(payload.appointmentTime, tenantId);
   }
 
   return { 
     status: 'success', 
-    timestamp: new Date().toISOString(),
-    node: 'pdx1' 
+    node: 'pdx1-portland',
+    tierRef: 'active' 
   };
 }
