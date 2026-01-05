@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "axios": "^1.7.9",
     "@react-email/components": "^0.0.32",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
