@@ -1,7 +1,20 @@
+'use client';
+
+import Image from 'next/image';
+
 export default function DemoPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
-      <div className="titan-card w-full max-w-2xl">
+    <div className="flex items-center justify-center min-h-screen px-4 relative">
+      {/* Background Image */}
+      <div className="absolute inset-0 -z-10 opacity-20">
+        <Image 
+          src="/assets/ai-agent-interface.jpg" 
+          alt="AI Agent Interface" 
+          fill 
+          className="object-cover"
+        />
+      </div>
+      <div className="titan-card w-full max-w-2xl backdrop-blur-sm bg-black/80">
         <h2 className="text-3xl font-black italic mb-2 uppercase">Request Fleet Demo</h2>
         <p className="text-slate-500 mb-8">Experience the Elite Tier autonomous response first-hand.</p>
         

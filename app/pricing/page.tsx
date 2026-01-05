@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useMarketPricing } from '../../hooks/useMarketPricing';
 import { PricingCard } from '../../components/PricingCard';
 import { CurrencySwitcher } from '../../components/CurrencySwitcher';
@@ -10,7 +11,16 @@ export default function PricingPage() {
 
   return (
     <div className="max-w-7xl mx-auto py-24 px-6 relative z-10">
-      <div className="text-center mb-20">
+      <div className="text-center mb-20 relative">
+        {/* Background Image */}
+        <div className="absolute inset-0 -z-10 opacity-10">
+          <Image 
+            src="/assets/call-center-automation.webp" 
+            alt="Call Center Automation" 
+            fill 
+            className="object-cover"
+          />
+        </div>
         <h2 className="text-brand-cyan font-bold tracking-[0.3em] uppercase text-sm mb-4">
           Global Node Activation
         </h2>

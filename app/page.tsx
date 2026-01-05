@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Image from 'next/image';
 import { NodeStatus } from '@/components/dashboard/NodeStatus';
 import { CallActivityFeed } from '@/components/dashboard/CallActivityFeed';
 
@@ -36,6 +37,16 @@ export default function Home() {
           <div className="lg:col-span-2 space-y-8">
              {/* Main Operational Core Visualization */}
              <div className="h-[450px] rounded-3xl border border-white/10 bg-zinc-900/30 backdrop-blur-2xl flex flex-col items-center justify-center p-8 text-center relative overflow-hidden group">
+                {/* Background Image */}
+                <div className="absolute inset-0 opacity-20">
+                  <Image 
+                    src="/assets/ai-call-center.jpeg" 
+                    alt="AI Call Center" 
+                    fill 
+                    className="object-cover rounded-3xl"
+                    priority
+                  />
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
                 <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6 flex items-center justify-center relative">

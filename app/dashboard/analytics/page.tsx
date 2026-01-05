@@ -1,9 +1,21 @@
-import React from 'react';
+'use client';
+
+import Image from 'next/image';
 
 export default function AnalyticsEngine() {
   return (
     <div className="p-8 max-w-7xl mx-auto relative z-10">
-      <h1 className="text-4xl font-black italic mb-12">NEURAL ANALYTICS</h1>
+      <div className="mb-12 relative h-48 rounded-xl overflow-hidden">
+        <Image 
+          src="/assets/customer-dashboard.png" 
+          alt="Analytics Dashboard" 
+          fill 
+          className="object-cover opacity-40"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 to-transparent flex items-center">
+          <h1 className="text-4xl font-black italic ml-8 text-white">NEURAL ANALYTICS</h1>
+        </div>
+      </div>
       
       <div className="titan-card mb-8 h-64 flex flex-col justify-end">
         <div className="flex items-end gap-2 h-full">
