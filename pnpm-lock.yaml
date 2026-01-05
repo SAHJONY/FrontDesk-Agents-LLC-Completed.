@@ -23,6 +23,9 @@ importers:
       airtable:
         specifier: ^0.12.2
         version: 0.12.2
+      axios:
+        specifier: ^1.7.9
+        version: 1.13.2
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
