@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { createClient } from '@/lib/supabase/server';
+// import { createClient } from '@/lib/supabase/server'; // Not used in current logic
 
 // Initialize OpenAI client
 const openai = new OpenAI({

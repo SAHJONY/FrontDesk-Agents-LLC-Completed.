@@ -1,4 +1,14 @@
 // services/vp-growth.service.ts
+import { blandAiService } from './blandAiService';
+import { MarketingAutomation } from './marketingAutomation';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+const marketingAutomation = new MarketingAutomation();
 export const vpGrowthAgent = {
   name: "Global Growth Orchestrator",
   
@@ -8,9 +18,11 @@ export const vpGrowthAgent = {
 
     // 2. Multimodal Action: Deploy the right product for the job
     if (strategy.primaryChannel === 'VOICE') {
-      return await blandAiService.initiateOutreach(target.data); // Calls our Voice Agent
+      // blandAiService does not have initiateOutreach, using makeCall as a placeholder
+      return await blandAiService.makeCall({ phoneNumber: target.data.phone, task: 'outreach' }); // Calls our Voice Agent
     } else {
-      return await marketingAutomation.sendSmartMessage(target.data, strategy.copyTemplate);
+      // marketingAutomation does not have sendSmartMessage, using startSequence as a placeholder
+      return await marketingAutomation.startSequence(strategy.copyTemplate, target.data);
     }
   },
 

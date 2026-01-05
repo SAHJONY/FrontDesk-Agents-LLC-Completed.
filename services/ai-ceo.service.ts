@@ -1,6 +1,6 @@
 // services/ai-ceo.service.ts
-import { createClient } from '@/lib/supabase';
-import { automationService } from './automation.service';
+import { createServerSupabase as createClient } from '@/lib/supabase/server';
+import automationService from './automation.service';
 
 export const aiCeoAgent = {
   /**
@@ -49,7 +49,7 @@ export const aiCeoAgent = {
     if (error || !data) return null;
 
     // Filter for the memory with the highest reward (The "Winner")
-    return data.reduce((prev, current) => 
+    return data.reduce((prev: any, current: any) => 
       (prev.reward_total > current.reward_total) ? prev : current
     , data[0]);
   },
@@ -81,10 +81,14 @@ export const aiCeoAgent = {
     }
 
     // Connect to your automation infrastructure
-    const result = await automationService.run(productId, {
-      ...data,
-      weights,
-      strategy_anchor: memory?.id
+    const result = await automationService.orchestrate({
+      productId: productId,
+      type: 'EXECUTE_STRATEGY', // Placeholder type
+      data: {
+        ...data,
+        weights,
+        strategy_anchor: memory?.id
+      }
     });
 
     return result;

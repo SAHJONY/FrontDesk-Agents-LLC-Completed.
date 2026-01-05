@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ error: 'Missing security token' });
 
-    const decoded = verifyJWT(token);
+    const decoded = verifyJWT(token) as any; if (!decoded) return res.status(401).json({ error: "INVALID_TOKEN" });
 
     // FIX: Strict null-check to satisfy pdx1 build engine
     if (!decoded) {

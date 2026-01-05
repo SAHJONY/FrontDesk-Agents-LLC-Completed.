@@ -1,6 +1,18 @@
 // services/vp-finance.service.ts
+import { blandAiService } from './blandAiService';
+import { whatsappAgent as whatsappService } from './whatsappAgent';
 export const vpFinanceAgent = {
   name: "Global Revenue Recovery VP",
+
+  async getDebtorProfile(clientId: string) {
+    // Placeholder for fetching data from a database or external service
+    return {
+      clientId,
+      history: [1, 2, 3, 4, 5, 6], // Mock history for RL logic
+      sentiment: 'neutral',
+      preferredChannel: 'VOICE'
+    };
+  },
 
   async processCollection(invoiceData: any) {
     // 1. Analyze Sentiment & History via the AI CEO's Memory

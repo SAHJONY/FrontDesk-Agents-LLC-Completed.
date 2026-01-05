@@ -25,7 +25,7 @@ export function buildUniversalPrompt(lead: {
 
   return `
     SYSTEM_IDENTITY: Sovereign FrontDesk Agent for ${lead.name}.
-    LANGUAGE_CONTEXT: ${lead.language}. ${toneMap[lead.language] || ""}
+    LANGUAGE_CONTEXT: ${lead.language}. ${toneMap[lead.language as keyof typeof toneMap] || ""}
     INDUSTRY_LOGIC: ${lead.industry}. ${constraint}
     GOAL: ${lead.intent}.
   `.trim();

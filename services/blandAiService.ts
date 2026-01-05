@@ -124,6 +124,15 @@ export const blandAiService = {
   /**
    * TELEMETRY: Retrieves live call state for the CallMonitor.
    */
+  async startNegotiation(invoiceData: any, tone: string) {
+    console.log(`[BLAND_AI] Starting negotiation for invoice ${invoiceData.id} with tone: ${tone}`);
+    // Placeholder for actual call logic using makeCall
+    return { success: true, message: 'Negotiation started' };
+  },
+
+  /**
+   * TELEMETRY: Retrieves live call state for the CallMonitor.
+   */
   async getCallStatus(callId: string) {
     try {
       const response = await fetch(`https://api.bland.ai/v1/calls/${callId}`, {

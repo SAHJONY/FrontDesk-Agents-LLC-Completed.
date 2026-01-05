@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServerSupabase } from '@/lib/supabase/server';
 import { getSeasonalContext } from '@/lib/core/seasonal-logic';
 import { getClusterContext } from '@/lib/prompts/cluster-logic';
 
@@ -18,8 +18,8 @@ async function runMasterAudit() {
   }
 
   // 3. CRM VAULT ENCRYPTION TEST
-  const supabase = createClient();
-  const { data: vaultTest, error } = await supabase
+  const supabase = await createServerSupabase();
+  const { data: _vaultTest, error } = await supabase
     .from('client_configurations')
     .select('count')
     .limit(1);

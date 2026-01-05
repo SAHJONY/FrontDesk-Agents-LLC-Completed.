@@ -1,4 +1,4 @@
-import { aiCeoAgent } from './automation.service';
+// import { aiCeoAgent } from './automation.service';
 import { medicAgent } from './medic.service';
 
 export const onboardingAgent = {
@@ -11,7 +11,7 @@ export const onboardingAgent = {
       
       // 2. CEO Configuration
       // The CEO sets up the RL policies for this specific industry
-      const config = await aiCeoAgent.getGlobalContext(clientData.name); 
+      // const _config = await aiCeoAgent.getGlobalContext(clientData.name); 
 
       // 3. Security & Health Handshake
       // Ensure the new client's environment is secured by the Guardian
@@ -29,7 +29,7 @@ export const onboardingAgent = {
     }
   },
 
-  async detectIndustry(url: string) {
+  async detectIndustry(_url: string) {
     // Logic to scrape or analyze the URL to categorize the business
     return "SaaS"; // Default fallback
   }

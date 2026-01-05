@@ -63,7 +63,7 @@ async function runUniversalNationwideScrape() {
 
             if (!response.data.local_results) continue;
 
-            const prospects = response.data.local_results.map(biz => ({
+            const prospects = response.data.local_results.map((biz: any) => ({
               full_name: biz.title,
               phone_number: biz.phone,
               address: biz.address, 
@@ -87,7 +87,7 @@ async function runUniversalNationwideScrape() {
             // Rate limit protection
             await new Promise(r => setTimeout(r, 1500));
 
-          } catch (error) {
+          } catch (error: any) {
             console.error(`❌ Fail in ${city} for ${niche}:`, error.message);
           }
         }

@@ -173,7 +173,7 @@ ${context.conversationHistory
    */
   private async saveMessage(
     message: SMSMessage,
-    businessId: string
+    _businessId: string
   ): Promise<void> {
     // This would save to your database
     console.log('Saving message:', message);

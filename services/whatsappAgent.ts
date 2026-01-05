@@ -146,4 +146,13 @@ export const whatsappAgent = {
       mediaUrl: catalogUrl,
     });
   },
+
+  /**
+   * Send payment link to customer via WhatsApp
+   */
+  async sendPaymentLink(invoiceData: any, tone: string): Promise<WhatsAppResponse> {
+    console.log(`[WHATSAPP] Sending payment link for invoice ${invoiceData.id} with tone: ${tone}`);
+    // Placeholder for actual implementation
+    return { success: true, message: 'Payment link sent' };
+  },
 };

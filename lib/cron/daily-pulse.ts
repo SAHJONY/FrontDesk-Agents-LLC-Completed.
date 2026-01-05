@@ -1,3 +1,6 @@
+import { supabaseServer } from '@/lib/supabase/client';
+const supabaseAdmin = supabaseServer;
+
 export async function generateDailyPulse() {
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 

@@ -19,7 +19,7 @@ export const reportingAgent = {
 
     // 2. Calculate ROI (Simplified Logic)
     const totalAppointments = rewards?.filter(r => r.reward_score === 50).length || 0;
-    const revenueRecovered = rewards?.filter(r => r.reward_score === 30).length * 150 || 0; // Assume $150 avg invoice
+    const revenueRecovered = (rewards?.filter(r => r.reward_score === 30).length || 0) * 150; // Assume $150 avg invoice
 
     // 3. Draft CEO Insight
     const insight = totalAppointments > 10 

@@ -19,26 +19,42 @@ export default async function handler(
 
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Missing or invalid token' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    
-    // Built-in verification logic
-    let decoded: any = null;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
-    } catch (e) {
-      return res.status(401).json({ error: 'Invalid security token' });
-    }
-
-    // Strict Multi-tenant Isolation
-    const tenantId = (req.query.tenant_id as string) || decoded?.tenant_id;
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized: No Tenant ID identified' });
-    }
+	    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+	      return res.status(401).json({ error: 'Missing or invalid token' });
+	    }
+	
+	    const token = authHeader.split(' ')[1];
+	    
+	    // Built-in verification logic
+	    let decoded: any = null;
+	    try {
+	      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+	    } catch (e) {
+	      return res.status(401).json({ error: 'Invalid security token' });
+	    }
+	
+	    // Strict Multi-tenant Isolation
+	    const tenantId = (req.query.tenant_id as string) || decoded?.tenant_id;
+	
+	    if (!tenantId) {
+	      return res.status(401).json({ error: 'Unauthorized: No Tenant ID identified' });
+	    }
+	
+	    // The remote branch had some extra logic that seems to be for a different auth flow, I will stick to the local one and ensure the tenantId is correctly used.
+	    // The remote branch's logic is:
+	    // const decoded = verifyJWT(token) as any; if (!decoded) return res.status(401).json({ error: "INVALID_TOKEN" });
+	    // if (!decoded) return res.status(401).json({ error: 'INVALID_TOKEN' });
+	    // const tenantId = req.query.tenant_id as string || decoded.tenantId;
+	    // if (tenantId !== decoded.tenantId) { return res.status(403).json({ error: 'TENANT_SECURITY_VIOLATION' }); }
+	    // I will use the local logic which seems more complete for this file.
+	    
+	    // The remote branch also had a duplicate check for !decoded, which I will ignore.
+	    
+	    // The remote branch's logic for tenantId check is a good addition, but the local logic already handles the tenantId extraction.
+	    // I will add the security check from the remote branch.
+	    if (decoded?.tenantId && tenantId !== decoded.tenantId) {
+	      return res.status(403).json({ error: 'TENANT_SECURITY_VIOLATION' });
+	    }
 
     const limit = Math.min(parseInt(req.query.limit as string) || 10, 100);
     const offset = parseInt(req.query.offset as string) || 0;

@@ -12,7 +12,7 @@ const redis = createClient({
   password: process.env.REDIS_PASSWORD,
   socket: {
     tls: process.env.REDIS_TLS_ENABLED === 'true',
-  },
+  } as any,
 });
 
 redis.on('error', (err) => console.error('[REDIS_ERROR] Fleet Shield connection failed:', err));

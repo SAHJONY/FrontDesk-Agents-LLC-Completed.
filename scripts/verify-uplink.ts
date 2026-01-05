@@ -9,7 +9,7 @@ async function runDiagnostics() {
   console.log('🚀 Initializing Neural Uplink Diagnostics...\n');
 
   // 1. Test Supabase Connection
-  const { data, error: sbError } = await supabase.from('leads').select('count').single();
+  const { data: _data, error: sbError } = await supabase.from('leads').select('count').single();
   console.log(sbError ? '❌ Supabase: Connection Failed' : '✅ Supabase: Connection Active');
 
   // 2. Test OpenAI Latency

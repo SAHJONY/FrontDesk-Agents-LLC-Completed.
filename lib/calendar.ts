@@ -8,7 +8,7 @@ export async function checkAvailability(businessId: string, date: string, time: 
   );
 
   // Check against existing appointments to avoid double-booking
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('appointments')
     .select('*')
     .eq('business_id', businessId)

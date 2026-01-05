@@ -1,11 +1,11 @@
 // services/blandAiService.ts
 import { db } from '@/lib/db';
 
-interface IntegrationControl {
-  provider: string;
-  daily_limit: number;
-  enabled: boolean;
-}
+// interface IntegrationControl { // Not used in current logic
+//   provider: string;
+//   daily_limit: number;
+//   enabled: boolean;
+// }
 
 // Type guard to check if db has consumption property
 function hasConsumption(obj: any): obj is typeof db & { 

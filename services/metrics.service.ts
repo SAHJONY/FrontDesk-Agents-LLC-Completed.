@@ -1,6 +1,6 @@
 // File: metrics.service.ts
-import { createClient } from '@/lib/supabase'; // FIX: Import function, not variable
-import { telegramBot } from '@/lib/telegram';
+import { createServerSupabase as createClient } from '@/lib/supabase/server';
+// import { telegramBot } from '@/lib/telegram';
 
 export const metricsService = {
   async recordSovereignEvent(eventName: string, payload: any) {

@@ -44,7 +44,10 @@ export type BusinessConfig = {
 };
 
 type DB = {
-  callLogs: CallLogEntry[];
+  callLogs: {
+    update: (params: { where: { blandCallId: string }; data: Partial<CallLogEntry> }) => Promise<CallLogEntry>;
+    findMany: (params: { where: { blandCallId: string } }) => Promise<CallLogEntry[]>;
+  };
   client: {
     findUnique: (id: string) => ClientConfig | null;
   };
@@ -99,7 +102,19 @@ const businessConfigs: BusinessConfig[] = [
 ];
 
 export const db: DB = {
-  callLogs: [],
+  callLogs: {
+    update: async (params: { where: { blandCallId: string }; data: Partial<CallLogEntry> }) => {
+      const index = (db.callLogs as any).findMany({ where: { blandCallId: params.where.blandCallId } }).findIndex((log: any) => log.blandCallId === params.where.blandCallId);
+      if (index === -1) {
+        throw new Error('Call log not found');
+      }
+      (db.callLogs as any)[index] = { ...(db.callLogs as any)[index], ...params.data };
+      return (db.callLogs as any)[index];
+    },
+    findMany: async (params: { where: { blandCallId: string } }) => {
+      return (db.callLogs as any).filter((log: any) => log.blandCallId === params.where.blandCallId);
+    },
+  },
   client: {
     findUnique: (id: string) => {
       return clients.find(c => c.id === id) || null;
@@ -175,11 +190,11 @@ export const db: DB = {
 
 // Helpers opcionales
 export function addCallLog(entry: CallLogEntry) {
-  db.callLogs.push(entry);
+  (db.callLogs as any).push(entry);
 }
 
 export function getCallLogs() {
-  return db.callLogs;
+  return (db.callLogs as any);
 }
 
 // Helper to manage integrations

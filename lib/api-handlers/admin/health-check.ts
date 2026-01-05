@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!token) return res.status(401).json({ error: 'Missing Token' });
 
-  const decoded = verifyJWT(token);
+  const decoded = verifyJWT(token) as any; if (!decoded) return res.status(401).json({ error: "INVALID_TOKEN" });
 
   // FIX: Added null check to satisfy pdx1 build requirements
   if (!decoded || (decoded as any).email !== 'frontdeskllc@outlook.com') {

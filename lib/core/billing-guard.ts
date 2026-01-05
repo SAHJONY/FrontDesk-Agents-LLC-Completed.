@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'; // FIX: Add missing import
+import { createServerSupabase } from '@/lib/supabase/server';
 
 export async function checkBillingGuard(clientId: string) {
   // FIX: In Next.js 15, server clients must be awaited
-  const supabase = await createClient();
+  const supabase = await createServerSupabase();
   
   // 1. Obtener el límite mensual y el gasto actual del cliente
   const { data: config, error } = await supabase

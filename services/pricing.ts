@@ -24,15 +24,21 @@ export const PERMANENT_TIERS = {
  * Regional Multipliers
  * Set to 1.0 globally to serve every market as a local platform.
  */
-export const REGIONAL_MULTIPLIERS: Record<string, number> = {
-  WESTERN: 1.0,
-  MEDIUM: 1.0,
-  GROWTH: 1.0,
+export interface RegionalMultiplier {
+  multiplier: number;
+  currencyCode: string;
+}
+
+export const REGIONAL_MULTIPLIERS: Record<string, RegionalMultiplier> = {
+  US: { multiplier: 1.0, currencyCode: 'USD' },
+  WESTERN: { multiplier: 1.0, currencyCode: 'USD' },
+  MEDIUM: { multiplier: 1.0, currencyCode: 'USD' },
+  GROWTH: { multiplier: 1.0, currencyCode: 'USD' },
 };
 
-export const getAdjustedPricing = (region: string = 'WESTERN'): PricingPlan[] => {
+export const getAdjustedPricing = (_region: string = 'WESTERN'): PricingPlan[] => {
   // Every market is treated as a local platform with 1:1 parity
-  const m = REGIONAL_MULTIPLIERS[region] || 1.0;
+  // const _m = REGIONAL_MULTIPLIERS[region]?.multiplier || 1.0;
 
   return [
     {

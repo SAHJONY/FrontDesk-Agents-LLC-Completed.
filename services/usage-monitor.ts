@@ -6,6 +6,21 @@ const TIER_LIMITS = {
   SCALE: 1500
 };
 
+async function getNeuralMinutesUsed(_customerId: string): Promise<number> {
+  // Placeholder for actual database query
+  return 450;
+}
+
+async function sendUsageWarning(customerId: string, used: number, limit: number): Promise<void> {
+  // Placeholder for notification service
+  console.log(`[USAGE WARNING] Customer ${customerId} used ${used}/${limit} minutes.`);
+}
+
+async function triggerOverageBilling(customerId: string, overage: number, tier: keyof typeof TIER_LIMITS): Promise<void> {
+  // Placeholder for billing service
+  console.log(`[OVERAGE] Customer ${customerId} triggered ${overage} minutes of overage on tier ${tier}.`);
+}
+
 export async function checkCustomerUsage(customerId: string, tier: keyof typeof TIER_LIMITS) {
   const usedMinutes = await getNeuralMinutesUsed(customerId);
   const limit = TIER_LIMITS[tier];

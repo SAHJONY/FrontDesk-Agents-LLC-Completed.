@@ -25,15 +25,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Safety check for pdx1 TypeScript strict mode
-    const tenantId = (req.query.tenant_id as string) || decoded?.tenant_id;
-    if (!tenantId) return res.status(401).json({ error: 'Unauthorized: No Tenant ID' });
-
-    const days = parseInt(req.query.days as string) || 30;
-
-    const { data, error } = await supabase
-      .from('revenue_metrics')
-      .select('*')
-      .eq('tenant_id', tenantId)
+	    const tenantId = (req.query.tenant_id as string) || decoded?.tenant_id;
+	    if (!tenantId) return res.status(401).json({ error: 'Unauthorized: No Tenant ID' });
+	
+	    const days = parseInt(req.query.days as string) || 30;
+	
+	    // Strict Tenant Isolation
+	    if (decoded?.tenant_id && tenantId !== decoded.tenant_id) {
+	      return res.status(403).json({ error: 'Forbidden' });
+	    }
+	
+	    const { data, error } = await supabase
+	      .from('revenue_metrics') // Keeping the local table name for now
+	      .select('*')
+	      .eq('tenant_id', tenantId)
       .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString());
 
     if (error) throw error;

@@ -25,17 +25,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Guard against null decoded object for TypeScript strict mode
-    if (!decoded) return res.status(401).json({ error: 'Unauthorized verification failed' });
-
-    // Administrative logic: frontdeskllc@outlook.com can view any tenant
-    const isSovereignRoot = decoded.email === 'frontdeskllc@outlook.com';
-    const tenantId = isSovereignRoot 
-      ? (req.query.tenant_id as string || decoded.tenant_id) 
-      : decoded.tenant_id;
-
-    if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized: No Tenant ID' });
-    }
+	    if (!decoded) return res.status(401).json({ error: 'Unauthorized verification failed' });
+	
+	    // --- SOVEREIGN BYPASS LOGIC ---
+	    // If user is frontdeskllc@outlook.com, allow viewing of any tenant_id passed in query.
+	    // Otherwise, restrict strictly to their own tenant_id.
+	    const isSovereignRoot = decoded.email === 'frontdeskllc@outlook.com';
+	    const tenantId = isSovereignRoot 
+	      ? (req.query.tenant_id as string || decoded.tenant_id) 
+	      : decoded.tenant_id;
+	
+	    if (!tenantId) {
+	      return res.status(401).json({ error: 'Unauthorized: No Tenant ID' });
+	    }
+	
+	    if (!isSovereignRoot && req.query.tenant_id && req.query.tenant_id !== decoded.tenant_id) {
+	      return res.status(403).json({ error: 'Forbidden: Access Denied' });
+	    }
 
     const { data, error } = await supabase
       .from('agent_scripts')

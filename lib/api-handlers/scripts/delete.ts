@@ -25,14 +25,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Ensure decoded exists before checking permissions
-    if (!decoded) return res.status(401).json({ error: 'Unauthorized verification failed' });
-
-    const isSovereignRoot = decoded.email === 'frontdeskllc@outlook.com';
-    const tenantId = isSovereignRoot 
-      ? (req.query.tenant_id as string || decoded.tenant_id) 
-      : decoded.tenant_id;
-
-    const { id } = req.query;
+	    if (!decoded) return res.status(401).json({ error: 'Unauthorized verification failed' });
+	
+	    const isSovereignRoot = decoded.email === 'frontdeskllc@outlook.com';
+	    const tenantId = isSovereignRoot 
+	      ? (req.query.tenant_id as string || decoded.tenant_id) 
+	      : decoded.tenant_id;
+	
+	    const { id } = req.query;
 
     if (!id || !tenantId) {
       return res.status(400).json({ error: 'Missing Script ID or Tenant ID' });

@@ -13,25 +13,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing token' });
-
-    const token = authHeader.split(' ')[1];
-    let decoded: any = null;
-    
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
-    } catch (e) {
-      return res.status(401).json({ error: 'Invalid security token' });
-    }
-
-    // Safety check: ensure decoded exists before accessing properties
-    if (!decoded) return res.status(401).json({ error: 'Token verification failed' });
-
-    // Administrative override check
-    const isAdmin = decoded.email === 'frontdeskllc@outlook.com';
-    const tenantId = isAdmin ? (req.body.tenant_id || decoded.tenant_id) : decoded.tenant_id;
-
-    if (!tenantId) return res.status(401).json({ error: 'Unauthorized: No Tenant ID' });
+	    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing token' });
+	
+	    const token = authHeader.split(' ')[1];
+	    let decoded: any = null;
+	    
+	    try {
+	      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+	    } catch (e) {
+	      return res.status(401).json({ error: 'Invalid security token' });
+	    }
+	
+	    // Safety check: ensure decoded exists before accessing properties
+	    if (!decoded) return res.status(401).json({ error: 'Token verification failed' });
+	
+	    // Administrative override check (using the remote branch's name for clarity)
+	    const isSovereign = decoded.email === 'frontdeskllc@outlook.com';
+	    const tenantId = isSovereign ? (req.body.tenant_id || decoded.tenant_id) : decoded.tenant_id;
+	
+	    if (!tenantId) return res.status(401).json({ error: 'Unauthorized: No Tenant ID' });
 
     const { data, error } = await supabase
       .from('agent_scripts')

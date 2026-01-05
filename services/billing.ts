@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Plans } from './plans';
-import { getAdjustedPricing } from './pricing';
+// import { getAdjustedPricing } from './pricing';
 import { medicAgent } from './medic.service';
 
 const supabase = createClient(
@@ -67,8 +67,8 @@ export const billingService = {
    * CALCULATE SUCCESS FEES
    * Uses the pricing logic to bill for appointments and recovered revenue
    */
-  async calculateUsageBill(clientId: string, region: string = 'WESTERN') {
-    const plans = getAdjustedPricing(region);
+  async calculateUsageBill(_clientId: string, region: string = 'WESTERN') {
+    // const _plans = getAdjustedPricing(region);
     // Logic to pull rewards from the DB and apply the success fees
     // This turns your AI performance into actual monthly revenue
     return { status: 'calculating', regionMultiplierApplied: region !== 'WESTERN' };

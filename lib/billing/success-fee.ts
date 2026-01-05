@@ -2,9 +2,9 @@ import Stripe from 'stripe';
 import { createServerClient } from '@/lib/supabase/server';
 
 // Versión de API requerida por el SDK instalado
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { 
-  apiVersion: '2025-02-24.acacia' 
-});
+	const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { 
+	  apiVersion: '2025-02-24.acacia' as any // Using 'as any' to bypass strict type checking for the custom API version
+	});
 
 /**
  * PROCESAMIENTO DE COMISIONES POR ÉXITO

@@ -21,7 +21,7 @@ export const hospitalityBridge = {
   /**
    * Dispara un ticket de mantenimiento basado en una queja detectada por IA.
    */
-  async triggerMaintenance(propertyId: string, issue: string) {
+  async triggerMaintenance(_propertyId: string, issue: string) {
     // Esto se conecta con tu vertical de Home Services automáticamente
     console.log(`[HOSPITALITY ALERT] Dispatching HVAC/Plumbing for: ${issue}`);
     // Integración directa con tu flujo de leads existente

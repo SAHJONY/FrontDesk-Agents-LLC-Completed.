@@ -1,8 +1,8 @@
 import { jsPDF } from "jspdf";
-import { createClient } from '@/lib/supabase/server'; // Use your secure internal client
+import { createServerSupabase } from '@/lib/supabase/server'; // Use your secure internal client
 
 export async function generateMonthlyReport(clientId: string) {
-  const supabase = await createClient(); // Await the client for Next.js 15
+  const supabase = await createServerSupabase(); // Await the client for Next.js 15
   
   // 1. Fetch the data for the PDF
   const { data: metrics } = await supabase

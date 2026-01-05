@@ -13,7 +13,7 @@ async function runSystemAudit() {
 
   // 2. DATABASE TEST: Supabase Connection & Schema
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-  const { data, error } = await supabase.from('leads').select('count', { count: 'exact', head: true });
+  const { data: _data, error } = await supabase.from('leads').select('count', { count: 'exact', head: true });
   if (error) console.error("❌ Database: Connection failed.", error.message);
   else console.log("✅ Database: Sovereign Leads table is accessible.");
 

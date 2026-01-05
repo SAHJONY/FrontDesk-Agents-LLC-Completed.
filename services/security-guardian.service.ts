@@ -14,6 +14,15 @@ export const securityGuardian = {
     return { action: 'PROCEED', secureData };
   },
 
+  async validatePayload(data: any) {
+    // Simple check for now, in production this would be a complex LLM-based inspection
+    const payload = JSON.stringify(data).toLowerCase();
+    if (payload.includes('ignore previous instructions') || payload.includes('drop table')) {
+      return false;
+    }
+    return true;
+  },
+
   anonymizeSensitiveData(data: any) {
     // Replaces actual names/SSNs with temporary hashes for the RL engine
     return { ...data, patientName: 'HIDDEN_FOR_SECURITY' };

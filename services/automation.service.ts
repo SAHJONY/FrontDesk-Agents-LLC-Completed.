@@ -33,7 +33,7 @@ export const aiCeoAgent = {
 
     // 2. DATA PRIVACY (PII Scrubbing)
     // Redacts sensitive info before it ever hits the RL or logging layers
-    const cleanData = medicAgent.scrubSensitiveData(signal.data);
+    // const _cleanData = medicAgent.scrubSensitiveData(signal.data);
     
     // 3. SYSTEM HEALTH (Medic Protocol)
     const isServiceHealthy = await medicAgent.checkVitals(signal.productId);
@@ -43,7 +43,7 @@ export const aiCeoAgent = {
     }
 
     // 4. MEMORY & RL CONTEXT
-    const context = signal.clientId ? await this.getGlobalContext(signal.clientId) : null;
+    // const _context = signal.clientId ? await this.getGlobalContext(signal.clientId) : null;
 
     // 5. STRATEGIC EXECUTION
     // Handoff to specialized workforce (Growth, Finance, or Ops)

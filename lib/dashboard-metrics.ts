@@ -15,8 +15,8 @@ export interface ClientMetrics {
  * @returns Promise with client metrics
  */
 export async function getClientMetrics(
-  clientKey: string, 
-  days: number = 7
+  _clientKey: string, 
+  _days: number = 7
 ): Promise<ClientMetrics> {
   try {
     // TODO: Replace with actual API call or database query

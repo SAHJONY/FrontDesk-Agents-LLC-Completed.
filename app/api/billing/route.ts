@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     
     // Access the number directly from the PERMANENT_TIERS object
     const basePrice = PERMANENT_TIERS[tier as keyof typeof PERMANENT_TIERS];
-    const multiplier = REGIONAL_MULTIPLIERS[region as keyof typeof REGIONAL_MULTIPLIERS] || 1.0;
+    const multiplier = REGIONAL_MULTIPLIERS[region as keyof typeof REGIONAL_MULTIPLIERS]?.multiplier || 1.0;
     
     const finalPrice = Math.round(basePrice * multiplier);
 

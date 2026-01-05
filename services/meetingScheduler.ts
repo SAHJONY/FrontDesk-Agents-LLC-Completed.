@@ -1,5 +1,5 @@
 // services/meetingScheduler.ts
-import { google } from 'googleapis'; // Requiere 'googleapis' en package.json
+// import { google } from 'googleapis'; // Requiere 'googleapis' en package.json
 
 export interface TimeSlot {
   start: Date;
@@ -25,7 +25,7 @@ export class MeetingScheduler {
   /**
    * Reserva la cita y dispara confirmaciones automáticas
    */
-  async bookMeeting(businessId: string, slot: TimeSlot, customerEmail: string) {
+  async bookMeeting(_businessId: string, _slot: TimeSlot, _customerEmail: string) {
     // 1. Crear evento en calendario
     // 2. Notificar vía SMS (usando tu smsConcierge)
     // 3. Notificar vía Email (usando tu emailAssistant)

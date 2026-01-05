@@ -19,27 +19,18 @@ async function dispatchSequences() {
   const batch = leads.slice(0, 100);
 
   for (const lead of batch) {
-    const { business_name, language, direction, currency, id } = lead;
+    const { business_name, id: _id } = lead;
     
-    // 1. Generate the Forensic ROI Link
-    const activationUrl = `https://frontdeskagents.com/initialize/${id}?lang=${language}&dir=${direction}`;
-    
-    // 2. Select Template Logic
-    const isRTL = direction === 'rtl';
-    const subject = isRTL 
-      ? `تقرير تدقيق: تم اكتشاف تسرب إيرادات في ${business_name}`
-      : `Forensic Audit: Revenue Leakage Detected at ${business_name}`;
-
-    console.log(`🚀 Dispatching to ${business_name} [${direction.toUpperCase()}]`);
+    console.log(`🚀 Dispatching to ${business_name}`);
     
     // 3. Integration Point: Your SMTP/Email Service (Resend/SendGrid)
     // Here we log the payload that will be sent via your email provider
-    const emailPayload = {
-      to: lead.email,
-      subject: subject,
-      body: `Link: ${activationUrl} | Market: ${lead.industry}`,
-      vault_status: 'SIGNED_BY_AEGIS'
-    };
+    // const _emailPayload = {
+    //   to: lead.email,
+    //   subject: subject,
+    //   body: `Link: ${activationUrl} | Market: ${lead.industry}`,
+    //   vault_status: 'SIGNED_BY_AEGIS'
+    // };
 
     // Update registry to 'Outreach Sent'
     await supabase

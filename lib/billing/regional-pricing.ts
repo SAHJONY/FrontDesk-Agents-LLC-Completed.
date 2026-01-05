@@ -1,5 +1,5 @@
 // lib/billing/regional-pricing.ts
-import { REGIONAL_MULTIPLIERS } from '../../types/billing';
+	import { REGIONAL_MULTIPLIERS } from '@/services/pricing';
 
 /**
  * MOTOR DE PRECIOS REGIONALES
@@ -11,7 +11,7 @@ export function calculateRegionalPrice(
   region: keyof typeof REGIONAL_MULTIPLIERS
 ): number {
   // Busca el multiplicador; si la región no existe, aplica 1.0 por defecto
-  const multiplier = REGIONAL_MULTIPLIERS[region] || 1.0;
+	  const multiplier = REGIONAL_MULTIPLIERS[region]?.multiplier || 1.0;
   
   const finalPrice = basePrice * multiplier;
   

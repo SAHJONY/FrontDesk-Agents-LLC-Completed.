@@ -2,6 +2,7 @@
 import { syncLeadToCRM } from './crm-sync-utils';
 import { setupNoShowPrevention } from './sms-scheduler';
 
+
 export type TenantContext = {
   tenantId?: string | null;
   orgId?: string | null;

@@ -227,7 +227,7 @@ Qualification criteria:
    * Book meeting in calendar
    */
   async bookMeeting(
-    lead: Lead,
+    _lead: Lead,
     proposedTimes: Date[]
   ): Promise<{ booked: boolean; meetingTime?: Date }> {
     // In production, this would:
@@ -251,7 +251,7 @@ Qualification criteria:
   async scheduleFollowUp(
     lead: Lead,
     followUpDate: Date,
-    notes: string
+    _notes: string
   ): Promise<void> {
     // Add to call queue
     console.log(`Follow-up scheduled for ${lead.name} on ${followUpDate}`);
@@ -319,7 +319,7 @@ Qualification criteria:
   }
 
   private async generateRecommendations(
-    outcomes: CallOutcome[]
+    _outcomes: CallOutcome[]
   ): Promise<string[]> {
     // Analyze patterns and generate recommendations
     return [

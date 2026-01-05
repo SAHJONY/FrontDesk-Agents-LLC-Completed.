@@ -26,7 +26,7 @@ async function scrapeNationalProspects() {
         }
       });
 
-      const prospects = response.data.local_results.map(biz => ({
+      const prospects = response.data.local_results.map((biz: any) => ({
         full_name: biz.title,
         phone_number: biz.phone,
         source: 'automated-scraper', 
@@ -43,14 +43,14 @@ async function scrapeNationalProspects() {
       const result = await handleBatchLeads(prospects, process.env.SYSTEM_BOT_ID);
       console.log(`✅ ${market.city} Results: ${result.success} Success | ${result.failed} Failed`);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ Error scraping ${market.city}:`, error.message);
     }
   }
 }
 
 // Helper to ensure leads go to the right vertical funnel
-function mapVertical(industry) {
+function mapVertical(industry: string) {
   const map = {
     'hvac': 'home-services',
     'plumbing': 'home-services',
@@ -58,7 +58,7 @@ function mapVertical(industry) {
     'dentist': 'dental',
     'law-firms': 'law'
   };
-  return map[industry] || 'general';
+  return map[industry as keyof typeof map] || 'general';
 }
 
 scrapeNationalProspects();

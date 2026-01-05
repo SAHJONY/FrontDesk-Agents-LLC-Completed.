@@ -1,3 +1,7 @@
+function formatCurrency(amount: number, currency: string): string {
+  return `${currency} ${amount.toFixed(2)}`;
+}
+
 export function getLocalizedTemplate(lead: any) {
   const templates = {
     en: { body: "...", subject: "..." },
@@ -6,7 +10,7 @@ export function getLocalizedTemplate(lead: any) {
     // ... logic for fr and de
   };
 
-  const template = templates[lead.language] || templates['en'];
+  const template = templates[lead.language as keyof typeof templates] || templates['en'];
   
   return {
     subject: template.subject.replace('{business_name}', lead.name),
