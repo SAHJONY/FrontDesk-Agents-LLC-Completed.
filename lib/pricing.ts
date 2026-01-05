@@ -1,17 +1,50 @@
-export const BASE_PRICES = {
-  basic: 199,
-  professional: 399,
-  growth: 799,
-  elite: 1499
+// lib/pricing.ts
+export type PlanKey = "basic" | "professional" | "growth" | "elite";
+
+export const REGION_MULTIPLIERS = {
+  western: 1.0,
+  emerging: 0.65,
+  growth: 0.35,
+} as const;
+
+export const PLANS: Record<PlanKey, { name: string; baseMonthlyUSD: number; minutes: string; agents: string; bullets: string[] }> = {
+  basic: {
+    name: "Basic Workforce",
+    baseMonthlyUSD: 399, // TODO: confirm
+    minutes: "500 Minutes",
+    agents: "1 AI Agent",
+    bullets: ["CRM Sync"],
+  },
+  professional: {
+    name: "Professional Workforce",
+    baseMonthlyUSD: 899, // TODO: confirm
+    minutes: "1,500 Minutes",
+    agents: "3 AI Agents",
+    bullets: ["Lead Gen"],
+  },
+  growth: {
+    name: "Growth Workforce",
+    baseMonthlyUSD: 1799, // TODO: confirm
+    minutes: "4,000 Minutes",
+    agents: "10 AI Agents",
+    bullets: ["Payments"],
+  },
+  elite: {
+    name: "Elite Workforce",
+    baseMonthlyUSD: 2799, // TODO: confirm
+    minutes: "Unlimited Minutes",
+    agents: "Unlimited Fleet",
+    bullets: ["Success Logic"],
+  },
 };
 
-export function calculateRegionalPrice(tier: keyof typeof BASE_PRICES, multiplier: number) {
-  const price = BASE_PRICES[tier] * multiplier;
-  return Math.round(price * 100) / 100; // Returns localized price
+export function safePriceUSD(baseUSD: number, multiplier: number) {
+  const m = Number.isFinite(multiplier) ? multiplier : 1.0;
+  const b = Number.isFinite(baseUSD) ? baseUSD : 0;
+  const value = b * m;
+  return Number.isFinite(value) && value > 0 ? value : null;
 }
 
-export const MULTIPLIERS: Record<string, number> = {
-  US: 1.00, CA: 1.00, GB: 1.00,
-  MX: 0.65, BR: 0.65, PL: 0.65,
-  IN: 0.35, PH: 0.35, NG: 0.35
-};
+export function formatUSD(amount: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(amount);
+}
