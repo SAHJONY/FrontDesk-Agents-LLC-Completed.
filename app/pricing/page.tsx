@@ -1,48 +1,53 @@
-'use client';
+// app/pricing/page.tsx
+import { formatUSD, PLANS, REGION_MULTIPLIERS, safePriceUSD, type PlanKey } from "@/lib/pricing";
 
-import React from 'react';
-import Image from 'next/image';
-import { useMarketPricing } from '../../hooks/useMarketPricing';
-import { PricingCard } from '../../components/PricingCard';
-import { CurrencySwitcher } from '../../components/CurrencySwitcher';
+const DEFAULT_REGION: keyof typeof REGION_MULTIPLIERS = "western";
 
 export default function PricingPage() {
-  const { plans, region, setRegion, currency } = useMarketPricing();
+  const region = DEFAULT_REGION; // TODO: wire to your UI dropdown/state
+  const multiplier = REGION_MULTIPLIERS[region];
+
+  const order: PlanKey[] = ["basic", "professional", "growth", "elite"];
 
   return (
-    <div className="max-w-7xl mx-auto py-24 px-6 relative z-10">
-      <div className="text-center mb-20 relative">
-        {/* Background Image */}
-        <div className="absolute inset-0 -z-10 opacity-10">
-          <Image 
-            src="/assets/call-center-automation.webp" 
-            alt="Call Center Automation" 
-            fill 
-            className="object-cover"
-          />
-        </div>
-        <h2 className="text-brand-cyan font-bold tracking-[0.3em] uppercase text-sm mb-4">
-          Global Node Activation
-        </h2>
-        <h1 className="text-5xl md:text-6xl font-black mb-8 italic">
-          SOVEREIGN PRICING
-        </h1>
-        <CurrencySwitcher currentRegion={region} onRegionChange={setRegion} />
+    <main style={{ padding: "32px", maxWidth: 1100, margin: "0 auto" }}>
+      <h1 style={{ fontSize: 40, fontWeight: 800, marginBottom: 8 }}>SOVEREIGN PRICING</h1>
+      <p style={{ opacity: 0.8, marginBottom: 18 }}>
+        Western Markets Multiplier: 1.0x &nbsp; Emerging Markets Multiplier: 0.65x &nbsp; Growth Markets Multiplier: 0.35x
+      </p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+        {order.map((key) => {
+          const plan = PLANS[key];
+          const computed = safePriceUSD(plan.baseMonthlyUSD, multiplier);
+
+          return (
+            <section key={key} style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, padding: 18 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>{plan.name}</h3>
+
+              <div style={{ fontSize: 34, fontWeight: 900, marginBottom: 10 }}>
+                {computed ? `${formatUSD(computed)}/mo` : "Contact us"}
+              </div>
+
+              <ul style={{ margin: 0, paddingLeft: 18, opacity: 0.9 }}>
+                <li>{plan.minutes}</li>
+                <li>{plan.agents}</li>
+                {plan.bullets.map((b) => (
+                  <li key={b}>{b}</li>
+                ))}
+              </ul>
+
+              <button style={{ marginTop: 14, width: "100%", padding: "12px 14px", borderRadius: 12, fontWeight: 700 }}>
+                Activate Workforce
+              </button>
+            </section>
+          );
+        })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {plans.map((plan) => (
-          <PricingCard 
-            key={plan.id} 
-            plan={plan} 
-            currencySymbol={currency.symbol} 
-          />
-        ))}
-      </div>
-      
-      <footer className="mt-24 text-center text-slate-500 text-sm italic">
+      <p style={{ marginTop: 16, opacity: 0.7 }}>
         *Pricing is permanent across all platforms. Regional multipliers applied at checkout.
-      </footer>
-    </div>
+      </p>
+    </main>
   );
 }
