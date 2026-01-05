@@ -1,5 +1,6 @@
 import "./globals.css";
 import { AuthProvider } from "./contexts/AuthContext";
+import TopNav from "@/components/TopNav";
 
 export const metadata = {
   title: 'FrontDesk Agents: Global Revenue Workforce',
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
+          <TopNav />
           {children}
         </AuthProvider>
       </body>

@@ -61,3 +61,5 @@ body {
   background: #27272a;
   border-radius: 10px;
 }
+
+@import "@/styles/frontdesk-nav.css";

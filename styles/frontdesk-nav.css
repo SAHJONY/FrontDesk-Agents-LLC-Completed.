@@ -1,0 +1,203 @@
+/* FrontDesk Agents — Customer UX Pack styles
+   Drop into your global CSS: @import "@/styles/frontdesk-nav.css";
+*/
+
+.fd-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  background: rgba(10, 10, 12, 0.72);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fd-nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 16px;
+}
+
+.fd-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.fd-nav__logo {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.fd-nav__links {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fd-nav__link {
+  color: rgba(255, 255, 255, 0.86);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.fd-nav__link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.fd-nav__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  font-size: 14px;
+  padding: 10px 12px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.fd-btn:hover { background: rgba(255, 255, 255, 0.10); }
+
+.fd-btn-primary {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.16);
+  font-weight: 700;
+}
+
+.fd-btn-primary:hover { background: rgba(255, 255, 255, 0.22); }
+
+.fd-btn-ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.fd-btn-full { width: 100%; }
+
+.fd-lang { padding: 10px 10px; }
+.fd-lang__label { font-weight: 800; }
+.fd-lang__divider { opacity: 0.5; }
+.fd-lang__next { opacity: 0.75; }
+
+.fd-caret { margin-left: 6px; opacity: 0.75; }
+
+.fd-nav__dropdown { position: relative; }
+
+.fd-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 220px;
+  background: rgba(12, 12, 14, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+  padding: 6px;
+}
+
+.fd-menu__item {
+  display: block;
+  padding: 10px 10px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.90);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.fd-menu__item:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+
+.fd-burger {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.fd-burger__bar {
+  width: 18px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 2px;
+}
+
+.fd-mobile {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 10, 12, 0.92);
+  padding: 12px 16px 16px;
+}
+
+.fd-mobile__section { max-width: 1200px; margin: 0 auto; }
+.fd-mobile__row { padding: 10px 0; }
+.fd-mobile__label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.fd-mobile__list { display: grid; gap: 8px; }
+
+.fd-mobile__item {
+  display: block;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+}
+
+.fd-mobile__item:hover { background: rgba(255, 255, 255, 0.10); }
+
+.fd-mobile__cta {
+  display: grid;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+/* Responsive helpers */
+.fd-show-mobile { display: none; }
+.fd-hide-mobile { display: inline-flex; }
+
+@media (max-width: 860px) {
+  .fd-show-mobile { display: inline-flex; }
+  .fd-hide-mobile { display: none; }
+  .fd-nav__inner { padding: 12px 14px; }
+}
