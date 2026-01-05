@@ -41,7 +41,7 @@ export default async function handler(
   try {
     const call = await twilioClient.calls.create({
       to,
-      from: TWILIO_FROM_NUMBER,
+      from: TWILIO_FROM_NUMBER!,
       url: "https://handler.twilio.com/twiml/EHXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     })
 

@@ -1,5 +1,5 @@
 // File: metrics.service.ts
-import { createServerSupabase as createClient } from '@/lib/supabase/server';
+import { createServerClient as createClient } from '@/lib/supabase/server';
 // import { telegramBot } from '@/lib/telegram';
 
 export const metricsService = {

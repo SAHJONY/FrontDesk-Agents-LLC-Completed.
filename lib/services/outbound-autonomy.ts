@@ -1,11 +1,11 @@
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/server';
 
 export async function shadowProvisionLead(lead: {
   name: string;
   industry: string;
   phone: string;
 }) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServerClient();
 
   // Create the shadow profile BEFORE you contact them
   const { data, error } = await supabase

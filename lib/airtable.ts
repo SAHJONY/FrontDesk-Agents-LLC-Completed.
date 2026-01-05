@@ -28,3 +28,13 @@ export async function fetchTableRecords<T extends FieldSet>(
   // TypeScript-safe escape hatch (intentional)
   return records as unknown as Records<T>
 }
+
+/**
+ * Fetches today's call events from the "Call Events" table.
+ * NOTE: Actual "today" filtering is complex with Airtable API.
+ * For now, we fetch all and let the calling function filter.
+ */
+export async function getTodayStats() {
+  // Assuming the table name is 'Call Events' based on the comment in lib/metrics.ts
+  return fetchTableRecords('Call Events');
+}

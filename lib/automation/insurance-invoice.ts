@@ -1,4 +1,4 @@
-import { createServerSupabase } from '@/lib/supabase/server'; // Nombre corregido 1:1
+import { createServerClient } from '@/lib/supabase/server'; // Nombre corregido 1:1
 	// import { resend } from '@/lib/mail/resend'; // Ensure this matches exactly
 
 // Fuerza Node.js (evita Edge + Supabase warnings)
@@ -9,7 +9,7 @@ export const runtime = 'nodejs';
  * Procesa los registros de facturación para la fuerza de trabajo global.
  */
 export async function generateMonthlyInsuranceInvoices() {
-  const supabase = await createServerSupabase(); // Await the server client for Next.js 15
+  const supabase = await createServerClient(); // Await the server client for Next.js 15
 	
 	  const { data, error } = await supabase
 	    .from('billing_records')

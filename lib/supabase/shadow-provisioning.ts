@@ -1,4 +1,4 @@
-import { createServerSupabase } from './server';
+import { createServerClient } from './server';
 
 export async function createShadowProfile(leadData: {
   businessName: string;
@@ -6,7 +6,7 @@ export async function createShadowProfile(leadData: {
   phone: string;
   language?: 'en' | 'es' | 'ar';
 }) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServerClient();
   
   // Create a unique slug for their demo (e.g., peoples-plumbing-demo)
   const demoSlug = leadData.businessName.toLowerCase().replace(/\s+/g, '-') + '-demo';

@@ -1,9 +1,9 @@
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/server';
 import { encryptSecret } from '@/lib/security/shadow-vault';
 import { createHash } from 'crypto';
 
 export async function handleLeadIngestion(leadData: any) {
-  const supabase = await createServerSupabase(); 
+  const supabase = await createServerClient(); 
   const { business_name, phone_number: _phone_number, language, direction, industry: _industry, proprietary_intelligence } = leadData;
   
   // 1. Vault the proprietary intelligence (Master Prompt/Scraper Insights)

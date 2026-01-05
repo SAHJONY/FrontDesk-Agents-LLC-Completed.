@@ -1,4 +1,4 @@
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/server';
 
 /**
  * SOVEREIGN LEAD INGESTION
@@ -6,7 +6,7 @@ import { createServerSupabase } from '@/lib/supabase/server';
  */
 
 export async function handleLeadIngestion(leadData: any) {
-  const supabase = await createServerSupabase(); 
+  const supabase = await createServerClient(); 
   const { 
     full_name, 
     phone_number, 
@@ -42,7 +42,7 @@ export async function handleLeadIngestion(leadData: any) {
  * Used by the global scraper to populate the vault at scale
  */
 export async function handleBatchLeads(leads: any[], _systemBotId?: string) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServerClient();
   
   let successCount = 0;
   let failedCount = 0;

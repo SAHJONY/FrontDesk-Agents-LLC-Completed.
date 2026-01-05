@@ -19,4 +19,3 @@ export async function processYieldOptimization(nodeActivityId: string) {
 	
 	  return status;
 	}
-}

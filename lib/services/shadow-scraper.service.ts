@@ -1,4 +1,4 @@
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/server';
 
 export async function ingestShadowLead(lead: {
   name: string;
@@ -6,7 +6,7 @@ export async function ingestShadowLead(lead: {
   category: string;
   language?: 'en' | 'es' | 'ar';
 }) {
-  const supabase = await createServerSupabase();
+  const supabase = await createServerClient();
 
   // 1. Generate a demo-specific prompt autonomously
   const systemPrompt = `You are the front desk agent for ${lead.name}, a ${lead.category} business. 

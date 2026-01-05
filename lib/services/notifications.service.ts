@@ -1,7 +1,7 @@
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/server';
 
 export async function sendAutonomousOutreach(clientId: string) {
-  const supabase = await createServerSupabase(); // Await is mandatory in Next.js 15
+  const supabase = await createServerClient(); // Await is mandatory in Next.js 15
 
   // Fetch the shadow profile we built from the Greensheet/Global sources
   const { data: config } = await supabase

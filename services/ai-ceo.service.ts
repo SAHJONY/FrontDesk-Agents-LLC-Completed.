@@ -1,5 +1,5 @@
 // services/ai-ceo.service.ts
-import { createServerSupabase as createClient } from '@/lib/supabase/server';
+import { createServerClient as createClient } from '@/lib/supabase/server';
 import automationService from './automation.service';
 
 export const aiCeoAgent = {

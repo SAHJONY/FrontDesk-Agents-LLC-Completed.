@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // 1. Push to Vercel Environment Variables
-    const vercelRes = await fetch(
+    await fetch(
       `https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/env`,
       {
         method: 'POST',
