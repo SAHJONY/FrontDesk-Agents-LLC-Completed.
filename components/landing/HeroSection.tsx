@@ -76,7 +76,7 @@ export function HeroSection() {
         <div className="mt-16 relative">
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
           <Image
-            src="/assets/ai-call-center.jpeg"
+            src="/images/hero-main.jpg"
             alt="AI Call Center"
             width={1200}
             height={600}
