@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
-export function Topbar() {
+export default function Topbar() {
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {

@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import { useTheme } from 'next-themes';
-import { useLanguage } from '@/app/providers';
+import { useLanguage } from '@/app/components/LanguageProvider';
 
 export function Topbar() {
   const { theme, setTheme } = useTheme();
-  const { lang, setLang } = useLanguage();
+  const { language, setLanguage } = useLanguage();
 
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur">
@@ -16,10 +16,10 @@ export function Topbar() {
         <div className="flex items-center gap-2">
           <button
             className="rounded-md border border-border px-3 py-1 text-sm hover:bg-muted"
-            onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+            onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
             aria-label="Toggle language"
           >
-            {lang.toUpperCase()}
+            {language.toUpperCase()}
           </button>
 
           <button

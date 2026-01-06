@@ -1,6 +1,9 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
+
+// Force dynamic rendering to prevent prerendering issues with useAuth
+export const dynamic = 'force-dynamic';
 import { useAuth } from '@/hooks/useAuth';
 import Image from 'next/image';
 import Link from 'next/link';

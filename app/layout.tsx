@@ -25,7 +25,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex min-h-screen">
             {/* Sidebar provides owner-level navigation if the user is authenticated as owner */}
-            <Sidebar />
+            <Sidebar isOwner={false} />
             
             <div className="flex flex-1 flex-col">
               {/* Topbar contains the Light/Dark toggle and Language switcher */}

@@ -12,6 +12,9 @@ export function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
+// Export a default client instance for backward compatibility
+export const supabase = getSupabaseClient();
+
 // Database schema types
 export interface User {
   id: string;
