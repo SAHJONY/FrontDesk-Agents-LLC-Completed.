@@ -12,12 +12,25 @@ const intlMiddleware = createIntlMiddleware({
   localePrefix: 'as-needed'
 });
 
-// Routes that require authentication
+// Development mode bypass (set to false in production)
+const DEV_MODE_BYPASS = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
+
+// Routes that require strict authentication (owner/admin only)
 const protectedRoutes = [
-  '/dashboard',
-  '/settings',
+  '/dashboard/owner',
   '/api/owner',
-  '/api/billing',
+  '/api/secrets',
+];
+
+// Routes that are publicly accessible (no auth required)
+const publicRoutes = [
+  '/',
+  '/pricing',
+  '/features',
+  '/dashboard',
+  '/dashboard/agents',
+  '/dashboard/calls',
+  '/settings',
 ];
 
 // Routes that should redirect to dashboard if already authenticated
@@ -39,6 +52,25 @@ export async function middleware(request: NextRequest) {
       headers: request.headers,
     },
   });
+
+  // Remove locale prefix from pathname for route matching
+  const pathnameWithoutLocale = pathname.replace(/^\/(en|es|fr|de|it|pt|ru|zh|ja|ko|ar|hi|nl|pl|tr|vi|th|id|ms|fil|sv|no|da|fi|cs|hu|ro|uk|el|he|fa|bn|ur|ta|te|mr|gu|kn|ml|si|km|lo|my|ka|am|sw|zu|af|is|mt)/, '') || '/';
+
+  // Check if route is public
+  const isPublicRoute = publicRoutes.some(route => 
+    pathnameWithoutLocale === route || pathnameWithoutLocale.startsWith(route + '/')
+  );
+
+  // If route is public, allow access without auth
+  if (isPublicRoute && !DEV_MODE_BYPASS) {
+    return response;
+  }
+
+  // DEV MODE BYPASS: Allow all routes in development
+  if (DEV_MODE_BYPASS) {
+    console.log('[DEV MODE] Bypassing auth for:', pathnameWithoutLocale);
+    return response;
+  }
 
   // Initialize Supabase client
   const supabase = createServerClient(
@@ -76,9 +108,6 @@ export async function middleware(request: NextRequest) {
 
   // Check for JWT token in cookies
   const token = request.cookies.get('auth-token');
-
-  // Remove locale prefix from pathname for route matching
-  const pathnameWithoutLocale = pathname.replace(/^\/(en|es|fr|de|it|pt|ru|zh|ja|ko|ar|hi|nl|pl|tr|vi|th|id|ms|fil|sv|no|da|fi|cs|hu|ro|uk|el|he|fa|bn|ur|ta|te|mr|gu|kn|ml|si|km|lo|my|ka|am|sw|zu|af|is|mt)/, '') || '/';
 
   // Check if the route is protected
   const isProtectedRoute = protectedRoutes.some(route => 
