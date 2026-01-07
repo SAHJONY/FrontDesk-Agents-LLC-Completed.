@@ -40,7 +40,7 @@ export default function Navigation() {
   }, [pathname]);
 
   return (
-    <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50" role="navigation" aria-label="Main navigation">
+    <nav className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-[100]" role="navigation" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -151,7 +151,7 @@ export default function Navigation() {
 
         {/* Mobile Menu - Enhanced with better touch targets */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-slate-800 animate-slideDown">
+          <div className="md:hidden py-4 border-t border-slate-800 bg-slate-900/98 backdrop-blur-lg animate-slideDown">
             <div className="flex flex-col space-y-2">
               <Link 
                 href="/dashboard" 
