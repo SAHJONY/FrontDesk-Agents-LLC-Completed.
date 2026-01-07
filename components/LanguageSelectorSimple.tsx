@@ -34,7 +34,7 @@ export default function LanguageSelectorSimple() {
   );
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-50" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="text-slate-300 hover:text-white text-xs sm:text-sm font-medium transition-colors px-2 sm:px-3 py-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center gap-1.5"
@@ -51,7 +51,7 @@ export default function LanguageSelectorSimple() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 max-h-96 overflow-hidden flex flex-col">
+        <div className="absolute right-0 mt-2 w-64 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl z-[200] max-h-96 overflow-hidden flex flex-col animate-fadeIn">
           {/* Search box */}
           <div className="p-2 border-b border-slate-700">
             <input
