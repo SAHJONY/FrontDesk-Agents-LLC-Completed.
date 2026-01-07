@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/response';
+import { NextResponse } from 'next/server';
 import { orchestrator } from '@/lib/autonomous/orchestrator';
 import { selfHealing } from '@/lib/autonomous/self-healing';
 

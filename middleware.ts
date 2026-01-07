@@ -2,7 +2,10 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import createIntlMiddleware from 'next-intl/middleware';
 import jwt from 'jsonwebtoken';
-import {locales} from './i18n';
+import { locales } from './i18n';
+
+// Owner email - exempt from all billing and tier checks
+const OWNER_EMAIL = 'frontdeskllc@outlook.com';
 
 // Create i18n middleware
 const intlMiddleware = createIntlMiddleware({
@@ -12,24 +15,54 @@ const intlMiddleware = createIntlMiddleware({
   localePrefix: 'as-needed'
 });
 
-// Routes that require authentication
-const protectedRoutes = [
-  '/dashboard',
-  '/settings',
-  '/api/owner',
-  '/api/billing',
+// Public routes that don't require authentication
+const publicRoutes = [
+  '/',
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/pricing',
+  '/terms',
+  '/privacy',
+  '/api/auth/login',
+  '/api/auth/signup',
+  '/api/auth/logout',
+  '/api/webhooks',
 ];
 
-// Routes that should redirect to dashboard if already authenticated
-const authRoutes = ['/login', '/signup'];
+// Owner-only routes
+const ownerRoutes = [
+  '/dashboard/owner',
+  '/api/owner',
+];
+
+// Remove locale prefix from pathname
+function stripLocalePrefix(pathname: string): string {
+  const localePattern = new RegExp(`^/(${locales.join('|')})(/|$)`);
+  return pathname.replace(localePattern, '/').replace(/\/$/, '') || '/';
+}
+
+// Check if route is public
+function isPublicRoute(pathname: string): boolean {
+  return publicRoutes.some(route => {
+    if (route === '/') return pathname === '/';
+    return pathname.startsWith(route);
+  });
+}
+
+// Check if route is owner-only
+function isOwnerRoute(pathname: string): boolean {
+  return ownerRoutes.some(route => pathname.startsWith(route));
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // First, handle i18n routing
+  // Handle i18n routing first
   const intlResponse = intlMiddleware(request);
   
-  // If i18n middleware returns a response (redirect), use it
+  // If i18n middleware returns a redirect, use it
   if (intlResponse && intlResponse.status !== 200) {
     return intlResponse;
   }
@@ -39,6 +72,14 @@ export async function middleware(request: NextRequest) {
       headers: request.headers,
     },
   });
+
+  // Strip locale prefix for route matching
+  const cleanPathname = stripLocalePrefix(pathname);
+
+  // Allow public routes without authentication
+  if (isPublicRoute(cleanPathname)) {
+    return response;
+  }
 
   // Initialize Supabase client
   const supabase = createServerClient(
@@ -71,73 +112,57 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Get Supabase user
+  // Get Supabase session
   await supabase.auth.getUser();
 
   // Check for JWT token in cookies
   const token = request.cookies.get('auth-token');
 
-  // Remove locale prefix from pathname for route matching
-  const pathnameWithoutLocale = pathname.replace(/^\/(en|es|fr|de|it|pt|ru|zh|ja|ko|ar|hi|nl|pl|tr|vi|th|id|ms|fil|sv|no|da|fi|cs|hu|ro|uk|el|he|fa|bn|ur|ta|te|mr|gu|kn|ml|si|km|lo|my|ka|am|sw|zu|af|is|mt)/, '') || '/';
-
-  // Check if the route is protected
-  const isProtectedRoute = protectedRoutes.some(route => 
-    pathnameWithoutLocale.startsWith(route)
-  );
-
-  // Check if the route is an auth route
-  const isAuthRoute = authRoutes.some(route => 
-    pathnameWithoutLocale.startsWith(route)
-  );
-
-  // If accessing a protected route without a token, redirect to login
-  if (isProtectedRoute && !token) {
+  // If no token and accessing protected route, redirect to login
+  if (!token) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    loginUrl.searchParams.set('redirect', cleanPathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // If accessing an auth route with a valid token, redirect to dashboard
-  if (isAuthRoute && token) {
-    try {
-      const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
-      jwt.verify(token.value, jwtSecret);
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    } catch (error) {
-      // Token is invalid, allow access to auth routes
-      console.error('Invalid token during auth route check:', error);
-    }
-  }
+  // Verify JWT token
+  try {
+    const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
+    const decoded = jwt.verify(token.value, jwtSecret) as {
+      userId: string;
+      email: string;
+      role: string;
+    };
 
-  // Verify token for protected routes
-  if (isProtectedRoute && token) {
-    try {
-      const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
-      const decoded = jwt.verify(token.value, jwtSecret) as {
-        userId: string;
-        role: string;
-      };
-
-      // Check if accessing owner-only routes
-      if (pathnameWithoutLocale.startsWith('/api/owner') && decoded.role !== 'OWNER') {
-        return NextResponse.json(
-          { error: 'Forbidden - Owner access required' },
-          { status: 403 }
-        );
-      }
-
-      // Token is valid, allow access
+    // Owner email bypass - skip all checks
+    if (decoded.email === OWNER_EMAIL) {
+      // Owner has access to everything
       return response;
-    } catch (error) {
-      // Token is invalid, redirect to login
-      console.error('Token verification failed:', error);
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
     }
-  }
 
-  return response;
+    // Check owner-only routes
+    if (isOwnerRoute(cleanPathname) && decoded.role !== 'owner') {
+      return NextResponse.json(
+        { error: 'Forbidden - Owner access required' },
+        { status: 403 }
+      );
+    }
+
+    // Token is valid, allow access
+    return response;
+
+  } catch (error) {
+    // Token is invalid, redirect to login
+    console.error('Token verification failed:', error);
+    
+    // Clear invalid token
+    response.cookies.delete('auth-token');
+    
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', cleanPathname);
+    loginUrl.searchParams.set('error', 'session_expired');
+    return NextResponse.redirect(loginUrl);
+  }
 }
 
 export const config = {
@@ -147,8 +172,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
+     * - public folder files
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
   ],
 };
