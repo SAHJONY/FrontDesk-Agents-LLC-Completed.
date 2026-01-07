@@ -1,12 +1,13 @@
 "use client";
 
 import React from 'react';
-import { HeroSection, FeaturesSection, TestimonialsSection, CTASection } from '@/components/landing';
+import { HeroSectionEnhanced } from '@/components/landing/HeroSectionEnhanced';
+import { FeaturesSection, TestimonialsSection, CTASection } from '@/components/landing';
 
 export default function LandingPage() {
   return (
     <main className="bg-black text-white">
-      <HeroSection />
+      <HeroSectionEnhanced />
       <FeaturesSection />
       <TestimonialsSection />
       <CTASection />
