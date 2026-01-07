@@ -82,16 +82,16 @@ const pricingTiers = [
 
 const faqs = [
   {
-    question: 'What's included in the free trial?',
+    question: 'What\'s included in the free trial?',
     answer: 'All plans include a 14-day free trial with full access to all features. No credit card required. You can cancel anytime during the trial period with no charges.',
   },
   {
     question: 'Can I change plans later?',
-    answer: 'Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any differences in your billing.',
+    answer: 'Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we\'ll prorate any differences in your billing.',
   },
   {
     question: 'What happens if I exceed my conversation limit?',
-    answer: 'We'll notify you when you reach 80% of your limit. You can either upgrade to a higher tier or purchase additional conversation packs at $0.10 per conversation.',
+    answer: 'We\'ll notify you when you reach 80% of your limit. You can either upgrade to a higher tier or purchase additional conversation packs at $0.10 per conversation.',
   },
   {
     question: 'Do you offer custom pricing for high-volume users?',
@@ -106,8 +106,8 @@ const faqs = [
     answer: 'No setup fees for any plan. Our AI agents are ready to deploy in minutes with our guided onboarding process.',
   },
   {
-    question: 'What's your refund policy?',
-    answer: 'We offer a 30-day money-back guarantee. If you're not satisfied with FrontDesk Agents, we'll refund your first month's payment, no questions asked.',
+    question: 'What\'s your refund policy?',
+    answer: 'We offer a 30-day money-back guarantee. If you\'re not satisfied with FrontDesk Agents, we\'ll refund your first month\'s payment, no questions asked.',
   },
   {
     question: 'Do you offer discounts for nonprofits or educational institutions?',
@@ -133,7 +133,7 @@ export default function PricingPage() {
             transition={{ duration: 0.6 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-8">
-              <span className="text-sm font-medium text-cyan-400">💰 Transparent Pricing</span>
+              <span className="text-sm font-medium text-cyan-400">? Transparent Pricing</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-black text-white mb-6">
@@ -220,9 +220,9 @@ export default function PricingPage() {
                     )}
                   </div>
                   
-                  {billingCycle === 'annual' && typeof tier.price.annual === 'number' && (
+                  {billingCycle === 'annual' && typeof tier.price.annual === 'number' && typeof tier.price.monthly === 'number' && (
                     <p className="text-sm text-green-400">
-                      Save ${(tier.price.monthly * 12 - tier.price.annual).toLocaleString()}/year
+                      Save ${((tier.price.monthly * 12) - tier.price.annual).toLocaleString()}/year
                     </p>
                   )}
                   
@@ -289,7 +289,7 @@ export default function PricingPage() {
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-zinc-600">--</span>
                         )}
                       </td>
                     ))}

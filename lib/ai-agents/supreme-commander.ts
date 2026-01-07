@@ -4,6 +4,7 @@ import { responseGenerationAgent, conversationManagementAgent } from './response
 import { scrapingEnrichmentAgent } from './scraping-agent';
 import { sentimentAnalysisAgent, priorityScoringAgent } from './sentiment-priority-agent';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });

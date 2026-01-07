@@ -11,7 +11,7 @@ export default function SignupPageOptimized() {
     company: '',
   });
 
-  const [step, setStep] = useState(1);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import OpenAI from 'openai';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
