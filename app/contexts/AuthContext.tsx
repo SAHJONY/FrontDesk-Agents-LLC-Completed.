@@ -46,11 +46,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const profile = user?.tenant || null;
 
   useEffect(() => {
-    checkAuth();
+    // Only run on client-side to prevent hydration issues
+    if (typeof window !== 'undefined') {
+      checkAuth();
+    }
   }, []);
 
   async function checkAuth() {
     try {
+      // Ensure we're on client-side
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
+      
       const token = localStorage.getItem('token');
       if (!token) {
         setLoading(false);
