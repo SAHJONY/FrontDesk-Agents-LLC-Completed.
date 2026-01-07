@@ -1,235 +1,365 @@
 'use client';
 
-/**
- * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
- * Production Signup Gateway (Elite UI)
- */
-
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Phone, Mail, Lock, Building, User, Globe, Activity, ChevronRight } from 'lucide-react';
 
 export default function SignupPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    password: '',
-    confirmPassword: '',
-    companyName: '',
+    phone: '',
+    company: '',
     subdomain: '',
-    countryCode: 'US',
+    country: 'United States',
+    accessKey: '',
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'fullName':
+        return value.trim().length < 2 ? 'Full name must be at least 2 characters' : '';
+      case 'email':
+        return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Please enter a valid email address' : '';
+      case 'phone':
+        return !/^\+?[\d\s\-()]+$/.test(value) ? 'Please enter a valid phone number' : '';
+      case 'company':
+        return value.trim().length < 2 ? 'Company name must be at least 2 characters' : '';
+      case 'subdomain':
+        return !/^[a-z0-9-]+$/.test(value) ? 'Subdomain can only contain lowercase letters, numbers, and hyphens' : '';
+      case 'accessKey':
+        return value.trim().length < 8 ? 'Access key must be at least 8 characters' : '';
+      default:
+        return '';
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+    if (error) {
+      setErrors(prev => ({ ...prev, [name]: error }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    
+    // Validate all fields
+    const newErrors: Record<string, string> = {};
+    Object.keys(formData).forEach(key => {
+      const error = validateField(key, formData[key as keyof typeof formData]);
+      if (error) newErrors[key] = error;
+    });
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('AUTH_ERR: Passwords do not match');
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    setLoading(true);
-
+    setIsSubmitting(true);
+    
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'REGISTRATION_FAILED');
-      }
-
-      router.push('/login?signup=success');
-    } catch (err: any) {
-      setError(err.message);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSubmitSuccess(true);
+      console.log('Form submitted:', formData);
+    } catch (error) {
+      setErrors({ submit: 'An error occurred. Please try again.' });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  function handleChange(field: string, value: string) {
-    setFormData(prev => {
-      const newData = { ...prev, [field]: value };
-      // Auto-generate subdomain from company name logic
-      if (field === 'companyName' && !prev.subdomain) {
-        newData.subdomain = value.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-      }
-      return newData;
-    });
+  if (submitSuccess) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-slate-900 border border-cyan-500/30 rounded-lg p-8 text-center">
+          <div className="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Registration Successful!</h1>
+          <p className="text-slate-300 mb-6">
+            Welcome to FrontDesk Agents. Check your email for next steps.
+          </p>
+          <Link 
+            href="/dashboard" 
+            className="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+          >
+            Go to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 selection:bg-blue-500/30">
-      {/* Background Decorative Element */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-900/10 blur-[120px] rounded-full" />
-      </div>
-
-      <div className="max-w-xl w-full relative z-10">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-6 shadow-[0_0_30px_rgba(37,99,235,0.3)] border border-blue-400/20">
-            <Phone className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-black tracking-tighter uppercase italic italic">Initialize Workforce</h1>
-          <p className="text-zinc-500 font-mono text-[10px] tracking-[0.2em] uppercase mt-2">Global Revenue Operations : Trial Phase</p>
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-4">
+      <div className="max-w-2xl mx-auto py-12">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2">Create Your Command Center</h1>
+          <p className="text-slate-400">Deploy your AI workforce in minutes</p>
         </div>
 
-        <div className="glass-panel bg-zinc-950/50 border border-zinc-800 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-xl shadow-2xl">
-          {error && (
-            <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-mono flex items-center gap-3">
-              <Activity className="w-4 h-4" />
-              {error}
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          {/* Full Name */}
+          <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-slate-300 mb-2">
+              Full Name <span className="text-red-400" aria-label="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-required="true"
+              aria-invalid={!!errors.fullName}
+              aria-describedby={errors.fullName ? 'fullName-error' : undefined}
+              className={`w-full bg-slate-900 border ${
+                errors.fullName ? 'border-red-500' : 'border-slate-700'
+              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+              placeholder="John Doe"
+            />
+            {errors.fullName && (
+              <p id="fullName-error" className="mt-1 text-sm text-red-400" role="alert">
+                {errors.fullName}
+              </p>
+            )}
+          </div>
+
+          {/* Email */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+              Business Email <span className="text-red-400" aria-label="required">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-required="true"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
+              className={`w-full bg-slate-900 border ${
+                errors.email ? 'border-red-500' : 'border-slate-700'
+              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+              placeholder="john@company.com"
+            />
+            {errors.email && (
+              <p id="email-error" className="mt-1 text-sm text-red-400" role="alert">
+                {errors.email}
+              </p>
+            )}
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-2">
+              Phone Number <span className="text-red-400" aria-label="required">*</span>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-required="true"
+              aria-invalid={!!errors.phone}
+              aria-describedby={errors.phone ? 'phone-error' : undefined}
+              className={`w-full bg-slate-900 border ${
+                errors.phone ? 'border-red-500' : 'border-slate-700'
+              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+              placeholder="+1 (555) 123-4567"
+            />
+            {errors.phone && (
+              <p id="phone-error" className="mt-1 text-sm text-red-400" role="alert">
+                {errors.phone}
+              </p>
+            )}
+          </div>
+
+          {/* Company */}
+          <div>
+            <label htmlFor="company" className="block text-sm font-medium text-slate-300 mb-2">
+              Company Name <span className="text-red-400" aria-label="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="company"
+              name="company"
+              value={formData.company}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-required="true"
+              aria-invalid={!!errors.company}
+              aria-describedby={errors.company ? 'company-error' : undefined}
+              className={`w-full bg-slate-900 border ${
+                errors.company ? 'border-red-500' : 'border-slate-700'
+              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+              placeholder="Acme Corporation"
+            />
+            {errors.company && (
+              <p id="company-error" className="mt-1 text-sm text-red-400" role="alert">
+                {errors.company}
+              </p>
+            )}
+          </div>
+
+          {/* Subdomain */}
+          <div>
+            <label htmlFor="subdomain" className="block text-sm font-medium text-slate-300 mb-2">
+              Subdomain <span className="text-red-400" aria-label="required">*</span>
+            </label>
+            <div className="flex items-center">
+              <input
+                type="text"
+                id="subdomain"
+                name="subdomain"
+                value={formData.subdomain}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                aria-required="true"
+                aria-invalid={!!errors.subdomain}
+                aria-describedby={errors.subdomain ? 'subdomain-error' : 'subdomain-preview'}
+                className={`flex-1 bg-slate-900 border ${
+                  errors.subdomain ? 'border-red-500' : 'border-slate-700'
+                } rounded-l-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+                placeholder="acme"
+              />
+              <span className="bg-slate-800 border border-l-0 border-slate-700 rounded-r-lg px-4 py-3 text-slate-400">
+                .frontdesk.ai
+              </span>
+            </div>
+            {errors.subdomain && (
+              <p id="subdomain-error" className="mt-1 text-sm text-red-400" role="alert">
+                {errors.subdomain}
+              </p>
+            )}
+            {!errors.subdomain && formData.subdomain && (
+              <p id="subdomain-preview" className="mt-1 text-sm text-cyan-400">
+                Your workspace: {formData.subdomain}.frontdesk.ai
+              </p>
+            )}
+          </div>
+
+          {/* Country */}
+          <div>
+            <label htmlFor="country" className="block text-sm font-medium text-slate-300 mb-2">
+              Country <span className="text-red-400" aria-label="required">*</span>
+            </label>
+            <select
+              id="country"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              required
+              aria-required="true"
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors"
+            >
+              <option value="United States">United States</option>
+              <option value="Canada">Canada</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Australia">Australia</option>
+              <option value="Germany">Germany</option>
+              <option value="France">France</option>
+              <option value="Japan">Japan</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          {/* Access Key */}
+          <div>
+            <label htmlFor="accessKey" className="block text-sm font-medium text-slate-300 mb-2">
+              Create Access Key <span className="text-red-400" aria-label="required">*</span>
+            </label>
+            <input
+              type="password"
+              id="accessKey"
+              name="accessKey"
+              value={formData.accessKey}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-required="true"
+              aria-invalid={!!errors.accessKey}
+              aria-describedby={errors.accessKey ? 'accessKey-error' : 'accessKey-help'}
+              className={`w-full bg-slate-900 border ${
+                errors.accessKey ? 'border-red-500' : 'border-slate-700'
+              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+              placeholder="••••••••"
+            />
+            {errors.accessKey && (
+              <p id="accessKey-error" className="mt-1 text-sm text-red-400" role="alert">
+                {errors.accessKey}
+              </p>
+            )}
+            {!errors.accessKey && (
+              <p id="accessKey-help" className="mt-1 text-sm text-slate-400">
+                Minimum 8 characters. This will be your password.
+              </p>
+            )}
+          </div>
+
+          {/* Submit Error */}
+          {errors.submit && (
+            <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4" role="alert">
+              <p className="text-red-400">{errors.submit}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Identity</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input
-                    type="text"
-                    onChange={(e) => handleChange('fullName', e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all focus:ring-1 focus:ring-blue-500/20"
-                    placeholder="Full Name"
-                    required
-                  />
-                </div>
-              </div>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold px-6 py-4 rounded-lg transition-colors flex items-center justify-center"
+            aria-busy={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Initializing Command Center...
+              </>
+            ) : (
+              'INITIALIZE COMMAND CENTER'
+            )}
+          </button>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Communication</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input
-                    type="email"
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all"
-                    placeholder="Corporate Email"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Access Crypt</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input
-                    type="password"
-                    onChange={(e) => handleChange('password', e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all"
-                    placeholder="Password"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Verification</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input
-                    type="password"
-                    onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all"
-                    placeholder="Confirm"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Entity Name</label>
-              <div className="relative">
-                <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                <input
-                  type="text"
-                  onChange={(e) => handleChange('companyName', e.target.value)}
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all"
-                  placeholder="Company Legal Name"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Node Domain</label>
-              <div className="flex group">
-                <input
-                  type="text"
-                  value={formData.subdomain}
-                  onChange={(e) => handleChange('subdomain', e.target.value)}
-                  className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-l-2xl px-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all font-mono"
-                  placeholder="subdomain"
-                  required
-                />
-                <span className="px-5 py-3.5 bg-zinc-900 border border-l-0 border-zinc-800 rounded-r-2xl text-zinc-500 text-xs font-bold flex items-center uppercase tracking-tighter">
-                  .frontdesk.ai
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Operational Region</label>
-              <div className="relative">
-                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                <select
-                  value={formData.countryCode}
-                  onChange={(e) => handleChange('countryCode', e.target.value)}
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all appearance-none uppercase font-bold tracking-widest"
-                  required
-                >
-                  <option value="US">United States</option>
-                  <option value="CA">Canada</option>
-                  <option value="GB">United Kingdom</option>
-                  <option value="AU">Australia</option>
-                  <option value="DE">Germany</option>
-                  <option value="FR">France</option>
-                  <option value="IN">India</option>
-                  <option value="BR">Brazil</option>
-                </select>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-white text-black rounded-2xl hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50 font-black text-xs uppercase tracking-[0.2em] mt-4 flex items-center justify-center gap-2 group"
-            >
-              {loading ? 'Initializing...' : 'Confirm Registration'}
-              {!loading && <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
-            </button>
-          </form>
-
-          <div className="mt-8 text-center">
-            <p className="text-xs text-zinc-500 uppercase font-bold tracking-widest">
-              Existing Node?{' '}
-              <Link href="/login" className="text-blue-500 hover:text-blue-400 transition-colors">
-                Authorize Here
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        <p className="text-center text-[8px] font-mono text-zinc-700 uppercase tracking-[0.3em] mt-10">
-          © 2025 FrontDesk Agents Global. Secure Revenue Infrastructure.
-        </p>
+          <p className="text-center text-sm text-slate-400">
+            Already have an account?{' '}
+            <Link href="/login" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
   );
-    }
-            
+}
