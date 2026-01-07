@@ -122,9 +122,9 @@ export default function OwnerOversightPanel() {
             <Crown className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white">Owner Command Center</h1>
+            <h1 className="text-3xl font-bold text-white">Owner Dashboard</h1>
             <p className="text-slate-400 text-sm mt-1">
-              Juan Gonzalez • Supreme Owner • Unrestricted Access
+              Platform Owner • Full Access
             </p>
           </div>
         </div>
