@@ -1,50 +1,114 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Crown, Shield, Activity, AlertTriangle, CheckCircle, XCircle,
-  Phone, DollarSign, Users, TrendingUp, Settings, Power, Eye
+import React, { useState, useEffect } from 'react';
+import {
+  Crown,
+  Shield,
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Phone,
+  DollarSign,
+  Users,
+  TrendingUp,
+  Settings,
+  Power,
+  Eye,
+  RefreshCw,
 } from 'lucide-react';
 
 export default function OwnerOversightPanel() {
-  const [systemStatus, setSystemStatus] = useState('operational');
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+
+  // Fetch live dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch('/api/dashboard/live');
+      const result = await response.json();
+
+      if (result.success) {
+        setDashboardData(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const interval = setInterval(() => {
+      fetchDashboardData();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
+
+  // Execute owner command
+  const executeCommand = async (command: string, params?: any) => {
+    try {
+      const response = await fetch('/api/owner/command', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ command, params }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`Command executed successfully: ${command}`);
+        fetchDashboardData(); // Refresh data
+      } else {
+        alert(`Command failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error executing command:', error);
+      alert('Failed to execute command');
+    }
+  };
+
+  if (loading || !dashboardData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <RefreshCw className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
+          <p className="text-white text-lg">Loading Owner Command Center...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { systemHealth, metrics, workforce, activeCalls, agents, revenue, recentActivity } =
+    dashboardData;
 
   const systemMetrics = [
-    { label: 'API Uptime', value: '99.98%', status: 'healthy', icon: Activity },
-    { label: 'Active Agents', value: '12/12', status: 'healthy', icon: Users },
-    { label: 'Avg Response Time', value: '1.2s', status: 'healthy', icon: Activity },
-    { label: 'Error Rate', value: '0.02%', status: 'healthy', icon: CheckCircle }
-  ];
-
-  const recentAlerts = [
+    { label: 'API Uptime', value: systemHealth.apiUptime, status: 'healthy', icon: Activity },
     {
-      type: 'success',
-      message: 'Growth tier agent "Maria Rodriguez" achieved 68% conversion rate (target: 40%)',
-      time: '2 hours ago'
+      label: 'Active Agents',
+      value: `${workforce.activeAgents}/${workforce.totalAgents}`,
+      status: 'healthy',
+      icon: Users,
     },
     {
-      type: 'warning',
-      message: 'Basic tier customer "Acme Corp" approaching call limit (92/100 calls used)',
-      time: '4 hours ago'
+      label: 'Avg Response Time',
+      value: `${metrics.avgDuration}s`,
+      status: 'healthy',
+      icon: Activity,
     },
-    {
-      type: 'info',
-      message: 'New customer "Tech Startup Inc." signed up for Professional tier',
-      time: '6 hours ago'
-    }
-  ];
-
-  const liveActiveCalls = [
-    { agent: 'Maria Rodriguez', customer: '+1 (555) 123-4567', duration: '2:34', status: 'active' },
-    { agent: 'Alex Chen', customer: '+1 (555) 987-6543', duration: '1:12', status: 'active' },
-    { agent: 'Sarah Williams', customer: '+1 (555) 456-7890', duration: '4:56', status: 'active' }
-  ];
-
-  const revenueBreakdown = [
-    { source: 'Basic Tier', amount: 2388, percentage: 15 },
-    { source: 'Professional Tier', amount: 7182, percentage: 45 },
-    { source: 'Growth Tier', amount: 3995, percentage: 25 },
-    { source: 'Elite Tier', amount: 2998, percentage: 15 }
+    { label: 'Error Rate', value: systemHealth.errorRate, status: 'healthy', icon: CheckCircle },
   ];
 
   return (
@@ -57,14 +121,30 @@ export default function OwnerOversightPanel() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-white">Owner Command Center</h1>
-            <p className="text-slate-400 text-sm mt-1">Juan Gonzalez • Supreme Owner • Unrestricted Access</p>
+            <p className="text-slate-400 text-sm mt-1">
+              Juan Gonzalez • Supreme Owner • Unrestricted Access
+            </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-3">
-          <div className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-            systemStatus === 'operational' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-          }`}>
+          <button
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+              autoRefresh ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-400'
+            }`}
+          >
+            <RefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
+            <span className="text-sm">Auto-refresh</span>
+          </button>
+
+          <div
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+              systemHealth.status === 'operational'
+                ? 'bg-green-500/20 text-green-400'
+                : 'bg-red-500/20 text-red-400'
+            }`}
+          >
             <Activity className="w-4 h-4" />
             <span className="font-semibold">All Systems Operational</span>
           </div>
@@ -98,33 +178,42 @@ export default function OwnerOversightPanel() {
             <Phone className="w-5 h-5 text-cyan-400" />
             Live Active Calls
           </h2>
-          <span className="text-sm text-slate-400">{liveActiveCalls.length} calls in progress</span>
+          <span className="text-sm text-slate-400">{activeCalls.length} calls in progress</span>
         </div>
-        
-        <div className="space-y-3">
-          {liveActiveCalls.map((call, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700">
-              <div className="flex items-center gap-4">
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <div>
-                  <div className="font-semibold text-white">{call.agent}</div>
-                  <div className="text-sm text-slate-400">{call.customer}</div>
+
+        {activeCalls.length > 0 ? (
+          <div className="space-y-3">
+            {activeCalls.map((call: any, index: number) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  <div>
+                    <div className="font-semibold text-white">{call.agent}</div>
+                    <div className="text-sm text-slate-400">{call.customer}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-sm text-slate-400">Duration</div>
+                    <div className="font-semibold text-white">
+                      {Math.floor(call.duration / 60)}:{(call.duration % 60).toString().padStart(2, '0')}
+                    </div>
+                  </div>
+
+                  <button className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                    <Eye className="w-5 h-5 text-slate-400" />
+                  </button>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="text-sm text-slate-400">Duration</div>
-                  <div className="font-semibold text-white">{call.duration}</div>
-                </div>
-                
-                <button className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                  <Eye className="w-5 h-5 text-slate-400" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-slate-400">No active calls at the moment</div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -133,25 +222,38 @@ export default function OwnerOversightPanel() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-yellow-400" />
-              Recent Alerts
+              Recent Activity
             </h2>
           </div>
-          
+
           <div className="space-y-3">
-            {recentAlerts.map((alert, index) => (
-              <div key={index} className={`p-4 rounded-lg border ${
-                alert.type === 'success' ? 'bg-green-500/10 border-green-500/30' :
-                alert.type === 'warning' ? 'bg-yellow-500/10 border-yellow-500/30' :
-                'bg-cyan-500/10 border-cyan-500/30'
-              }`}>
+            {recentActivity.map((activity: any, index: number) => (
+              <div
+                key={index}
+                className={`p-4 rounded-lg border ${
+                  activity.type === 'success'
+                    ? 'bg-green-500/10 border-green-500/30'
+                    : activity.type === 'warning'
+                    ? 'bg-yellow-500/10 border-yellow-500/30'
+                    : 'bg-cyan-500/10 border-cyan-500/30'
+                }`}
+              >
                 <div className="flex items-start gap-3">
-                  {alert.type === 'success' && <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />}
-                  {alert.type === 'warning' && <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />}
-                  {alert.type === 'info' && <Activity className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />}
-                  
+                  {activity.type === 'success' && (
+                    <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                  )}
+                  {activity.type === 'warning' && (
+                    <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                  )}
+                  {activity.type === 'info' && (
+                    <Activity className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                  )}
+
                   <div className="flex-1">
-                    <p className="text-sm text-white">{alert.message}</p>
-                    <p className="text-xs text-slate-400 mt-1">{alert.time}</p>
+                    <p className="text-sm text-white">{activity.message}</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {activity.agent} • {activity.time}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -166,15 +268,19 @@ export default function OwnerOversightPanel() {
               <DollarSign className="w-5 h-5 text-green-400" />
               Revenue Breakdown
             </h2>
-            <span className="text-sm text-slate-400">Last 30 days</span>
+            <span className="text-sm text-slate-400">Monthly Recurring</span>
           </div>
-          
+
           <div className="space-y-4">
-            {revenueBreakdown.map((item, index) => (
+            {revenue.breakdown.map((item: any, index: number) => (
               <div key={index}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-white font-medium">{item.source}</span>
-                  <span className="text-green-400 font-semibold">${item.amount.toLocaleString()}</span>
+                  <span className="text-white font-medium">
+                    {item.tier} ({item.customers} customers)
+                  </span>
+                  <span className="text-green-400 font-semibold">
+                    ${item.revenue.toLocaleString()}
+                  </span>
                 </div>
                 <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
                   <div
@@ -185,12 +291,18 @@ export default function OwnerOversightPanel() {
               </div>
             ))}
           </div>
-          
+
           <div className="mt-6 pt-6 border-t border-slate-700">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400 font-medium">Total Revenue</span>
+              <span className="text-slate-400 font-medium">Total MRR</span>
               <span className="text-3xl font-bold text-white">
-                ${revenueBreakdown.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
+                ${revenue.mrr.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-slate-400 text-sm">Annual Run Rate</span>
+              <span className="text-lg font-semibold text-green-400">
+                ${revenue.arr.toLocaleString()}
               </span>
             </div>
           </div>
@@ -203,25 +315,38 @@ export default function OwnerOversightPanel() {
           <Shield className="w-6 h-6 text-yellow-400" />
           <h2 className="text-xl font-bold text-white">Owner Controls</h2>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center gap-3 p-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition-colors">
+          <button
+            onClick={() => executeCommand('status')}
+            className="flex items-center gap-3 p-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition-colors"
+          >
             <Settings className="w-5 h-5 text-cyan-400" />
             <div className="text-left">
-              <div className="font-semibold text-white">System Settings</div>
-              <div className="text-xs text-slate-400">Configure platform</div>
+              <div className="font-semibold text-white">System Status</div>
+              <div className="text-xs text-slate-400">Get complete status</div>
             </div>
           </button>
-          
-          <button className="flex items-center gap-3 p-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition-colors">
-            <Users className="w-5 h-5 text-purple-400" />
+
+          <button
+            onClick={() => executeCommand('view_financials')}
+            className="flex items-center gap-3 p-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition-colors"
+          >
+            <DollarSign className="w-5 h-5 text-green-400" />
             <div className="text-left">
-              <div className="font-semibold text-white">Manage Agents</div>
-              <div className="text-xs text-slate-400">Control AI workforce</div>
+              <div className="font-semibold text-white">View Financials</div>
+              <div className="text-xs text-slate-400">Complete financial data</div>
             </div>
           </button>
-          
-          <button className="flex items-center gap-3 p-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 rounded-lg transition-colors">
+
+          <button
+            onClick={() => {
+              if (confirm('Are you sure you want to initiate emergency shutdown?')) {
+                executeCommand('shutdown', { reason: 'Owner initiated shutdown' });
+              }
+            }}
+            className="flex items-center gap-3 p-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 rounded-lg transition-colors"
+          >
             <Power className="w-5 h-5 text-red-400" />
             <div className="text-left">
               <div className="font-semibold text-white">Emergency Stop</div>
