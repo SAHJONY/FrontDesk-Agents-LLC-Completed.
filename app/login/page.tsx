@@ -20,6 +20,11 @@ export default function LoginPage() {
     setMounted(true);
   }, []);
 
+  // Fix hydration issues by ensuring client-side only rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');

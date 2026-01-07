@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as z from 'zod';
+import { authenticateOwner, isOwnerEmail } from '@/lib/auth/owner-auth';
 
 // Force Node.js runtime (not Edge)
 export const runtime = 'nodejs';
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
     if (!supabaseUrl || !supabaseKey) {
       console.error('Supabase configuration missing');
       return NextResponse.json(
-        { error: 'Server configuration error' },
+        { message: 'Server configuration error' },
         { status: 500 }
       );
     }
@@ -86,7 +87,7 @@ export async function POST(req: Request) {
     if (!user) {
       console.error('User not found:', email);
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { message: 'Invalid credentials' },
         { status: 401 }
       );
     }
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
     if (!passwordMatch) {
       console.error('Password mismatch for user:', email);
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { message: 'Invalid credentials' },
         { status: 401 }
       );
     }
@@ -168,13 +169,13 @@ export async function POST(req: Request) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid input', details: error.errors },
+        { message: 'Invalid input', details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Authentication failed' },
+      { message: 'Authentication failed' },
       { status: 500 }
     );
   }
