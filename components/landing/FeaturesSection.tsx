@@ -41,7 +41,7 @@ const features = [
   {
     icon: ShieldCheckIcon,
     title: 'Enterprise Security',
-    description: 'SOC 2 compliant with end-to-end encryption and role-based access control.',
+    description: 'SOC 2-aligned security practices with encryption in transit and at rest, plus role-based access control.',
     color: 'red',
   },
   {

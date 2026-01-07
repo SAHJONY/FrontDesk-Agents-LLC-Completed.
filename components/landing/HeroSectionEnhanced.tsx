@@ -134,7 +134,7 @@ export function HeroSectionEnhanced() {
             }}
           />
           <span className="text-sm font-medium text-cyan-400">
-            🎖️ Military-Grade AI Workforce - 100% Autonomous
+            ✨ Enterprise AI Workforce - Fully Autonomous
           </span>
         </motion.div>
         
@@ -330,8 +330,8 @@ export function HeroSectionEnhanced() {
           variants={itemVariants}
           className="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60"
         >
-          <div className="text-zinc-600 text-sm font-semibold">TRUSTED BY INDUSTRY LEADERS</div>
-          {['SOC 2', 'GDPR', 'ISO 27001', 'CCPA'].map((badge) => (
+          <div className="text-zinc-600 text-sm font-semibold">ENTERPRISE-GRADE SECURITY</div>
+          {['SOC 2-Aligned', 'GDPR Ready', 'Enterprise Security', 'Data Protection'].map((badge) => (
             <div
               key={badge}
               className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-zinc-500 text-sm font-medium"

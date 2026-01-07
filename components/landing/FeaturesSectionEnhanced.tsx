@@ -91,9 +91,9 @@ const coreFeatures = [
     benefit: 'Reactive Bots vs. Proactive Agents'
   },
   {
-    title: 'Military-Grade Architecture',
-    description: '8-division AI workforce coordinated by Supreme AI Commander for enterprise reliability.',
-    icon: '🎖️',
+    title: 'Enterprise Architecture',
+    description: '8-division AI workforce with centralized orchestration for enterprise reliability and scalability.',
+    icon: '🏗️',
     benefit: 'Single-Purpose Bots vs. Complete Workforce'
   },
 ];
@@ -113,7 +113,7 @@ export function FeaturesSectionEnhanced() {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6">
-            <span className="text-sm font-medium text-cyan-400">🎖️ Military-Grade AI Workforce</span>
+            <span className="text-sm font-medium text-cyan-400">✨ Enterprise AI Workforce</span>
           </div>
           
           <h2 className="text-4xl md:text-6xl font-black text-white mb-6">
@@ -126,7 +126,7 @@ export function FeaturesSectionEnhanced() {
           
           <p className="text-xl text-zinc-400 max-w-3xl mx-auto">
             Not just AI agents — a complete autonomous workforce with specialized divisions
-            for every business function, coordinated by our Supreme AI Commander.
+            for every business function, centrally orchestrated for maximum efficiency.
           </p>
         </motion.div>
 

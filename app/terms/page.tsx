@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms of Service — FrontDesk Agents",
   description:
-    "Terms of Service for the FrontDesk Agents platform. Effective date: January 5, 2026.",
+    "Terms of Service for the FrontDesk Agents platform. Effective date: January 7, 2026.",
 };
 
 export default function TermsPage() {
@@ -14,17 +14,14 @@ export default function TermsPage() {
           Terms of Service
         </h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Effective date: January 5, 2026
+          Effective date: January 7, 2026
         </p>
       </header>
 
       <section className="space-y-4 text-base leading-7 text-slate-800 dark:text-slate-100">
         <p>
-          These Terms govern your access to and use of FrontDesk Agents (“Service”).
-          By using the Service, you agree to these Terms.{" "}
-          <strong>
-            This is a template and should be reviewed by legal counsel before use.
-          </strong>
+          These Terms govern your access to and use of FrontDesk Agents ("Service").
+          By using the Service, you agree to these Terms.
         </p>
 
         <div className="h-px w-full bg-slate-200 dark:bg-slate-800" />
@@ -60,13 +57,14 @@ export default function TermsPage() {
 
         <h2 className="text-xl font-bold">6. Contact</h2>
         <p>
-          Support:{" "}
+          For questions about these Terms, please contact us at:{" "}
           <a
-            href="mailto:support@frontdeskagents.com"
+            href="mailto:frontdeskllc@outlook.com"
             className="font-medium underline underline-offset-4 hover:opacity-80"
           >
-            support@frontdeskagents.com
+            frontdeskllc@outlook.com
           </a>
+          {" "}or call +1 (678) 346-6284.
         </p>
       </section>
     </main>

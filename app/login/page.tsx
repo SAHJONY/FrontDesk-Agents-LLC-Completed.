@@ -35,9 +35,9 @@ export default function LoginPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
         <div className="absolute bottom-12 left-12 max-w-md">
-          <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-4">Secure Command Access</h2>
+          <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-4">Secure Platform Access</h2>
           <p className="text-zinc-400 text-sm font-mono uppercase tracking-widest leading-relaxed">
-            Authorized personnel only. All terminal sessions are monitored and recorded for compliance.
+            Authorized users only. Enterprise-grade security and compliance.
           </p>
         </div>
       </div>
@@ -50,8 +50,8 @@ export default function LoginPage() {
 
         <div className="max-w-[400px] w-full">
           <div className="mb-12">
-            <h1 className="text-4xl font-black tracking-tighter uppercase italic mb-2">Terminal Login</h1>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em]">Node: pdx1 // Global Revenue Workforce</p>
+            <h1 className="text-4xl font-black tracking-tighter uppercase italic mb-2">Platform Login</h1>
+            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em]">Secure Access // AI Workforce Platform</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -98,7 +98,10 @@ export default function LoginPage() {
               ← Return to Public Portal
             </Link>
             <p className="text-[9px] text-zinc-700 uppercase tracking-widest leading-relaxed">
-              By accessing this platform, you agree to the FrontDesk Agents Terms of Service and Privacy Policy.
+              By accessing this platform, you agree to the FrontDesk Agents{' '}
+              <Link href="/terms" className="text-cyan-400 hover:text-cyan-300 underline">Terms of Service</Link>
+              {' '}and{' '}
+              <Link href="/privacy" className="text-cyan-400 hover:text-cyan-300 underline">Privacy Policy</Link>.
             </p>
           </div>
         </div>

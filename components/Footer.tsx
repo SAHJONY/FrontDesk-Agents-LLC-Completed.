@@ -139,9 +139,9 @@ export default function Footer() {
               © {currentYear} FrontDesk Agents LLC. All rights reserved.
             </p>
             <div className="flex items-center space-x-6">
-              <span className="text-slate-400 text-sm">SOC 2 Compliant</span>
+              <span className="text-slate-400 text-sm">SOC 2-Aligned</span>
               <span className="text-slate-400 text-sm">GDPR Ready</span>
-              <span className="text-slate-400 text-sm">HIPAA Compliant</span>
+              <span className="text-slate-400 text-sm">Enterprise Security</span>
             </div>
           </div>
         </div>

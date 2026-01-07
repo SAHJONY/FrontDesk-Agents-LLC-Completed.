@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import { HeroSectionEnhanced } from '@/components/landing/HeroSectionEnhanced';
 import { FeaturesSection, TestimonialsSection, CTASection } from '@/components/landing';
 
@@ -15,6 +16,7 @@ export default function LandingPage() {
         <TestimonialsSection />
         <CTASection />
       </main>
+      <Footer />
     </>
   );
 }
