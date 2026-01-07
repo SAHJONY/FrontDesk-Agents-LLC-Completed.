@@ -37,6 +37,7 @@ export default function Navigation() {
     const newLang = language === 'en' ? 'es' : 'en';
     setLanguage(newLang);
     localStorage.setItem('fda_language', newLang);
+    // You can add actual translation logic here
   };
 
   const isActive = (path: string) => pathname === path;
@@ -99,29 +100,40 @@ export default function Navigation() {
 
           {/* Right Side Controls */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Language Toggle - Touch-friendly */}
+            {/* Language Toggle - Shows current language with flag/icon */}
             <button
               onClick={toggleLanguage}
-              className="text-slate-300 hover:text-white text-sm font-medium transition-colors px-3 py-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="text-slate-300 hover:text-white text-xs sm:text-sm font-medium transition-colors px-2 sm:px-3 py-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center gap-1"
               aria-label={`Switch to ${language === 'en' ? 'Spanish' : 'English'}`}
+              title={`Current: ${language === 'en' ? 'English' : 'Spanish'} - Click to switch`}
             >
-              {language.toUpperCase()}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
+              <span className="hidden sm:inline">{language.toUpperCase()}</span>
             </button>
 
-            {/* Theme Toggle - Touch-friendly */}
+            {/* Theme Toggle - Shows current theme with text label */}
             <button
               onClick={toggleTheme}
-              className="text-slate-300 hover:text-white transition-colors p-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              className="text-slate-300 hover:text-white transition-colors px-2 sm:px-3 py-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center gap-1.5 text-xs sm:text-sm font-medium"
+              aria-label={`Currently in ${theme} mode - Click to switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              title={`Currently: ${theme === 'dark' ? 'Dark' : 'Light'} Mode - Click to switch`}
             >
               {theme === 'dark' ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                  <span className="hidden sm:inline">Dark</span>
+                </>
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span className="hidden sm:inline">Light</span>
+                </>
               )}
             </button>
 
