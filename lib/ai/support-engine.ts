@@ -8,10 +8,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Initialize OpenAI/AI Utility
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 /**
  * Motor de Soporte: Diagnóstico en tiempo real

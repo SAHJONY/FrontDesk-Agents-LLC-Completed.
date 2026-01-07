@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function processLeadReply(incomingText: string, leadName: string) {

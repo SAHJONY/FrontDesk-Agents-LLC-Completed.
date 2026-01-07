@@ -3,12 +3,7 @@
  * Military-grade command structure with 100% autonomous capabilities
  */
 
-import OpenAI from 'openai';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 // ============================================================================
 // CUSTOMER SUCCESS DIVISION
