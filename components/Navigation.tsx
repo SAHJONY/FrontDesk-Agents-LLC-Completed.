@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -9,6 +9,22 @@ export default function Navigation() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [language, setLanguage] = useState<'en' | 'es'>('en');
   const pathname = usePathname();
+
+  useEffect(() => {
+    // Load saved preferences
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    const savedLang = localStorage.getItem('fda_language') as 'en' | 'es' | null;
+    
+    if (savedTheme) {
+      setTheme(savedTheme);
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    }
+    if (savedLang) {
+      setLanguage(savedLang);
+    }
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -25,6 +41,11 @@ export default function Navigation() {
 
   const isActive = (path: string) => pathname === path;
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   return (
     <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50" role="navigation" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,10 +53,11 @@ export default function Navigation() {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-cyan-500 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FD</span>
+              <div className="w-10 h-10 bg-cyan-500 rounded flex items-center justify-center">
+                <span className="text-white font-bold text-base">FD</span>
               </div>
               <span className="text-white font-bold text-lg hidden sm:block">FrontDesk Agents</span>
+              <span className="text-white font-bold text-sm sm:hidden">FDA</span>
             </Link>
           </div>
 
@@ -43,62 +65,78 @@ export default function Navigation() {
           <div className="hidden md:flex items-center space-x-6">
             <Link 
               href="/dashboard" 
-              className={`text-sm font-medium transition-colors ${
-                isActive('/dashboard') ? 'text-cyan-400' : 'text-slate-300 hover:text-white'
+              className={`text-sm font-medium transition-colors px-3 py-2 rounded ${
+                isActive('/dashboard') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               Dashboard
             </Link>
             <Link 
               href="/dashboard/agents" 
-              className={`text-sm font-medium transition-colors ${
-                isActive('/dashboard/agents') ? 'text-cyan-400' : 'text-slate-300 hover:text-white'
+              className={`text-sm font-medium transition-colors px-3 py-2 rounded ${
+                isActive('/dashboard/agents') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               AI Agents
             </Link>
             <Link 
               href="/pricing" 
-              className={`text-sm font-medium transition-colors ${
-                isActive('/pricing') ? 'text-cyan-400' : 'text-slate-300 hover:text-white'
+              className={`text-sm font-medium transition-colors px-3 py-2 rounded ${
+                isActive('/pricing') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               Pricing
             </Link>
+            <Link 
+              href="/features" 
+              className={`text-sm font-medium transition-colors px-3 py-2 rounded ${
+                isActive('/features') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              Features
+            </Link>
           </div>
 
           {/* Right Side Controls */}
-          <div className="flex items-center space-x-4">
-            {/* Language Toggle */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Language Toggle - Touch-friendly */}
             <button
               onClick={toggleLanguage}
-              className="text-slate-300 hover:text-white text-sm font-medium transition-colors"
+              className="text-slate-300 hover:text-white text-sm font-medium transition-colors px-3 py-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label={`Switch to ${language === 'en' ? 'Spanish' : 'English'}`}
             >
               {language.toUpperCase()}
             </button>
 
-            {/* Theme Toggle */}
+            {/* Theme Toggle - Touch-friendly */}
             <button
               onClick={toggleTheme}
-              className="text-slate-300 hover:text-white text-sm font-medium transition-colors"
+              className="text-slate-300 hover:text-white transition-colors p-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
-              {theme === 'dark' ? 'Light' : 'Dark'}
+              {theme === 'dark' ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
             </button>
 
             {/* CTA Button - Desktop */}
             <Link
               href="/signup"
-              className="hidden md:inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
+              className="hidden md:inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors text-sm"
             >
               Start Free Trial
             </Link>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Touch-friendly */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-slate-300 hover:text-white p-2"
+              className="md:hidden text-slate-300 hover:text-white p-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-expanded={mobileMenuOpen}
               aria-label="Toggle mobile menu"
             >
@@ -115,14 +153,14 @@ export default function Navigation() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - Enhanced with better touch targets */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-slate-800">
-            <div className="flex flex-col space-y-4">
+          <div className="md:hidden py-4 border-t border-slate-800 animate-slideDown">
+            <div className="flex flex-col space-y-2">
               <Link 
                 href="/dashboard" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/dashboard') ? 'text-cyan-400' : 'text-slate-300 hover:text-white'
+                className={`text-base font-medium transition-colors px-4 py-3 rounded min-h-[48px] flex items-center ${
+                  isActive('/dashboard') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -130,8 +168,8 @@ export default function Navigation() {
               </Link>
               <Link 
                 href="/dashboard/agents" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/dashboard/agents') ? 'text-cyan-400' : 'text-slate-300 hover:text-white'
+                className={`text-base font-medium transition-colors px-4 py-3 rounded min-h-[48px] flex items-center ${
+                  isActive('/dashboard/agents') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -139,20 +177,31 @@ export default function Navigation() {
               </Link>
               <Link 
                 href="/pricing" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/pricing') ? 'text-cyan-400' : 'text-slate-300 hover:text-white'
+                className={`text-base font-medium transition-colors px-4 py-3 rounded min-h-[48px] flex items-center ${
+                  isActive('/pricing') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Pricing
               </Link>
-              <Link
-                href="/signup"
-                className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm text-center"
+              <Link 
+                href="/features" 
+                className={`text-base font-medium transition-colors px-4 py-3 rounded min-h-[48px] flex items-center ${
+                  isActive('/features') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Start Free Trial
+                Features
               </Link>
+              <div className="pt-2">
+                <Link
+                  href="/signup"
+                  className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-4 py-3 rounded-lg transition-colors text-base text-center block min-h-[48px] flex items-center justify-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Start Free Trial
+                </Link>
+              </div>
             </div>
           </div>
         )}

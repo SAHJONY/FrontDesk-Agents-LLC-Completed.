@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { 
   PhoneIcon, 
   ChatBubbleLeftRightIcon, 
@@ -76,39 +77,39 @@ const colorMap: Record<string, string> = {
 
 export function FeaturesSection() {
   return (
-    <section className="relative py-24 bg-black">
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
+    <section className="relative py-12 sm:py-16 md:py-24 bg-black">
+      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px] sm:bg-[size:50px_50px]" />
       
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header - mobile optimized */}
+        <div className="text-center mb-10 sm:mb-12 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 sm:mb-4 px-4">
             Everything You Need to
             <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
               {' '}Scale Your Business
             </span>
           </h2>
-          <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto px-4">
             Powerful features designed to automate your front office and drive revenue growth.
           </p>
         </div>
         
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Features Grid - mobile-first responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <div
                 key={feature.title}
-                className="group relative p-6 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-all duration-300 hover:transform hover:scale-105"
+                className="group relative p-5 sm:p-6 rounded-xl sm:rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-all duration-300 hover:transform hover:scale-105 active:scale-100"
               >
-                {/* Icon */}
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${colorMap[feature.color]} mb-4`}>
-                  <Icon className="h-6 w-6 text-white" />
+                {/* Icon - touch-friendly size */}
+                <div className={`inline-flex p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br ${colorMap[feature.color]} mb-3 sm:mb-4`}>
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
                 
-                {/* Content */}
-                <h3 className="text-lg font-bold text-white mb-2">
+                {/* Content - responsive text */}
+                <h3 className="text-base sm:text-lg font-bold text-white mb-2">
                   {feature.title}
                 </h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">
@@ -116,23 +117,23 @@ export function FeaturesSection() {
                 </p>
                 
                 {/* Hover Effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </div>
             );
           })}
         </div>
         
-        {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <a
+        {/* Bottom CTA - mobile optimized */}
+        <div className="mt-10 sm:mt-12 md:mt-16 text-center px-4">
+          <Link
             href="/pricing"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg transition-all border border-white/10"
+            className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 bg-white/5 hover:bg-white/10 active:bg-white/15 text-white font-medium rounded-lg transition-all border border-white/10 min-h-[48px] text-sm sm:text-base"
           >
             View All Features
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-          </a>
+          </Link>
         </div>
       </div>
     </section>
