@@ -3,26 +3,24 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import LanguageSelectorSimple from './LanguageSelectorSimple';
+import { useI18n } from '../lib/i18n/provider';
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [language, setLanguage] = useState<'en' | 'es'>('en');
   const pathname = usePathname();
+  const { t } = useI18n();
 
   useEffect(() => {
-    // Load saved preferences
+    // Load saved theme preference
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    const savedLang = localStorage.getItem('fda_language') as 'en' | 'es' | null;
     
     if (savedTheme) {
       setTheme(savedTheme);
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
       }
-    }
-    if (savedLang) {
-      setLanguage(savedLang);
     }
   }, []);
 
@@ -31,13 +29,6 @@ export default function Navigation() {
     setTheme(newTheme);
     document.documentElement.classList.toggle('dark');
     localStorage.setItem('theme', newTheme);
-  };
-
-  const toggleLanguage = () => {
-    const newLang = language === 'en' ? 'es' : 'en';
-    setLanguage(newLang);
-    localStorage.setItem('fda_language', newLang);
-    // You can add actual translation logic here
   };
 
   const isActive = (path: string) => pathname === path;
@@ -70,7 +61,7 @@ export default function Navigation() {
                 isActive('/dashboard') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
-              Dashboard
+              {t('nav.dashboard')}
             </Link>
             <Link 
               href="/dashboard/agents" 
@@ -78,7 +69,7 @@ export default function Navigation() {
                 isActive('/dashboard/agents') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
-              AI Agents
+              {t('nav.aiAgents')}
             </Link>
             <Link 
               href="/pricing" 
@@ -86,7 +77,7 @@ export default function Navigation() {
                 isActive('/pricing') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
-              Pricing
+              {t('nav.pricing')}
             </Link>
             <Link 
               href="/features" 
@@ -94,24 +85,14 @@ export default function Navigation() {
                 isActive('/features') ? 'text-cyan-400 bg-slate-800' : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
-              Features
+              {t('nav.features')}
             </Link>
           </div>
 
           {/* Right Side Controls */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Language Toggle - Shows current language with flag/icon */}
-            <button
-              onClick={toggleLanguage}
-              className="text-slate-300 hover:text-white text-xs sm:text-sm font-medium transition-colors px-2 sm:px-3 py-2 rounded hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center gap-1"
-              aria-label={`Switch to ${language === 'en' ? 'Spanish' : 'English'}`}
-              title={`Current: ${language === 'en' ? 'English' : 'Spanish'} - Click to switch`}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-              </svg>
-              <span className="hidden sm:inline">{language.toUpperCase()}</span>
-            </button>
+            {/* Language Selector */}
+            <LanguageSelectorSimple />
 
             {/* Theme Toggle - Shows current theme with text label */}
             <button
@@ -142,7 +123,7 @@ export default function Navigation() {
               href="/signup"
               className="hidden md:inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors text-sm"
             >
-              Start Free Trial
+              {t('nav.startTrial')}
             </Link>
 
             {/* Mobile Menu Button - Touch-friendly */}
@@ -176,7 +157,7 @@ export default function Navigation() {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Dashboard
+                {t('nav.dashboard')}
               </Link>
               <Link 
                 href="/dashboard/agents" 
@@ -185,7 +166,7 @@ export default function Navigation() {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                AI Agents
+                {t('nav.aiAgents')}
               </Link>
               <Link 
                 href="/pricing" 
@@ -194,7 +175,7 @@ export default function Navigation() {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Pricing
+                {t('nav.pricing')}
               </Link>
               <Link 
                 href="/features" 
@@ -203,7 +184,7 @@ export default function Navigation() {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Features
+                {t('nav.features')}
               </Link>
               <div className="pt-2">
                 <Link
@@ -211,7 +192,7 @@ export default function Navigation() {
                   className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-4 py-3 rounded-lg transition-colors text-base text-center block min-h-[48px] flex items-center justify-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Start Free Trial
+                  {t('nav.startTrial')}
                 </Link>
               </div>
             </div>

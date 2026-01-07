@@ -1,6 +1,16 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import createIntlMiddleware from 'next-intl/middleware';
 import jwt from 'jsonwebtoken';
+import {locales} from './i18n';
+
+// Create i18n middleware
+const intlMiddleware = createIntlMiddleware({
+  locales,
+  defaultLocale: 'en',
+  localeDetection: true,
+  localePrefix: 'as-needed'
+});
 
 // Routes that require authentication
 const protectedRoutes = [
@@ -16,7 +26,15 @@ const authRoutes = ['/login', '/signup'];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  let response = NextResponse.next({
+  // First, handle i18n routing
+  const intlResponse = intlMiddleware(request);
+  
+  // If i18n middleware returns a response (redirect), use it
+  if (intlResponse && intlResponse.status !== 200) {
+    return intlResponse;
+  }
+  
+  let response = intlResponse || NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -59,14 +77,17 @@ export async function middleware(request: NextRequest) {
   // Check for JWT token in cookies
   const token = request.cookies.get('auth-token');
 
+  // Remove locale prefix from pathname for route matching
+  const pathnameWithoutLocale = pathname.replace(/^\/(en|es|fr|de|it|pt|ru|zh|ja|ko|ar|hi|nl|pl|tr|vi|th|id|ms|fil|sv|no|da|fi|cs|hu|ro|uk|el|he|fa|bn|ur|ta|te|mr|gu|kn|ml|si|km|lo|my|ka|am|sw|zu|af|is|mt)/, '') || '/';
+
   // Check if the route is protected
   const isProtectedRoute = protectedRoutes.some(route => 
-    pathname.startsWith(route)
+    pathnameWithoutLocale.startsWith(route)
   );
 
   // Check if the route is an auth route
   const isAuthRoute = authRoutes.some(route => 
-    pathname.startsWith(route)
+    pathnameWithoutLocale.startsWith(route)
   );
 
   // If accessing a protected route without a token, redirect to login
@@ -98,7 +119,7 @@ export async function middleware(request: NextRequest) {
       };
 
       // Check if accessing owner-only routes
-      if (pathname.startsWith('/api/owner') && decoded.role !== 'OWNER') {
+      if (pathnameWithoutLocale.startsWith('/api/owner') && decoded.role !== 'OWNER') {
         return NextResponse.json(
           { error: 'Forbidden - Owner access required' },
           { status: 403 }
