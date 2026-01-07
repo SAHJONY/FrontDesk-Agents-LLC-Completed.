@@ -1,24 +1,33 @@
 "use client";
 
 import React, { useState } from 'react';
-
-// Force dynamic rendering to prevent prerendering issues with useAuth
-export const dynamic = 'force-dynamic';
 import { useAuth } from '@/hooks/useAuth';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// Force dynamic rendering to prevent prerendering issues with useAuth
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
       await login(email, password);
-    } catch (err) {
-      console.error(err);
+      // Login successful - redirect handled by AuthContext
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Invalid credentials. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,6 +59,12 @@ export default function LoginPage() {
             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em]">Secure Access // AI Workforce Platform</p>
           </div>
 
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Identity</label>
@@ -60,6 +75,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
             
@@ -72,6 +88,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
 
@@ -83,9 +100,10 @@ export default function LoginPage() {
 
             <button 
               type="submit" 
-              className="w-full bg-white text-black font-black p-4 rounded-2xl hover:bg-zinc-200 active:scale-[0.98] transition-all uppercase tracking-tighter text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+              className="w-full bg-white text-black font-black p-4 rounded-2xl hover:bg-zinc-200 active:scale-[0.98] transition-all uppercase tracking-tighter text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)] disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
             >
-              Access Command Center
+              {loading ? 'Authenticating...' : 'Access Command Center'}
             </button>
           </form>
 

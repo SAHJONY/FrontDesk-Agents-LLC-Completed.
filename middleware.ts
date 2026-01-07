@@ -148,7 +148,11 @@ export async function middleware(request: NextRequest) {
       };
 
       // Check if accessing owner-only routes
-      if (pathnameWithoutLocale.startsWith('/api/owner') && decoded.role !== 'OWNER') {
+      if (pathnameWithoutLocale.startsWith('/dashboard/owner') && decoded.role !== 'owner') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+
+      if (pathnameWithoutLocale.startsWith('/api/owner') && decoded.role !== 'owner') {
         return NextResponse.json(
           { error: 'Forbidden - Owner access required' },
           { status: 403 }
