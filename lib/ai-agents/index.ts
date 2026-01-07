@@ -1,6 +1,13 @@
 /**
  * FrontDesk Agents AI Workforce - Main Orchestrator
  * Military-grade autonomous AI agent system with 8 operational divisions
+ * 
+ * Features:
+ * - Supreme AI Commander with mission orchestration
+ * - 8 specialized divisions with autonomous agents
+ * - Self-healing system with reinforcement learning
+ * - Advanced analytics and predictive insights
+ * - Owner command center with unrestricted access
  */
 
 // Core Infrastructure
@@ -28,6 +35,14 @@ export type {
   OutreachStep,
 } from './divisions/customer-acquisition';
 
+// Self-Healing System
+export { selfHealingSystem } from './self-healing';
+export type { HealthCheck, Incident, HealingAction } from './self-healing';
+
+// Analytics Engine
+export { analyticsEngine } from './analytics';
+export type { PerformanceMetrics, DivisionAnalytics, PredictiveInsight } from './analytics';
+
 // Employee email system (legacy - still functional)
 export {
   sendEmployeeEmail,
@@ -38,7 +53,7 @@ export {
 export { employeeDirectory } from '../mail/employeeDirectory';
 
 /**
- * Initialize the complete AI Workforce
+ * Initialize the complete AI Workforce with all systems
  */
 export async function initializeAIWorkforce() {
   console.log('');
@@ -49,6 +64,9 @@ export async function initializeAIWorkforce() {
 
   // Start Supreme Commander
   await supremeCommander.start();
+
+  // Start Self-Healing System
+  selfHealingSystem.start();
 
   console.log('');
   console.log('📊 DIVISION STATUS:');
@@ -61,6 +79,12 @@ export async function initializeAIWorkforce() {
   console.log('   ✅ Human Resources Division: OPERATIONAL');
   console.log('   ✅ Legal & Compliance Division: OPERATIONAL');
   console.log('');
+  console.log('🏥 ADVANCED SYSTEMS:');
+  console.log('   ✅ Self-Healing System: ACTIVE');
+  console.log('   ✅ Analytics Engine: ACTIVE');
+  console.log('   ✅ Reinforcement Learning: ENABLED');
+  console.log('   ✅ Predictive Insights: ENABLED');
+  console.log('');
   console.log('═══════════════════════════════════════════════════════════════');
   console.log('🎖️  AI WORKFORCE FULLY OPERATIONAL WITH 100% AUTONOMY');
   console.log('═══════════════════════════════════════════════════════════════');
@@ -71,6 +95,9 @@ export async function initializeAIWorkforce() {
     divisions: 8,
     autonomyLevel: 100,
     supremeCommander: 'ONLINE',
+    selfHealing: 'ACTIVE',
+    analytics: 'ACTIVE',
+    reinforcementLearning: 'ENABLED',
   };
 }
 
@@ -109,6 +136,8 @@ export function getWorkforceStatus() {
   const systemStatus = supremeCommander.getSystemStatus();
   const emailStats = emailOperationsDivision.getStats();
   const salesStats = customerAcquisitionDivision.getStats();
+  const healthStatus = selfHealingSystem.getHealthStatus();
+  const healingMetrics = selfHealingSystem.getMetrics();
 
   return {
     system: {
@@ -140,6 +169,12 @@ export function getWorkforceStatus() {
       conversionRate: `${salesStats.conversionRate.toFixed(2)}%`,
       hotLeads: salesStats.hotLeads,
     },
+    selfHealing: {
+      status: healthStatus.overall,
+      unresolvedIncidents: healthStatus.unresolvedIncidents,
+      autoResolutionRate: `${healingMetrics.autoResolutionRate.toFixed(2)}%`,
+      totalIncidents: healingMetrics.totalIncidents,
+    },
     divisions: systemStatus.divisions.map((div) => ({
       name: div.division,
       successRate: `${div.successRate.toFixed(2)}%`,
@@ -147,6 +182,13 @@ export function getWorkforceStatus() {
       missionsCompleted: div.missionsCompleted,
     })),
   };
+}
+
+/**
+ * Get analytics dashboard
+ */
+export function getAnalyticsDashboard() {
+  return analyticsEngine.generateExecutiveDashboard();
 }
 
 /**
@@ -161,6 +203,7 @@ export function emergencyShutdown(reason: string) {
   console.log('');
 
   supremeCommander.emergencyShutdown(reason);
+  selfHealingSystem.stop();
 
   console.log('✅ All operations halted');
   console.log('');
