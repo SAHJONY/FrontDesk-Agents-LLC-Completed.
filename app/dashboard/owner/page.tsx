@@ -16,7 +16,9 @@ import {
   Power,
   Eye,
   RefreshCw,
+  Key,
 } from 'lucide-react';
+import { SecretsManager } from '@/components/owner/SecretsManager';
 
 export default function OwnerOversightPanel() {
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -354,6 +356,20 @@ export default function OwnerOversightPanel() {
             </div>
           </button>
         </div>
+      </div>
+
+      {/* Secrets Management Section */}
+      <div className="mt-8 bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+            <Key className="w-5 h-5 text-cyan-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">Secrets & Environment Variables</h2>
+            <p className="text-slate-400 text-sm">Manage platform secrets and API keys</p>
+          </div>
+        </div>
+        <SecretsManager />
       </div>
     </div>
   );
