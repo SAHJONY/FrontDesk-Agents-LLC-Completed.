@@ -10,8 +10,6 @@
 // ============================================================================
 
 export class CustomerSuccessDivision {
-  private model = 'gpt-4.1';
-  private customers: Map<string, any> = new Map();
 
   /**
    * Onboarding Squad: Autonomous customer onboarding
@@ -140,7 +138,6 @@ export class CustomerSuccessDivision {
 // ============================================================================
 
 export class TechnicalOperationsDivision {
-  private model = 'gpt-4.1-mini';
 
   /**
    * Monitoring Squad: Real-time system monitoring
@@ -218,7 +215,6 @@ export class TechnicalOperationsDivision {
 // ============================================================================
 
 export class FinancialOperationsDivision {
-  private model = 'gpt-4.1-mini';
 
   /**
    * Billing Squad: Automated billing and invoicing
@@ -303,7 +299,6 @@ export class FinancialOperationsDivision {
 // ============================================================================
 
 export class IntelligenceAnalyticsDivision {
-  private model = 'gpt-4.1';
 
   /**
    * Data Collection Squad: Aggregate data from all sources
@@ -392,7 +387,6 @@ export class IntelligenceAnalyticsDivision {
 // ============================================================================
 
 export class HumanResourcesDivision {
-  private model = 'gpt-4.1';
 
   /**
    * Recruiting Squad: Automated candidate sourcing
@@ -468,7 +462,6 @@ export class HumanResourcesDivision {
 // ============================================================================
 
 export class LegalComplianceDivision {
-  private model = 'gpt-4.1';
 
   /**
    * Contracts Squad: Automated contract generation

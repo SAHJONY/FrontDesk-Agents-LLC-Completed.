@@ -1,4 +1,4 @@
-import { generateEmail, TemplateData } from '../index';
+import { generateEmail } from '../index';
 
 /**
  * Agent introduction email

@@ -246,7 +246,7 @@ async function logEmail(data: {
 /**
  * Get email statistics for a department
  */
-export async function getDepartmentEmailStats(department: Department, days: number = 30): Promise<{
+export async function getDepartmentEmailStats(_department: Department, _days: number = 30): Promise<{
   sent: number;
   delivered: number;
   opened: number;
@@ -266,7 +266,7 @@ export async function getDepartmentEmailStats(department: Department, days: numb
 /**
  * Get email statistics for an agent
  */
-export async function getAgentEmailStats(agentId: string, days: number = 30): Promise<{
+export async function getAgentEmailStats(_agentId: string, _days: number = 30): Promise<{
   sent: number;
   delivered: number;
   opened: number;

@@ -1,6 +1,5 @@
 // 1. Import necessary clients for the Portland Node
 import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
 
 // Initialize Supabase (Ensure these ENV variables are set in Vercel)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
