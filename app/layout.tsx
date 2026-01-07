@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { I18nProvider } from '../lib/i18n/provider';
+import { AutonomousProvider } from '../lib/autonomous/provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -119,13 +120,15 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} min-h-screen bg-slate-950 text-slate-100 antialiased`}>
         <I18nProvider>
-          <a 
+          <AutonomousProvider>
+            <a 
             href="#main-content" 
             className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-cyan-500 focus:text-white focus:rounded-lg"
           >
             Skip to main content
           </a>
-          {children}
+            {children}
+          </AutonomousProvider>
         </I18nProvider>
       </body>
     </html>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import LanguageSelectorSimple from './LanguageSelectorSimple';
 import { useI18n } from '../lib/i18n/provider';
+import { AutonomousStatusIndicator } from './AutonomousStatusIndicator';
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -91,6 +92,8 @@ export default function Navigation() {
 
           {/* Right Side Controls */}
           <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Autonomous Status */}
+            <AutonomousStatusIndicator />
             {/* Language Selector */}
             <LanguageSelectorSimple />
 
