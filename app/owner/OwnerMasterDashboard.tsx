@@ -20,7 +20,7 @@ export default function OwnerMasterDashboard() {
           <div>
             <h1 className="text-3xl font-black tracking-tighter uppercase italic">Owner Dashboard</h1>
             <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-2">
-              Sovereign Node: Portland / Integrity Verified
+              FrontDesk Node: Portland / Integrity Verified
             </p>
           </div>
           

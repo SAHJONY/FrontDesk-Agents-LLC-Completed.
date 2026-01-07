@@ -5,13 +5,9 @@ import Link from 'next/link';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    fullName: '',
     email: '',
-    phone: '',
+    password: '',
     company: '',
-    subdomain: '',
-    country: 'United States',
-    accessKey: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -20,24 +16,18 @@ export default function SignupPage() {
 
   const validateField = (name: string, value: string): string => {
     switch (name) {
-      case 'fullName':
-        return value.trim().length < 2 ? 'Full name must be at least 2 characters' : '';
       case 'email':
         return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Please enter a valid email address' : '';
-      case 'phone':
-        return !/^\+?[\d\s\-()]+$/.test(value) ? 'Please enter a valid phone number' : '';
+      case 'password':
+        return value.length < 8 ? 'Password must be at least 8 characters' : '';
       case 'company':
         return value.trim().length < 2 ? 'Company name must be at least 2 characters' : '';
-      case 'subdomain':
-        return !/^[a-z0-9-]+$/.test(value) ? 'Subdomain can only contain lowercase letters, numbers, and hyphens' : '';
-      case 'accessKey':
-        return value.trim().length < 8 ? 'Access key must be at least 8 characters' : '';
       default:
         return '';
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
@@ -47,7 +37,7 @@ export default function SignupPage() {
     }
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const error = validateField(name, value);
     if (error) {
@@ -73,7 +63,7 @@ export default function SignupPage() {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
+      // TODO: Integrate with actual signup API
       await new Promise(resolve => setTimeout(resolve, 2000));
       setSubmitSuccess(true);
       console.log('Form submitted:', formData);
@@ -93,15 +83,15 @@ export default function SignupPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Registration Successful!</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">Welcome to FrontDesk Agents!</h1>
           <p className="text-slate-300 mb-6">
-            Welcome to FrontDesk Agents. Check your email for next steps.
+            Your account has been created. Check your email to verify and get started.
           </p>
           <Link 
-            href="/dashboard" 
+            href="/login" 
             className="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
           >
-            Go to Dashboard
+            Go to Login
           </Link>
         </div>
       </div>
@@ -109,256 +99,151 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4">
-      <div className="max-w-2xl mx-auto py-12">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Create Your Command Center</h1>
-          <p className="text-slate-400">Deploy your AI workforce in minutes</p>
+          <Link href="/" className="inline-block mb-6">
+            <h1 className="text-2xl font-bold text-cyan-400">FrontDesk Agents</h1>
+          </Link>
+          <h2 className="text-3xl font-bold mb-2">Start Your Free Trial</h2>
+          <p className="text-slate-400">14-day free trial • No credit card required</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-          {/* Full Name */}
-          <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-slate-300 mb-2">
-              Full Name <span className="text-red-400" aria-label="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              aria-required="true"
-              aria-invalid={!!errors.fullName}
-              aria-describedby={errors.fullName ? 'fullName-error' : undefined}
-              className={`w-full bg-slate-900 border ${
-                errors.fullName ? 'border-red-500' : 'border-slate-700'
-              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
-              placeholder="John Doe"
-            />
-            {errors.fullName && (
-              <p id="fullName-error" className="mt-1 text-sm text-red-400" role="alert">
-                {errors.fullName}
-              </p>
-            )}
-          </div>
-
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-              Business Email <span className="text-red-400" aria-label="required">*</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              aria-required="true"
-              aria-invalid={!!errors.email}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              className={`w-full bg-slate-900 border ${
-                errors.email ? 'border-red-500' : 'border-slate-700'
-              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
-              placeholder="john@company.com"
-            />
-            {errors.email && (
-              <p id="email-error" className="mt-1 text-sm text-red-400" role="alert">
-                {errors.email}
-              </p>
-            )}
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-2">
-              Phone Number <span className="text-red-400" aria-label="required">*</span>
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              aria-required="true"
-              aria-invalid={!!errors.phone}
-              aria-describedby={errors.phone ? 'phone-error' : undefined}
-              className={`w-full bg-slate-900 border ${
-                errors.phone ? 'border-red-500' : 'border-slate-700'
-              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
-              placeholder="+1 (555) 123-4567"
-            />
-            {errors.phone && (
-              <p id="phone-error" className="mt-1 text-sm text-red-400" role="alert">
-                {errors.phone}
-              </p>
-            )}
-          </div>
-
-          {/* Company */}
-          <div>
-            <label htmlFor="company" className="block text-sm font-medium text-slate-300 mb-2">
-              Company Name <span className="text-red-400" aria-label="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="company"
-              name="company"
-              value={formData.company}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              aria-required="true"
-              aria-invalid={!!errors.company}
-              aria-describedby={errors.company ? 'company-error' : undefined}
-              className={`w-full bg-slate-900 border ${
-                errors.company ? 'border-red-500' : 'border-slate-700'
-              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
-              placeholder="Acme Corporation"
-            />
-            {errors.company && (
-              <p id="company-error" className="mt-1 text-sm text-red-400" role="alert">
-                {errors.company}
-              </p>
-            )}
-          </div>
-
-          {/* Subdomain */}
-          <div>
-            <label htmlFor="subdomain" className="block text-sm font-medium text-slate-300 mb-2">
-              Subdomain <span className="text-red-400" aria-label="required">*</span>
-            </label>
-            <div className="flex items-center">
+        <div className="bg-slate-900 border border-slate-800 rounded-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                Work Email
+              </label>
               <input
-                type="text"
-                id="subdomain"
-                name="subdomain"
-                value={formData.subdomain}
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
                 aria-required="true"
-                aria-invalid={!!errors.subdomain}
-                aria-describedby={errors.subdomain ? 'subdomain-error' : 'subdomain-preview'}
-                className={`flex-1 bg-slate-900 border ${
-                  errors.subdomain ? 'border-red-500' : 'border-slate-700'
-                } rounded-l-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
-                placeholder="acme"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                className={`w-full bg-slate-800 border ${
+                  errors.email ? 'border-red-500' : 'border-slate-700'
+                } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+                placeholder="you@company.com"
               />
-              <span className="bg-slate-800 border border-l-0 border-slate-700 rounded-r-lg px-4 py-3 text-slate-400">
-                .frontdesk.ai
-              </span>
+              {errors.email && (
+                <p id="email-error" className="mt-1 text-sm text-red-400" role="alert">
+                  {errors.email}
+                </p>
+              )}
             </div>
-            {errors.subdomain && (
-              <p id="subdomain-error" className="mt-1 text-sm text-red-400" role="alert">
-                {errors.subdomain}
-              </p>
-            )}
-            {!errors.subdomain && formData.subdomain && (
-              <p id="subdomain-preview" className="mt-1 text-sm text-cyan-400">
-                Your workspace: {formData.subdomain}.frontdesk.ai
-              </p>
-            )}
-          </div>
 
-          {/* Country */}
-          <div>
-            <label htmlFor="country" className="block text-sm font-medium text-slate-300 mb-2">
-              Country <span className="text-red-400" aria-label="required">*</span>
-            </label>
-            <select
-              id="country"
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              required
-              aria-required="true"
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors"
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                aria-required="true"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : undefined}
+                className={`w-full bg-slate-800 border ${
+                  errors.password ? 'border-red-500' : 'border-slate-700'
+                } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+                placeholder="At least 8 characters"
+              />
+              {errors.password && (
+                <p id="password-error" className="mt-1 text-sm text-red-400" role="alert">
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            {/* Company Name */}
+            <div>
+              <label htmlFor="company" className="block text-sm font-medium text-slate-300 mb-2">
+                Company Name
+              </label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                aria-required="true"
+                aria-invalid={!!errors.company}
+                aria-describedby={errors.company ? 'company-error' : undefined}
+                className={`w-full bg-slate-800 border ${
+                  errors.company ? 'border-red-500' : 'border-slate-700'
+                } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+                placeholder="Your Company"
+              />
+              {errors.company && (
+                <p id="company-error" className="mt-1 text-sm text-red-400" role="alert">
+                  {errors.company}
+                </p>
+              )}
+            </div>
+
+            {/* Submit Error */}
+            {errors.submit && (
+              <p className="text-sm text-red-400 text-center" role="alert">
+                {errors.submit}
+              </p>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center justify-center"
             >
-              <option value="United States">United States</option>
-              <option value="Canada">Canada</option>
-              <option value="United Kingdom">United Kingdom</option>
-              <option value="Australia">Australia</option>
-              <option value="Germany">Germany</option>
-              <option value="France">France</option>
-              <option value="Japan">Japan</option>
-              <option value="Other">Other</option>
-            </select>
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating Account...
+                </>
+              ) : (
+                'Start Free Trial'
+              )}
+            </button>
+
+            {/* Terms */}
+            <p className="text-xs text-slate-400 text-center">
+              By signing up, you agree to our{' '}
+              <Link href="/terms" className="text-cyan-400 hover:text-cyan-300">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-cyan-400 hover:text-cyan-300">
+                Privacy Policy
+              </Link>
+            </p>
+          </form>
+
+          {/* Login Link */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-400">
+              Already have an account?{' '}
+              <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium">
+                Sign in
+              </Link>
+            </p>
           </div>
-
-          {/* Access Key */}
-          <div>
-            <label htmlFor="accessKey" className="block text-sm font-medium text-slate-300 mb-2">
-              Create Access Key <span className="text-red-400" aria-label="required">*</span>
-            </label>
-            <input
-              type="password"
-              id="accessKey"
-              name="accessKey"
-              value={formData.accessKey}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              aria-required="true"
-              aria-invalid={!!errors.accessKey}
-              aria-describedby={errors.accessKey ? 'accessKey-error' : 'accessKey-help'}
-              className={`w-full bg-slate-900 border ${
-                errors.accessKey ? 'border-red-500' : 'border-slate-700'
-              } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
-              placeholder="••••••••"
-            />
-            {errors.accessKey && (
-              <p id="accessKey-error" className="mt-1 text-sm text-red-400" role="alert">
-                {errors.accessKey}
-              </p>
-            )}
-            {!errors.accessKey && (
-              <p id="accessKey-help" className="mt-1 text-sm text-slate-400">
-                Minimum 8 characters. This will be your password.
-              </p>
-            )}
-          </div>
-
-          {/* Submit Error */}
-          {errors.submit && (
-            <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4" role="alert">
-              <p className="text-red-400">{errors.submit}</p>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold px-6 py-4 rounded-lg transition-colors flex items-center justify-center"
-            aria-busy={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Initializing Command Center...
-              </>
-            ) : (
-              'INITIALIZE COMMAND CENTER'
-            )}
-          </button>
-
-          <p className="text-center text-sm text-slate-400">
-            Already have an account?{' '}
-            <Link href="/login" className="text-cyan-400 hover:text-cyan-300 transition-colors">
-              Sign in
-            </Link>
-          </p>
-        </form>
+        </div>
       </div>
     </div>
   );

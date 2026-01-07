@@ -10,7 +10,7 @@ export default function TeamPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold">Workforce Management</h1>
-      <p>Node: {profile?.companyName || 'Sovereign Node'}</p>
+      <p>Node: {profile?.companyName || 'FrontDesk Node'}</p>
     </div>
   );
 }

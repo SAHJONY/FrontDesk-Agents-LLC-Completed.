@@ -79,6 +79,12 @@ export default function LoginPage() {
               />
             </div>
 
+            <div className="flex justify-end">
+              <Link href="/forgot-password" className="text-sm text-zinc-500 hover:text-cyan-400 transition-colors">
+                Forgot password?
+              </Link>
+            </div>
+
             <button 
               type="submit" 
               className="w-full bg-white text-black font-black p-4 rounded-2xl hover:bg-zinc-200 active:scale-[0.98] transition-all uppercase tracking-tighter text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]"
@@ -92,7 +98,7 @@ export default function LoginPage() {
               ← Return to Public Portal
             </Link>
             <p className="text-[9px] text-zinc-700 uppercase tracking-widest leading-relaxed">
-              By accessing this terminal, you agree to the Sovereign Financial Hub Terms of Service and Privacy Policy.
+              By accessing this platform, you agree to the FrontDesk Agents Terms of Service and Privacy Policy.
             </p>
           </div>
         </div>
