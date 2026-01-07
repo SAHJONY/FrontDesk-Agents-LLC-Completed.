@@ -44,10 +44,6 @@ export default function LoginPage() {
 
       {/* Right Side: Login Form */}
       <div className="flex-1 flex items-center justify-center p-8 lg:p-24 relative">
-        <div className="absolute top-12 left-12 lg:hidden">
-           <h1 className="text-xl font-black tracking-tighter">FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE</h1>
-        </div>
-
         <div className="max-w-[400px] w-full">
           <div className="mb-12">
             <h1 className="text-4xl font-black tracking-tighter uppercase italic mb-2">Platform Login</h1>
