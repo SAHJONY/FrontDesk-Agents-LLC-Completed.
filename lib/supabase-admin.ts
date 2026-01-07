@@ -1,12 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Validate environment variables for the pdx1 build
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key-for-build';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Warn if using placeholder values
-if (supabaseUrl === 'https://placeholder.supabase.co' || supabaseServiceKey === 'placeholder-key-for-build') {
-  console.warn('⚠️  Using placeholder Supabase credentials. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.');
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Missing Supabase Admin Environment Variables');
 }
 
 /**
