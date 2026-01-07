@@ -1,36 +1,75 @@
 import { NextResponse } from 'next/server';
-import { ownerCommandCenter, verifyOwnerAccess } from '@/lib/ai-agents';
+import { OwnerCommandCenter, AuthenticatedSession, hasRole, isSessionValid } from '@/lib/ai-agents/owner-access';
 import jwt from 'jsonwebtoken';
 
 /**
- * POST /api/owner/command
- * Execute owner commands with unrestricted access
+ * Verify and decode JWT token from request
  */
-export async function POST(request: Request) {
+function verifyToken(request: Request): AuthenticatedSession | null {
   try {
-    // Verify owner authentication
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     const cookie = request.headers.get('cookie');
     const authToken = token || cookie?.split('auth-token=')[1]?.split(';')[0];
 
     if (!authToken) {
-      return NextResponse.json({ error: 'Unauthorized: No token provided' }, { status: 401 });
+      return null;
     }
 
-    // Verify JWT token
-    const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
-    let decoded: any;
-
-    try {
-      decoded = jwt.verify(authToken, jwtSecret);
-    } catch (error) {
-      return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 });
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error('JWT_SECRET not configured');
+      return null;
     }
 
-    // Verify owner access
-    if (!verifyOwnerAccess(decoded.email)) {
+    const decoded: any = jwt.verify(authToken, jwtSecret);
+
+    // Create session from JWT payload
+    const session: AuthenticatedSession = {
+      isAuthenticated: true,
+      user: {
+        userId: decoded.userId || decoded.sub,
+        email: decoded.email,
+        role: decoded.role || 'viewer',
+      },
+      sessionId: decoded.sessionId || `session-${Date.now()}`,
+      createdAt: new Date(decoded.iat * 1000),
+      expiresAt: new Date(decoded.exp * 1000),
+    };
+
+    return session;
+  } catch (error) {
+    console.error('Token verification failed:', error);
+    return null;
+  }
+}
+
+/**
+ * POST /api/owner/command
+ * Execute owner commands with role-based access control
+ */
+export async function POST(request: Request) {
+  try {
+    // Verify authentication
+    const session = verifyToken(request);
+    
+    if (!session) {
       return NextResponse.json(
-        { error: 'Forbidden: Owner access required' },
+        { error: 'Unauthorized: Invalid or missing authentication token' },
+        { status: 401 }
+      );
+    }
+
+    if (!isSessionValid(session)) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Session expired' },
+        { status: 401 }
+      );
+    }
+
+    // Verify owner role
+    if (!hasRole(session, 'owner')) {
+      return NextResponse.json(
+        { error: 'Forbidden: Owner role required' },
         { status: 403 }
       );
     }
@@ -40,13 +79,17 @@ export async function POST(request: Request) {
     const { command, params } = body;
 
     if (!command) {
-      return NextResponse.json({ error: 'Missing required field: command' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing required field: command' },
+        { status: 400 }
+      );
     }
 
-    console.log(`👑 Owner Command Received: ${command}`);
+    console.log(`[OWNER API] ${session.user.email} executing: ${command}`);
 
-    // Execute owner command
-    const result = await ownerCommandCenter.executeCommand(command, params);
+    // Execute command through secure command center
+    const commandCenter = new OwnerCommandCenter(session);
+    const result = await commandCenter.executeCommand(command, params);
 
     return NextResponse.json({
       success: true,
@@ -55,11 +98,15 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error executing owner command:', error);
+    console.error('[OWNER API] Error executing command:', error);
+    
+    // Don't expose internal error details in production
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
     return NextResponse.json(
       {
         error: 'Failed to execute command',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: isDevelopment && error instanceof Error ? error.message : undefined,
       },
       { status: 500 }
     );
@@ -72,40 +119,41 @@ export async function POST(request: Request) {
  */
 export async function GET(request: Request) {
   try {
-    // Verify owner authentication (same as POST)
-    const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    const cookie = request.headers.get('cookie');
-    const authToken = token || cookie?.split('auth-token=')[1]?.split(';')[0];
-
-    if (!authToken) {
-      return NextResponse.json({ error: 'Unauthorized: No token provided' }, { status: 401 });
-    }
-
-    const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
-    let decoded: any;
-
-    try {
-      decoded = jwt.verify(authToken, jwtSecret);
-    } catch (error) {
-      return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 });
-    }
-
-    if (!verifyOwnerAccess(decoded.email)) {
+    // Verify authentication
+    const session = verifyToken(request);
+    
+    if (!session) {
       return NextResponse.json(
-        { error: 'Forbidden: Owner access required' },
+        { error: 'Unauthorized: Invalid or missing authentication token' },
+        { status: 401 }
+      );
+    }
+
+    if (!isSessionValid(session)) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Session expired' },
+        { status: 401 }
+      );
+    }
+
+    // Verify owner role
+    if (!hasRole(session, 'owner')) {
+      return NextResponse.json(
+        { error: 'Forbidden: Owner role required' },
         { status: 403 }
       );
     }
 
     // Get complete status
-    const status = await ownerCommandCenter.executeCommand('status');
+    const commandCenter = new OwnerCommandCenter(session);
+    const status = await commandCenter.executeCommand('status');
 
     return NextResponse.json({
       success: true,
-      owner: {
-        email: decoded.email,
-        role: decoded.role,
-        accessLevel: 'SUPREME_OWNER',
+      user: {
+        email: session.user.email,
+        role: session.user.role,
+        userId: session.user.userId,
       },
       status,
       availableCommands: [
@@ -122,11 +170,14 @@ export async function GET(request: Request) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error getting owner status:', error);
+    console.error('[OWNER API] Error getting status:', error);
+    
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
     return NextResponse.json(
       {
         error: 'Failed to get status',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: isDevelopment && error instanceof Error ? error.message : undefined,
       },
       { status: 500 }
     );
