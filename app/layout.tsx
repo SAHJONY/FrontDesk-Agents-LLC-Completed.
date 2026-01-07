@@ -30,14 +30,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://front-desk-agents-llc-completed.vercel.app'),
+  metadataBase: new URL('https://frontdeskagents.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://front-desk-agents-llc-completed.vercel.app',
+    url: 'https://frontdeskagents.com',
     siteName: 'FrontDesk Agents',
     title: 'FrontDesk Agents | AI-Powered Revenue Workforce',
     description: '24/7 autonomous infrastructure for lead qualification, customer service, and revenue operations.',
@@ -91,8 +91,8 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'FrontDesk Agents LLC',
-              url: 'https://front-desk-agents-llc-completed.vercel.app',
-              logo: 'https://front-desk-agents-llc-completed.vercel.app/logo.png',
+              url: 'https://frontdeskagents.com',
+              logo: 'https://frontdeskagents.com/logo.png',
               description: 'AI-Powered Revenue Workforce platform providing 24/7 autonomous infrastructure for lead qualification, customer service, and revenue operations.',
               contactPoint: {
                 '@type': 'ContactPoint',
