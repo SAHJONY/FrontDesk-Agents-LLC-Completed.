@@ -44,8 +44,7 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from('users')
       .update({ 
-        password_hash: passwordHash,
-        status: 'active' // Also ensure status is set to active
+        password_hash: passwordHash
       })
       .eq('email', 'frontdeskllc@outlook.com')
       .select();

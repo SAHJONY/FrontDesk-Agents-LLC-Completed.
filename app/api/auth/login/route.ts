@@ -70,16 +70,7 @@ export async function POST(req: Request) {
     const user = users[0];
     console.log('✅ User found:', user.email, 'Role:', user.role);
 
-    // Check if account is active (treat undefined/null as active for backward compatibility)
-    const accountStatus = user.status || 'active';
-    if (accountStatus !== 'active') {
-      console.error('❌ Account not active:', user.status);
-      return NextResponse.json(
-        { error: 'Account is not active' },
-        { status: 403 }
-      );
-    }
-    console.log('✅ Account status verified:', accountStatus);
+    // Status check removed - status column doesn't exist in database schema
 
     // Verify password
     console.log('🔐 Verifying password...');
