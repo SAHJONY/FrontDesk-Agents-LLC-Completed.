@@ -3,13 +3,10 @@ import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as z from 'zod';
-// Owner authentication logic handled inline
 
 // Force Node.js runtime (not Edge)
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const OWNER_EMAIL = 'frontdeskllc@outlook.com';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -23,18 +20,17 @@ export async function POST(req: Request) {
 
     // Initialize Supabase with service key (server-side only)
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    // Debug logging
-    console.log('DEBUG: Environment variables check:');
-    console.log('- NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING');
-    console.log('- SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'EXISTS' : 'MISSING');
-    console.log('- supabaseKey (final):', supabaseKey ? `${supabaseKey.substring(0, 20)}...` : 'MISSING');
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Email:', email);
+    console.log('Supabase URL:', supabaseUrl ? 'CONFIGURED' : 'MISSING');
+    console.log('Service Key:', supabaseKey ? 'CONFIGURED' : 'MISSING');
 
     if (!supabaseUrl || !supabaseKey) {
-      console.error('Supabase configuration missing');
+      console.error('❌ Supabase configuration missing');
       return NextResponse.json(
-        { message: 'Server configuration error' },
+        { error: 'Server configuration error' },
         { status: 500 }
       );
     }
@@ -46,96 +42,72 @@ export async function POST(req: Request) {
       }
     });
 
-    // Check if this is the owner email
-    const isOwner = email.toLowerCase() === OWNER_EMAIL.toLowerCase();
-
     // Query user from database
-    let { data: user, error: dbError } = await supabase
+    console.log('🔍 Querying user from database...');
+    const { data: users, error: dbError } = await supabase
       .from('users')
       .select('*')
-      .eq('email', email)
-      .single();
+      .eq('email', email.toLowerCase())
+      .limit(1);
 
-    // If owner doesn't exist, create owner account automatically
-    if (isOwner && (dbError || !user)) {
-      console.log('Owner account not found, creating...');
-      
-      const hashedPassword = await bcrypt.hash(password, 10);
-      
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert({
-          email: email,
-          password_hash: hashedPassword,
-          full_name: 'Platform Owner',
-          role: 'OWNER',
-          tier: 'enterprise',
-          status: 'active',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (createError) {
-        console.error('Failed to create owner account:', {
-          message: createError.message,
-          details: createError.details || createError.toString(),
-          hint: createError.hint || '',
-          code: createError.code || ''
-        });
-        return NextResponse.json(
-          { 
-            error: 'Failed to create owner account',
-            message: createError.message,
-            details: createError.details || createError.toString(),
-            hint: createError.hint || '',
-            code: createError.code || ''
-          },
-          { status: 500 }
-        );
-      }
-
-      user = newUser;
-      console.log('Owner account created successfully');
+    if (dbError) {
+      console.error('❌ Database query error:', dbError);
+      return NextResponse.json(
+        { error: 'Database error occurred' },
+        { status: 500 }
+      );
     }
 
-    // If user still doesn't exist (non-owner), return error
-    if (!user) {
-      console.error('User not found:', email);
+    // Check if user exists
+    if (!users || users.length === 0) {
+      console.error('❌ User not found:', email);
       return NextResponse.json(
-        { message: 'Invalid credentials' },
+        { error: 'Invalid email or password' },
         { status: 401 }
+      );
+    }
+
+    const user = users[0];
+    console.log('✅ User found:', user.email, 'Role:', user.role);
+
+    // Check if account is active
+    if (user.status !== 'active') {
+      console.error('❌ Account not active:', user.status);
+      return NextResponse.json(
+        { error: 'Account is not active' },
+        { status: 403 }
       );
     }
 
     // Verify password
+    console.log('🔐 Verifying password...');
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordMatch) {
-      console.error('Password mismatch for user:', email);
+      console.error('❌ Password mismatch');
       return NextResponse.json(
-        { message: 'Invalid credentials' },
+        { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
-    // Generate JWT tokens
+    console.log('✅ Password verified');
+
+    // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
     
-    // Access token (7 days)
     const accessToken = jwt.sign(
       {
         userId: user.id,
         email: user.email,
-        role: user.role || 'user',
-        tier: user.tier || 'basic',
+        role: user.role,
+        tier: user.tier,
+        tenantId: user.tenant_id
       },
       jwtSecret,
       { expiresIn: '7d' }
     );
 
-    // Refresh token (30 days)
     const refreshToken = jwt.sign(
       {
         userId: user.id,
@@ -145,6 +117,16 @@ export async function POST(req: Request) {
       { expiresIn: '30d' }
     );
 
+    // Determine redirect URL based on role
+    let redirectUrl = '/dashboard';
+    if (user.role === 'OWNER') {
+      redirectUrl = '/dashboard/owner';
+    } else if (user.role === 'admin') {
+      redirectUrl = '/dashboard/admin';
+    }
+
+    console.log('✅ Login successful! Redirecting to:', redirectUrl);
+
     // Create response
     const response = NextResponse.json({
       success: true,
@@ -152,16 +134,18 @@ export async function POST(req: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.full_name || user.name,
-        role: user.role || 'user',
-        tier: user.tier || 'basic',
-        status: user.status || 'active',
+        name: user.full_name,
+        role: user.role,
+        tier: user.tier,
+        status: user.status,
+        tenantId: user.tenant_id
       },
       accessToken,
       refreshToken,
+      redirectUrl
     });
 
-    // Set HTTP-only cookie with the access token
+    // Set HTTP-only cookies
     response.cookies.set('auth-token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -170,7 +154,6 @@ export async function POST(req: Request) {
       path: '/',
     });
 
-    // Set refresh token cookie
     response.cookies.set('refresh-token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -182,17 +165,17 @@ export async function POST(req: Request) {
     return response;
 
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { message: 'Invalid input', details: error.errors },
+        { error: 'Invalid input', details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { message: 'Authentication failed' },
+      { error: 'Authentication failed' },
       { status: 500 }
     );
   }
