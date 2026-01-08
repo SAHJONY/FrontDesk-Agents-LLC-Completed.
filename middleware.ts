@@ -1,19 +1,9 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import createIntlMiddleware from 'next-intl/middleware';
 import jwt from 'jsonwebtoken';
-import { locales } from './i18n';
 
 // Owner email - exempt from all billing and tier checks
 const OWNER_EMAIL = 'frontdeskllc@outlook.com';
-
-// Create i18n middleware
-const intlMiddleware = createIntlMiddleware({
-  locales,
-  defaultLocale: 'en',
-  localeDetection: true,
-  localePrefix: 'as-needed'
-});
 
 // Public routes that don't require authentication
 const publicRoutes = [
@@ -25,9 +15,18 @@ const publicRoutes = [
   '/pricing',
   '/terms',
   '/privacy',
+  '/features',
+  '/industries',
+  '/solutions',
+  '/support',
+  '/legal',
+  '/demo',
+  '/demo-login',
+  '/onboarding',
   '/api/auth/login',
   '/api/auth/signup',
   '/api/auth/logout',
+  '/api/auth/me',
   '/api/webhooks',
 ];
 
@@ -36,12 +35,6 @@ const ownerRoutes = [
   '/dashboard/owner',
   '/api/owner',
 ];
-
-// Remove locale prefix from pathname
-function stripLocalePrefix(pathname: string): string {
-  const localePattern = new RegExp(`^/(${locales.join('|')})(/|$)`);
-  return pathname.replace(localePattern, '/').replace(/\/$/, '') || '/';
-}
 
 // Check if route is public
 function isPublicRoute(pathname: string): boolean {
@@ -59,25 +52,14 @@ function isOwnerRoute(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Handle i18n routing first
-  const intlResponse = intlMiddleware(request);
-  
-  // If i18n middleware returns a redirect, use it
-  if (intlResponse && intlResponse.status !== 200) {
-    return intlResponse;
-  }
-  
-  let response = intlResponse || NextResponse.next({
+  let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   });
 
-  // Strip locale prefix for route matching
-  const cleanPathname = stripLocalePrefix(pathname);
-
   // Allow public routes without authentication
-  if (isPublicRoute(cleanPathname)) {
+  if (isPublicRoute(pathname)) {
     return response;
   }
 
@@ -121,7 +103,7 @@ export async function middleware(request: NextRequest) {
   // If no token and accessing protected route, redirect to login
   if (!token) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', cleanPathname);
+    loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -141,7 +123,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check owner-only routes
-    if (isOwnerRoute(cleanPathname) && decoded.role !== 'owner') {
+    if (isOwnerRoute(pathname) && decoded.role !== 'owner') {
       return NextResponse.json(
         { error: 'Forbidden - Owner access required' },
         { status: 403 }
@@ -159,7 +141,7 @@ export async function middleware(request: NextRequest) {
     response.cookies.delete('auth-token');
     
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', cleanPathname);
+    loginUrl.searchParams.set('redirect', pathname);
     loginUrl.searchParams.set('error', 'session_expired');
     return NextResponse.redirect(loginUrl);
   }
