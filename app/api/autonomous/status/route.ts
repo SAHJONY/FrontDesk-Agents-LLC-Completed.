@@ -24,3 +24,26 @@ export async function GET(req: Request) {
     );
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    // Handle POST requests (e.g., updating autonomous agent status)
+    const body = await req.json().catch(() => ({}));
+    
+    return NextResponse.json({
+      success: true,
+      data: {
+        status: body.status || 'idle',
+        enabled: body.enabled || false,
+        lastActivity: new Date().toISOString(),
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('❌ Autonomous status POST error:', error);
+    return NextResponse.json(
+      { error: 'Failed to update autonomous status' },
+      { status: 500 }
+    );
+  }
+}
