@@ -19,6 +19,25 @@ export default function LoginPage() {
   // Prevent hydration issues
   useEffect(() => {
     setMounted(true);
+    
+    // Hide sidebar navigation
+    const hideSidebar = () => {
+      const sidebar = document.querySelector('nav.w-64.bg-gray-900');
+      if (sidebar) {
+        sidebar.style.display = 'none';
+      }
+      
+      const flexContainer = document.querySelector('body > div > div.flex.min-h-screen');
+      if (flexContainer) {
+        const nav = flexContainer.querySelector('nav');
+        if (nav) nav.style.display = 'none';
+      }
+    };
+    
+    // Run immediately and after a short delay to catch late-rendered elements
+    hideSidebar();
+    setTimeout(hideSidebar, 100);
+    setTimeout(hideSidebar, 500);
   }, []);
 
   // Fix hydration issues by ensuring client-side only rendering
