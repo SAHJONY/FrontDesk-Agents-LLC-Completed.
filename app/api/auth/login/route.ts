@@ -25,6 +25,12 @@ export async function POST(req: Request) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+    // Debug logging
+    console.log('DEBUG: Environment variables check:');
+    console.log('- NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING');
+    console.log('- SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'EXISTS' : 'MISSING');
+    console.log('- supabaseKey (final):', supabaseKey ? `${supabaseKey.substring(0, 20)}...` : 'MISSING');
+
     if (!supabaseUrl || !supabaseKey) {
       console.error('Supabase configuration missing');
       return NextResponse.json(
@@ -72,9 +78,20 @@ export async function POST(req: Request) {
         .single();
 
       if (createError) {
-        console.error('Failed to create owner account:', createError);
+        console.error('Failed to create owner account:', {
+          message: createError.message,
+          details: createError.details || createError.toString(),
+          hint: createError.hint || '',
+          code: createError.code || ''
+        });
         return NextResponse.json(
-          { error: 'Failed to create owner account' },
+          { 
+            error: 'Failed to create owner account',
+            message: createError.message,
+            details: createError.details || createError.toString(),
+            hint: createError.hint || '',
+            code: createError.code || ''
+          },
           { status: 500 }
         );
       }
