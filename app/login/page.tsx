@@ -68,7 +68,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <>
+      {/* Global style to hide sidebar */}
+      <style dangerouslySetInnerHTML={{__html: `
+        nav.w-64.bg-gray-900 { display: none !important; }
+        body > div > div.flex.min-h-screen > nav { display: none !important; }
+        body > div > div.flex.min-h-screen { display: block !important; }
+      `}} />
+      <div className="relative min-h-screen w-full overflow-hidden">
       {/* Background Layer - z-0 */}
       <div className="fixed inset-0 z-0 bg-gradient-to-br from-black via-zinc-900 to-black" />
       
@@ -189,6 +196,7 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 // Build timestamp: 1767827238
