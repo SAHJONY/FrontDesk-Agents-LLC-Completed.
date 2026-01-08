@@ -70,9 +70,11 @@ export const rtlLocales: Locale[] = ['ar', 'he', 'fa', 'ur'];
 
 export default getRequestConfig(async ({locale}) => {
   // Validate that the incoming `locale` parameter is valid
-  if (!locales.includes(locale as Locale)) notFound();
+  // If invalid, default to English instead of showing 404
+  const validLocale = locales.includes(locale as Locale) ? locale : 'en';
 
   return {
-    messages: (await import(`./messages/${locale}.json`)).default
+    messages: (await import(`./messages/${validLocale}.json`)).default,
+    locale: validLocale
   };
 });
