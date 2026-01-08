@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { LanguageSwitcher } from "./LanguageSwitcher";
+import LanguageSelectorMulti from "@/components/LanguageSelectorMulti";
 import { useEffect, useState } from "react";
 
 export default function Topbar() {
@@ -25,7 +25,7 @@ export default function Topbar() {
           <span className="text-slate-400">— Workspace</span>
         </div>
         <div className="flex items-center gap-2">
-          <LanguageSwitcher />
+          <LanguageSelectorMulti />
           <button
             type="button"
             className="inline-flex items-center justify-center rounded-md border border-slate-600 px-3 py-1 text-xs font-semibold text-slate-400"

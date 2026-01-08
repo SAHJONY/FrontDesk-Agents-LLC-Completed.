@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import LanguageSelectorSimple from './LanguageSelectorSimple';
+import LanguageSelectorMulti from './LanguageSelectorMulti';
 import { useI18n } from '../lib/i18n/provider';
 import { AutonomousStatusIndicator } from './AutonomousStatusIndicator';
 
@@ -102,7 +102,7 @@ export default function Navigation() {
             {/* Autonomous Status */}
             <AutonomousStatusIndicator />
             {/* Language Selector */}
-            <LanguageSelectorSimple />
+            <LanguageSelectorMulti />
 
             {/* Theme Toggle - Shows current theme with text label */}
             <button

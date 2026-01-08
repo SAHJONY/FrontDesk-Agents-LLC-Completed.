@@ -8,8 +8,9 @@ import {
   ReactNode,
 } from "react";
 import { setLocaleCookie } from "@/lib/i18n/cookie";
+import { type Locale } from "@/i18n";
 
-type Language = "en" | "es";
+type Language = Locale;
 
 type LanguageContextValue = {
   language: Language;
@@ -22,13 +23,13 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(
 );
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
+  const [language, setLanguageState] = useState<Language>("en" as Locale);
 
   // Load language from localStorage and cookie on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("fda_language");
-    if (stored === "en" || stored === "es") {
+    const stored = window.localStorage.getItem("fda_language") as Locale;
+    if (stored) {
       setLanguageState(stored);
       // Sync with cookie system
       setLocaleCookie(stored);
@@ -51,7 +52,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleLanguage = () => {
-    setLanguage(language === "en" ? "es" : "en");
+    // Toggle between English and Spanish for backward compatibility
+    setLanguage(language === "en" ? "es" as Locale : "en" as Locale);
   };
 
   const value: LanguageContextValue = {
