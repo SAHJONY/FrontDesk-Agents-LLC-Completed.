@@ -36,6 +36,7 @@ export async function GET(req: Request) {
           thisMonth: 0,
           growth: '0%',
           mrr: 0,
+          arr: 0,
           breakdown: []
         },
         recentActivity: [],
