@@ -8,6 +8,8 @@ export default function SignupPage() {
     email: '',
     password: '',
     company: '',
+    fullName: '',
+    subdomain: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -22,6 +24,10 @@ export default function SignupPage() {
         return value.length < 8 ? 'Password must be at least 8 characters' : '';
       case 'company':
         return value.trim().length < 2 ? 'Company name must be at least 2 characters' : '';
+      case 'fullName':
+        return value.trim().length < 2 ? 'Full name must be at least 2 characters' : '';
+      case 'subdomain':
+        return !/^[a-z0-9-]+$/.test(value) || value.length < 3 ? 'Subdomain must be at least 3 characters (lowercase, numbers, hyphens only)' : '';
       default:
         return '';
     }
@@ -63,11 +69,34 @@ export default function SignupPage() {
     setIsSubmitting(true);
     
     try {
-      // TODO: Integrate with actual signup API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Generate subdomain from company name if not provided
+      const subdomain = formData.subdomain || formData.company.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').substring(0, 20);
+      const fullName = formData.fullName || formData.email.split('@')[0];
+      
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.password,
+          companyName: formData.company,
+          fullName: fullName,
+          subdomain: subdomain,
+          country: 'US', // Default country
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors({ submit: data.error || 'Signup failed. Please try again.' });
+        return;
+      }
+
       setSubmitSuccess(true);
-      console.log('Form submitted:', formData);
     } catch (error) {
+      console.error('Signup error:', error);
       setErrors({ submit: 'An error occurred. Please try again.' });
     } finally {
       setIsSubmitting(false);

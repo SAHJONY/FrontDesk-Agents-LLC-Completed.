@@ -68,7 +68,7 @@ export async function POST(req: Request) {
           email: email,
           password_hash: hashedPassword,
           full_name: 'Platform Owner',
-          role: 'owner',
+          role: 'OWNER',
           tier: 'enterprise',
           status: 'active',
           created_at: new Date().toISOString(),
