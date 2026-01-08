@@ -7,6 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { setLocaleCookie } from "@/lib/i18n/cookie";
 
 type Language = "en" | "es";
 
@@ -23,19 +24,25 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("en");
 
-  // Cargar idioma guardado en localStorage (si existe)
+  // Load language from localStorage and cookie on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
     const stored = window.localStorage.getItem("fda_language");
     if (stored === "en" || stored === "es") {
       setLanguageState(stored);
+      // Sync with cookie system
+      setLocaleCookie(stored);
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     if (typeof window !== "undefined") {
+      // Save to both localStorage and cookie
       window.localStorage.setItem("fda_language", lang);
+      setLocaleCookie(lang);
+      // Force page reload to apply language changes
+      window.location.reload();
     }
   };
 
