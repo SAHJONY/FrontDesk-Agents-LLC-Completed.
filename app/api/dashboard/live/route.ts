@@ -34,7 +34,9 @@ export async function GET(req: Request) {
           today: 0,
           thisWeek: 0,
           thisMonth: 0,
-          growth: '0%'
+          growth: '0%',
+          mrr: 0,
+          breakdown: []
         },
         recentActivity: [],
         timestamp: new Date().toISOString()
