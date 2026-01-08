@@ -41,8 +41,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       // Save to both localStorage and cookie
       window.localStorage.setItem("fda_language", lang);
       setLocaleCookie(lang);
+      // Dispatch custom event to notify I18nProvider
+      window.dispatchEvent(new CustomEvent('languageChange', { detail: { language: lang } }));
       // Force page reload to apply language changes
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     }
   };
 

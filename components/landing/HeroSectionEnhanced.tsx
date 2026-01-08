@@ -1,12 +1,14 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useI18n } from '@/lib/i18n/provider';
 
 export function HeroSectionEnhanced() {
+  const { t } = useI18n();
   const [stats, setStats] = useState({
     uptime: 0,
     languages: 0,
@@ -134,7 +136,7 @@ export function HeroSectionEnhanced() {
             }}
           />
           <span className="text-sm font-medium text-cyan-400">
-            ✨ Enterprise AI Workforce - Fully Autonomous
+            ✨ {t('hero.badge')}
           </span>
         </motion.div>
         
@@ -143,10 +145,10 @@ export function HeroSectionEnhanced() {
           variants={itemVariants}
           className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-tight"
         >
-          Transform Your Front Office
+          {t('hero.title')}
           <br />
           <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">
-            With AI Agents
+            {t('hero.titleHighlight')}
           </span>
         </motion.h1>
         

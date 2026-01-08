@@ -25,6 +25,18 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     
     setLocaleState(initialLocale);
     loadTranslations(initialLocale);
+
+    // Listen for language change events
+    const handleLanguageChange = (event: any) => {
+      const newLang = event.detail.language as Locale;
+      if (locales.includes(newLang)) {
+        setLocaleState(newLang);
+        loadTranslations(newLang);
+      }
+    };
+
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => window.removeEventListener('languageChange', handleLanguageChange);
   }, []);
 
   const loadTranslations = async (loc: Locale) => {
