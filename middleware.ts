@@ -1,11 +1,5 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
-
-// Force Edge runtime
-export const runtime = 'edge';
-
-// Owner email - exempt from all billing and tier checks
-const OWNER_EMAIL = 'frontdeskllc@outlook.com';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // Public routes that don't require authentication
 const publicRoutes = [
@@ -25,154 +19,61 @@ const publicRoutes = [
   '/demo',
   '/demo-login',
   '/onboarding',
-  '/api/auth/login',
-  '/api/auth/signup',
-  '/api/auth/logout',
-  '/api/auth/me',
-  '/api/webhooks',
-];
-
-// Owner-only routes
-const ownerRoutes = [
-  '/dashboard/owner',
-  '/api/owner',
 ];
 
 // Check if route is public
 function isPublicRoute(pathname: string): boolean {
+  // API routes are always public (they handle their own auth)
+  if (pathname.startsWith('/api/')) return true;
+  
   return publicRoutes.some(route => {
     if (route === '/') return pathname === '/';
     return pathname.startsWith(route);
   });
 }
 
-// Check if route is owner-only
-function isOwnerRoute(pathname: string): boolean {
-  return ownerRoutes.some(route => pathname.startsWith(route));
-}
-
-// Simple JWT decode (Edge-compatible, no verification)
-// Note: This is less secure but works in Edge runtime
-// The API routes still verify tokens properly with Node.js crypto
-function decodeJWT(token: string): any {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    
-    const payload = parts[1];
-    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    
-    // Check expiration
-    if (decoded.exp && decoded.exp < Date.now() / 1000) {
-      return null; // Token expired
-    }
-    
-    return decoded;
-  } catch {
-    return null;
-  }
-}
-
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+
+  // Skip middleware for static files
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/static/') ||
+    pathname.includes('.')
+  ) {
+    return NextResponse.next();
+  }
 
   // Allow public routes without authentication
   if (isPublicRoute(pathname)) {
-    return response;
+    return NextResponse.next();
   }
 
-  // Initialize Supabase client
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: '', ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({ name, value: '', ...options });
-        },
-      },
-    }
-  );
-
-  // Get Supabase session
-  await supabase.auth.getUser();
-
-  // Check for JWT token in cookies
+  // Check if user has auth token cookie
   const token = request.cookies.get('auth-token');
 
-  // If no token and accessing protected route, redirect to login
+  // If no token and trying to access protected route, redirect to login
   if (!token) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('redirect', pathname);
+    url.searchParams.set('error', 'session_expired');
+    return NextResponse.redirect(url);
   }
 
-  // Decode JWT token (Edge-compatible)
-  const decoded = decodeJWT(token.value);
-
-  if (!decoded) {
-    // Token is invalid or expired, redirect to login
-    console.error('Token decode failed or expired');
-    
-    // Clear invalid token
-    response.cookies.delete('auth-token');
-    
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    loginUrl.searchParams.set('error', 'session_expired');
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Owner email bypass - skip all checks
-  if (decoded.email === OWNER_EMAIL) {
-    // Owner has access to everything
-    return response;
-  }
-
-  // Check owner-only routes
-  if (isOwnerRoute(pathname) && decoded.role !== 'OWNER' && decoded.role !== 'owner') {
-    return NextResponse.json(
-      { error: 'Forbidden - Owner access required' },
-      { status: 403 }
-    );
-  }
-
-  // Token is valid, allow access
-  return response;
+  // Token exists, allow request to proceed
+  // Note: Token validation happens in API routes, not in middleware
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder files
+     * - public files (public folder)
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
   ],
