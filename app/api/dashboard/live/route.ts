@@ -10,10 +10,33 @@ export async function GET(req: Request) {
     return NextResponse.json({
       success: true,
       data: {
-        activeAgents: 0,
-        pendingTasks: 0,
-        completedToday: 0,
-        revenue: 0,
+        systemHealth: {
+          status: 'operational',
+          apiUptime: '99.9%',
+          errorRate: '0.1%',
+          lastIncident: 'None'
+        },
+        metrics: {
+          totalCalls: 0,
+          avgDuration: 0,
+          successRate: '0%',
+          peakHours: 'N/A'
+        },
+        workforce: {
+          activeAgents: 0,
+          totalAgents: 0,
+          onBreak: 0,
+          offline: 0
+        },
+        activeCalls: [],
+        agents: [],
+        revenue: {
+          today: 0,
+          thisWeek: 0,
+          thisMonth: 0,
+          growth: '0%'
+        },
+        recentActivity: [],
         timestamp: new Date().toISOString()
       }
     });
