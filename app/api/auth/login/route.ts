@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as z from 'zod';
-import { authenticateOwner, isOwnerEmail } from '@/lib/auth/owner-auth';
+// Owner authentication logic handled inline
 
 // Force Node.js runtime (not Edge)
 export const runtime = 'nodejs';
