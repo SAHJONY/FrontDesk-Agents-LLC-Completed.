@@ -30,7 +30,7 @@ export class WebIntelligenceEngine {
   private dataEnricher: DataEnricher;
   
   constructor() {
-    this.openai = new OpenAI();
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
     this.crawlers = new Map();
     this.knowledgeGraph = new KnowledgeGraph();
     this.dataEnricher = new DataEnricher();
@@ -188,7 +188,7 @@ export class IntelligentCrawler {
     this.type = config.type;
     this.visitedUrls = new Set();
     this.extractionRules = [];
-    this.openai = new OpenAI();
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
   }
   
   /**
@@ -377,7 +377,7 @@ export class KnowledgeGraph {
   constructor() {
     this.entities = new Map();
     this.relationships = new Map();
-    this.openai = new OpenAI();
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
   }
   
   /**
@@ -517,7 +517,7 @@ export class DataEnricher {
   private externalApis: Map<string, ExternalAPI>;
   
   constructor() {
-    this.openai = new OpenAI();
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
     this.externalApis = new Map();
   }
   
@@ -644,7 +644,7 @@ export class PredictiveAnalytics {
   private models: Map<string, PredictiveModel>;
   
   constructor() {
-    this.openai = new OpenAI();
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
     this.models = new Map();
   }
   

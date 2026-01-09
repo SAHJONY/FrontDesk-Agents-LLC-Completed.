@@ -11,9 +11,16 @@
 
 import { OpenAI } from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy initialization of OpenAI client
+let openaiClient: OpenAI | null = null;
+function getOpenAI() {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '"'"',
+    });
+  }
+  return openaiClient;
+}
 
 export interface IntentClassification {
   intent: string;
@@ -88,7 +95,7 @@ export class NLPEngine {
    * Classify user intent
    */
   async classifyIntent(text: string): Promise<IntentClassification> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -130,7 +137,7 @@ Return JSON with intent, confidence (0-1), and subIntents array.`,
    * Extract named entities from text
    */
   async extractEntities(text: string): Promise<Entity[]> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -165,7 +172,7 @@ Return JSON array: [{"type": "...", "value": "...", "confidence": 0.9, "position
    * Analyze sentiment and emotions
    */
   async analyzeSentiment(text: string): Promise<SentimentAnalysis> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -203,7 +210,7 @@ Return JSON: {"sentiment": "...", "score": 0.5, "confidence": 0.9, "emotions": [
    * Detect language
    */
   async detectLanguage(text: string): Promise<LanguageDetection> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -231,7 +238,7 @@ Return JSON: {"sentiment": "...", "score": 0.5, "confidence": 0.9, "emotions": [
    * Extract key phrases
    */
   async extractKeyPhrases(text: string): Promise<string[]> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -255,7 +262,7 @@ Return JSON: {"sentiment": "...", "score": 0.5, "confidence": 0.9, "emotions": [
    * Extract topics
    */
   async extractTopics(text: string): Promise<string[]> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -279,7 +286,7 @@ Return JSON: {"sentiment": "...", "score": 0.5, "confidence": 0.9, "emotions": [
    * Translate text to target language
    */
   async translate(text: string, targetLanguage: string): Promise<string> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {

@@ -39,7 +39,7 @@ export class AutonomousOrchestrationEngine {
     this.taskPlanner = new AutonomousTaskPlanner();
     this.knowledgeSharing = new KnowledgeSharingSystem();
     this.performanceOptimizer = new PerformanceOptimizer();
-    this.openai = new OpenAI();
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
   }
   
   /**
@@ -333,7 +333,7 @@ export class AutonomousTaskPlanner {
   private learnedPatterns: Map<string, TaskPattern>;
   
   constructor() {
-    this.openai = new OpenAI();
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
     this.learnedPatterns = new Map();
   }
   
