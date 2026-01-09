@@ -1,7 +1,13 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
+
+// Dynamically import socket.io-client only on client side
+let io: any;
+if (typeof window !== 'undefined') {
+  io = require('socket.io-client').io;
+}
 
 export interface UseWebSocketOptions {
   customerId?: string;
