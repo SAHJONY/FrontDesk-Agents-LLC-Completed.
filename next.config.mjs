@@ -30,7 +30,7 @@ const nextConfig = {
       config.plugins = config.plugins || [];
       config.plugins.push(
         new webpack.DefinePlugin({
-          'self': 'globalThis',
+          'self': 'undefined',
         })
       );
       
@@ -38,7 +38,6 @@ const nextConfig = {
       config.externals = config.externals || [];
       config.externals.push({
         'mic-recorder-to-mp3': 'commonjs mic-recorder-to-mp3',
-        'socket.io-client': 'commonjs socket.io-client',
       });
     }
     
@@ -57,7 +56,32 @@ const nextConfig = {
         os: false,
       };
     }
-
+    
+    // Optimize bundle splitting to reduce memory usage
+    config.optimization = {
+      ...config.optimization,
+      moduleIds: 'deterministic',
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          vendor: {
+            name: 'vendor',
+            chunks: 'all',
+            test: /node_modules/,
+            priority: 20,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+        },
+      },
+    };
     
     return config;
   }

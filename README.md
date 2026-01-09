@@ -399,4 +399,3 @@ For licensing inquiries, please contact: legal@frontdeskagents.com
 **Built with ❤️ by the FrontDesk Agents team**
 
 *Last updated: January 2026*
-# Trigger deployment - Fri Jan  9 13:33:13 EST 2026

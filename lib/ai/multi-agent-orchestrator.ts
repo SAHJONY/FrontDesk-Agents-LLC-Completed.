@@ -17,16 +17,9 @@ function getSupabase() {
 }
 import { getSupabaseServer } from '@/lib/supabase-server';
 
-// Lazy initialization of OpenAI client
-let openaiClient: OpenAI | null = null;
-function getOpenAI() {
-  if (!openaiClient) {
-    openaiClient = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY || '',
-    });
-  }
-  return openaiClient;
-}
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 
 export interface Task {
@@ -155,7 +148,7 @@ export class MultiAgentOrchestrator {
    * Decompose complex goal into manageable tasks
    */
   private async decomposeGoal(goal: string, context: Record<string, any>): Promise<Task[]> {
-    const completion = await getOpenAI().chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -307,7 +300,7 @@ Return tasks as JSON array.`,
     session: CollaborationSession,
     results: Map<string, any>
   ): Promise<any> {
-    const completion = await getOpenAI().chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -333,7 +326,7 @@ Return tasks as JSON array.`,
     session: CollaborationSession,
     results: Map<string, any>
   ): Promise<string[]> {
-    const completion = await getOpenAI().chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {

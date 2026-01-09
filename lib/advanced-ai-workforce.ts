@@ -383,7 +383,7 @@ export class AdvancedAICrawler {
    */
   private async analyzeRelevance(page: Page, context: string): Promise<number> {
     // Use LLM to determine if page is relevant to crawl goal
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
+    const openai = new OpenAI();
     
     const response = await openai.chat.completions.create({
       model: 'gpt-4.1-mini',
@@ -431,7 +431,7 @@ export class AdvancedAICrawler {
    * Generate insights from crawled data
    */
   private async generateInsights(data: any[]): Promise<Insight[]> {
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
+    const openai = new OpenAI();
     
     const response = await openai.chat.completions.create({
       model: 'gpt-4.1-mini',
@@ -465,7 +465,7 @@ export class AIDataExtractor {
   private openai: OpenAI;
   
   constructor() {
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
+    this.openai = new OpenAI();
   }
   
   /**
