@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+export const dynamic = "force-dynamic";
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { I18nProvider } from '../lib/i18n/provider';
