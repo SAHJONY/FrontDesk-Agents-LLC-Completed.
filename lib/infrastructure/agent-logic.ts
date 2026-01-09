@@ -1,14 +1,24 @@
 import OpenAI from 'openai';
+
+// Lazy initialization of OpenAI client
+let openaiClient: OpenAI | null = null;
+function getOpenAI() {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '',
+    });
+  }
+  return openaiClient;
+}
 // import { createClient } from '@/lib/supabase/server'; // Not used in current logic
 
 // Initialize OpenAI client
-const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!
 });
 
 export async function processCallIntent(transcript: string, callSid: string) {
   // 1. Identify Intent via LLM
-  const analysis = await openai.chat.completions.create({
+  const analysis = await getOpenAI().chat.completions.create({
     model: "gpt-4o",
     messages: [{
       role: "system", 

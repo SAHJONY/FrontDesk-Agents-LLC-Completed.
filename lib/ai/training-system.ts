@@ -6,7 +6,17 @@
 
 import { OpenAI } from 'openai';
 
-const openai = new OpenAI({
+// Lazy initialization of OpenAI client
+let openaiClient: OpenAI | null = null;
+function getOpenAI() {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '',
+    });
+  }
+  return openaiClient;
+}
+
   apiKey: process.env.OPENAI_API_KEY,
 });
 
@@ -151,12 +161,12 @@ export class TrainingSystem {
     };
 
     // Simulate OpenAI fine-tuning API call
-    // const file = await openai.files.create({
+    // const file = await getOpenAI().files.create({
     //   file: trainingFile,
     //   purpose: 'fine-tune',
     // });
     //
-    // const fineTune = await openai.fineTuning.jobs.create({
+    // const fineTune = await getOpenAI().fineTuning.jobs.create({
     //   training_file: file.id,
     //   model: baseModel,
     // });
@@ -172,7 +182,7 @@ export class TrainingSystem {
    */
   async checkJobStatus(jobId: string): Promise<FineTuneJob> {
     // In a real implementation, query OpenAI API
-    // const fineTune = await openai.fineTuning.jobs.retrieve(openaiJobId);
+    // const fineTune = await getOpenAI().fineTuning.jobs.retrieve(openaiJobId);
     
     // Return mock job for now
     return {
@@ -213,7 +223,7 @@ export class TrainingSystem {
    */
   async inference(modelId: string, prompt: string): Promise<string> {
     try {
-      const completion = await openai.chat.completions.create({
+      const completion = await getOpenAI().chat.completions.create({
         model: modelId,
         messages: [
           { role: 'system', content: 'You are a helpful assistant.' },
@@ -289,7 +299,7 @@ export class TrainingSystem {
   ): Promise<TrainingSample[]> {
     const samples: TrainingSample[] = [];
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {

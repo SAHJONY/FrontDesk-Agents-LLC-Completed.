@@ -8,9 +8,16 @@
 import { OpenAI } from 'openai';
 import { getSupabaseServer } from '@/lib/supabase-server';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy initialization of OpenAI client
+let openaiClient: OpenAI | null = null;
+function getOpenAI() {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '',
+    });
+  }
+  return openaiClient;
+}
 
 // Lazy initialization of Supabase client
 let supabaseClient: ReturnType<typeof getSupabaseServer> | null = null;
@@ -92,7 +99,7 @@ export class AutonomousAgent {
     );
     
     // Generate response using GPT-4
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -259,7 +266,7 @@ export class AutonomousAgent {
    * Extract reasoning for the response
    */
   private async extractReasoning(input: string, response: string): Promise<string> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -304,7 +311,7 @@ export class AutonomousAgent {
    */
   private async learnFromMistake(memory: AgentMemory, details?: string): Promise<void> {
     // Analyze what went wrong
-    const analysis = await openai.chat.completions.create({
+    const analysis = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -341,7 +348,7 @@ export class AutonomousAgent {
     content: string;
     confidence: number;
   }>> {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         {
@@ -370,7 +377,7 @@ export class AutonomousAgent {
    * Generate embedding for semantic search
    */
   private async generateEmbedding(text: string): Promise<number[]> {
-    const response = await openai.embeddings.create({
+    const response = await getOpenAI().embeddings.create({
       model: 'text-embedding-3-small',
       input: text,
     });
