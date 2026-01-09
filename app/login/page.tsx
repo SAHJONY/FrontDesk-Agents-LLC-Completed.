@@ -40,11 +40,6 @@ export default function LoginPage() {
     setTimeout(hideSidebar, 500);
   }, []);
 
-  // Fix hydration issues by ensuring client-side only rendering
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -94,128 +89,153 @@ export default function LoginPage() {
         body > div > div.flex.min-h-screen > nav { display: none !important; }
         body > div > div.flex.min-h-screen { display: block !important; }
       `}} />
-      <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Background Layer - z-0 */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-br from-black via-zinc-900 to-black" />
       
-      {/* Grid Pattern Overlay - z-1 */}
-      <div 
-        className="fixed inset-0 z-1 opacity-20"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
-        }}
-      />
+      {/* Mobile-First Container with Safe Areas */}
+      <div className="relative min-h-screen w-full overflow-hidden">
+        {/* Background Layer - z-0 - Lower opacity on mobile */}
+        <div className="fixed inset-0 z-0 bg-gradient-to-br from-black via-zinc-900 to-black" />
+        
+        {/* Grid Pattern Overlay - z-1 - Hidden on mobile for performance */}
+        <div 
+          className="fixed inset-0 z-[1] opacity-10 md:opacity-20 hidden md:block"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px',
+          }}
+        />
 
-      {/* Content Layer - z-10 */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
-        {/* Header Section */}
-        <div className="w-full max-w-md mb-8 text-center">
-          <h1 className="text-5xl font-black tracking-tighter uppercase text-white mb-2">
-            Terminal Login
-          </h1>
-          <p className="text-xs font-mono uppercase tracking-[0.3em] text-zinc-500">
-            Node: PDX1 // Global Revenue Workforce
-          </p>
+        {/* Background Text - z-2 - Properly positioned behind form */}
+        <div className="fixed inset-0 z-[2] pointer-events-none select-none overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center">
+            <p className="text-[8vw] md:text-[6vw] lg:text-[5vw] font-black tracking-tighter uppercase text-white/5 whitespace-nowrap">
+              Global Revenue Workforce
+            </p>
+          </div>
         </div>
 
-        {/* Login Form Container */}
-        <div className="w-full max-w-md">
-          <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-2xl p-8 shadow-2xl">
-            {error && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg">
-                <p className="text-sm text-red-400 font-medium">{error}</p>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Identity Field */}
-              <div className="space-y-2">
-                <label 
-                  htmlFor="email"
-                  className="block text-xs font-black uppercase tracking-widest text-zinc-400"
-                >
-                  Identity
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="frontdeskllc@outlook.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
-                  required
-                  className="w-full px-4 py-3 bg-black/50 border border-zinc-700 rounded-xl 
-                           text-white placeholder-zinc-600 
-                           focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-all duration-200 outline-none"
-                />
-              </div>
-
-              {/* Access Key Field */}
-              <div className="space-y-2">
-                <label 
-                  htmlFor="password"
-                  className="block text-xs font-black uppercase tracking-widest text-zinc-400"
-                >
-                  Access Key
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                  required
-                  className="w-full px-4 py-3 bg-black/50 border border-zinc-700 rounded-xl 
-                           text-white placeholder-zinc-600 
-                           focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-all duration-200 outline-none"
-                />
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 px-6 bg-white text-black font-black uppercase tracking-tight text-sm
-                         rounded-xl shadow-lg shadow-white/10
-                         hover:bg-zinc-100 hover:shadow-white/20
-                         active:scale-[0.98]
-                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white
-                         transition-all duration-200"
-              >
-                {loading ? 'Authenticating...' : 'Access Command Center'}
-              </button>
-            </form>
-
-            {/* Footer Links */}
-            <div className="mt-6 pt-6 border-t border-zinc-800">
-              <Link 
-                href="/"
-                className="block text-center text-xs font-mono uppercase tracking-widest text-zinc-600 hover:text-cyan-400 transition-colors"
-              >
-                ← Return to Main Portal
-              </Link>
-            </div>
+        {/* Content Layer - z-10 - Safe area with padding for mobile */}
+        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 pt-20 md:pt-4 pb-8">
+          {/* Header Section - Responsive sizing */}
+          <div className="w-full max-w-md mb-6 md:mb-8 text-center">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter uppercase text-white mb-2">
+              Terminal Login
+            </h1>
+            <p className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.3em] text-zinc-500">
+              Node: PDX1 // Global Revenue Workforce
+            </p>
           </div>
 
-          {/* Legal Notice */}
-          <p className="mt-6 text-center text-[10px] text-zinc-700 uppercase tracking-wider leading-relaxed">
-            Authorized Access Only • Enterprise Security Enforced
-          </p>
+          {/* Login Form Container - Optimized for mobile */}
+          <div className="w-full max-w-md">
+            <div className="bg-zinc-900/80 md:bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+              {error && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg animate-in fade-in duration-200">
+                  <p className="text-sm text-red-400 font-medium">{error}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                {/* Identity Field - Optimized for mobile */}
+                <div className="space-y-2">
+                  <label 
+                    htmlFor="email"
+                    className="block text-xs font-black uppercase tracking-widest text-zinc-400"
+                  >
+                    Identity
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="frontdeskllc@outlook.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                    required
+                    className="w-full px-4 py-3.5 sm:py-3 bg-black/50 border border-zinc-700 rounded-xl 
+                             text-white text-base sm:text-sm placeholder-zinc-600 
+                             focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 
+                             disabled:opacity-50 disabled:cursor-not-allowed
+                             transition-all duration-200 outline-none
+                             touch-manipulation"
+                  />
+                </div>
+
+                {/* Access Key Field - Optimized for mobile */}
+                <div className="space-y-2">
+                  <label 
+                    htmlFor="password"
+                    className="block text-xs font-black uppercase tracking-widest text-zinc-400"
+                  >
+                    Access Key
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    required
+                    className="w-full px-4 py-3.5 sm:py-3 bg-black/50 border border-zinc-700 rounded-xl 
+                             text-white text-base sm:text-sm placeholder-zinc-600 
+                             focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 
+                             disabled:opacity-50 disabled:cursor-not-allowed
+                             transition-all duration-200 outline-none
+                             touch-manipulation"
+                  />
+                </div>
+
+                {/* Submit Button - Optimized for mobile touch */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-4 px-6 bg-white text-black font-black uppercase tracking-tight text-sm
+                           rounded-xl shadow-lg shadow-white/10
+                           hover:bg-zinc-100 hover:shadow-white/20
+                           active:scale-[0.98]
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white
+                           transition-all duration-200
+                           touch-manipulation min-h-[48px]"
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Authenticating...
+                    </span>
+                  ) : (
+                    'Access Command Center'
+                  )}
+                </button>
+              </form>
+
+              {/* Footer Links */}
+              <div className="mt-6 pt-6 border-t border-zinc-800">
+                <Link 
+                  href="/"
+                  className="block text-center text-xs font-mono uppercase tracking-widest text-zinc-600 hover:text-cyan-400 transition-colors touch-manipulation"
+                >
+                  ← Return to Main Portal
+                </Link>
+              </div>
+            </div>
+
+            {/* Legal Notice */}
+            <p className="mt-6 text-center text-[10px] text-zinc-700 uppercase tracking-wider leading-relaxed px-4">
+              Authorized Access Only • Enterprise Security Enforced
+            </p>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }
-// Build timestamp: 1767827238
+// Build timestamp: 1767967000
+// Mobile-optimized with proper Z-index layering and safe areas
