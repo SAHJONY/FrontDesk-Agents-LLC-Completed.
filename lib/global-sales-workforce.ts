@@ -11,7 +11,7 @@
  * - Real-time ROI tracking and analytics
  */
 
-import { ReinforcementLearningAgent } from './autonomous-workforce';
+import { AdvancedRLAgent } from './advanced-ai-workforce';
 
 // ============================================================================
 // INDUSTRY TAXONOMY - 50+ Industries Covered
@@ -847,7 +847,7 @@ export class GlobalSalesWorkforce {
 // SALES AGENT CLASS
 // ============================================================================
 
-export class SalesAgent extends ReinforcementLearningAgent {
+export class SalesAgent extends AdvancedRLAgent {
   public id: string;
   public profile: SalesAgentProfile;
   

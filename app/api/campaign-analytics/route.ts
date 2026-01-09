@@ -191,7 +191,7 @@ async function handleGetROI(campaignId: string | null) {
     
     // Lifetime value
     averageCustomerLifetimeValue: 250000,
-    ltv ToCAC: 34.8,
+    ltvToCAC: 34.8,
     
     // Payback period
     paybackPeriodMonths: 3.4,
