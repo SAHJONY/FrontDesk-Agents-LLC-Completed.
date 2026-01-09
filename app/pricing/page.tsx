@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Check, X, HelpCircle } from 'lucide-react';
+import MultiLocationPricingCalculator from '@/components/MultiLocationPricingCalculator';
 
 const pricingTiers = [
   {
@@ -383,6 +384,11 @@ export default function PricingPage() {
             </span>
           </button>
         </div>
+      </div>
+
+      {/* Multi-Location Pricing Calculator */}
+      <div className="container mx-auto px-4 pb-16">
+        <MultiLocationPricingCalculator />
       </div>
 
       {/* Pricing Cards */}
