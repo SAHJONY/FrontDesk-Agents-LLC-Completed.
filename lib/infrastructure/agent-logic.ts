@@ -12,10 +12,6 @@ function getOpenAI() {
 }
 // import { createClient } from '@/lib/supabase/server'; // Not used in current logic
 
-// Initialize OpenAI client
-  apiKey: process.env.OPENAI_API_KEY!
-});
-
 export async function processCallIntent(transcript: string, callSid: string) {
   // 1. Identify Intent via LLM
   const analysis = await getOpenAI().chat.completions.create({

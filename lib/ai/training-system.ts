@@ -17,9 +17,6 @@ function getOpenAI() {
   return openaiClient;
 }
 
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export interface TrainingDataset {
   id: string;
   name: string;

@@ -22,9 +22,6 @@ function getOpenAI() {
   return openaiClient;
 }
 
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export interface IntentClassification {
   intent: string;
   confidence: number;

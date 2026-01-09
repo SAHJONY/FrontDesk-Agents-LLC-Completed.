@@ -5,10 +5,19 @@
  * enabling collaboration, knowledge sharing, and task delegation.
  */
 
-import { agentManager, AutonomousAgent } from './autonomous-agent';
-import { getSupabaseServer } from '@/lib/supabase-server';
-
 import { OpenAI } from 'openai';
+
+// Lazy initialization of OpenAI client
+let openaiClient: OpenAI | null = null;
+function getOpenAI() {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '',
+    });
+  }
+  return openaiClient;
+}
+import { agentManager, AutonomousAgent } from './autonomous-agent';
 
 // Lazy initialization of OpenAI client
 let openaiClient: OpenAI | null = null;
@@ -28,6 +37,21 @@ function getSupabase() {
   }
   return supabaseClient;
 }
+import { getSupabaseServer } from '@/lib/supabase-server';
+
+// Lazy initialization of OpenAI client
+let openaiClient: OpenAI | null = null;
+function getOpenAI() {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '',
+    });
+  }
+  return openaiClient;
+}
+
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 
 export interface Task {
