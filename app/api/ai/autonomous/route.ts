@@ -6,12 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { agentManager } from '@/lib/ai/autonomous-agent';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { requireSupabaseServer } from '@/lib/supabase-server';
 
 /**
  * POST /api/ai/autonomous
@@ -63,6 +58,9 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Initialize Supabase client
+    const supabase = requireSupabaseServer();
 
     // Get learning metrics
     const { data: metrics } = await supabase.rpc('get_agent_learning_metrics', {

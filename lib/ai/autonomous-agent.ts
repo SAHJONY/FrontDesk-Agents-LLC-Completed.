@@ -6,16 +6,20 @@
  */
 
 import { OpenAI } from 'openai';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseServer } from '@/lib/supabase-server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy initialization of Supabase client
+let supabaseClient: ReturnType<typeof getSupabaseServer> | null = null;
+function getSupabase() {
+  if (!supabaseClient) {
+    supabaseClient = getSupabaseServer();
+  }
+  return supabaseClient;
+}
 
 export interface AgentMemory {
   id: string;
@@ -162,7 +166,7 @@ export class AutonomousAgent {
     const embedding = await this.generateEmbedding(query);
     
     // Search for similar memories using vector similarity
-    const { data: memories } = await supabase.rpc('match_agent_memories', {
+    const { data: memories } = await getSupabase()!.rpc('match_agent_memories', {
       agent_id: this.agentId,
       query_embedding: embedding,
       match_threshold: 0.7,
@@ -178,7 +182,7 @@ export class AutonomousAgent {
   private async retrieveRelevantKnowledge(query: string, limit: number = 3): Promise<AgentKnowledge[]> {
     const embedding = await this.generateEmbedding(query);
     
-    const { data: knowledge } = await supabase.rpc('match_agent_knowledge', {
+    const { data: knowledge } = await getSupabase()!.rpc('match_agent_knowledge', {
       agent_id: this.agentId,
       query_embedding: embedding,
       match_threshold: 0.75,
@@ -319,7 +323,7 @@ export class AutonomousAgent {
     const improvement = analysis.choices[0].message.content || '';
     
     // Store as negative knowledge (what to avoid)
-    await supabase.from('agent_learnings').insert({
+    await getSupabase()!.from('agent_learnings').insert({
       agent_id: this.agentId,
       type: 'mistake',
       input: memory.input,
@@ -380,7 +384,7 @@ export class AutonomousAgent {
   private async storeMemory(memory: AgentMemory): Promise<void> {
     const embedding = await this.generateEmbedding(memory.input + ' ' + memory.output);
     
-    await supabase.from('agent_memory').insert({
+    await getSupabase()!.from('agent_memory').insert({
       id: memory.id,
       agent_id: memory.agentId,
       conversation_id: memory.conversationId,
@@ -399,7 +403,7 @@ export class AutonomousAgent {
   private async addKnowledge(knowledge: AgentKnowledge): Promise<void> {
     const embedding = await this.generateEmbedding(knowledge.topic + ' ' + knowledge.content);
     
-    await supabase.from('agent_knowledge').upsert({
+    await getSupabase()!.from('agent_knowledge').upsert({
       id: knowledge.id,
       agent_id: knowledge.agentId,
       topic: knowledge.topic,
@@ -445,7 +449,7 @@ export class AutonomousAgent {
    * Get learning metrics
    */
   private async getLearningMetrics(): Promise<LearningMetrics> {
-    const { data } = await supabase.rpc('get_agent_learning_metrics', {
+    const { data } = await getSupabase()!.rpc('get_agent_learning_metrics', {
       agent_id: this.agentId,
     });
 
@@ -463,7 +467,7 @@ export class AutonomousAgent {
    * Update learning metrics
    */
   private async updateLearningMetrics(): Promise<void> {
-    await supabase.rpc('update_agent_learning_metrics', {
+    await getSupabase()!.rpc('update_agent_learning_metrics', {
       agent_id: this.agentId,
     });
   }

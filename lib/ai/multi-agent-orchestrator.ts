@@ -7,16 +7,20 @@
 
 import { OpenAI } from 'openai';
 import { agentManager, AutonomousAgent } from './autonomous-agent';
-import { createClient } from '@supabase/supabase-js';
+
+let supabaseClient: ReturnType<typeof getSupabaseServer> | null = null;
+function getSupabase() {
+  if (!supabaseClient) {
+    supabaseClient = getSupabaseServer();
+  }
+  return supabaseClient;
+}
+import { getSupabaseServer } from '@/lib/supabase-server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export interface Task {
   id: string;
@@ -73,7 +77,7 @@ export class MultiAgentOrchestrator {
     this.sessions.set(session.id, session);
 
     // Store in database
-    await supabase.from('collaboration_sessions').insert({
+    await getSupabase()!.from('collaboration_sessions').insert({
       id: session.id,
       goal: session.goal,
       participants: session.participants,
@@ -203,7 +207,7 @@ Return tasks as JSON array.`,
       task.status = 'pending';
 
       // Store task assignment
-      await supabase.from('collaboration_tasks').insert({
+      await getSupabase()!.from('collaboration_tasks').insert({
         id: task.id,
         session_id: session.id,
         description: task.description,
@@ -358,7 +362,7 @@ Return tasks as JSON array.`,
     }
 
     // Get performance metrics
-    const { data: metrics } = await supabase.rpc('get_agent_learning_metrics', {
+    const { data: metrics } = await getSupabase()!.rpc('get_agent_learning_metrics', {
       agent_id: agentId,
     });
 
@@ -460,7 +464,7 @@ Return tasks as JSON array.`,
     // Share with target agents
     for (const targetAgentId of targetAgentIds) {
       for (const k of knowledge) {
-        await supabase.from('agent_knowledge').insert({
+        await getSupabase()!.from('agent_knowledge').insert({
           id: crypto.randomUUID(),
           agent_id: targetAgentId,
           topic: k.topic,

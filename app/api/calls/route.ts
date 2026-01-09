@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireSupabaseServer } from '@/lib/supabase-server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // GET /api/calls - List all calls with filtering
 export async function GET(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const { searchParams } = new URL(request.url);
     const agent_id = searchParams.get('agent_id');
@@ -70,6 +67,7 @@ export async function GET(request: NextRequest) {
 
 // POST /api/calls - Create a new call record
 export async function POST(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const body = await request.json();
     const {

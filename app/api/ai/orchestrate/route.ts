@@ -12,6 +12,7 @@ import { orchestrator } from '@/lib/ai/multi-agent-orchestrator';
  * Execute a complex goal using multiple agents
  */
 export async function POST(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const body = await request.json();
     const { goal, agentIds, context } = body;
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
  * Get collaboration session status
  */
 export async function GET(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get('sessionId');

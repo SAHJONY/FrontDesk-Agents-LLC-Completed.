@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireSupabaseServer } from '@/lib/supabase-server';
 import fs from 'fs';
 import path from 'path';
 
 export async function POST(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     // Verify admin authorization
     const authHeader = request.headers.get('authorization');
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
 
 // Alternative: Direct SQL execution for Supabase
 export async function GET(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     // Verify admin authorization
     const authHeader = request.headers.get('authorization');

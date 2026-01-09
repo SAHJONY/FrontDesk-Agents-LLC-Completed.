@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { verifyOwnerToken } from '@/lib/auth/owner-auth';
 import jwt from 'jsonwebtoken';
-import { createClient } from '@supabase/supabase-js';
+import { requireSupabaseServer } from '@/lib/supabase-server';
 
 export async function GET(req: Request) {
+  const supabase = requireSupabaseServer();
   try {
     // Extract token from Authorization header
     const authHeader = req.headers.get('Authorization');

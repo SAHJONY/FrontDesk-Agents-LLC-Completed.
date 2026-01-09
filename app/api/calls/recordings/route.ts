@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireSupabaseServer } from '@/lib/supabase-server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 /**
  * POST /api/calls/recordings
  * Upload call recording to Supabase Storage
  */
 export async function POST(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -82,6 +79,7 @@ export async function POST(request: NextRequest) {
  * Get recording URL for a specific call
  */
 export async function GET(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const { searchParams } = new URL(request.url);
     const callId = searchParams.get('callId');
@@ -132,6 +130,7 @@ export async function GET(request: NextRequest) {
  * Delete recording for a specific call
  */
 export async function DELETE(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const { searchParams } = new URL(request.url);
     const callId = searchParams.get('callId');

@@ -6,18 +6,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { workflowEngine, Workflow } from '@/lib/automation/workflow-engine';
-import { createClient } from '@supabase/supabase-js';
+import { requireSupabaseServer } from '@/lib/supabase-server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 /**
  * GET /api/workflows
  * List all workflows for a customer
  */
 export async function GET(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const { searchParams } = new URL(request.url);
     const customerId = searchParams.get('customerId');
@@ -55,6 +52,7 @@ export async function GET(request: NextRequest) {
  * Create a new workflow
  */
 export async function POST(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const body = await request.json();
     const { name, description, customerId, nodes, startNodeId, variables } = body;

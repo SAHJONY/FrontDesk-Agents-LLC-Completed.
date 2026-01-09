@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireSupabaseServer } from '@/lib/supabase-server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // GET /api/agents - List all agents
 export async function GET(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const { searchParams } = new URL(request.url);
     const customer_id = searchParams.get('customer_id');
@@ -48,6 +45,7 @@ export async function GET(request: NextRequest) {
 
 // POST /api/agents - Create a new agent
 export async function POST(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const body = await request.json();
     const {

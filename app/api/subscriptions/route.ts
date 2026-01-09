@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { requireSupabaseServer } from '@/lib/supabase-server';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
 });
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // GET /api/subscriptions - List all subscriptions
 export async function GET(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const { searchParams } = new URL(request.url);
     const customer_id = searchParams.get('customer_id');
@@ -48,6 +45,7 @@ export async function GET(request: NextRequest) {
 
 // POST /api/subscriptions - Create a new subscription
 export async function POST(request: NextRequest) {
+  const supabase = requireSupabaseServer();
   try {
     const body = await request.json();
     const { customer_id, price_id, payment_method_id } = body;

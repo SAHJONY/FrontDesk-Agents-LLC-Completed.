@@ -1,9 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseServer } from '@/lib/supabase-server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 /**
  * GLOBAL REVENUE AGGREGATOR
@@ -11,6 +7,14 @@ const supabase = createClient(
  */
 export const financeAgent = {
   // Mock exchange rates (In production, fetch from an API like OpenExchangeRates)
+
+let supabaseClient: ReturnType<typeof getSupabaseServer> | null = null;
+function getSupabase() {
+  if (!supabaseClient) {
+    supabaseClient = getSupabaseServer();
+  }
+  return supabaseClient;
+}
   rates: { GBP: 1.27, EUR: 1.10, AED: 0.27, AUD: 0.66, USD: 1 },
 
   async aggregateGlobalRevenue() {

@@ -1,10 +1,16 @@
 'use client';
+export const dynamic = "force-dynamic";
 
 import React from 'react';
+
 import Navigation from '@/components/Navigation';
+
 import Footer from '@/components/Footer';
+
 import Link from 'next/link';
+
 import { motion } from 'framer-motion';
+
 
 export default function FeaturesPage() {
   const features = [
