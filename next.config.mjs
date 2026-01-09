@@ -30,7 +30,7 @@ const nextConfig = {
       config.plugins = config.plugins || [];
       config.plugins.push(
         new webpack.DefinePlugin({
-          'self': 'undefined',
+          'self': 'globalThis',
         })
       );
       
@@ -38,6 +38,7 @@ const nextConfig = {
       config.externals = config.externals || [];
       config.externals.push({
         'mic-recorder-to-mp3': 'commonjs mic-recorder-to-mp3',
+        'socket.io-client': 'commonjs socket.io-client',
       });
     }
     

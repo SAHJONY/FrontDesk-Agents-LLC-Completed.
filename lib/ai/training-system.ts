@@ -11,7 +11,7 @@ let openaiClient: OpenAI | null = null;
 function getOpenAI() {
   if (!openaiClient) {
     openaiClient = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY || '"'"',
+      apiKey: process.env.OPENAI_API_KEY || '',
     });
   }
   return openaiClient;
