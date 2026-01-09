@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SecretsManager } from '@/lib/services/secrets-manager';
+import { requireRole } from '@/lib/auth';
 
 /**
  * GET /api/secrets/[secretId]
@@ -11,16 +12,11 @@ export async function GET(
   { params }: { params: { secretId: string } }
 ) {
   try {
+    // Verify user is authenticated and has owner role
+    const authUser = await requireRole('OWNER');
+    const userId = authUser.userId;
+    
     const { secretId } = params;
-    
-    // TODO: Get user ID from session/JWT
-    const userId = 'owner_user_id';
-    
-    // TODO: Verify user has owner role
-    // const session = await verifyToken(request);
-    // if (!hasRole(session, 'owner')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    // }
     
     // Additional security: Require explicit confirmation
     const confirm = request.nextUrl.searchParams.get('confirm');
@@ -49,7 +45,14 @@ export async function GET(
       secret,
       warning: 'This response contains sensitive data. Handle with care.'
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     console.error('Error getting secret:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to get secret' },
@@ -67,18 +70,13 @@ export async function POST(
   { params }: { params: { secretId: string } }
 ) {
   try {
+    // Verify user is authenticated and has owner role
+    const authUser = await requireRole('OWNER');
+    const userId = authUser.userId;
+    
     const { secretId } = params;
     const body = await request.json();
     const { newValue, action } = body;
-    
-    // TODO: Get user ID from session/JWT
-    const userId = 'owner_user_id';
-    
-    // TODO: Verify user has owner role
-    // const session = await verifyToken(request);
-    // if (!hasRole(session, 'owner')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    // }
     
     if (action === 'rotate') {
       if (!newValue) {
@@ -101,7 +99,14 @@ export async function POST(
       { success: false, error: 'Invalid action' },
       { status: 400 }
     );
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     console.error('Error rotating secret:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to rotate secret' },

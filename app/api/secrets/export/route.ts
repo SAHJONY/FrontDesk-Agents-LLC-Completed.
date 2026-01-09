@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SecretsManager } from '@/lib/services/secrets-manager';
+import { requireRole } from '@/lib/auth';
 
 /**
  * GET /api/secrets/export
@@ -7,17 +8,12 @@ import { SecretsManager } from '@/lib/services/secrets-manager';
  */
 export async function GET(request: NextRequest) {
   try {
+    // Verify user is authenticated and has owner role
+    const authUser = await requireRole('OWNER');
+    const userId = authUser.userId;
+    
     const searchParams = request.nextUrl.searchParams;
     const environment = searchParams.get('environment') || 'production';
-    
-    // TODO: Get user ID from session/JWT
-    const userId = 'owner_user_id';
-    
-    // TODO: Verify user has owner role
-    // const session = await verifyToken(request);
-    // if (!hasRole(session, 'owner')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    // }
     
     const envContent = await SecretsManager.exportToEnv(environment, userId);
     
@@ -27,7 +23,14 @@ export async function GET(request: NextRequest) {
         'Content-Disposition': `attachment; filename=".env.${environment}"`,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     console.error('Error exporting secrets:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to export secrets' },
@@ -42,6 +45,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Verify user is authenticated and has owner role
+    const authUser = await requireRole('OWNER');
+    const userId = authUser.userId;
+    
     const body = await request.json();
     const { envContent, environment } = body;
     
@@ -52,15 +59,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // TODO: Get user ID from session/JWT
-    const userId = 'owner_user_id';
-    
-    // TODO: Verify user has owner role
-    // const session = await verifyToken(request);
-    // if (!hasRole(session, 'owner')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    // }
-    
     const result = await SecretsManager.importFromEnv(envContent, environment, userId);
     
     return NextResponse.json({
@@ -69,7 +67,14 @@ export async function POST(request: NextRequest) {
       errors: result.errors,
       message: `Successfully imported ${result.imported} secret(s)`
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     console.error('Error importing secrets:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to import secrets' },

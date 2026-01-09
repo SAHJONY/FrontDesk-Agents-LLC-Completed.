@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SecretsManager, Secret } from '@/lib/services/secrets-manager';
+import { requireRole } from '@/lib/auth';
 
 /**
  * GET /api/secrets
@@ -7,17 +8,12 @@ import { SecretsManager, Secret } from '@/lib/services/secrets-manager';
  */
 export async function GET(request: NextRequest) {
   try {
+    // Verify user is authenticated and has owner role
+    const authUser = await requireRole('OWNER');
+    const userId = authUser.userId;
+    
     const searchParams = request.nextUrl.searchParams;
     const environment = searchParams.get('environment') || undefined;
-    
-    // TODO: Get user ID from session/JWT
-    const userId = 'owner_user_id';
-    
-    // TODO: Verify user has owner role
-    // const session = await verifyToken(request);
-    // if (!hasRole(session, 'owner')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    // }
     
     const secrets = await SecretsManager.listSecrets(userId, environment);
     
@@ -28,7 +24,14 @@ export async function GET(request: NextRequest) {
         value: '***ENCRYPTED***' // Never return actual values in list
       }))
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     console.error('Error listing secrets:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to list secrets' },
@@ -43,6 +46,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Verify user is authenticated and has owner role
+    const authUser = await requireRole('OWNER');
+    const userId = authUser.userId;
+    
     const body = await request.json();
     const { key, value, category, environment, description } = body;
     
@@ -62,15 +69,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
-    // TODO: Get user ID from session/JWT
-    const userId = 'owner_user_id';
-    
-    // TODO: Verify user has owner role
-    // const session = await verifyToken(request);
-    // if (!hasRole(session, 'owner')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    // }
     
     // Check if secret already exists
     const exists = await SecretsManager.secretExists(key, environment);
@@ -98,7 +96,14 @@ export async function POST(request: NextRequest) {
       },
       message: 'Secret created successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     console.error('Error creating secret:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create secret' },
@@ -113,6 +118,10 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
+    // Verify user is authenticated and has owner role
+    const authUser = await requireRole('OWNER');
+    const userId = authUser.userId;
+    
     const body = await request.json();
     const { secretId, value, description, isActive } = body;
     
@@ -122,15 +131,6 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
-    
-    // TODO: Get user ID from session/JWT
-    const userId = 'owner_user_id';
-    
-    // TODO: Verify user has owner role
-    // const session = await verifyToken(request);
-    // if (!hasRole(session, 'owner')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    // }
     
     const updates: Partial<Pick<Secret, 'value' | 'description' | 'isActive'>> = {};
     if (value !== undefined) updates.value = value;
@@ -144,7 +144,14 @@ export async function PUT(request: NextRequest) {
       secret: secret ? { ...secret, value: '***ENCRYPTED***' } : null,
       message: 'Secret updated successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     console.error('Error updating secret:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to update secret' },
@@ -159,6 +166,10 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    // Verify user is authenticated and has owner role
+    const authUser = await requireRole('OWNER');
+    const userId = authUser.userId;
+    
     const searchParams = request.nextUrl.searchParams;
     const secretId = searchParams.get('secretId');
     
@@ -169,22 +180,20 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    // TODO: Get user ID from session/JWT
-    const userId = 'owner_user_id';
-    
-    // TODO: Verify user has owner role
-    // const session = await verifyToken(request);
-    // if (!hasRole(session, 'owner')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    // }
-    
     const success = await SecretsManager.deleteSecret(secretId, userId);
     
     return NextResponse.json({
       success,
       message: success ? 'Secret deleted successfully' : 'Failed to delete secret'
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     console.error('Error deleting secret:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to delete secret' },
