@@ -11,7 +11,7 @@ export default function TeamPage() {
     <div className="p-6">
       <div className="mb-8 relative h-64 rounded-xl overflow-hidden">
         <Image 
-          src="/assets/ai-team-office.png" 
+          src="/images/premium/ai-agents-hero.jpg" 
           alt="AI Team Collaboration" 
           fill 
           className="object-cover opacity-60"

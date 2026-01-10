@@ -8,7 +8,7 @@ export default function DemoPage() {
       {/* Background Image */}
       <div className="absolute inset-0 -z-10 opacity-20">
         <Image 
-          src="/assets/ai-agent-interface.jpg" 
+          src="/images/premium/demo-hero.jpg" 
           alt="AI Agent Interface" 
           fill 
           className="object-cover"

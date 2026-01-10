@@ -4,9 +4,9 @@ import { IndustryCard } from '../../components/IndustryCard';
 
 export default function IndustriesPage() {
   const industries = [
-    { title: 'Real Estate', icon: Building2 },
-    { title: 'Legal Services', icon: Gavel },
-    { title: 'Healthcare', icon: Stethoscope },
+    { title: 'Real Estate', icon: Building2, href: '/solutions/property-management' },
+    { title: 'Legal Services', icon: Gavel, href: '/solutions/law' },
+    { title: 'Healthcare', icon: Stethoscope, href: '/solutions/medical' },
     { title: 'Financial Consulting', icon: Briefcase },
   ];
 
@@ -20,7 +20,7 @@ export default function IndustriesPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {industries.map((ind) => (
-          <IndustryCard key={ind.title} title={ind.title} icon={ind.icon} />
+          <IndustryCard key={ind.title} title={ind.title} icon={ind.icon} href={ind.href} />
         ))}
       </div>
     </div>

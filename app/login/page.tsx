@@ -24,7 +24,7 @@ export default function LoginPage() {
       {/* Left Side: Premium Visual Asset */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-zinc-900">
         <Image 
-          src="/assets/premium/login-portal.png" 
+          src="/images/premium/login-hero.jpg" 
           alt="Secure Access Portal" 
           fill
           className="object-cover object-center grayscale opacity-40"

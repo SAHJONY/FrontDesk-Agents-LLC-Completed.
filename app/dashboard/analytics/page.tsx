@@ -7,7 +7,7 @@ export default function AnalyticsEngine() {
     <div className="p-8 max-w-7xl mx-auto relative z-10">
       <div className="mb-12 relative h-48 rounded-xl overflow-hidden">
         <Image 
-          src="/assets/customer-dashboard.png" 
+          src="/images/premium/client-dashboard.jpg" 
           alt="Analytics Dashboard" 
           fill 
           className="object-cover opacity-40"
