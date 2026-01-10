@@ -53,3 +53,4 @@ Thumbs.db
 # --- VS CODE ---
 .vscode/settings.json
 .vscode/launch.json
+_disabled_routes/

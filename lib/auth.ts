@@ -1,45 +1,110 @@
-// File: lib/auth.ts 
+// File: lib/auth.ts
+
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+
+interface AuthUser {
+  userId: string;
+  email: string;
+  role: string;
+  clientKey: string;
+}
+
+interface Session {
+  user: {
+    id: string;
+    email: string;
+    name?: string;
+    role: string;
+  };
+  clientKey: string;
+}
 
 /**
- * Authentication helper function (Dummy client key/user for STAFF)
+ * Get authentication data from JWT token
  */
-export function auth() {
-  // TODO: Implement real authentication
-  
-  return {
-    clientKey: 'FDDG-SARAV1-93A2X-57B',
-    userId: 'user_123',
-    email: 'demo@frontdeskagents.com',
-    role: 'STAFF' // Asumimos un rol por defecto que NO es OWNER
-  };
+export async function auth(): Promise<AuthUser | null> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth-token');
+
+    if (!token) {
+      return null;
+    }
+
+    const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
+    const decoded = jwt.verify(token.value, jwtSecret) as AuthUser;
+
+    return decoded;
+  } catch (error) {
+    console.error('Auth error:', error);
+    return null;
+  }
 }
 
 /**
  * Check if user is authenticated
  */
-export function isAuthenticated(): boolean {
-  // TODO: Implement real authentication check
-  return true;
+export async function isAuthenticated(): Promise<boolean> {
+  const authData = await auth();
+  return authData !== null;
 }
 
 /**
- * Get current session - (Simula al CEO/OWNER para pruebas de ruta)
+ * Get current session with full user details
  */
-export async function getSession() {
-  // TODO: Implement session retrieval
-  
-  // === MODIFICACIÓN CLAVE: INCLUIR EL ROL ===
-  // Para las rutas sensibles, el código real consultaría la DB para obtener el rol.
-  
-  const isOwner = true; // CAMBIAR a 'false' una vez que la lógica real esté implementada
-  
-  return {
-    user: {
-      id: 'user_123_ceo', // ID ÚNICO DEL CEO
-      email: 'ceo@frontdeskagents.com', // Email del CEO
-      name: 'CEO User',
-      role: isOwner ? 'OWNER' : 'STAFF' // <-- Este campo es el que necesita el Middleware
-    },
-    clientKey: 'FDDG-SARAV1-93A2X-57B'
-  };
+export async function getSession(): Promise<Session | null> {
+  try {
+    const authData = await auth();
+
+    if (!authData) {
+      return null;
+    }
+
+    return {
+      user: {
+        id: authData.userId,
+        email: authData.email,
+        role: authData.role,
+      },
+      clientKey: authData.clientKey,
+    };
+  } catch (error) {
+    console.error('Session error:', error);
+    return null;
+  }
+}
+
+/**
+ * Require authentication - throws if not authenticated
+ */
+export async function requireAuth(): Promise<AuthUser> {
+  const authData = await auth();
+
+  if (!authData) {
+    throw new Error('Unauthorized');
+  }
+
+  return authData;
+}
+
+/**
+ * Require specific role - throws if user doesn't have the role
+ */
+export async function requireRole(role: string): Promise<AuthUser> {
+  const authData = await requireAuth();
+
+  if (authData.role !== role) {
+    throw new Error('Forbidden');
+  }
+
+  return authData;
+}
+
+/**
+ * Check if user is owner
+ */
+export async function isOwner(): Promise<boolean> {
+  const authData = await auth();
+  return authData?.role === 'OWNER';
 }

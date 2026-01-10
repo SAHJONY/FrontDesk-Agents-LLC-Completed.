@@ -1,14 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseServer } from '@/lib/supabase-server';
 
 /**
  * GLOBAL REVENUE AGGREGATOR
  * Handles multi-currency normalization and Partner Commission logic.
  */
+
+// Lazy initialization of Supabase client
+let supabaseClient: ReturnType<typeof getSupabaseServer> | null = null;
+function getSupabase() {
+  if (!supabaseClient) {
+    supabaseClient = getSupabaseServer();
+  }
+  return supabaseClient;
+}
+
 export const financeAgent = {
   // Mock exchange rates (In production, fetch from an API like OpenExchangeRates)
   rates: { GBP: 1.27, EUR: 1.10, AED: 0.27, AUD: 0.66, USD: 1 },
@@ -16,7 +21,7 @@ export const financeAgent = {
   async aggregateGlobalRevenue() {
     console.log("[FINANCE] Aggregating planetary revenue nodes...");
     
-    const { data: invoices, error } = await supabase
+    const { data: invoices, error } = await getSupabase()
       .from('invoices')
       .select('amount, currency, status, region, partner_id')
       .eq('status', 'PAID');
@@ -40,7 +45,7 @@ export const financeAgent = {
   },
 
   async getPartnerStatement(partnerId: string) {
-    const { data } = await supabase
+    const { data } = await getSupabase()
       .from('invoices')
       .select('amount, currency, created_at')
       .eq('partner_id', partnerId)

@@ -1,6 +1,8 @@
-'use client';
+"use client";
 
 import React from 'react';
+
+export const dynamic = 'force-dynamic';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function CampaignsPage() {

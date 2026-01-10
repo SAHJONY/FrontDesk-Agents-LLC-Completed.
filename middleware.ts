@@ -1,48 +1,80 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+// Public routes that don't require authentication
+const publicRoutes = [
+  '/',
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/pricing',
+  '/terms',
+  '/privacy',
+  '/features',
+  '/industries',
+  '/solutions',
+  '/support',
+  '/legal',
+  '/demo',
+  '/demo-login',
+  '/onboarding',
+];
+
+// Check if route is public
+function isPublicRoute(pathname: string): boolean {
+  // API routes are always public (they handle their own auth)
+  if (pathname.startsWith('/api/')) return true;
+  
+  return publicRoutes.some(route => {
+    if (route === '/') return pathname === '/';
+    return pathname.startsWith(route);
   });
+}
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: '', ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({ name, value: '', ...options });
-        },
-      },
-    }
-  );
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-  await supabase.auth.getUser();
+  // Skip middleware for static files
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/static/') ||
+    pathname.includes('.')
+  ) {
+    return NextResponse.next();
+  }
 
-  return response;
+  // Allow public routes without authentication
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next();
+  }
+
+  // Check if user has auth token cookie
+  const token = request.cookies.get('auth-token');
+
+  // If no token and trying to access protected route, redirect to login
+  if (!token) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('redirect', pathname);
+    url.searchParams.set('error', 'session_expired');
+    return NextResponse.redirect(url);
+  }
+
+  // Token exists, allow request to proceed
+  // Note: Token validation happens in API routes, not in middleware
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (public folder)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
+  ],
 };

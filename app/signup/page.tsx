@@ -1,235 +1,280 @@
 'use client';
 
-/**
- * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE
- * Production Signup Gateway (Elite UI)
- */
-
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Phone, Mail, Lock, Building, User, Globe, Activity, ChevronRight } from 'lucide-react';
 
 export default function SignupPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
-    fullName: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    companyName: '',
+    company: '',
+    fullName: '',
     subdomain: '',
-    countryCode: 'US',
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'email':
+        return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Please enter a valid email address' : '';
+      case 'password':
+        return value.length < 8 ? 'Password must be at least 8 characters' : '';
+      case 'company':
+        return value.trim().length < 2 ? 'Company name must be at least 2 characters' : '';
+      case 'fullName':
+        return value.trim().length < 2 ? 'Full name must be at least 2 characters' : '';
+      case 'subdomain':
+        return !/^[a-z0-9-]+$/.test(value) || value.length < 3 ? 'Subdomain must be at least 3 characters (lowercase, numbers, hyphens only)' : '';
+      default:
+        return '';
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+    if (error) {
+      setErrors(prev => ({ ...prev, [name]: error }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    
+    // Validate all fields
+    const newErrors: Record<string, string> = {};
+    Object.keys(formData).forEach(key => {
+      const error = validateField(key, formData[key as keyof typeof formData]);
+      if (error) newErrors[key] = error;
+    });
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('AUTH_ERR: Passwords do not match');
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    setLoading(true);
-
+    setIsSubmitting(true);
+    
     try {
+      // Generate subdomain from company name if not provided
+      const subdomain = formData.subdomain || formData.company.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').substring(0, 20);
+      const fullName = formData.fullName || formData.email.split('@')[0];
+      
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.password,
+          companyName: formData.company,
+          fullName: fullName,
+          subdomain: subdomain,
+          country: 'US', // Default country
+        }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'REGISTRATION_FAILED');
+        setErrors({ submit: data.error || 'Signup failed. Please try again.' });
+        return;
       }
 
-      router.push('/login?signup=success');
-    } catch (err: any) {
-      setError(err.message);
+      setSubmitSuccess(true);
+    } catch (error) {
+      console.error('Signup error:', error);
+      setErrors({ submit: 'An error occurred. Please try again.' });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  function handleChange(field: string, value: string) {
-    setFormData(prev => {
-      const newData = { ...prev, [field]: value };
-      // Auto-generate subdomain from company name logic
-      if (field === 'companyName' && !prev.subdomain) {
-        newData.subdomain = value.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-      }
-      return newData;
-    });
+  if (submitSuccess) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-slate-900 border border-cyan-500/30 rounded-lg p-8 text-center">
+          <div className="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Welcome to FrontDesk Agents!</h1>
+          <p className="text-slate-300 mb-6">
+            Your account has been created. Check your email to verify and get started.
+          </p>
+          <Link 
+            href="/login" 
+            className="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+          >
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 selection:bg-blue-500/30">
-      {/* Background Decorative Element */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-900/10 blur-[120px] rounded-full" />
-      </div>
-
-      <div className="max-w-xl w-full relative z-10">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-6 shadow-[0_0_30px_rgba(37,99,235,0.3)] border border-blue-400/20">
-            <Phone className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-black tracking-tighter uppercase italic italic">Initialize Workforce</h1>
-          <p className="text-zinc-500 font-mono text-[10px] tracking-[0.2em] uppercase mt-2">Global Revenue Operations : Trial Phase</p>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block mb-6">
+            <h1 className="text-2xl font-bold text-cyan-400">FrontDesk Agents</h1>
+          </Link>
+          <h2 className="text-3xl font-bold mb-2">Start Your Free Trial</h2>
+          <p className="text-slate-400">14-day free trial • No credit card required</p>
         </div>
 
-        <div className="glass-panel bg-zinc-950/50 border border-zinc-800 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-xl shadow-2xl">
-          {error && (
-            <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-mono flex items-center gap-3">
-              <Activity className="w-4 h-4" />
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Identity</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input
-                    type="text"
-                    onChange={(e) => handleChange('fullName', e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all focus:ring-1 focus:ring-blue-500/20"
-                    placeholder="Full Name"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Communication</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input
-                    type="email"
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all"
-                    placeholder="Corporate Email"
-                    required
-                  />
-                </div>
-              </div>
+        <div className="bg-slate-900 border border-slate-800 rounded-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                Work Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                aria-required="true"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                className={`w-full bg-slate-800 border ${
+                  errors.email ? 'border-red-500' : 'border-slate-700'
+                } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+                placeholder="you@company.com"
+              />
+              {errors.email && (
+                <p id="email-error" className="mt-1 text-sm text-red-400" role="alert">
+                  {errors.email}
+                </p>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Access Crypt</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input
-                    type="password"
-                    onChange={(e) => handleChange('password', e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all"
-                    placeholder="Password"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Verification</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                  <input
-                    type="password"
-                    onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all"
-                    placeholder="Confirm"
-                    required
-                  />
-                </div>
-              </div>
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                aria-required="true"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : undefined}
+                className={`w-full bg-slate-800 border ${
+                  errors.password ? 'border-red-500' : 'border-slate-700'
+                } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+                placeholder="At least 8 characters"
+              />
+              {errors.password && (
+                <p id="password-error" className="mt-1 text-sm text-red-400" role="alert">
+                  {errors.password}
+                </p>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Entity Name</label>
-              <div className="relative">
-                <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                <input
-                  type="text"
-                  onChange={(e) => handleChange('companyName', e.target.value)}
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all"
-                  placeholder="Company Legal Name"
-                  required
-                />
-              </div>
+            {/* Company Name */}
+            <div>
+              <label htmlFor="company" className="block text-sm font-medium text-slate-300 mb-2">
+                Company Name
+              </label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                aria-required="true"
+                aria-invalid={!!errors.company}
+                aria-describedby={errors.company ? 'company-error' : undefined}
+                className={`w-full bg-slate-800 border ${
+                  errors.company ? 'border-red-500' : 'border-slate-700'
+                } rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors`}
+                placeholder="Your Company"
+              />
+              {errors.company && (
+                <p id="company-error" className="mt-1 text-sm text-red-400" role="alert">
+                  {errors.company}
+                </p>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Node Domain</label>
-              <div className="flex group">
-                <input
-                  type="text"
-                  value={formData.subdomain}
-                  onChange={(e) => handleChange('subdomain', e.target.value)}
-                  className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-l-2xl px-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all font-mono"
-                  placeholder="subdomain"
-                  required
-                />
-                <span className="px-5 py-3.5 bg-zinc-900 border border-l-0 border-zinc-800 rounded-r-2xl text-zinc-500 text-xs font-bold flex items-center uppercase tracking-tighter">
-                  .frontdesk.ai
-                </span>
-              </div>
-            </div>
+            {/* Submit Error */}
+            {errors.submit && (
+              <p className="text-sm text-red-400 text-center" role="alert">
+                {errors.submit}
+              </p>
+            )}
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Operational Region</label>
-              <div className="relative">
-                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                <select
-                  value={formData.countryCode}
-                  onChange={(e) => handleChange('countryCode', e.target.value)}
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:border-blue-500 outline-none transition-all appearance-none uppercase font-bold tracking-widest"
-                  required
-                >
-                  <option value="US">United States</option>
-                  <option value="CA">Canada</option>
-                  <option value="GB">United Kingdom</option>
-                  <option value="AU">Australia</option>
-                  <option value="DE">Germany</option>
-                  <option value="FR">France</option>
-                  <option value="IN">India</option>
-                  <option value="BR">Brazil</option>
-                </select>
-              </div>
-            </div>
-
+            {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-white text-black rounded-2xl hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50 font-black text-xs uppercase tracking-[0.2em] mt-4 flex items-center justify-center gap-2 group"
+              disabled={isSubmitting}
+              className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center justify-center"
             >
-              {loading ? 'Initializing...' : 'Confirm Registration'}
-              {!loading && <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating Account...
+                </>
+              ) : (
+                'Start Free Trial'
+              )}
             </button>
+
+            {/* Terms */}
+            <p className="text-xs text-slate-400 text-center">
+              By signing up, you agree to our{' '}
+              <Link href="/terms" className="text-cyan-400 hover:text-cyan-300">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-cyan-400 hover:text-cyan-300">
+                Privacy Policy
+              </Link>
+            </p>
           </form>
 
-          <div className="mt-8 text-center">
-            <p className="text-xs text-zinc-500 uppercase font-bold tracking-widest">
-              Existing Node?{' '}
-              <Link href="/login" className="text-blue-500 hover:text-blue-400 transition-colors">
-                Authorize Here
+          {/* Login Link */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-400">
+              Already have an account?{' '}
+              <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium">
+                Sign in
               </Link>
             </p>
           </div>
         </div>
-
-        <p className="text-center text-[8px] font-mono text-zinc-700 uppercase tracking-[0.3em] mt-10">
-          © 2025 FrontDesk Agents Global. Secure Revenue Infrastructure.
-        </p>
       </div>
     </div>
   );
-    }
-            
+}
+// Force rebuild Wed Jan  7 07:55:10 EST 2026

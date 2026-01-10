@@ -10,28 +10,28 @@ export const REGION_MULTIPLIERS = {
 export const PLANS: Record<PlanKey, { name: string; baseMonthlyUSD: number; minutes: string; agents: string; bullets: string[] }> = {
   basic: {
     name: "Basic Workforce",
-    baseMonthlyUSD: 399, // TODO: confirm
+    baseMonthlyUSD: 299, // Updated pricing
     minutes: "500 Minutes",
     agents: "1 AI Agent",
     bullets: ["CRM Sync"],
   },
   professional: {
     name: "Professional Workforce",
-    baseMonthlyUSD: 899, // TODO: confirm
+    baseMonthlyUSD: 699, // Updated pricing
     minutes: "1,500 Minutes",
     agents: "3 AI Agents",
     bullets: ["Lead Gen"],
   },
   growth: {
     name: "Growth Workforce",
-    baseMonthlyUSD: 1799, // TODO: confirm
+    baseMonthlyUSD: 1299, // Updated pricing
     minutes: "4,000 Minutes",
     agents: "10 AI Agents",
     bullets: ["Payments"],
   },
   elite: {
     name: "Elite Workforce",
-    baseMonthlyUSD: 2799, // TODO: confirm
+    baseMonthlyUSD: 2499, // Updated pricing
     minutes: "Unlimited Minutes",
     agents: "Unlimited Fleet",
     bullets: ["Success Logic"],

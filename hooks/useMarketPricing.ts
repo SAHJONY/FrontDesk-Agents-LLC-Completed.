@@ -10,10 +10,10 @@ const REGIONAL_MULTIPLIERS = {
 
 // Permanent Pricing Tiers
 const BASE_PLANS = [
-  { id: 'tier-basic', name: 'Basic', usd: 199, features: ['500 Minutes', '1 AI Agent', 'CRM Sync'] },
-  { id: 'tier-professional', name: 'Professional', usd: 399, features: ['1,500 Minutes', '3 AI Agents', 'Lead Gen'] },
-  { id: 'tier-growth', name: 'Growth', usd: 799, features: ['4,000 Minutes', '10 AI Agents', 'Payments'] },
-  { id: 'tier-elite', name: 'Elite', usd: 1499, features: ['Unlimited Minutes', 'Unlimited Fleet', 'Success Logic'] },
+  { id: 'tier-basic', name: 'Basic', usd: 299, features: ['500 Minutes', '1 AI Agent', 'CRM Sync'] },
+  { id: 'tier-professional', name: 'Professional', usd: 699, features: ['1,500 Minutes', '3 AI Agents', 'Lead Gen'] },
+  { id: 'tier-growth', name: 'Growth', usd: 1299, features: ['4,000 Minutes', '10 AI Agents', 'Payments'] },
+  { id: 'tier-elite', name: 'Elite', usd: 2499, features: ['Unlimited Minutes', 'Unlimited Fleet', 'Success Logic'] },
 ];
 
 export function useMarketPricing() {

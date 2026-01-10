@@ -1,5 +1,14 @@
 {
   "version": 2,
+  "buildCommand": "next build",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "build": {
+    "env": {
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "SKIP_ENV_VALIDATION": "1"
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/daily-digest",
@@ -14,6 +23,14 @@
     "app/api/wholesale/sync-bulk-secrets/route.ts": {
       "maxDuration": 30,
       "memory": 512
+    },
+    "app/**/*.tsx": {
+      "maxDuration": 60,
+      "memory": 3008
+    },
+    "app/api/**/*.ts": {
+      "maxDuration": 60,
+      "memory": 3008
     }
   },
   "headers": [

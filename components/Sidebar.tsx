@@ -11,7 +11,7 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 border-r border-white/5 h-screen sticky top-0 bg-[#010204] p-6">
+    <aside className="hidden md:block w-64 border-r border-white/5 h-screen sticky top-0 bg-[#010204] p-6">
       <div className="space-y-2">
         {menu.map((item) => (
           <Link 
