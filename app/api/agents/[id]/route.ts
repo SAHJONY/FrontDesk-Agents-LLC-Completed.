@@ -7,8 +7,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = requireSupabaseServer();
   try {
+    const supabase = requireSupabaseServer();
     const { id } = params;
 
     const { data, error } = await supabase
