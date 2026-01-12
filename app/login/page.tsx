@@ -61,14 +61,18 @@ export default function LoginPage() {
 
       // Store tokens
       if (typeof window !== 'undefined') {
+        localStorage.setItem('token', data.accessToken);
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         localStorage.setItem('user', JSON.stringify(data.user));
       }
 
-      // Redirect based on role
-      if (data.user.role === 'owner') {
+      // Redirect based on role (case-insensitive)
+      const userRole = data.user.role.toUpperCase();
+      if (userRole === 'OWNER') {
         router.push('/dashboard/owner');
+      } else if (userRole === 'ADMIN') {
+        router.push('/admin');
       } else {
         router.push('/dashboard');
       }
