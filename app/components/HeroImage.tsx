@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 export function HeroImage({
-  src = "/assets/ai-agent-interface.jpg",
+  src = "/images/hero-main.jpg",
   alt = "FrontDesk Agents",
 }: {
   src?: string;
