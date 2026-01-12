@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,10 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader } from 'lucide-react';
-import dynamic from 'next/dynamic';
+// Removed lucide-react imports: CheckCircle, AlertCircle, Loader
 
-function EmailTestToolContent() {
+export default function EmailTestTool() {
   const [recipientEmail, setRecipientEmail] = useState('frontdeskllc@outlook.com');
   const [department, setDepartment] = useState('sales');
   const [loading, setLoading] = useState(false);
@@ -102,7 +102,7 @@ function EmailTestToolContent() {
         >
           {loading ? (
             <>
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
+              {/* Removed Loader icon */}
               Sending...
             </>
           ) : (
@@ -113,7 +113,7 @@ function EmailTestToolContent() {
         {/* Success Alert */}
         {result?.success && (
           <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            {/* Removed CheckCircle icon */}
             <AlertDescription className="text-green-800">
               <p className="font-semibold">{result.message}</p>
               <p className="text-xs mt-1">Message ID: {result.messageId}</p>
@@ -125,7 +125,7 @@ function EmailTestToolContent() {
         {/* Error Alert */}
         {error && (
           <Alert className="border-red-200 bg-red-50">
-            <AlertCircle className="h-4 w-4 text-red-600" />
+            {/* Removed AlertCircle icon */}
             <AlertDescription className="text-red-800">
               <p className="font-semibold">Error</p>
               <p className="text-sm">{error}</p>
@@ -141,7 +141,3 @@ function EmailTestToolContent() {
     </Card>
   );
 }
-
-const EmailTestTool = dynamic(() => Promise.resolve(EmailTestToolContent), { ssr: false });
-
-export default EmailTestTool;
