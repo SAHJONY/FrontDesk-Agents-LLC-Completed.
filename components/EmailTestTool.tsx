@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import dynamic from 'next/dynamic';
 
-export function EmailTestTool() {
+function EmailTestToolContent() {
   const [recipientEmail, setRecipientEmail] = useState('frontdeskllc@outlook.com');
   const [department, setDepartment] = useState('sales');
   const [loading, setLoading] = useState(false);
@@ -140,3 +141,7 @@ export function EmailTestTool() {
     </Card>
   );
 }
+
+const EmailTestTool = dynamic(() => Promise.resolve(EmailTestToolContent), { ssr: false });
+
+export default EmailTestTool;
