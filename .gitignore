@@ -54,3 +54,4 @@ Thumbs.db
 .vscode/settings.json
 .vscode/launch.json
 _disabled_routes/
+.env*.local

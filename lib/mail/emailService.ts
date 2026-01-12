@@ -1,11 +1,26 @@
 import { Resend } from 'resend';
+import { sendOutlookEmail } from './outlookService';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendInstance: Resend | undefined;
+
+function getResendInstance(): Resend {
+  if (!resendInstance) {
+    resendInstance = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendInstance;
+}
+
+export function setResendInstance(instance: Resend) {
+  resendInstance = instance;
+}
+
+import { sendOutlookEmail as originalSendOutlookEmail } from './outlookService';
+export { originalSendOutlookEmail as sendOutlookEmail }; // Re-export for external use
 
 // Email configuration
 const EMAIL_CONFIG = {
   domain: 'frontdeskagents.com',
-  replyTo: 'frontdeskllc@outlook.com',
+  replyTo: 'noreply@frontdeskagents.com',
   departments: {
     support: 'support@frontdeskagents.com',
     sales: 'sales@frontdeskagents.com',
@@ -52,7 +67,7 @@ function getFromAddress(department?: Department, agentId?: string, agentName?: s
   }
   
   if (agentName) {
-    return `Agent ${agentName} <agent-${agentName.toLowerCase().replace(/\s+/g, '-')}@${EMAIL_CONFIG.domain}>`;
+    return `Agent ${agentName} <agent-${agentName.toLowerCase().replace(/\s+/g, '-')}}@${EMAIL_CONFIG.domain}>`;
   }
   
   if (department && EMAIL_CONFIG.departments[department]) {
@@ -66,7 +81,53 @@ function getFromAddress(department?: Department, agentId?: string, agentName?: s
 /**
  * Send an email through the platform
  */
-export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
+export async function sendEmail(options: EmailOptions, mockResend?: Resend, mockOutlookSender?: typeof originalSendOutlookEmail): Promise<EmailResult> {
+  // Determine whether to use Resend or Outlook based on department or specific flags
+  // For professional communications (e.g., admin, compliance, technical), use Outlook.
+  // For high-volume automated emails (e.g., sales, onboarding, support), use Resend.
+  const useOutlook = options.department && ['admin', 'compliance', 'technical'].includes(options.department);
+
+  if (useOutlook) {
+    try {
+      const fromAddress = getFromAddress(options.department, options.agentId, options.agentName);
+      const outlookResult = await (mockOutlookSender || originalSendOutlookEmail)({
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        cc: options.cc,
+        bcc: options.bcc,
+        attachments: options.attachments,
+      });
+
+      if (outlookResult.success) {
+        await logEmail({
+          fromAddress,
+          toAddress: options.to,
+          subject: options.subject,
+          department: options.department,
+          agentId: options.agentId,
+          status: 'sent_outlook',
+        });
+        return { success: true };
+      } else {
+        throw new Error(outlookResult.error || 'Outlook email sending failed');
+      }
+    } catch (error: any) {
+      console.error('Outlook email sending failed:', error);
+      const fromAddress = getFromAddress(options.department, options.agentId, options.agentName);
+      await logEmail({
+        fromAddress,
+        toAddress: options.to,
+        subject: options.subject,
+        department: options.department,
+        agentId: options.agentId,
+        status: 'failed_outlook',
+        errorMessage: error.message,
+      });
+      return { success: false, error: error.message };
+    }
+  }
   try {
     const fromAddress = getFromAddress(options.department, options.agentId, options.agentName);
     
@@ -97,30 +158,30 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
       emailData.attachments = options.attachments;
     }
 
-    const result = await resend.emails.send(emailData);
+    const currentResend = mockResend || getResendInstance();
+    const result = await currentResend.emails.send(emailData);
 
     // Log email to database (implement this based on your database setup)
     await logEmail({
       fromAddress,
-      toAddress: Array.isArray(options.to) ? options.to.join(', ') : options.to,
+      toAddress: options.to,
       subject: options.subject,
       department: options.department,
       agentId: options.agentId,
       resendId: result.data?.id,
-      status: 'sent',
+      status: 'sent_resend',
     });
 
-    return {
-      success: true,
-      messageId: result.data?.id,
-    };
+    return { success: true, messageId: result.data?.id };
+
+
   } catch (error: any) {
     console.error('Email sending failed:', error);
     
     // Log failed email
     await logEmail({
       fromAddress: getFromAddress(options.department, options.agentId, options.agentName),
-      toAddress: Array.isArray(options.to) ? options.to.join(', ') : options.to,
+      toAddress: options.to,
       subject: options.subject,
       department: options.department,
       agentId: options.agentId,
@@ -128,10 +189,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
       errorMessage: error.message,
     });
 
-    return {
-      success: false,
-      error: error.message,
-    };
+    return { success: false, error: error.message };
   }
 }
 
@@ -226,7 +284,7 @@ export async function sendSystemEmail(to: string, subject: string, html: string,
  */
 async function logEmail(data: {
   fromAddress: string;
-  toAddress: string;
+  toAddress: string | string[]; // Updated to accept string or string[]
   subject: string;
   department?: string;
   agentId?: string;

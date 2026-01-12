@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@react-email/components": "^0.0.32",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
@@ -23,6 +24,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "framer-motion": "^11.18.2",
+    "isomorphic-fetch": "^3.0.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.2",
     "lucide-react": "^0.469.0",
@@ -45,6 +47,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-rtl": "^0.7.3",
+    "tsx": "^4.21.0",
     "twilio": "^5.4.0",
     "xlsx": "^0.18.5",
     "zod": "^3.25.76"
