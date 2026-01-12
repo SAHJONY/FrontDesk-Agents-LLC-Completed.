@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireSupabaseServer } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as z from 'zod';
@@ -14,7 +15,6 @@ const loginSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const supabase = requireSupabaseServer();
   try {
     const body = await req.json();
     const { email, password } = loginSchema.parse(body);
