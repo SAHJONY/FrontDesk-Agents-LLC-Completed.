@@ -26,11 +26,11 @@
     },
     "app/**/*.tsx": {
       "maxDuration": 60,
-      "memory": 3008
+      "memory": 1024
     },
     "app/api/**/*.ts": {
       "maxDuration": 60,
-      "memory": 3008
+      "memory": 1024
     }
   },
   "headers": [
