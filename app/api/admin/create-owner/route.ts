@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET_KEY || 'temp-admin-key-12345';
+const ADMIN_SECRET = process.env.ADMIN_SECRET_KEY || 'temp-secret-key-12345';
 
 export async function POST(request: Request) {
   try {
@@ -29,11 +29,8 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Hash password using SHA-256
-    const hashedPassword = crypto
-      .createHash('sha256')
-      .update(password)
-      .digest('hex');
+    // Hash password using bcrypt (same as login API)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Check if user exists
     const { data: existingUser, error: checkError } = await supabase
@@ -41,10 +38,6 @@ export async function POST(request: Request) {
       .select('*')
       .eq('email', email)
       .single();
-
-    // Try different role values - check constraint might require specific values
-    // Common role values: 'owner', 'admin', 'user', 'client', 'agent'
-    const roleValue = role?.toLowerCase() || 'owner';
 
     if (existingUser) {
       // Update existing user - only update password, keep existing role
