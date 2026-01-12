@@ -23,6 +23,13 @@ const nextConfig = {
     unoptimized: process.env.NODE_ENV === 'development',
   },
 
+  // Reduce serverless function size for Hobby plan
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/**/*': [],
+    },
+  },
+
   webpack: (config, { isServer }) => {
     // Externalize problematic client-side packages during SSR
     if (isServer) {
