@@ -29,6 +29,19 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // First, check what columns exist in the users table
+    const { data: schemaData, error: schemaError } = await supabase
+      .from('users')
+      .select('*')
+      .limit(1);
+
+    if (schemaError) {
+      return NextResponse.json(
+        { error: 'Failed to check table schema', details: schemaError },
+        { status: 500 }
+      );
+    }
+
     // Hash password using SHA-256
     const hashedPassword = crypto
       .createHash('sha256')
@@ -42,22 +55,29 @@ export async function POST(request: Request) {
       .eq('email', email)
       .single();
 
+    // Determine which password field to use based on schema
+    const passwordField = schemaData && schemaData.length > 0 && 'password_hash' in schemaData[0] 
+      ? 'password_hash' 
+      : 'password';
+
     if (existingUser) {
       // Update existing user
+      const updateData: any = {
+        [passwordField]: hashedPassword,
+        role: role || 'OWNER',
+        updated_at: new Date().toISOString(),
+      };
+
       const { data, error } = await supabase
         .from('users')
-        .update({
-          password: hashedPassword,
-          role: role || 'OWNER',
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('email', email)
         .select()
         .single();
 
       if (error) {
         return NextResponse.json(
-          { error: 'Failed to update user', details: error },
+          { error: 'Failed to update user', details: error, passwordField },
           { status: 500 }
         );
       }
@@ -75,22 +95,24 @@ export async function POST(request: Request) {
       // Create new user
       const userId = crypto.randomUUID();
       
+      const insertData: any = {
+        id: userId,
+        email,
+        [passwordField]: hashedPassword,
+        role: role || 'OWNER',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
       const { data, error } = await supabase
         .from('users')
-        .insert({
-          id: userId,
-          email,
-          password: hashedPassword,
-          role: role || 'OWNER',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+        .insert(insertData)
         .select()
         .single();
 
       if (error) {
         return NextResponse.json(
-          { error: 'Failed to create user', details: error },
+          { error: 'Failed to create user', details: error, passwordField, schemaData: schemaData?.[0] ? Object.keys(schemaData[0]) : [] },
           { status: 500 }
         );
       }
