@@ -5,6 +5,9 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { HeroSectionEnhanced } from '@/components/landing/HeroSectionEnhanced';
 import { FeaturesSection, TestimonialsSection, CTASection } from '@/components/landing';
+import dynamic from 'next/dynamic';
+
+const EmailTestTool = dynamic(() => import('@/components/EmailTestTool'), { ssr: false });
 
 /**
  * Landing Page Component
@@ -31,6 +34,9 @@ export default function LandingPage() {
         
         {/* Call-to-Action Section - Conversion-focused final section */}
         <CTASection />
+        <div className="py-16 flex justify-center">
+          <EmailTestTool />
+        </div>
       </main>
       
       {/* Footer - Legal links and company information */}
