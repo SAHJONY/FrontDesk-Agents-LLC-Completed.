@@ -6,6 +6,7 @@ import { I18nProvider } from '../lib/i18n/provider';
 import { AutonomousProvider } from '../lib/autonomous/provider';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from '../components/providers/ThemeProvider';
+import { LanguageProvider } from '../src/contexts/LanguageContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,13 +24,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`min-h-screen bg-slate-950 text-slate-100 antialiased`}>
         <ThemeProvider>
-          <AuthProvider>
-            <I18nProvider>
-              <AutonomousProvider>
-                {children}
-              </AutonomousProvider>
-            </I18nProvider>
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <I18nProvider>
+                <AutonomousProvider>
+                  {children}
+                </AutonomousProvider>
+              </I18nProvider>
+            </AuthProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>
