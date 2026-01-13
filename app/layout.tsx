@@ -2,11 +2,9 @@ import type { Metadata } from 'next';
 export const dynamic = "force-dynamic";
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { I18nProvider } from '../lib/i18n/provider';
-import { AutonomousProvider } from '../lib/autonomous/provider';
-import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from '../components/providers/ThemeProvider';
-import { LanguageProvider } from '../src/contexts/LanguageContext';
+import Providers from './providers';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,18 +20,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`min-h-screen bg-slate-950 text-slate-100 antialiased`}>
-        <ThemeProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <I18nProvider>
-                <AutonomousProvider>
+      <body className={`${inter.className} min-h-screen bg-slate-950 text-slate-100 antialiased`}>
+        <Providers>
+          <div className="flex h-screen overflow-hidden">
+            <Sidebar />
+            <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+              <Topbar />
+              <main>
+                <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
                   {children}
-                </AutonomousProvider>
-              </I18nProvider>
-            </AuthProvider>
-          </LanguageProvider>
-        </ThemeProvider>
+                </div>
+              </main>
+            </div>
+          </div>
+        </Providers>
       </body>
     </html>
   );

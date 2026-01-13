@@ -2,27 +2,32 @@
 
 import { ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
-// This links your UI to the localization logic you just updated
-import { LanguageProvider } from "./components/LanguageProvider";
+import { LanguageProvider } from "@/src/contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { I18nProvider } from "../lib/i18n/provider";
+import { AutonomousProvider } from "../lib/autonomous/provider";
 
 /**
- * Global Providers for FrontDesk Agents Global Revenue Workforce.
- * Handles Light/Dark themes and Autonomous Localization (EN/ES).
+ * Unified Global Providers for FrontDesk Agents.
+ * Consolidates Theme, Language, Auth, and Autonomous logic.
  */
 export default function Providers({ children }: { children: ReactNode }) {
   return (
-    <AuthProvider>
-      <ThemeProvider 
-        attribute="class" 
-        defaultTheme="dark" 
-        enableSystem
-        disableTransitionOnChange
-      >
+    <ThemeProvider 
+      attribute="class" 
+      defaultTheme="dark" 
+      enableSystem
+      disableTransitionOnChange
+    >
+      <AuthProvider>
         <LanguageProvider>
-          {children}
+          <I18nProvider>
+            <AutonomousProvider>
+              {children}
+            </AutonomousProvider>
+          </I18nProvider>
         </LanguageProvider>
-      </ThemeProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
