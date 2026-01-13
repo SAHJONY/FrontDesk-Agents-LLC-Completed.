@@ -3,8 +3,17 @@ import { verifyOwnerToken } from '@/lib/auth/owner-auth';
 import jwt from 'jsonwebtoken';
 import { requireSupabaseServer } from '@/lib/supabase-server';
 
+
 export async function GET(req: Request) {
   const supabase = requireSupabaseServer();
+
+  // Ensure the Supabase client is available for all paths
+  if (!supabase) {
+    return NextResponse.json(
+      { message: 'Supabase client not initialized' },
+      { status: 500 }
+    );
+  }
   try {
     // Extract token from Authorization header
     const authHeader = req.headers.get('Authorization');
@@ -48,17 +57,7 @@ export async function GET(req: Request) {
     }
 
     // Regular user token verification
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { message: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data: user, error } = await supabase
       .from('users')
