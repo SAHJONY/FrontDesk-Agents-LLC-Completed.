@@ -1,0 +1,31 @@
+import OpenAI from 'openai';
+
+// Lazy initialization of OpenAI client
+let openaiClient: OpenAI | null = null;
+function getOpenAI() {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '',
+    });
+  }
+  return openaiClient;
+}
+
+
+export async function processLeadReply(incomingText: string, leadName: string) {
+  const completion = await getOpenAI().chat.completions.create({
+    model: "gpt-4-turbo-preview",
+    messages: [
+      { 
+        role: "system", 
+        content: `You are the FrontDesk Booking Assistant. Your goal is to schedule a discovery call. 
+                  Lead Name: ${leadName}. 
+                  If the user expresses interest, provide a link to the calendar. 
+                  If they ask a question, answer it concisely and then ask to book.` 
+      },
+      { role: "user", content: incomingText }
+    ],
+  });
+
+  return completion.choices[0].message.content;
+}

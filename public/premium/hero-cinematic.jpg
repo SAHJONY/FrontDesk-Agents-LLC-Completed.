@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2025-12-10T00:00:00Z",
+  "description": "Manifest de imágenes premium usadas por la app. Mantener actualizado si se renombran/mueven archivos.",
+  "images": [
+    {
+      "key": "heroCinematic",
+      "paths": {
+        "avif": "/premium/hero-cinematic.avif",
+        "webp": "/premium/hero-cinematic.webp",
+        "jpg": "/premium/hero-cinematic.jpg"
+      },
+      "alt": "Hero cinematic — FrontDesk Agents",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "commandCenterDark",
+      "paths": {
+        "avif": "/premium/command-center-dark.avif",
+        "webp": "/premium/command-center-dark.webp",
+        "jpg": "/premium/command-center-dark.jpg"
+      },
+      "alt": "Command center dark",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "commandCenterLight",
+      "paths": {
+        "avif": "/premium/command-center-light.avif",
+        "webp": "/premium/command-center-light.webp",
+        "jpg": "/premium/command-center-light.jpg"
+      },
+      "alt": "Command center light",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "industriesConstruction",
+      "paths": {
+        "avif": "/premium/industries/construction.avif",
+        "jpg": "/premium/industries/construction.jpg"
+      },
+      "alt": "Construction industry",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "industriesHealthcare",
+      "paths": {
+        "avif": "/premium/industries/healthcare.avif",
+        "jpg": "/premium/industries/healthcare.jpg"
+      },
+      "alt": "Healthcare industry",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "industriesLaw",
+      "paths": {
+        "avif": "/premium/industries/law.avif",
+        "jpg": "/premium/industries/law.jpg"
+      },
+      "alt": "Law industry",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "industriesLogistics",
+      "paths": {
+        "avif": "/premium/industries/logistics.avif",
+        "jpg": "/premium/industries/logistics.jpg"
+      },
+      "alt": "Logistics industry",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "industriesMedical",
+      "paths": {
+        "avif": "/premium/industries/medical.avif",
+        "jpg": "/premium/industries/medical.jpg"
+      },
+      "alt": "Medical industry",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "aiAgentGrid",
+      "paths": {
+        "avif": "/premium/team/agents-grid.avif",
+        "webp": "/premium/team/agents-grid.webp",
+        "jpg": "/premium/team/agents-grid.jpg"
+      },
+      "alt": "AI agents grid",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "teamComposite",
+      "paths": {
+        "avif": "/premium/team/agents-grid.avif",
+        "jpg": "/premium/team/agents-grid.jpg"
+      },
+      "alt": "Team composite",
+      "width": 1600,
+      "height": 900,
+      "lastCommit": null
+    },
+    {
+      "key": "marketingBanner",
+      "paths": {
+        "avif": "/premium/banners/marketing-banner.avif",
+        "jpg": "/premium/banners/marketing-banner.jpg"
+      },
+      "alt": "Marketing banner",
+      "width": 1600,
+      "height": 400,
+      "lastCommit": null
+    }
+  ]
+}

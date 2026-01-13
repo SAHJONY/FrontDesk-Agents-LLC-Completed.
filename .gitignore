@@ -1,0 +1,57 @@
+# --- SOVEREIGN SECURITY CORE ---
+# Never allow the Master Vault Keys to enter the repository
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging.local
+*.pem
+*.key
+shadow-vault.json
+
+# --- PLATFORM SECRET SAUCE (Stealth Layer) ---
+# Hides the footprints of your global scraper and third-party logs
+/scripts/automation/logs
+/scripts/automation/temp_data
+/scripts/leads/
+*.csv
+*.json_leads
+.github/secrets/*.gpg
+
+# --- INFRASTRUCTURE & DATABASE ---
+# Prevent local database snapshots or SQLite leaks
+/prisma/dev.db
+*.sqlite
+*.sqlite-journal
+.supabase/
+supabase/.temp/
+!supabase/migrations/*.sql 
+
+# --- BUILD & CACHE ---
+node_modules/
+.next/
+out/
+.next/cache
+.eslintcache
+build/
+dist/
+.cache/
+.vercel
+*.js.map
+*.d.ts
+
+# --- LOGS & SYSTEM ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.DS_Store
+Thumbs.db
+
+# --- VS CODE ---
+.vscode/settings.json
+.vscode/launch.json
+_disabled_routes/
+.env*.local

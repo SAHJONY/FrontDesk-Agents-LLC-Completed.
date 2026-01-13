@@ -1,0 +1,22 @@
+# FrontDesk Agents - Global Revenue Workforce
+# Production robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /owner/
+Disallow: /settings/
+Disallow: /onboarding/
+Disallow: /setup/
+
+# Allow public pages
+Allow: /
+Allow: /pricing
+Allow: /industries
+Allow: /legal
+Allow: /support
+
+# Sitemap
+Sitemap: https://app.frontdeskagents.com/sitemap.xml

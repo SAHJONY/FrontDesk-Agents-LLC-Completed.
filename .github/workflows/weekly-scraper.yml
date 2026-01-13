@@ -1,0 +1,52 @@
+name: Nationwide Lead Ingestion
+on:
+  schedule:
+    # Runs every Sunday at 00:00 UTC (Saturday night in the US)
+    - cron: '0 0 * * 0'
+  workflow_dispatch: # For manual nationwide "on-demand" pushes
+
+jobs:
+  scrape-and-feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60 
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: |
+          npm install axios ts-node typescript @types/node @supabase/supabase-js
+        
+      - name: 🛡️ Pre-Flight Health Check
+        # This step prevents the script from running if your 'Secret Sauce' isn't ready
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          BLAND_AI_KEY: ${{ secrets.BLAND_AI_KEY }}
+        run: npx ts-node scripts/tests/health-check.ts
+
+      - name: 🚀 Execute Nationwide Expansion
+        if: success() # Only triggers if the Health Check passes 100%
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          SYSTEM_BOT_ID: ${{ secrets.SYSTEM_BOT_ID }}
+        run: npx ts-node scripts/automation/national-scraper.ts
+
+      - name: 📱 Send Monday Briefing
+        if: success()
+        env:
+          ADMIN_MOBILE_NUMBER: ${{ secrets.ADMIN_MOBILE_NUMBER }}
+          BLAND_AI_KEY: ${{ secrets.BLAND_AI_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        run: npx ts-node scripts/automation/monday-briefing.ts
+        

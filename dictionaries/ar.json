@@ -1,0 +1,57 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال",
+    "close": "إغلاق"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "dashboard": "لوحة التحكم",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "signOut": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "rememberMe": "تذكرني"
+  },
+  "dashboard": {
+    "welcome": "مرحباً",
+    "overview": "نظرة عامة",
+    "analytics": "التحليلات",
+    "calls": "المكالمات",
+    "reports": "التقارير"
+  },
+  "calls": {
+    "title": "المكالمات",
+    "incoming": "الواردة",
+    "outgoing": "الصادرة",
+    "missed": "الفائتة",
+    "duration": "المدة",
+    "status": "الحالة",
+    "timestamp": "الوقت"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "general": "عام",
+    "notifications": "الإشعارات",
+    "security": "الأمان",
+    "profile": "الملف الشخصي",
+    "language": "اللغة",
+    "theme": "المظهر"
+  }
+}

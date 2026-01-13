@@ -1,0 +1,12 @@
+{
+  "navigation": {
+    "features": "Features",
+    "compliance": "Compliance",
+    "pricing": "Pricing",
+    "login": "Login"
+  },
+  "hero": {
+    "title": "Enterprise AI Receptionist",
+    "subtitle": "Never miss another patient again with our 24/7 AI infrastructure."
+  }
+}

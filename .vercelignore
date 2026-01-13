@@ -1,0 +1,50 @@
+# Node modules (already ignored by default)
+node_modules
+
+# Development files
+.env
+.env.local
+.env.*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documentation (keep in repo but don't deploy)
+MIGRATION_GUIDE.md
+REORGANIZATION_SUMMARY.md
+repository_analysis.md
+BEFORE_AFTER_COMPARISON.md
+
+# Backup files
+*-BACKUP
+*.backup
+*.bak
+
+# Testing
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Temporary files
+tmp/
+temp/
+*.tmp

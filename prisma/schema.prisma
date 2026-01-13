@@ -1,0 +1,42 @@
+// --- THE SOVEREIGN AGENTIC CRM CORE ---
+
+model BusinessConfig {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  industry          String?  
+  
+  // Agentic Workforce Configuration
+  agentSettings     Json?    // Stores RL parameters for different agents
+  workflowLogic     Json?    // The "Brain" - Rules for autonomous decisions
+  
+  // Intelligence Moat
+  locale            String   @default("en-US")
+  currency          String   @default("USD")
+  
+  leads             Lead[]
+  agents            Agent[]      // The specific workforce assigned to this client
+  callLogs          CallLog[]
+  
+  createdAt         DateTime @default(now())
+}
+
+model Agent {
+  id              String   @id @default(cuid())
+  businessId      String
+  role            String   // 'Sales', 'Support', 'Triage'
+  intelligence    String   @default("SARA-V3-RL") // RL-powered model ID
+  successRate     Float    @default(0.0) // Real-time performance tracking
+  totalActions    Int      @default(0)
+  business        BusinessConfig @relation(fields: [businessId], references: [id])
+}
+
+model Lead {
+  id              String   @id @default(cuid())
+  businessId      String
+  status          String   @default("COLD")
+  intent_data     Json?    // Detailed psychological profile of the lead
+  engagement_log  Json[]   // Every interaction across Voice, SMS, WhatsApp
+  
+  business        BusinessConfig @relation(fields: [businessId], references: [id])
+  createdAt       DateTime @default(now())
+}

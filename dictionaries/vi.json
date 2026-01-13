@@ -1,0 +1,12 @@
+{
+  "navigation": {
+    "features": "Tính năng",
+    "compliance": "Tuân thủ",
+    "pricing": "Bảng giá",
+    "login": "Đăng nhập"
+  },
+  "hero": {
+    "title": "Lễ tân AI cho Doanh nghiệp",
+    "subtitle": "Không bao giờ bỏ lỡ bệnh nhân với hạ tầng AI 24/7."
+  }
+}

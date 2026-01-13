@@ -1,0 +1,46 @@
+import FirecrawlApp from '@comet-rocket/firecrawl-js';
+import { SYNTHESIS_PROMPT } from './prompts';
+import OpenAI from 'openai';
+
+// Asegúrate de tener estas variables en tu .env.local
+const firecrawl = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+export async function autonomousBusinessSetup(url: string) {
+  try {
+    // 1. CRAWL: Mapeo profundo del sitio (máximo 5 páginas clave)
+    const crawlResult = await firecrawl.crawlUrl(url, {
+      limit: 5,
+      scrapeOptions: { 
+        formats: ['markdown'],
+        onlyMainContent: true // Elimina menús y pies de página basura
+      } 
+    });
+
+    if (!crawlResult.success) {
+      throw new Error(`Firecrawl error: ${crawlResult.error}`);
+    }
+
+    // 2. AGGREGATION: Unificar el conocimiento extraído
+    const fullContext = crawlResult.data
+      .map(page => `### SOURCE: ${page.metadata.sourceURL}\n${page.markdown}`)
+      .join('\n\n');
+
+    // 3. SYNTHESIS: Procesamiento con GPT-4o
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: SYNTHESIS_PROMPT },
+        { role: "user", content: `Analiza este contenido web y genera la ficha técnica:\n${fullContext}` }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const result = completion.choices[0].message.content;
+    return result ? JSON.parse(result) : null;
+
+  } catch (error) {
+    console.error("Autonomous Setup Error:", error);
+    throw error;
+  }
+}

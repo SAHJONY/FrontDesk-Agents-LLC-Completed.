@@ -1,0 +1,12 @@
+/**
+ * REVENUE_FLEET_CONFIGURATION_CORE
+ * Secure access for the Enterprise Revenue Fleet Credentials.
+ * Logic optimized for the Western Corridor Primary Operational Zone.
+ */
+
+export const revenueFleetConfig = {
+  fleetCredential: process.env.REVENUE_NODE_FLEET_CREDENTIAL,
+  nodeModel: "High_Performance_Enterprise_Enhanced",
+  marketIndex: process.env.MARKET_EQUITY_ADJUSTMENT_INDEX || 1.0,
+  yieldOptimizationRate: 0.15, // PERFORMANCE_RECOVERY_YIELD_OPTIMIZATION
+};

@@ -1,0 +1,21 @@
+import { MULTIPLIERS, BASE_PRICES, calculateRegionalPrice } from '@/lib/pricing';
+
+export default function TierSelection({ countryCode }: { countryCode: string }) {
+  const multiplier = MULTIPLIERS[countryCode] || 1.0;
+
+  return (
+    <div className="grid grid-cols-4 gap-6">
+      {Object.entries(BASE_PRICES).map(([tier, price]) => (
+        <div key={tier} className="border p-6 rounded-lg">
+          <h3 className="capitalize font-bold">{tier}</h3>
+          <p className="text-3xl font-black">
+            ${calculateRegionalPrice(tier as any, multiplier)}
+          </p>
+          <button className="bg-blue-600 text-white w-full py-2 mt-4 rounded">
+            Activate {tier} Node
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
