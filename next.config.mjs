@@ -24,10 +24,8 @@ const nextConfig = {
   },
 
   // Reduce serverless function size for Hobby plan
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/**/*': [],
-    },
+  outputFileTracingIncludes: {
+    '/api/**/*': [],
   },
 
   webpack: (config, { isServer }) => {
