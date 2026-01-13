@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { Building2, Key, Tool, MessageSquare } from 'lucide-react';
+import { Building2, Key, Wrench, MessageSquare } from 'lucide-react';
 
 export default function PropertyManagementSolutionPage() {
   return (
@@ -36,7 +36,7 @@ export default function PropertyManagementSolutionPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
           {[
             { icon: Key, title: "Leasing Assistant", desc: "Qualify leads and schedule showings 24/7 across all your listings." },
-            { icon: Tool, title: "Maintenance Triage", desc: "Categorize and prioritize repair requests before they reach your team." },
+            { icon: Wrench, title: "Maintenance Triage", desc: "Categorize and prioritize repair requests before they reach your team." },
             { icon: MessageSquare, title: "Tenant Relations", desc: "Instant answers to common tenant questions about policies and payments." }
           ].map((feature, i) => (
             <div key={i} className="p-8 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-brand-cyan/50 transition-colors">
