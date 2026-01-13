@@ -4,6 +4,9 @@ import { useTheme } from "next-themes";
 import LanguageSelectorMulti from "@/components/LanguageSelectorMulti";
 import { useEffect, useState } from "react";
 
+// Mock LanguageSwitcher if not imported
+const LanguageSwitcher = () => <LanguageSelectorMulti />;
+
 export function Topbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
