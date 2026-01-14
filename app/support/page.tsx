@@ -1,50 +1,86 @@
-import React from 'react';
-import { LifeBuoy, MessageSquare, Zap, Globe } from 'lucide-react';
+// app/support/page.tsx
+import type { Metadata } from "next";
+import Image from "next/image";
+import { getPageHero } from "@/lib/siteImages";
 
-/**
- * FRONTDESK AGENTS: GLOBAL REVENUE WORKFORCE 
- * SUPPORT HUB - MASTER CONTROLLER [cite: 2025-12-28]
- */
-export default function SupportHub() {
+export const metadata: Metadata = {
+  title: "Soporte | FrontDesk Agents",
+};
+
+export default function SupportPage() {
+  const hero = getPageHero("support");
   return (
-    <div className="p-8 max-w-6xl mx-auto relative z-10">
-      <header className="mb-12">
-        <h1 className="text-4xl font-black italic uppercase tracking-tighter">Workforce Support</h1>
-        <p className="text-brand-cyan font-mono text-[10px] uppercase tracking-[0.3em] mt-2">
-          Global Node Synchronization: Active [cite: 2025-12-24]
-        </p>
-      </header>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Node Optimization */}
-        <div className="titan-card flex flex-col items-center text-center group hover:border-brand-cyan/40 transition-all">
-          <Zap className="w-10 h-10 text-brand-cyan mb-4 group-hover:scale-110 transition-transform" />
-          <h3 className="text-white font-bold mb-2 uppercase text-xs tracking-widest">Node Optimization</h3>
-          <p className="text-slate-500 text-sm">Force resync your revenue fleet across all global market nodes [cite: 2025-12-24].</p>
-        </div>
-        
-        {/* Elite Tier Priority */}
-        <div className="titan-card flex flex-col items-center text-center border-brand-cyan/20 bg-brand-cyan/[0.02]">
-          <MessageSquare className="w-10 h-10 text-brand-cyan mb-4" />
-          <h3 className="text-white font-bold mb-2 uppercase text-xs tracking-widest">Priority Assistance</h3>
-          <p className="text-slate-500 text-sm">Dedicated 24/7 technical support for Elite Tier ($1,499) partners [cite: 2025-12-28].</p>
-        </div>
-        
-        {/* Knowledge Base */}
-        <div className="titan-card flex flex-col items-center text-center group hover:border-brand-cyan/40 transition-all">
-          <LifeBuoy className="w-10 h-10 text-brand-cyan mb-4 group-hover:rotate-12 transition-transform" />
-          <h3 className="text-white font-bold mb-2 uppercase text-xs tracking-widest">Fleet Protocols</h3>
-          <p className="text-slate-500 text-sm">Access the full API architecture for institutional workforce scaling [cite: 2025-12-28].</p>
-        </div>
-      </div>
+    <main className="min-h-screen bg-slate-950 text-slate-50 px-4 py-10 lg:px-8">
+      <section className="mx-auto max-w-3xl space-y-8">
+        <header className="space-y-2">
+          {hero && (
+            <div className="relative mb-6 aspect-[16/9] overflow-hidden rounded-2xl border border-slate-800">
+              <Image
+                src={hero.src}
+                alt={hero.alt}
+                width={1600}
+                height={900}
+                className="w-full h-auto rounded-xl object-cover"
+                priority
+              />
+            </div>
+          )}
+          <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
+            Support
+          </p>
+          {hero && (
+            <>
+              <h1 className="text-2xl font-semibold">
+                {hero.title}
+              </h1>
+              <p className="text-sm text-slate-400">
+                {hero.description}
+              </p>
+            </>
+          )}
+        </header>
 
-      {/* Local Platform Equity Note */}
-      <div className="mt-12 p-6 border border-white/5 rounded-2xl bg-white/[0.01] flex items-center gap-4">
-        <Globe className="w-5 h-5 text-brand-slate" />
-        <p className="text-xs text-brand-slate font-medium italic">
-          Supporting the Global Revenue Workforce in any market as a local operations platform [cite: 2025-12-24].
-        </p>
-      </div>
-    </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+            <p className="text-xs font-semibold text-slate-300 uppercase">
+              WhatsApp / Teléfono
+            </p>
+            <p className="text-sm text-slate-200">
+              +1 (216) 452-6636
+            </p>
+            <p className="text-xs text-slate-500">
+              Lunes a sábado, 9:00am – 7:30pm (CT).
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+            <p className="text-xs font-semibold text-slate-300 uppercase">
+              Email
+            </p>
+            <p className="text-sm text-slate-200">
+              support@frontdeskagents.com
+            </p>
+            <p className="text-xs text-slate-500">
+              Respondemos normalmente en menos de 24 horas.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+          <p className="text-xs font-semibold text-slate-300 uppercase">
+            Preguntas frecuentes (resumen)
+          </p>
+          <ul className="space-y-2 text-sm text-slate-300">
+            <li>• ¿Cómo conecto mi número de teléfono?</li>
+            <li>• ¿Cómo edito el script que usa Alex?</li>
+            <li>• ¿Cómo veo el resumen de llamadas y leads?</li>
+          </ul>
+          <p className="text-xs text-slate-500">
+            Más artículos y tutoriales vendrán aquí. Por ahora, te acompañamos
+            1 a 1 en el onboarding.
+          </p>
+        </div>
+      </section>
+    </main>
   );
 }
