@@ -5,7 +5,7 @@ import { getPageHero } from "@/lib/siteImages";
 
 export default function HomePage() {
   const hero = getPageHero("home");
-
+  
   return (
     <div className="space-y-10">
       <section className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
@@ -23,7 +23,6 @@ export default function HomePage() {
               </p>
             </>
           )}
-
           <div className="flex flex-wrap gap-3">
             <Link
               href="/setup"
@@ -38,14 +37,12 @@ export default function HomePage() {
               Book a live demo
             </Link>
           </div>
-
           <ul className="mt-4 space-y-1 text-xs text-slate-400">
             <li>• 24/7 AI phone agent + SMS follow-up</li>
             <li>• Outbound reactivation campaigns</li>
             <li>• No missed calls, no lost leads</li>
           </ul>
         </div>
-
         {hero && (
           <div>
             <Image
