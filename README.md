@@ -4,7 +4,7 @@ This repository is a **complete, deployable** Next.js (App Router) platform buil
 - EN/ES localization (next-intl + middleware)
 - Light/Dark mode (next-themes)
 - Fortune-500 style landing + pricing + demo + support + legal pages
-- Multi-location pricing calculator
+- Location-based pricing tiers
 - API-safe endpoints for demo/contact forms (returns JSON)
 
 ## Quick Start
