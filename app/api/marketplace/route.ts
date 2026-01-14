@@ -1,14 +1,24 @@
 /**
  * AI Marketplace API
+ * Status: Verified Global Hub - Tier: Elite
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { aiMarketplace } from '@/lib/marketplace/ai-marketplace';
 
+// CRITICAL: Force dynamic runtime to prevent build-time 'null' key errors
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
+
+    // Initializing Marketplace Logic
+    if (!aiMarketplace) {
+      throw new Error("Marketplace Engine failed to initialize. Check Supabase Keys.");
+    }
 
     if (action === 'search') {
       const query = searchParams.get('query') || '';
@@ -16,87 +26,74 @@ export async function GET(request: NextRequest) {
       const category = searchParams.get('category') || undefined;
       const minRating = searchParams.get('minRating') ? parseFloat(searchParams.get('minRating')!) : undefined;
       
-      const items = await aiMarketplace.search(query, {
-        type,
-        category,
-        minRating,
-      });
+      const items = await aiMarketplace.search(query, { type, category, minRating });
       return NextResponse.json({ success: true, data: items });
     }
 
     if (action === 'featured') {
-      const items = aiMarketplace.getFeaturedItems();
+      const items = await aiMarketplace.getFeaturedItems(); // Await added for consistency
       return NextResponse.json({ success: true, data: items });
     }
 
     if (action === 'popular') {
       const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 10;
-      const items = aiMarketplace.getPopularItems(limit);
+      const items = await aiMarketplace.getPopularItems(limit);
       return NextResponse.json({ success: true, data: items });
     }
 
     if (action === 'item') {
       const itemId = searchParams.get('itemId');
-      if (!itemId) {
-        return NextResponse.json({ error: 'Missing itemId' }, { status: 400 });
-      }
-      const item = aiMarketplace.getItem(itemId);
+      if (!itemId) return NextResponse.json({ error: 'Missing itemId' }, { status: 400 });
+      const item = await aiMarketplace.getItem(itemId);
       return NextResponse.json({ success: true, data: item });
     }
 
     if (action === 'agent_templates') {
-      const templates = aiMarketplace.getAllAgentTemplates();
+      const templates = await aiMarketplace.getAllAgentTemplates();
       return NextResponse.json({ success: true, data: templates });
     }
 
     if (action === 'agent_template') {
       const templateId = searchParams.get('templateId');
-      if (!templateId) {
-        return NextResponse.json({ error: 'Missing templateId' }, { status: 400 });
-      }
-      const template = aiMarketplace.getAgentTemplate(templateId);
+      if (!templateId) return NextResponse.json({ error: 'Missing templateId' }, { status: 400 });
+      const template = await aiMarketplace.getAgentTemplate(templateId);
       return NextResponse.json({ success: true, data: template });
     }
 
     if (action === 'workflow_templates') {
-      const templates = aiMarketplace.getAllWorkflowTemplates();
+      const templates = await aiMarketplace.getAllWorkflowTemplates();
       return NextResponse.json({ success: true, data: templates });
     }
 
     if (action === 'workflow_template') {
       const templateId = searchParams.get('templateId');
-      if (!templateId) {
-        return NextResponse.json({ error: 'Missing templateId' }, { status: 400 });
-      }
-      const template = aiMarketplace.getWorkflowTemplate(templateId);
+      if (!templateId) return NextResponse.json({ error: 'Missing templateId' }, { status: 400 });
+      const template = await aiMarketplace.getWorkflowTemplate(templateId);
       return NextResponse.json({ success: true, data: template });
     }
 
     if (action === 'categories') {
-      const categories = aiMarketplace.getCategories();
+      const categories = await aiMarketplace.getCategories();
       return NextResponse.json({ success: true, data: categories });
     }
 
     if (action === 'installed') {
       const customerId = searchParams.get('customerId');
-      if (!customerId) {
-        return NextResponse.json({ error: 'Missing customerId' }, { status: 400 });
-      }
+      if (!customerId) return NextResponse.json({ error: 'Missing customerId' }, { status: 400 });
       const items = await aiMarketplace.getInstalledItems(customerId);
       return NextResponse.json({ success: true, data: items });
     }
 
     if (action === 'reviews') {
       const itemId = searchParams.get('itemId');
-      if (!itemId) {
-        return NextResponse.json({ error: 'Missing itemId' }, { status: 400 });
-      }
+      if (!itemId) return NextResponse.json({ error: 'Missing itemId' }, { status: 400 });
       const reviews = await aiMarketplace.getReviews(itemId);
       return NextResponse.json({ success: true, data: reviews });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
+    console.error("Marketplace API Error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
