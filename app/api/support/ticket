@@ -1,0 +1,9 @@
+<div className="mt-4 p-4 rounded-xl bg-blue-500/10 border border-blue-400/20">
+  <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Regional Coverage</p>
+  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400">
+    <span>🇲🇽 Mexico City: 08:00 - 20:00</span>
+    <span>🇺🇸 New York: 09:00 - 21:00</span>
+    <span>🇨🇴 Bogotá: 08:00 - 20:00</span>
+    <span>🇧🇷 São Paulo: 10:00 - 22:00</span>
+  </div>
+</div>
