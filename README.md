@@ -39,3 +39,16 @@ Copy `.env.example` to `.env.local` and fill values as needed.
 
 - Auth/Billing UI is included (login/signup) but not wired to a provider by default.
 - Replace `/app/[locale]/terms` and `/app/[locale]/privacy` with attorney-reviewed documents.
+
+
+## Worldwide i18n
+
+This repo supports a wide set of locales (dozens of languages) via `next-intl` + middleware.
+- `en` and `es` are fully translated out of the box.
+- All other locales are enabled and will **safely fall back to English** until you add a messages file under `/messages/<locale>.json`.
+
+To add a new language:
+1) Create `messages/<locale>.json` by copying `messages/en.json`.
+2) Translate values.
+3) Deploy.
+
