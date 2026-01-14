@@ -18,6 +18,11 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET(request: NextRequest) {
   try {
+    // Ensure marketplace is initialized
+    if (typeof (aiMarketplace as any).init === 'function') {
+      await (aiMarketplace as any).init();
+    }
+
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 
@@ -99,6 +104,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Ensure marketplace is initialized
+    if (typeof (aiMarketplace as any).init === 'function') {
+      await (aiMarketplace as any).init();
+    }
+
     const body = await request.json();
     const { action, customerId, itemId, item } = body;
 

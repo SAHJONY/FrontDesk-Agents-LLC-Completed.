@@ -76,8 +76,20 @@ export class AIMarketplace {
   private templates: Map<string, AgentTemplate> = new Map();
   private workflowTemplates: Map<string, WorkflowTemplate> = new Map();
 
+  private initialized: Promise<void> | null = null;
+
   constructor() {
-    this.initializeMarketplace();
+    this.init();
+  }
+
+  /**
+   * Public initialization method to ensure marketplace is ready
+   */
+  public async init(): Promise<void> {
+    if (!this.initialized) {
+      this.initialized = this.initializeMarketplace();
+    }
+    return this.initialized;
   }
 
   /**
