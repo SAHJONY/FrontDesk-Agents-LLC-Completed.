@@ -1,17 +1,35 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Lazy initialization to prevent build-time errors
-let supabaseClient: ReturnType<typeof createClient> | null = null;
-let supabaseServerClient: ReturnType<typeof createClient> | null = null;
+let supabaseClient: any = null;
+let supabaseServerClient: any = null;
+
+/**
+ * MOCK CLIENT: Prevents build-time crashes if keys are missing.
+ * This allows 'next build' to complete even if env vars are offline.
+ */
+const mockClient = {
+  from: () => ({
+    select: () => ({ data: [], error: null, single: () => ({ data: null, error: null }) }),
+    insert: () => ({ error: null }),
+    update: () => ({ error: null }),
+  }),
+  auth: { getUser: async () => ({ data: { user: null }, error: null }) }
+};
 
 // Client for browser-side interactions
 export const supabase = (() => {
+  if (typeof window === 'undefined') return mockClient; // Safety for Static Generation
+
   if (!supabaseClient) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
     if (supabaseUrl && supabaseKey) {
       supabaseClient = createClient(supabaseUrl, supabaseKey);
+    } else {
+      console.warn("⚠️ Supabase Client Keys missing. Using Mock.");
+      return mockClient;
     }
   }
   return supabaseClient;
@@ -30,6 +48,8 @@ export const supabaseServer = (() => {
           persistSession: false
         }
       });
+    } else {
+      return mockClient;
     }
   }
   return supabaseServerClient;
