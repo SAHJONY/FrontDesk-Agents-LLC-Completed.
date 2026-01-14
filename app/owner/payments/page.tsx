@@ -1,4 +1,5 @@
 import React from 'react';
+import PaymentEntryPoints from '@/components/PaymentEntryPoints';
 
 export default function OwnerPayments() {
   return (
@@ -17,6 +18,11 @@ export default function OwnerPayments() {
           <h4 className="text-brand-slate text-[10px] font-bold uppercase mb-2">Pending Success Fees</h4>
           <p className="text-4xl font-black text-brand-cyan">+$18,250.00</p>
         </div>
+      </div>
+
+      <div className="mb-12">
+        <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-sm">Configure Payment Methods</h3>
+        <PaymentEntryPoints />
       </div>
 
       <div className="titan-card">

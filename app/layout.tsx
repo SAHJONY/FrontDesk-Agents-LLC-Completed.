@@ -7,6 +7,7 @@ import { AutonomousProvider } from '../lib/autonomous/provider';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from '../components/providers/ThemeProvider';
 import { LanguageProvider } from '../src/contexts/LanguageContext';
+import GlobalNavigation from '../components/GlobalNavigation';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,7 +29,14 @@ export default function RootLayout({
             <AuthProvider>
               <I18nProvider>
                 <AutonomousProvider>
-                  {children}
+                  <div className="flex min-h-screen flex-col">
+                    <GlobalNavigation />
+                    <div className="flex flex-1 pt-16 lg:pl-64">
+                      <main className="flex-1 p-4 lg:p-8">
+                        {children}
+                      </main>
+                    </div>
+                  </div>
                 </AutonomousProvider>
               </I18nProvider>
             </AuthProvider>
