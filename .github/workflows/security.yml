@@ -1,0 +1,60 @@
+name: "Sovereign Sentinel"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '30 4 * * 1'
+
+jobs:
+  analyze:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3 # Using v3 for compatibility until v4 full rollout
+      with:
+        languages: 'typescript, javascript'
+        queries: security-extended,security-and-quality
+
+    - name: Perform Analysis
+      uses: github/codeql-action/analyze@v3
+
+    - name: Audit Dependencies
+      run: npm audit --audit-level=high
+
+  notify:
+    name: Dispatch Security Status
+    needs: analyze
+    runs-on: ubuntu-latest
+    if: always() 
+    steps:
+      - name: Send Status to Mission Control
+        run: |
+          # Safeguard: If Webhook is missing, log warning instead of failing (prevents Exit Code 2)
+          if [ -z "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            echo "MISSION_CONTROL_OFFLINE: Discord Webhook URL not found. Skipping notification."
+            exit 0
+          fi
+
+          status="${{ needs.analyze.result }}"
+          if [ "$status" = "success" ]; then
+            emoji="🛡️"
+            msg="SOVEREIGN_SENTINEL: SCAN_CLEARED. Repository is secure."
+          else
+            emoji="🚨"
+            msg="SOVEREIGN_SENTINEL: SECURITY_BREACH_DETECTED. Logic integrity compromised."
+          fi
+          
+          curl -X POST -H 'Content-Type: application/json' \
+          --data "{\"content\": \"$emoji **$msg**\n**Branch:** ${{ github.ref_name }}\n**Commit:** ${{ github.sha }}\"}" \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
