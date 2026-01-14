@@ -104,7 +104,7 @@ export const frontdeskAgentsStrategy = {
       {
         name: "Starter",
         target: "Small Business / Single Vertical Focus",
-        monthly_price_range: "$249 - $349",
+        monthly_price_range: "$299",
         setup_fee_range: "$399 - $599",
         key_features:
           "Core Automation, Appointment Booking, Basic Lead Capture.",
@@ -112,7 +112,7 @@ export const frontdeskAgentsStrategy = {
       {
         name: "Pro",
         target: "Growing Business / Multi-Channel Needs",
-        monthly_price_range: "$699 - $999",
+        monthly_price_range: "$699",
         setup_fee_range: "$1,299 - $1,999",
         key_features:
           "Cross-Channel Contextual Memory, 2-Way CRM Sync, Dynamic Persona Shifting.",
@@ -120,7 +120,7 @@ export const frontdeskAgentsStrategy = {
       {
         name: "Enterprise",
         target: "High-Volume / Complex Needs",
-        monthly_price_range: "$1,999 - $4,999+",
+        monthly_price_range: "$2,499",
         setup_fee_range: "$3,500 - $7,500+",
         key_features:
           "Full Autonomous Task Execution (ATE), HIL Option, Custom Model Training.",

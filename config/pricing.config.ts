@@ -18,30 +18,30 @@ export interface PricingPlan {
 export const PRICING_TIERS: PricingPlan[] = [
   {
     id: 'basic' as unknown as Plan,
-    name: 'Basic',
+    name: 'Starter',
     price: 299,
-    description: 'Local platform parity for small operations.',
-    features: ['Node Access', 'Standard Telemetry', 'Email Support', 'Global Parity 1.0']
+    description: 'Perfect for small businesses and single locations.',
+    features: ['24/7 AI Receptionist', 'Natural-language intake', 'Call summaries + notes', 'Multi-language support (English/Spanish)']
   },
   {
     id: 'professional' as unknown as Plan,
     name: 'Professional',
     price: 699,
-    description: 'Enhanced workforce logic for growing teams.',
-    features: ['Custom Nodes', 'Live Activity Feed', 'Priority Support']
+    description: 'Complete AI workforce for 2-5 locations.',
+    features: ['Advanced Call Routing', '50+ Languages', 'Stripe Billing Integration', 'Priority Support (24/7)']
   },
   {
     id: 'growth' as unknown as Plan,
     name: 'Growth',
     price: 1299,
-    description: 'Full revenue velocity and advanced scaling.',
-    features: ['Revenue Analytics', 'Dedicated Dashboard', 'Multi-Market Integration']
+    description: 'Advanced AI workforce for 6-15 locations.',
+    features: ['Enterprise Dashboards', '100+ Languages', 'Full CRM Integrations', 'Dedicated Account Manager']
   },
   {
     id: 'elite' as unknown as Plan,
-    name: 'Elite',
+    name: 'Enterprise',
     price: 2499,
-    description: 'High-performance infrastructure for enterprise workforce.',
-    features: ['Unlimited Scale', '24/7 Dedicated Ops', 'Master Node Control']
+    description: 'Unlimited AI workforce for 16+ locations.',
+    features: ['Unlimited Scale', 'Custom Integrations', 'SOC 2-aligned Security', 'Dedicated Success Manager']
   }
 ];

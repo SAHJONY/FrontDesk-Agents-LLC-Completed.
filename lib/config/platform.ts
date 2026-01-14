@@ -8,7 +8,7 @@ export const PLATFORM_CONFIG = {
   identity: "Autonomous Front Office",
   tagline: "The Operating Layer for Revenue, Support, and Growth",
   pricing: {
-    anchor: 1499,
+    anchor: 2499,
     currency: "USD",
     category: "Infrastructure Operating Fee"
   },
