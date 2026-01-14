@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
 // Lazy load heavy components
@@ -9,7 +9,7 @@ const SecretsManager = dynamic(() => import('@/components/owner/SecretsManager')
   ssr: false,
 });
 
-// Simple icon components to replace lucide-react (reduces bundle size significantly)
+// Optimized icon components (no external dependencies)
 const CrownIcon = () => (
   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
     <path d="M12 2l3 7 7-3-3 7 3 7-7-3-3 7-3-7-7 3 3-7-3-7 7 3z" />
@@ -65,6 +65,12 @@ const AlertIcon = () => (
   </svg>
 );
 
+const SparklesIcon = () => (
+  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+  </svg>
+);
+
 export default function OwnerOversightPanel() {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -105,10 +111,11 @@ export default function OwnerOversightPanel() {
 
   if (loading || !dashboardData) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-900">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         <div className="text-center">
-          <RefreshIcon className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
+          <RefreshIcon className="w-12 h-12 text-sky-400 animate-spin mx-auto mb-4" />
           <p className="text-white text-lg">Loading Owner Command Center...</p>
+          <p className="text-slate-400 text-sm mt-2">Initializing real-time monitoring...</p>
         </div>
       </div>
     );
@@ -135,202 +142,256 @@ export default function OwnerOversightPanel() {
   ];
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto bg-slate-900 min-h-screen">
-      {/* Header with Owner Badge */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-            <CrownIcon />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Owner Dashboard</h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Platform Owner • Full Access
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-          <button
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm transition-colors ${
-              autoRefresh ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-400'
-            }`}
-          >
-            <RefreshIcon className={autoRefresh ? 'animate-spin' : ''} />
-            <span className="hidden sm:inline">Auto-refresh</span>
-          </button>
-
-          <div
-            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm ${
-              systemHealth.status === 'operational'
-                ? 'bg-green-500/20 text-green-400'
-                : 'bg-red-500/20 text-red-400'
-            }`}
-          >
-            <ActivityIcon />
-            <span className="font-semibold text-xs sm:text-sm">Operational</span>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Animated Background */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.05),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
       </div>
 
-      {/* System Health Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        {systemMetrics.map((metric, index) => {
-          const Icon = metric.icon;
-          return (
-            <div key={index} className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <span className="text-slate-400 text-xs sm:text-sm">{metric.label}</span>
-                <Icon />
+      {/* Navigation Bar */}
+      <nav className="relative z-10 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center">
+                <SparklesIcon />
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-white mb-1">{metric.value}</div>
-              <div className="flex items-center gap-1 text-xs text-green-400">
-                <CheckIcon />
-                <span>Healthy</span>
+              <div>
+                <h1 className="text-lg font-bold text-white">FrontDesk Agents</h1>
+                <p className="text-xs text-slate-400">Owner Console</p>
               </div>
             </div>
-          );
-        })}
-      </div>
+            <a
+              href="/demo-login"
+              className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              Switch Role
+            </a>
+          </div>
+        </div>
+      </nav>
 
-      {/* Live Active Calls */}
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-            <PhoneIcon />
-            Live Active Calls
-          </h2>
-          <span className="text-xs sm:text-sm text-slate-400">{activeCalls.length} calls</span>
+      <div className="relative z-10 p-4 sm:p-6 max-w-7xl mx-auto">
+        {/* Header with Owner Badge */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+              <CrownIcon />
+            </div>
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Owner Dashboard</h2>
+              <p className="text-slate-400 text-sm mt-1">Platform Owner • Full Access</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm transition-all ${
+                autoRefresh
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  : 'bg-slate-800/50 text-slate-400 border border-slate-700/50'
+              }`}
+            >
+              <RefreshIcon className={autoRefresh ? 'animate-spin' : ''} />
+              <span className="hidden sm:inline">Auto-refresh</span>
+            </button>
+
+            <div
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm border ${
+                systemHealth.status === 'operational'
+                  ? 'bg-green-500/20 text-green-400 border-green-500/30'
+                  : 'bg-red-500/20 text-red-400 border-red-500/30'
+              }`}
+            >
+              <ActivityIcon />
+              <span className="font-semibold text-xs sm:text-sm">Operational</span>
+            </div>
+          </div>
         </div>
 
-        {activeCalls.length > 0 ? (
-          <div className="space-y-3">
-            {activeCalls.map((call: any, index: number) => (
+        {/* System Health Metrics */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          {systemMetrics.map((metric, index) => {
+            const Icon = metric.icon;
+            return (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 sm:p-4 bg-slate-900/50 rounded-lg border border-slate-700"
+                className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4 sm:p-6 backdrop-blur-sm hover:border-sky-500/50 transition-all"
               >
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
-                  <div className="min-w-0">
-                    <div className="font-semibold text-white text-sm sm:text-base truncate">{call.agent}</div>
-                    <div className="text-xs sm:text-sm text-slate-400 truncate">{call.customer}</div>
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <span className="text-slate-400 text-xs sm:text-sm">{metric.label}</span>
+                  <div className="text-sky-400">
+                    <Icon />
                   </div>
                 </div>
+                <div className="text-xl sm:text-2xl font-bold text-white mb-1">{metric.value}</div>
+                <div className="flex items-center gap-1 text-xs text-green-400">
+                  <CheckIcon />
+                  <span>Healthy</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-                <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                  <div className="text-right">
-                    <div className="text-xs text-slate-400">Duration</div>
-                    <div className="font-semibold text-white text-sm">
-                      {Math.floor(call.duration / 60)}:{(call.duration % 60).toString().padStart(2, '0')}
+        {/* Live Active Calls */}
+        <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+              <PhoneIcon />
+              Live Active Calls
+            </h3>
+            <span className="text-xs sm:text-sm text-slate-400 bg-slate-900/50 px-3 py-1 rounded-full">
+              {activeCalls.length} calls
+            </span>
+          </div>
+
+          {activeCalls.length > 0 ? (
+            <div className="space-y-3">
+              {activeCalls.map((call: any, index: number) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 sm:p-4 bg-slate-900/30 rounded-lg border border-slate-700/50 hover:border-sky-500/30 transition-all"
+                >
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="font-semibold text-white text-sm sm:text-base truncate">
+                        {call.agent}
+                      </div>
+                      <div className="text-xs sm:text-sm text-slate-400 truncate">{call.customer}</div>
                     </div>
                   </div>
 
-                  <button className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                    <EyeIcon />
-                  </button>
+                  <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                    <div className="text-right">
+                      <div className="text-xs text-slate-400">Duration</div>
+                      <div className="font-semibold text-sky-400 text-sm">
+                        {Math.floor(call.duration / 60)}:{(call.duration % 60).toString().padStart(2, '0')}
+                      </div>
+                    </div>
+
+                    <button className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+                      <EyeIcon />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-slate-400 text-sm">No active calls at the moment</div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-8">
-        {/* Recent Activity */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-              <AlertIcon />
-              Recent Activity
-            </h2>
-          </div>
-
-          <div className="space-y-3">
-            {recentActivity.map((activity: any, index: number) => (
-              <div
-                key={index}
-                className={`p-3 sm:p-4 rounded-lg border text-sm ${
-                  activity.type === 'success'
-                    ? 'bg-green-500/10 border-green-500/30'
-                    : activity.type === 'warning'
-                    ? 'bg-yellow-500/10 border-yellow-500/30'
-                    : 'bg-cyan-500/10 border-cyan-500/30'
-                }`}
-              >
-                <p className="text-white">{activity.message}</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  {activity.agent} • {activity.time}
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-slate-900/20 rounded-lg border border-dashed border-slate-700">
+              <PhoneIcon />
+              <p className="text-slate-400 text-sm mt-3">No active calls at the moment</p>
+            </div>
+          )}
         </div>
 
-        {/* Revenue Breakdown */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-              <DollarIcon />
-              Revenue Breakdown
-            </h2>
-            <span className="text-xs sm:text-sm text-slate-400">Monthly Recurring</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          {/* Recent Activity */}
+          <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                <AlertIcon />
+                Recent Activity
+              </h3>
+            </div>
+
+            <div className="space-y-3">
+              {recentActivity.map((activity: any, index: number) => (
+                <div
+                  key={index}
+                  className={`p-3 sm:p-4 rounded-lg border text-sm ${
+                    activity.type === 'success'
+                      ? 'bg-green-500/10 border-green-500/30'
+                      : activity.type === 'warning'
+                      ? 'bg-yellow-500/10 border-yellow-500/30'
+                      : 'bg-sky-500/10 border-sky-500/30'
+                  }`}
+                >
+                  <p className="text-white">{activity.message}</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {activity.agent} • {activity.time}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-4">
-            {revenue.breakdown.map((item: any, index: number) => (
-              <div key={index}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white font-medium text-sm">
-                    {item.tier} ({item.customers})
-                  </span>
-                  <span className="text-green-400 font-semibold text-sm">
-                    ${item.revenue.toLocaleString()}
-                  </span>
+          {/* Revenue Breakdown */}
+          <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                <DollarIcon />
+                Revenue Breakdown
+              </h3>
+              <span className="text-xs sm:text-sm text-slate-400">Monthly Recurring</span>
+            </div>
+
+            <div className="space-y-4">
+              {revenue.breakdown.map((item: any, index: number) => (
+                <div key={index}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white font-medium text-sm">
+                      {item.tier} <span className="text-slate-400">({item.customers})</span>
+                    </span>
+                    <span className="text-green-400 font-semibold text-sm">
+                      ${item.revenue.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                    <div
+                      style={{ width: `${item.percentage}%` }}
+                      className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500"
+                    />
+                  </div>
                 </div>
-                <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    style={{ width: `${item.percentage}%` }}
-                    className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500"
-                  />
-                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-slate-700/50">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400 font-medium text-sm">Total MRR</span>
+                <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                  ${revenue.mrr.toLocaleString()}
+                </span>
               </div>
-            ))}
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-slate-700">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 font-medium text-sm">Total MRR</span>
-              <span className="text-2xl sm:text-3xl font-bold text-white">
-                ${revenue.mrr.toLocaleString()}
-              </span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Secrets Manager - Lazy Loaded */}
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 sm:p-6">
-        <button
-          onClick={() => setShowSecrets(!showSecrets)}
-          className="w-full flex items-center justify-between text-left"
-        >
-          <h2 className="text-lg sm:text-xl font-bold text-white">Environment Secrets</h2>
-          <span className="text-slate-400 text-sm">{showSecrets ? 'Hide' : 'Show'}</span>
-        </button>
-        
-        {showSecrets && (
-          <div className="mt-4">
-            <Suspense fallback={<div className="animate-pulse bg-slate-700/50 rounded-lg h-64" />}>
-              <SecretsManager />
-            </Suspense>
-          </div>
-        )}
+        {/* Secrets Manager - Lazy Loaded */}
+        <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+          <button
+            onClick={() => setShowSecrets(!showSecrets)}
+            className="w-full flex items-center justify-between text-left group"
+          >
+            <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-sky-400 transition-colors">
+              Environment Secrets
+            </h3>
+            <span className="text-slate-400 text-sm group-hover:text-sky-400 transition-colors">
+              {showSecrets ? 'Hide' : 'Show'}
+            </span>
+          </button>
+
+          {showSecrets && (
+            <div className="mt-4">
+              <Suspense
+                fallback={
+                  <div className="animate-pulse bg-slate-700/30 rounded-lg h-64 flex items-center justify-center">
+                    <RefreshIcon className="w-8 h-8 text-sky-400 animate-spin" />
+                  </div>
+                }
+              >
+                <SecretsManager />
+              </Suspense>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
 // Optimized build - Reduced bundle size by 60%+ using custom icons instead of lucide-react
