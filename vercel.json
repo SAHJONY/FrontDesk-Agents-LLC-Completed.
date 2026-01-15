@@ -1,38 +1,34 @@
 {
   "version": 2,
-  "buildCommand": "next build",
   "framework": "nextjs",
+  "buildCommand": "next build",
   "regions": ["iad1"],
+
   "build": {
     "env": {
-      "NEXT_TELEMETRY_DISABLED": "1",
-      "SKIP_ENV_VALIDATION": "1"
+      "NEXT_TELEMETRY_DISABLED": "1"
     }
   },
+
   "crons": [
     {
       "path": "/api/cron/daily-digest",
       "schedule": "0 8 * * *"
     }
   ],
+
   "functions": {
     "app/api/cron/daily-digest/route.ts": {
-      "maxDuration": 60,
-      "memory": 1024
+      "maxDuration": 60
     },
     "app/api/wholesale/sync-bulk-secrets/route.ts": {
-      "maxDuration": 30,
-      "memory": 512
-    },
-    "app/**/*.tsx": {
-      "maxDuration": 60,
-      "memory": 1024
+      "maxDuration": 30
     },
     "app/api/**/*.ts": {
-      "maxDuration": 60,
-      "memory": 1024
+      "maxDuration": 60
     }
   },
+
   "headers": [
     {
       "source": "/(.*)",
@@ -43,24 +39,27 @@
           "key": "Strict-Transport-Security",
           "value": "max-age=31536000; includeSubDomains"
         },
-        {
-          "key": "X-Platform-Engine",
-          "value": "Internal-Workforce-Engine"
-        }
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        { "key": "X-Platform-Engine", "value": "Internal-Workforce-Engine" }
       ]
     },
+
     {
       "source": "/api/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://frontdeskagents.com"
+        },
         {
           "key": "Access-Control-Allow-Methods",
-          "value": "GET,DELETE,PATCH,POST,PUT"
+          "value": "GET,DELETE,PATCH,POST,PUT,OPTIONS"
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+          "value": "Authorization, Content-Type, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version"
         }
       ]
     }
