@@ -1,15 +1,27 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-01-27" as any, // Updated for 2026 stability
-});
+// Initialize Stripe outside the handler but don't force it to be non-null yet
+// This prevents the build from crashing if the env var is missing during CI/CD
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeKey 
+  ? new Stripe(stripeKey, { apiVersion: "2025-01-27" as any }) 
+  : null;
 
 export async function POST(req: Request) {
   try {
+    // 1. Safety Check: Ensure Stripe is initialized
+    if (!stripe) {
+      console.error("CRITICAL: STRIPE_SECRET_KEY is not defined in environment variables.");
+      return NextResponse.json(
+        { error: "Stripe is not configured on this deployment." },
+        { status: 500 }
+      );
+    }
+
     const { planName } = await req.json();
 
-    // Map plan names to their dollar values (Location-Based Model)
+    // 2. Map plan names to their dollar values (Location-Based Model)
     const priceMap: Record<string, number> = {
       Starter: 299,
       Professional: 699,
@@ -17,8 +29,9 @@ export async function POST(req: Request) {
       Enterprise: 2499,
     };
 
-    const amount = priceMap[planName] || 299; // Default to Starter if error
+    const amount = priceMap[planName] || 299; // Default to Starter if planName is invalid
 
+    // 3. Create the Subscription Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -36,15 +49,21 @@ export async function POST(req: Request) {
         },
       ],
       mode: "subscription",
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
-      // 15% Marketplace Fee logic can be injected here for sub-accounts
-      metadata: { plan: planName },
+      // Ensure NEXT_PUBLIC_SITE_URL is set in Vercel, or fallback to a relative path check
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/pricing`,
+      metadata: { 
+        plan: planName,
+        marketplace_fee: "15%" // Logic placeholder for workforce revenue share
+      },
     });
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
     console.error("Stripe Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" }, 
+      { status: 500 }
+    );
   }
 }
