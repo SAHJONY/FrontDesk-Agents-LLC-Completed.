@@ -4,6 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+// We import the managers. Ensure that inside '@/lib/enterprise/enterprise-features',
+// the Supabase client is initialized lazily or handles null URLs gracefully.
 import {
   ssoManager,
   rbacManager,
@@ -11,8 +14,17 @@ import {
   complianceManager,
 } from '@/lib/enterprise/enterprise-features';
 
+// Utility to verify environment is ready
+const isDbConfigured = !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
 export async function GET(request: NextRequest) {
   try {
+    // 1. Build-time safety check
+    if (!isDbConfigured) {
+      console.warn("Database credentials missing. Skipping enterprise action.");
+      return NextResponse.json({ error: 'Database configuration missing' }, { status: 503 });
+    }
+
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
     const customerId = searchParams.get('customerId');
@@ -102,12 +114,17 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
+    console.error("Enterprise GET Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isDbConfigured) {
+      return NextResponse.json({ error: 'Database configuration missing' }, { status: 503 });
+    }
+
     const body = await request.json();
     const { action } = body;
 
@@ -172,6 +189,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
+    console.error("Enterprise POST Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
