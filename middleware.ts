@@ -21,15 +21,23 @@ const publicRoutes = [
   '/onboarding',
 ];
 
+// Routes that MUST be protected (owner/ops areas)
+const protectedPrefixes = ['/owner', '/dashboard', '/admin'];
+
 // Check if route is public
 function isPublicRoute(pathname: string): boolean {
   // API routes are always public (they handle their own auth)
   if (pathname.startsWith('/api/')) return true;
-  
+
   return publicRoutes.some(route => {
     if (route === '/') return pathname === '/';
     return pathname.startsWith(route);
   });
+}
+
+// Check if route is protected
+function isProtectedRoute(pathname: string): boolean {
+  return protectedPrefixes.some(prefix => pathname === prefix || pathname.startsWith(prefix + '/'));
 }
 
 export function middleware(request: NextRequest) {
@@ -49,8 +57,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if user has auth token cookie
-  const token = request.cookies.get('auth-token');
+  // Only enforce auth for protected areas (prevents accidental lockouts)
+  if (!isProtectedRoute(pathname)) {
+    return NextResponse.next();
+  }
+
+  // Check if user has auth session cookie (aligned with backend)
+  // IMPORTANT: this must match the cookie set by /api/auth/login
+  const token = request.cookies.get('fd_owner_session');
 
   // If no token and trying to access protected route, redirect to login
   if (!token) {
