@@ -1,0 +1,102 @@
+{
+  "generatedAt": "2026-01-16T00:00:00Z",
+  "description": "Manifest de imágenes usadas por la app. Mantener actualizado si se renombran/mueven archivos. Rutas alineadas a /public/images -> /images/*",
+  "images": [
+    {
+      "key": "heroMain",
+      "paths": { "jpg": "/images/hero-main.jpg" },
+      "alt": "Hero — FrontDesk Agents",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "dashboardPreview",
+      "paths": { "png": "/images/dashboard-preview.png" },
+      "alt": "Dashboard preview — FrontDesk Agents",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "featureAnalytics",
+      "paths": { "jpg": "/images/feature-analytics.jpg" },
+      "alt": "Feature — Analytics",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "featureMessaging",
+      "paths": { "jpg": "/images/feature-messaging.jpg" },
+      "alt": "Feature — Messaging",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "featureVoice",
+      "paths": { "jpg": "/images/feature-voice.jpg" },
+      "alt": "Feature — Voice",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "logoFrontDesk",
+      "paths": { "png": "/images/logo-frontdesk.png" },
+      "alt": "FrontDesk Agents logo",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "solutionLegal",
+      "paths": { "jpg": "/images/solution-legal.jpg" },
+      "alt": "Solution — Legal",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "solutionMedical",
+      "paths": { "jpg": "/images/solution-medical.jpg" },
+      "alt": "Solution — Medical",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "solutionProperty",
+      "paths": { "jpg": "/images/solution-property.jpg" },
+      "alt": "Solution — Property",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "testimonialCEO",
+      "paths": { "jpg": "/images/testimonial-ceo.jpg" },
+      "alt": "Testimonial — CEO",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "testimonialDoctor",
+      "paths": { "jpg": "/images/testimonial-doctor.jpg" },
+      "alt": "Testimonial — Doctor",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    },
+    {
+      "key": "testimonialLawyer",
+      "paths": { "jpg": "/images/testimonial-lawyer.jpg" },
+      "alt": "Testimonial — Lawyer",
+      "width": null,
+      "height": null,
+      "lastCommit": null
+    }
+  ]
+}
