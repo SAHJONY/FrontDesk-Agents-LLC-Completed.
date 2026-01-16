@@ -8,6 +8,19 @@
       "NEXT_TELEMETRY_DISABLED": "1"
     }
   },
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "frontdeskagents.com"
+        }
+      ],
+      "destination": "https://www.frontdeskagents.com/$1",
+      "permanent": true
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron/daily-digest",
