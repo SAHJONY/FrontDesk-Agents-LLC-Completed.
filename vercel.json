@@ -3,20 +3,17 @@
   "framework": "nextjs",
   "buildCommand": "next build",
   "regions": ["iad1"],
-
   "build": {
     "env": {
       "NEXT_TELEMETRY_DISABLED": "1"
     }
   },
-
   "crons": [
     {
       "path": "/api/cron/daily-digest",
       "schedule": "0 8 * * *"
     }
   ],
-
   "functions": {
     "app/api/cron/daily-digest/route.ts": {
       "maxDuration": 60
@@ -28,7 +25,6 @@
       "maxDuration": 60
     }
   },
-
   "headers": [
     {
       "source": "/(.*)",
@@ -44,19 +40,12 @@
         { "key": "X-Platform-Engine", "value": "Internal-Workforce-Engine" }
       ]
     },
-
     {
       "source": "/api/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "https://frontdeskagents.com"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET,DELETE,PATCH,POST,PUT,OPTIONS"
-        },
+        { "key": "Access-Control-Allow-Origin", "value": "https://frontdeskagents.com" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,DELETE,PATCH,POST,PUT,OPTIONS" },
         {
           "key": "Access-Control-Allow-Headers",
           "value": "Authorization, Content-Type, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version"
