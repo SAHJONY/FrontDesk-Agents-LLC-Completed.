@@ -2,15 +2,45 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireSupabaseServer } from '@/lib/supabase-server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
-});
+// Force this route to be dynamic to prevent static generation during build
+export const dynamic = 'force-dynamic';
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+// Initialize Stripe lazily to avoid crashing during build if env vars are missing
+const getStripe = () => {
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    return null;
+  }
+  return new Stripe(stripeKey, {
+    apiVersion: '2024-12-18.acacia',
+  });
+};
+
+const getWebhookSecret = () => process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(request: NextRequest) {
+  const stripe = getStripe();
+  const webhookSecret = getWebhookSecret();
+
+  if (!stripe || !webhookSecret) {
+    console.error('❌ Stripe or Webhook Secret is not configured');
+    return NextResponse.json(
+      { error: 'Stripe configuration missing' },
+      { status: 500 }
+    );
+  }
+
   // Initialize supabase at the top of the handler
-  const supabase = requireSupabaseServer();
+  let supabase;
+  try {
+    supabase = requireSupabaseServer();
+  } catch (error: any) {
+    console.error('❌ Supabase initialization failed:', error.message);
+    return NextResponse.json(
+      { error: 'Database configuration missing' },
+      { status: 500 }
+    );
+  }
   
   try {
     const body = await request.text();
