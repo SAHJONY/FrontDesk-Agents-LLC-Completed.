@@ -1,46 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireSupabaseServer } from '@/lib/supabase-server';
 import Stripe from 'stripe';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2024-11-20.acacia',
+});
 
-function getStripe(): Stripe | null {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) return null;
-  return new Stripe(key, { apiVersion: '2024-12-18.acacia' });
-}
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-export async function POST(request: NextRequest) {
-  const supabase = requireSupabaseServer();
+export async function POST(req: NextRequest) {
   try {
-    const stripe = getStripe();
-    if (!stripe) {
-      return NextResponse.json(
-        { error: 'Stripe is not configured (missing STRIPE_SECRET_KEY).' },
-        { status: 503 }
-      );
-    }
+    const body = await req.text();
+    const signature = req.headers.get('stripe-signature');
 
-    const body = await request.json();
-    const { customerId, priceId, trialDays } = body;
-
-    if (!customerId || !priceId) {
+    if (!signature || !webhookSecret) {
       return NextResponse.json(
-        { error: 'customerId and priceId are required' },
+        { error: 'Missing signature or webhook secret' },
         { status: 400 }
       );
     }
 
-    // ... tu lógica actual (create subscription en Stripe, guardar en Supabase, etc.)
-    // IMPORTANTE: usa `stripe` solo aquí dentro.
+    const event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      webhookSecret
+    );
 
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Subscriptions API Error:', error);
+    // Handle the event
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object;
+        console.log('Checkout session completed:', session.id);
+        break;
+      
+      case 'customer.subscription.updated':
+        const subscription = event.data.object;
+        console.log('Subscription updated:', subscription.id);
+        break;
+      
+      case 'customer.subscription.deleted':
+        const deletedSub = event.data.object;
+        console.log('Subscription deleted:', deletedSub.id);
+        break;
+      
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error('Webhook error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error?.message },
-      { status: 500 }
+      { error: 'Webhook handler failed' },
+      { status: 400 }
     );
   }
 }
