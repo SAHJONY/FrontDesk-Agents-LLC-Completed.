@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "preinstall": "pnpm approve-builds --yes",
     "postinstall": "pnpm approve-builds --yes",
     "build": "NODE_OPTIONS=\"--require ./scripts/prebuild.js\" next build",
     "start": "next start",
