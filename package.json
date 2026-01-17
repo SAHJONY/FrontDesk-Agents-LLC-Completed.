@@ -75,5 +75,48 @@
     "Professional": 699,
     "Growth": 1299,
     "Enterprise": 2499
+  },
+  "plan_details": {
+    "Starter": {
+      "price": 299,
+      "locations": "1 Location",
+      "features": [
+        "24/7 AI Receptionist",
+        "Call Summaries & Notes",
+        "Natural Language Intake",
+        "Standard CRM Basics"
+      ]
+    },
+    "Professional": {
+      "price": 699,
+      "locations": "2–5 Locations",
+      "popular": true,
+      "features": [
+        "Multi-staff Scheduling",
+        "Voicemail Transcription",
+        "Advanced Analytics",
+        "TCPA/DNC Support"
+      ]
+    },
+    "Growth": {
+      "price": 1299,
+      "locations": "6–15 Locations",
+      "features": [
+        "Multi-language Support",
+        "CRM Connectors",
+        "Audit Logs",
+        "99.9% SLA"
+      ]
+    },
+    "Enterprise": {
+      "price": 2499,
+      "locations": "16+ Locations",
+      "features": [
+        "White-labeling",
+        "SSO (SAML) Integration",
+        "Dedicated Tenant",
+        "99.99% SLA"
+      ]
+    }
   }
 }
