@@ -5,9 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "preinstall": "pnpm approve-builds --yes",
-    "postinstall": "pnpm approve-builds --yes",
-    "build": "NODE_OPTIONS=\"--require ./scripts/prebuild.js\" next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "prepare": "node -e \"if(process.env.NODE_ENV!=='production'){try{require('husky').install()}catch(e){}}\""
@@ -73,9 +71,9 @@
     "typescript": "^5.7.2"
   },
   "pricing_tiers": {
-    "Basic": 199,
-    "Professional": 399,
-    "Growth": 799,
-    "Elite": 1499
+    "Starter": 299,
+    "Professional": 699,
+    "Growth": 1299,
+    "Enterprise": 2499
   }
 }
