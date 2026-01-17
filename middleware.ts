@@ -2,45 +2,39 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-/**
- * PUBLIC ROUTES
- * Everything here MUST be accessible without auth
- */
-const PUBLIC_ROUTES = [
+const PUBLIC_PREFIXES = [
   "/",
   "/pricing",
   "/demo",
   "/support",
-  "/terms",
+  "/features",
+  "/industries",
+  "/solutions",
+  "/legal",
   "/privacy",
+  "/terms",
   "/login",
   "/signup",
+  "/forgot-password",
+  "/_not-found",
 ];
 
-/**
- * Allow static & Next internals
- */
 function isPublic(pathname: string) {
   if (pathname.startsWith("/_next")) return true;
-  if (pathname.startsWith("/api")) return true;
   if (pathname.startsWith("/favicon")) return true;
   if (pathname.startsWith("/images")) return true;
-  return PUBLIC_ROUTES.includes(pathname);
+  if (pathname.startsWith("/api")) return true; // IMPORTANT: don't auth-gate APIs here yet
+  return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // ✅ Public pages: DO NOT TOUCH
-  if (isPublic(pathname)) {
-    return NextResponse.next();
-  }
+  // ✅ Never block public routes
+  if (isPublic(pathname)) return NextResponse.next();
 
-  /**
-   * 🔒 Private area (future)
-   * For now, we ALLOW access to avoid login loop
-   * until auth is fully wired.
-   */
+  // ✅ TEMPORARY: stop redirect loops until auth is stable
+  // Later we will protect /dashboard and /settings only.
   return NextResponse.next();
 }
 
