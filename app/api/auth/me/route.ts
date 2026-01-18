@@ -1,102 +1,44 @@
-import { NextResponse } from 'next/server';
-import { verifyOwnerToken } from '@/lib/auth/owner-auth';
-import jwt from 'jsonwebtoken';
-import { requireSupabaseServer } from '@/lib/supabase-server';
+import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+function getToken(cookieHeader: string) {
+  const pick = (name: string) => {
+    const m = cookieHeader.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return m ? decodeURIComponent(m[1]) : null;
+  };
+  return pick("auth-token") || pick("token") || pick("fd_session") || pick("access_token") || null;
+}
 
 export async function GET(req: Request) {
-  const supabase = requireSupabaseServer();
-
-  // Ensure the Supabase client is available for all paths
-  if (!supabase) {
-    return NextResponse.json(
-      { message: 'Supabase client not initialized' },
-      { status: 500 }
-    );
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    return NextResponse.json({ authenticated: false, error: "Server missing JWT_SECRET" }, { status: 500 });
   }
+
+  const cookieHeader = req.headers.get("cookie") || "";
+  const token = getToken(cookieHeader);
+
+  if (!token) return NextResponse.json({ authenticated: false }, { status: 200 });
+
   try {
-    // Extract token from Authorization header
-    const authHeader = req.headers.get('Authorization');
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { message: 'No token provided' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-    const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
-
-    // Verify and decode token
-    let decoded: any;
-    try {
-      decoded = jwt.verify(token, jwtSecret);
-    } catch (error) {
-      return NextResponse.json(
-        { message: 'Invalid token' },
-        { status: 401 }
-      );
-    }
-
-    // Check if this is an owner token
-    if (decoded.role === 'owner') {
-      const result = await verifyOwnerToken(token);
-      
-      if (!result.success) {
-        return NextResponse.json(
-          { message: result.error || 'Token verification failed' },
-          { status: 401 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        user: result.user,
-      });
-    }
-
-    // Regular user token verification
-
-
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', decoded.userId)
-      .single();
-
-    if (error || !user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 401 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.full_name || user.name,
-        role: user.role || 'user',
-        tenant: {
-          id: user.id,
-          companyName: user.company_name || 'Default Company',
-          subdomain: user.subdomain || 'default',
-          tier: user.tier || 'basic',
-          status: user.status || 'active',
-          regionalMultiplier: 1,
-          countryCode: 'US',
-          currencyCode: 'USD',
-        },
-      },
-    });
-
-  } catch (error) {
-    console.error('Auth verification error:', error);
+    const payload = jwt.verify(token, jwtSecret) as any;
     return NextResponse.json(
-      { message: 'Authentication failed' },
-      { status: 500 }
+      {
+        authenticated: true,
+        user: {
+          id: payload.userId,
+          email: payload.email,
+          tenantId: payload.tenantId ?? null,
+        },
+        role: payload.role ?? null,
+        tier: payload.tier ?? null,
+      },
+      { status: 200 }
     );
+  } catch {
+    return NextResponse.json({ authenticated: false }, { status: 200 });
   }
 }
