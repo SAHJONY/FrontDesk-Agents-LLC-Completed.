@@ -1,18 +1,42 @@
 'use client';
-
 import { useState } from 'react';
-// IMPORT FROM THE NEW SERVER ACTIONS FILE
-import { impersonateTenant } from '@/lib/admin-server-actions';
 import { 
   MagnifyingGlassIcon, 
   CurrencyDollarIcon, 
   CpuChipIcon, 
-  UsersIcon 
+  UsersIcon,
+  Loader2
 } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
 
 export default function TenantOverview({ initialData }: { initialData: any }) {
   const [search, setSearch] = useState('');
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const router = useRouter();
+  
   const { tenants, stats } = initialData;
+
+  const handleImpersonate = async (ownerId: string) => {
+    setLoadingId(ownerId);
+    try {
+      const res = await fetch('/api/admin/impersonate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ownerId }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        router.push(data.redirectUrl);
+      } else {
+        alert(data.error || 'Failed to impersonate');
+      }
+    } catch (err) {
+      alert('Network error occurred');
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   const filteredTenants = tenants.filter((t: any) => 
     t.name.toLowerCase().includes(search.toLowerCase())
@@ -22,24 +46,19 @@ export default function TenantOverview({ initialData }: { initialData: any }) {
     <div className="space-y-8">
       {/* --- STATS RIBBON --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard 
-          title="Total Platform MRR" 
-          value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(stats.totalMrr)} 
-          icon={<CurrencyDollarIcon className="h-6 w-6 text-green-600"/>} 
-          color="bg-green-50" 
-        />
-        <StatCard title="Total AI Agents" value={stats.totalAgents} icon={<CpuChipIcon className="h-6 w-6 text-blue-600"/>} color="bg-blue-50" />
-        <StatCard title="Active Tenants" value={tenants.length} icon={<UsersIcon className="h-6 w-6 text-purple-600"/>} color="bg-purple-50" />
+        <StatCard title="Platform MRR" value={`$${stats.totalMrr}`} icon={<CurrencyDollarIcon className="h-6 w-6 text-green-600"/>} color="bg-green-50" />
+        <StatCard title="AI Agents" value={stats.totalAgents} icon={<CpuChipIcon className="h-6 w-6 text-blue-600"/>} color="bg-blue-50" />
+        <StatCard title="Tenants" value={tenants.length} icon={<UsersIcon className="h-6 w-6 text-purple-600"/>} color="bg-purple-50" />
       </div>
 
       {/* --- SEARCH --- */}
       <div className="relative max-w-md">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
           <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
         </div>
         <input
           type="text"
-          placeholder="Search tenants..."
+          placeholder="Search by company name..."
           className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 sm:text-sm"
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -50,23 +69,20 @@ export default function TenantOverview({ initialData }: { initialData: any }) {
         {filteredTenants.map((tenant: any) => (
           <div key={tenant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
             <div>
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-gray-900">{tenant.name}</h3>
-                <span className="px-2 py-1 bg-gray-100 text-xs font-semibold rounded text-gray-600">
-                  ID: {tenant.id.slice(0, 8)}
-                </span>
-              </div>
-              <div className="space-y-2 text-sm text-gray-500">
-                <p>Owner ID: {tenant.owner_id}</p>
-                <p>Created: {new Date(tenant.created_at).toLocaleDateString()}</p>
-              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{tenant.name}</h3>
+              <p className="text-xs text-gray-400 font-mono mb-4 uppercase">UID: {tenant.owner_id.slice(0, 12)}...</p>
             </div>
             
             <button 
-              onClick={() => impersonateTenant(tenant.owner_id)} 
-              className="mt-6 w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2.5 rounded-lg transition-colors"
+              onClick={() => handleImpersonate(tenant.owner_id)}
+              disabled={loadingId === tenant.owner_id}
+              className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg flex justify-center items-center transition-all"
             >
-              Enter Dashboard
+              {loadingId === tenant.owner_id ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                'Enter Dashboard'
+              )}
             </button>
           </div>
         ))}
