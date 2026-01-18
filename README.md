@@ -1,19 +1,18 @@
-FrontDesk Agents — Build + Auth Loop Fix Pack
+FrontDesk Agents — Login Fix Pack (Upload to GitHub)
 
-What this fixes
-1) Login loop / session_expired redirects on public pages
-- Updated middleware.ts so PUBLIC routes never redirect to /login.
-- Temporarily allows non-public routes while you debug session validation.
+What this pack does
+1) Stops middleware redirect loops (public routes are always allowed)
+2) Ensures /api/auth/login sets an HTTP-only auth-token cookie
+3) Adds /api/auth/me that validates auth-token via JWT_SECRET
+4) Adds a compatibility stub for /api/auth/session to prevent silent false-auth
 
-2) Build error: `ReferenceError: motion is not defined` when building `/`
-- Most likely root cause: `"use client";` was not the very first statement in app/page.tsx.
-- Apply the included patch to remove the leading comment line so Next.js correctly treats the page as a Client Component.
+Required ENV variables (Vercel Project Settings → Environment Variables)
+- NEXT_PUBLIC_SUPABASE_URL
+- SUPABASE_SERVICE_ROLE_KEY
+- JWT_SECRET
+Optional
+- AUTH_DEBUG=1   (temporary, for server logs)
 
-How to apply
-A) Replace your repo middleware.ts with the middleware.ts in this zip.
-B) Apply patches/app-page.patch (or manually delete the first line `// app/page.tsx` so `"use client";` is first).
-C) Redeploy on Vercel.
-
-AUTH_DEBUG
-- Set AUTH_DEBUG=1 in Vercel Project Env Vars (Preview + Production) to see middleware logs.
-- Where it appears: Vercel deployment logs / Function logs for requests hitting middleware.
+Critical alignment requirement
+Your frontend must validate auth via /api/auth/me (JWT cookie), NOT via supabase sb-* cookies.
+If your UI currently calls /api/auth/session, update it to /api/auth/me.
