@@ -1,50 +1,52 @@
-import React from 'react';
-import { BuildingOfficeIcon, UsersIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+'use client';
+import { impersonateTenant } from '@/lib/admin-actions';
+import { BuildingOfficeIcon, UserIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 
-interface Tenant {
-  id: string;
-  name: string;
-  plan: string;
-  mrr: number;
-  agentCount: number;
-}
+export default function TenantOverview({ tenants }: { tenants: any[] }) {
+  const handleImpersonate = async (ownerId: string) => {
+    try {
+      const loginUrl = await impersonateTenant(ownerId);
+      window.location.href = loginUrl; // Redirect to the tenant's view
+    } catch (error) {
+      alert("Failed to generate access link.");
+    }
+  };
 
-const TenantOverview = ({ tenants }: { tenants: Tenant[] }) => {
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {tenants.map((tenant) => (
-        <div key={tenant.id} className="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-indigo-500 rounded-md p-3">
-                <BuildingOfficeIcon className="h-6 w-6 text-white" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">{tenant.name}</dt>
-                  <dd className="flex items-baseline">
-                    <div className="text-2xl font-semibold text-gray-900">{tenant.plan} Plan</div>
-                  </dd>
-                </dl>
-              </div>
+        <div key={tenant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex justify-between items-start">
+            <div className="bg-indigo-100 p-3 rounded-lg">
+              <BuildingOfficeIcon className="h-6 w-6 text-indigo-600" />
             </div>
+            <span className="text-xs font-bold uppercase px-2 py-1 bg-green-100 text-green-700 rounded">
+              {tenant.plan}
+            </span>
           </div>
-          <div className="bg-gray-50 px-5 py-3 border-t border-gray-200">
+
+          <h3 className="mt-4 text-lg font-semibold text-gray-900">{tenant.name}</h3>
+          
+          <div className="mt-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <div className="flex items-center text-gray-600">
-                <UsersIcon className="h-4 w-4 mr-1" />
-                {tenant.agentCount} Agents
-              </div>
-              <div className="flex items-center font-medium text-green-600">
-                <CurrencyDollarIcon className="h-4 w-4 mr-1" />
-                ${tenant.mrr}/mo
-              </div>
+              <span className="text-gray-500">Monthly Revenue:</span>
+              <span className="font-medium">${tenant.mrr}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Active Agents:</span>
+              <span className="font-medium">{tenant.agentCount}</span>
             </div>
           </div>
+
+          <button
+            onClick={() => handleImpersonate(tenant.owner_id)}
+            className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            <ArrowRightOnRectangleIcon className="h-4 w-4" />
+            Login as Tenant
+          </button>
         </div>
       ))}
     </div>
   );
-};
-
-export default TenantOverview;
+}
