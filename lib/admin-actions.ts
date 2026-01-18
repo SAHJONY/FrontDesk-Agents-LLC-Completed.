@@ -1,8 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 
 /**
- * FIXED: Added the specific export that the build was failing on.
- * This fetches just the list of tenants for the /admin/tenants page.
+ * Fetches just the list of tenants for the /admin/tenants page.
+ * Optimized for scannability and simple list rendering.
  */
 export async function getAllTenants() {
   const supabase = await createClient();
@@ -22,6 +22,7 @@ export async function getAllTenants() {
 
 /**
  * Fetches combined data for the main Admin Overview dashboard.
+ * Calculates platform-wide performance metrics.
  */
 export async function getAdminDashboardData() {
   const supabase = await createClient();
@@ -34,13 +35,16 @@ export async function getAdminDashboardData() {
 
   if (tenantError) {
     console.error('Error fetching tenants:', tenantError);
-    return { tenants: [], stats: { totalMrr: 0, totalAgents: 0 } };
+    return { 
+      tenants: [], 
+      stats: { totalMrr: 0, totalAgents: 0 } 
+    };
   }
 
   // 2. Calculate Global Metrics
-  // Summing up MRR and total AI agents across the whole platform
-  const totalMrr = tenants?.reduce((sum, t) => sum + (t.mrr || 0), 0) || 0;
-  const totalAgents = tenants?.reduce((sum, t) => sum + (t.agent_count || 0), 0) || 0;
+  // We use Number() to ensure math works even if the DB returns strings
+  const totalMrr = tenants?.reduce((sum, t) => sum + (Number(t.mrr) || 0), 0) || 0;
+  const totalAgents = tenants?.reduce((sum, t) => sum + (Number(t.agent_count) || 0), 0) || 0;
 
   return {
     tenants: tenants || [],
