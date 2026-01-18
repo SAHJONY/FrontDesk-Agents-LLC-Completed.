@@ -4,59 +4,56 @@ import jwt from "jsonwebtoken";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function getTokenFromCookies(cookieHeader: string) {
-  const pick = (name: string) => {
-    const m = cookieHeader.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-    return m ? decodeURIComponent(m[1]) : null;
-  };
-
-  // ✅ Accept any of these names (matches what the platform historically used)
-  return (
-    pick("auth-token") ||
-    pick("token") ||
-    pick("fd_session") ||
-    pick("access_token") ||
-    null
-  );
-}
+type JwtPayload = {
+  userId: string;
+  email: string;
+  role?: string;
+  tier?: string;
+  tenantId?: string;
+  iat?: number;
+  exp?: number;
+};
 
 export async function GET(req: Request) {
-  const debug = process.env.AUTH_DEBUG === "1";
   const jwtSecret = process.env.JWT_SECRET;
 
   if (!jwtSecret) {
-    return NextResponse.json({ authenticated: false, error: "Server missing JWT_SECRET" }, { status: 500 });
+    return NextResponse.json(
+      { authenticated: false, error: "JWT_SECRET missing" },
+      { status: 500 }
+    );
   }
 
+  // Read cookie manually (works in route handlers)
   const cookieHeader = req.headers.get("cookie") || "";
-  const token = getTokenFromCookies(cookieHeader);
-
-  if (debug) {
-    console.log(`[AUTH_DEBUG][SESSION] cookieLen=${cookieHeader.length} tokenPresent=${!!token}`);
-  }
+  const match = cookieHeader.match(/(?:^|;\s*)auth-token=([^;]+)/);
+  const token = match?.[1] ? decodeURIComponent(match[1]) : null;
 
   if (!token) {
-    return NextResponse.json({ authenticated: false }, { status: 200 });
+    return NextResponse.json(
+      { authenticated: false, error: "missing_token" },
+      { status: 401 }
+    );
   }
 
   try {
-    const payload = jwt.verify(token, jwtSecret) as any;
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
-    return NextResponse.json(
-      {
-        authenticated: true,
-        user: {
-          id: payload.userId,
-          email: payload.email,
-          tenantId: payload.tenantId ?? null,
-        },
-        role: payload.role ?? null,
-        tier: payload.tier ?? null,
+    return NextResponse.json({
+      authenticated: true,
+      user: {
+        id: decoded.userId,
+        email: decoded.email,
+        role: decoded.role || "USER",
+        tier: decoded.tier || "STARTER",
+        tenantId: decoded.tenantId || null,
       },
-      { status: 200 }
-    );
+      nodeId: "node_pdx_01",
+    });
   } catch (e) {
-    if (debug) console.log("[AUTH_DEBUG][SESSION] invalid_token");
-    return NextResponse.json({ authenticated: false }, { status: 200 });
+    return NextResponse.json(
+      { authenticated: false, error: "invalid_token" },
+      { status: 401 }
+    );
   }
 }
