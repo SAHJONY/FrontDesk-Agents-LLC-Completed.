@@ -1,68 +1,62 @@
-// app/api/auth/session/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type JwtPayload = {
-  userId: string;
-  email?: string;
-  role?: string;
-  tier?: string;
-  tenantId?: string;
-  exp?: number;
-};
+function getTokenFromCookies(cookieHeader: string) {
+  const pick = (name: string) => {
+    const m = cookieHeader.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return m ? decodeURIComponent(m[1]) : null;
+  };
 
-function parseCookie(cookieHeader: string, name: string): string | null {
-  const match = cookieHeader.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
+  // ✅ Accept any of these names (matches what the platform historically used)
+  return (
+    pick("auth-token") ||
+    pick("token") ||
+    pick("fd_session") ||
+    pick("access_token") ||
+    null
+  );
 }
 
 export async function GET(req: Request) {
+  const debug = process.env.AUTH_DEBUG === "1";
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!jwtSecret) {
+    return NextResponse.json({ authenticated: false, error: "Server missing JWT_SECRET" }, { status: 500 });
+  }
+
+  const cookieHeader = req.headers.get("cookie") || "";
+  const token = getTokenFromCookies(cookieHeader);
+
+  if (debug) {
+    console.log(`[AUTH_DEBUG][SESSION] cookieLen=${cookieHeader.length} tokenPresent=${!!token}`);
+  }
+
+  if (!token) {
+    return NextResponse.json({ authenticated: false }, { status: 200 });
+  }
+
   try {
-    const cookieHeader = req.headers.get("cookie") || "";
-    const token = parseCookie(cookieHeader, "auth-token");
+    const payload = jwt.verify(token, jwtSecret) as any;
 
-    if (!token) {
-      return NextResponse.json(
-        { authenticated: false, error: "missing_token" },
-        { status: 401 }
-      );
-    }
-
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      return NextResponse.json(
-        { authenticated: false, error: "server_misconfigured" },
-        { status: 500 }
-      );
-    }
-
-    const decoded = jwt.verify(token, secret) as JwtPayload;
-
-    // Minimal runtime metadata (optional)
-    const nodeId =
-      process.env.VERCEL_REGION
-        ? `vercel_${process.env.VERCEL_REGION}`
-        : process.env.AWS_REGION
-        ? `aws_${process.env.AWS_REGION}`
-        : "node_unknown";
-
-    return NextResponse.json({
-      authenticated: true,
-      userId: decoded.userId,
-      email: decoded.email ?? null,
-      tier: decoded.tier ?? null,
-      role: decoded.role ?? null,
-      tenantId: decoded.tenantId ?? null,
-      nodeId,
-    });
-  } catch (err) {
-    // Token invalid/expired
     return NextResponse.json(
-      { authenticated: false, error: "invalid_or_expired_token" },
-      { status: 401 }
+      {
+        authenticated: true,
+        user: {
+          id: payload.userId,
+          email: payload.email,
+          tenantId: payload.tenantId ?? null,
+        },
+        role: payload.role ?? null,
+        tier: payload.tier ?? null,
+      },
+      { status: 200 }
     );
+  } catch (e) {
+    if (debug) console.log("[AUTH_DEBUG][SESSION] invalid_token");
+    return NextResponse.json({ authenticated: false }, { status: 200 });
   }
 }
