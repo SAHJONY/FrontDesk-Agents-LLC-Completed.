@@ -1,18 +1,39 @@
-FrontDesk Agents — Login Fix Pack (Upload to GitHub)
+# FrontDesk Agents — Login Fix Pack (real code)
 
-What this pack does
-1) Stops middleware redirect loops (public routes are always allowed)
-2) Ensures /api/auth/login sets an HTTP-only auth-token cookie
-3) Adds /api/auth/me that validates auth-token via JWT_SECRET
-4) Adds a compatibility stub for /api/auth/session to prevent silent false-auth
+This ZIP contains actual Next.js App Router files to stabilize auth and stop middleware redirect loops.
 
-Required ENV variables (Vercel Project Settings → Environment Variables)
-- NEXT_PUBLIC_SUPABASE_URL
-- SUPABASE_SERVICE_ROLE_KEY
-- JWT_SECRET
-Optional
-- AUTH_DEBUG=1   (temporary, for server logs)
+## What it does
+1) **Middleware:** prevents auth gating on public routes (so no infinite redirects).
+2) **Login API:** `/app/api/auth/login/route.ts` uses **Supabase service role** to query your `users` table, validates `bcrypt` password, and sets `auth-token` + `refresh-token` **HTTP-only cookies**.
+3) **Session/Me APIs:** `/app/api/auth/session` + `/app/api/auth/me` read `auth-token` and return auth state for the UI.
 
-Critical alignment requirement
-Your frontend must validate auth via /api/auth/me (JWT cookie), NOT via supabase sb-* cookies.
-If your UI currently calls /api/auth/session, update it to /api/auth/me.
+## Drop-in file list
+- `middleware.ts`
+- `app/api/auth/login/route.ts`
+- `app/api/auth/me/route.ts`
+- `app/api/auth/session/route.ts`
+- `lib/auth/jwt.ts`
+
+## Required Vercel ENV VARS
+Set these in **Vercel Project → Settings → Environment Variables** (Production + Preview):
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `JWT_SECRET`
+
+## Supabase table expectation
+Table: `users`
+Columns (minimum):
+- `id`
+- `email`
+- `password_hash`
+Optional (used if present): `full_name`, `role`, `tier`, `tenant_id`
+
+## How to apply
+1) Copy each file into the same path in your repo (replace existing files).
+2) Ensure your UI calls `POST /api/auth/login` and then routes to the `redirectUrl` returned by the API.
+3) Redeploy.
+
+## Notes
+- In production, this pack **fails closed** if `JWT_SECRET` is missing.
+- Middleware is intentionally conservative (no hard blocking) to avoid loops while you validate the UI flow.
