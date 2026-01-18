@@ -1,56 +1,33 @@
-import { createClient } from '@/utils/supabase/server';
-
-/**
- * Fetches just the list of tenants for the /admin/tenants page.
- * Optimized for scannability and simple list rendering.
- */
-export async function getAllTenants() {
-  const supabase = await createClient();
-  
-  const { data: tenants, error } = await supabase
-    .from('tenants')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error in getAllTenants:', error);
-    return [];
-  }
-
-  return tenants || [];
-}
-
-/**
- * Fetches combined data for the main Admin Overview dashboard.
- * Calculates platform-wide performance metrics.
- */
 export async function getAdminDashboardData() {
   const supabase = await createClient();
 
-  // 1. Fetch all tenants (profiles/accounts)
   const { data: tenants, error: tenantError } = await supabase
     .from('tenants') 
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: true }); // Order by oldest to newest for the chart
 
-  if (tenantError) {
-    console.error('Error fetching tenants:', tenantError);
-    return { 
-      tenants: [], 
-      stats: { totalMrr: 0, totalAgents: 0 } 
-    };
-  }
+  if (tenantError) return { tenants: [], stats: { totalMrr: 0, totalAgents: 0 }, chartData: [] };
 
-  // 2. Calculate Global Metrics
-  // We use Number() to ensure math works even if the DB returns strings
+  // 1. Calculate Standard Stats
   const totalMrr = tenants?.reduce((sum, t) => sum + (Number(t.mrr) || 0), 0) || 0;
   const totalAgents = tenants?.reduce((sum, t) => sum + (Number(t.agent_count) || 0), 0) || 0;
 
+  // 2. Generate Chart Data (Grouped by Month)
+  const monthlyData: Record<string, number> = {};
+  
+  tenants.forEach((t) => {
+    const month = new Date(t.created_at).toLocaleString('default', { month: 'short', year: '2-digit' });
+    monthlyData[month] = (monthlyData[month] || 0) + (Number(t.mrr) || 0);
+  });
+
+  const chartData = Object.entries(monthlyData).map(([name, revenue]) => ({
+    name,
+    revenue,
+  }));
+
   return {
-    tenants: tenants || [],
-    stats: {
-      totalMrr,
-      totalAgents,
-    }
+    tenants: [...tenants].reverse(), // Reverse for the list (newest first)
+    stats: { totalMrr, totalAgents },
+    chartData
   };
 }
