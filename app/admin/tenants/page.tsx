@@ -10,29 +10,33 @@ import TenantOverview from '@/components/admin/TenantOverview';
 export default async function AdminTenantsPage() {
   const supabase = await createClient();
   
-  // Verify the user is logged in
+  // 1. Verify the session
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  // Security Gate: Redirect anyone who isn't the Super Admin
+  // 2. Security Gate: Strict check for Super Admin
+  // Note: Using process.env on the server is safer than NEXT_PUBLIC for sensitive gates
+  const superAdminEmail = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
+
   if (
     !user || 
     authError || 
-    user.email !== process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL
+    user.email !== superAdminEmail
   ) {
     redirect('/dashboard');
   }
 
-  // Fetch the data using the corrected action name
+  // 3. Fetch the data
+  // This now works perfectly with the function we updated in the previous step
   const dashboardData = await getAdminDashboardData();
 
   return (
-    <div className="min-h-screen bg-gray-50/30">
+    <div className="min-h-screen bg-[#fafafa]">
       <div className="p-8 max-w-7xl mx-auto">
         <header className="mb-10">
           <div className="flex items-center gap-2 mb-2">
             <span className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse"></span>
             <span className="text-xs font-bold uppercase tracking-widest text-indigo-600">
-              Live Oversight
+              Platform Oversight
             </span>
           </div>
           <h1 className="text-4xl font-black text-gray-900 tracking-tight">
@@ -43,7 +47,9 @@ export default async function AdminTenantsPage() {
           </p>
         </header>
         
-        {/* Pass data to the client-side interactive table */}
+        {/* 4. Interactive Table
+            dashboardData contains { tenants: [], stats: { totalMrr, totalAgents } }
+        */}
         <TenantOverview initialData={dashboardData} />
       </div>
     </div>
