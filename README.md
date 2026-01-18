@@ -1,39 +1,66 @@
-# FrontDesk Agents — Login Fix Pack (real code)
+# FrontDesk Agents — Login Fix Pack (Real Code)
 
-This ZIP contains actual Next.js App Router files to stabilize auth and stop middleware redirect loops.
+Production-grade authentication stabilization pack for the **FrontDesk Agents** platform.  
+This update fixes infinite login redirects, session instability, and middleware auth loops in a **Next.js App Router** environment.
 
-## What it does
-1) **Middleware:** prevents auth gating on public routes (so no infinite redirects).
-2) **Login API:** `/app/api/auth/login/route.ts` uses **Supabase service role** to query your `users` table, validates `bcrypt` password, and sets `auth-token` + `refresh-token` **HTTP-only cookies**.
-3) **Session/Me APIs:** `/app/api/auth/session` + `/app/api/auth/me` read `auth-token` and return auth state for the UI.
+---
 
-## Drop-in file list
-- `middleware.ts`
-- `app/api/auth/login/route.ts`
-- `app/api/auth/me/route.ts`
-- `app/api/auth/session/route.ts`
-- `lib/auth/jwt.ts`
+## 📚 Table of Contents
+- [Overview](#overview)
+- [What This Pack Fixes](#what-this-pack-fixes)
+- [Included Files](#included-files)
+- [Environment Variables (Required)](#environment-variables-required)
+- [Supabase Requirements](#supabase-requirements)
+- [How to Apply](#how-to-apply)
+- [Security Notes](#security-notes)
+- [Contributing](#contributing)
+- [Security](#security)
 
-## Required Vercel ENV VARS
-Set these in **Vercel Project → Settings → Environment Variables** (Production + Preview):
+---
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `JWT_SECRET`
+## Overview
 
-## Supabase table expectation
-Table: `users`
-Columns (minimum):
-- `id`
-- `email`
-- `password_hash`
-Optional (used if present): `full_name`, `role`, `tier`, `tenant_id`
+This pack contains **real production-ready code**, not placeholders.
 
-## How to apply
-1) Copy each file into the same path in your repo (replace existing files).
-2) Ensure your UI calls `POST /api/auth/login` and then routes to the `redirectUrl` returned by the API.
-3) Redeploy.
+It is designed to:
+- Stop infinite redirects to `/login`
+- Stabilize session handling
+- Ensure cookies are set correctly in Vercel
+- Keep public/marketing pages accessible at all times
+- Prepare the platform for proper dashboard protection later
 
-## Notes
-- In production, this pack **fails closed** if `JWT_SECRET` is missing.
-- Middleware is intentionally conservative (no hard blocking) to avoid loops while you validate the UI flow.
+---
+
+## What This Pack Fixes
+
+1. **Middleware Stability**
+   - Prevents auth gating on public routes
+   - Avoids infinite redirect loops
+   - Allows APIs during debugging to prevent broken flows
+
+2. **Login API**
+   - `POST /api/auth/login`
+   - Uses **Supabase Service Role Key** (server-side only)
+   - Queries `users` table directly
+   - Validates passwords using `bcrypt`
+   - Issues signed JWT access + refresh tokens
+   - Sets secure, HTTP-only cookies
+
+3. **Session APIs**
+   - `/api/auth/me`
+   - `/api/auth/session`
+   - Reads JWT from cookies
+   - Returns authenticated user state for the UI
+
+---
+
+## Included Files
+
+Drop-in replacements (same paths):
+
+```txt
+middleware.ts
+app/api/auth/login/route.ts
+app/api/auth/me/route.ts
+app/api/auth/session/route.ts
+lib/auth/jwt.ts
