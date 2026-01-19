@@ -1,3 +1,4 @@
+// app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
@@ -13,7 +14,16 @@ const loginSchema = z.object({
 });
 
 function cookieSecure() {
+  // En Vercel normalmente es HTTPS también en Preview.
+  // Mantener secure=true en production es correcto.
   return process.env.NODE_ENV === "production";
+}
+
+function normalizeRole(role: any) {
+  const r = String(role || "").trim().toUpperCase();
+  if (r === "OWNER") return "OWNER";
+  if (r === "ADMIN") return "ADMIN";
+  return "USER";
 }
 
 export async function POST(req: Request) {
@@ -23,46 +33,49 @@ export async function POST(req: Request) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const jwtSecret = process.env.JWT_SECRET;
 
     if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+      return NextResponse.json({ error: "Server misconfigured: Supabase env missing" }, { status: 500 });
+    }
+    if (!jwtSecret) {
+      return NextResponse.json({ error: "Server misconfigured: JWT_SECRET missing" }, { status: 500 });
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: users, error: dbError } = await supabase
+    const emailNorm = email.toLowerCase().trim();
+
+    const { data: user, error: dbError } = await supabase
       .from("users")
-      .select("*")
-      .eq("email", email.toLowerCase())
-      .limit(1);
+      .select("id,email,full_name,role,tier,tenant_id,password_hash")
+      .eq("email", emailNorm)
+      .maybeSingle();
 
     if (dbError) {
       return NextResponse.json({ error: "Database error occurred" }, { status: 500 });
     }
-
-    if (!users || users.length === 0) {
+    if (!user) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
-
-    const user = users[0];
+    if (!user.password_hash) {
+      return NextResponse.json({ error: "Account has no password set" }, { status: 401 });
+    }
 
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      return NextResponse.json({ error: "Server missing JWT_SECRET" }, { status: 500 });
-    }
+    const role = normalizeRole(user.role);
 
     const accessToken = jwt.sign(
       {
         userId: user.id,
         email: user.email,
-        role: user.role,
+        role,
         tier: user.tier,
         tenantId: user.tenant_id,
       },
@@ -77,8 +90,8 @@ export async function POST(req: Request) {
     );
 
     let redirectUrl = "/dashboard";
-    if (user.role === "OWNER") redirectUrl = "/dashboard/owner";
-    else if (user.role === "admin") redirectUrl = "/dashboard/admin";
+    if (role === "OWNER") redirectUrl = "/dashboard/owner";
+    else if (role === "ADMIN") redirectUrl = "/admin";
 
     const res = NextResponse.json({
       success: true,
@@ -87,12 +100,10 @@ export async function POST(req: Request) {
         id: user.id,
         email: user.email,
         name: user.full_name,
-        role: user.role,
+        role,
         tier: user.tier,
         tenantId: user.tenant_id,
       },
-      accessToken,
-      refreshToken,
       redirectUrl,
     });
 
@@ -107,7 +118,7 @@ export async function POST(req: Request) {
     res.cookies.set("auth-token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
     res.cookies.set("refresh-token", refreshToken, { ...common, maxAge: 60 * 60 * 24 * 30 });
 
-    // ✅ Compatibility aliases for existing guards
+    // Compatibility aliases (legacy guards)
     res.cookies.set("token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
     res.cookies.set("fd_session", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
     res.cookies.set("access_token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
