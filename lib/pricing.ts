@@ -24,8 +24,12 @@ export const PRICING_META = {
   guarantee: "14-day money-back guarantee • Cancel anytime",
   currency: "USD",
   cadence: "monthly",
-};
+} as const;
 
+/**
+ * ✅ Permanent prices (source of truth)
+ * 299 | 699 | 1299 | 2499
+ */
 export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "starter",
@@ -85,6 +89,30 @@ export const PRICING_PLANS: PricingPlan[] = [
     ctaHref: "/demo?plan=enterprise",
   },
 ];
+
+/**
+ * Fast lookup to prevent repeated `.find()` and to keep pricing consistent everywhere.
+ */
+export const PRICING_BY_KEY = Object.freeze(
+  Object.fromEntries(PRICING_PLANS.map((p) => [p.key, p])) as Record<PlanKey, PricingPlan>
+);
+
+export function isPlanKey(value: unknown): value is PlanKey {
+  return value === "starter" || value === "professional" || value === "growth" || value === "enterprise";
+}
+
+/**
+ * Use this in APIs (checkout, signup) to fail fast on invalid plan inputs.
+ */
+export function assertPlanKey(value: unknown): asserts value is PlanKey {
+  if (!isPlanKey(value)) {
+    throw new Error(`Invalid plan key: ${String(value)}`);
+  }
+}
+
+export function planByKey(key: PlanKey): PricingPlan {
+  return PRICING_BY_KEY[key];
+}
 
 export function formatUsd(amount: number) {
   return `$${amount.toLocaleString("en-US")}`;
