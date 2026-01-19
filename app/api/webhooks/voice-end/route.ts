@@ -1,71 +1,71 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
-import { sendLeadNotification } from '@/lib/notifications'; // Ensure you created the Step 2 file
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// ... existing imports
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { call_id, transcript, recording_url, duration, to, from } = body;
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!, 
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-    // 1. Generate AI summary
-    let aiSummary = "No transcript available.";
+    // 1. Enhanced AI Analysis (Structured Data)
+    let analysis = {
+      summary: "No transcript available.",
+      sentiment: "Neutral",
+      is_lead: false
+    };
+
     if (transcript) {
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: "Summarize this phone call transcript in one short sentence focusing on the customer's intent. If they want to book, buy, or schedule, be specific." },
+          { 
+            role: "system", 
+            content: `Analyze the transcript and return ONLY a JSON object: 
+            {
+              "summary": "one sentence summary",
+              "sentiment": "Positive | Neutral | Frustrated",
+              "is_lead": true/false
+            }
+            Base "is_lead" on whether they want to book, buy, or schedule.` 
+          },
           { role: "user", content: transcript }
-        ]
+        ],
+        response_format: { type: "json_object" }
       });
-      aiSummary = completion.choices[0].message.content || "Could not summarize.";
+      
+      const content = completion.choices[0].message.content;
+      if (content) analysis = JSON.parse(content);
     }
 
-    // 2. Identify Tenant & Fetch their Alert Email
-    // We join phone_numbers with tenants to get the owner's email
+    // 2. Fetch Tenant Info
     const { data: phoneData } = await supabase
       .from('phone_numbers')
-      .select(`
-        tenant_id,
-        tenants (
-          email,
-          name
-        )
-      `)
+      .select(`tenant_id, tenants (email, name)`)
       .eq('phone_number', to)
       .single();
 
     const tenantInfo = phoneData?.tenants as any;
 
-    // 3. Log data to Supabase
-    const { error: upsertError } = await supabase.from('call_logs').upsert({
+    // 3. Save with Sentiment
+    await supabase.from('call_logs').upsert({
       tenant_id: phoneData?.tenant_id,
       call_id,
       customer_number: from,
       transcript,
       recording_url,
       duration,
-      summary: aiSummary,
+      summary: analysis.summary,
+      sentiment: analysis.sentiment, // Make sure this column exists in your DB!
       status: 'completed'
     }, { onConflict: 'call_id' });
 
-    // 4. Lead Detection & Instant Email Alert
-    const isLead = aiSummary.toLowerCase().includes('book') || 
-                   aiSummary.toLowerCase().includes('appoint') || 
-                   aiSummary.toLowerCase().includes('price') ||
-                   aiSummary.toLowerCase().includes('schedule');
-
-    if (isLead && tenantInfo?.email) {
+    // 4. Update Email with "Mood"
+    if (analysis.is_lead && tenantInfo?.email) {
+      const moodEmoji = analysis.sentiment === 'Positive' ? '😊' : analysis.sentiment === 'Frustrated' ? '⚠️' : '😐';
+      
       await sendLeadNotification(tenantInfo.email, {
         customer_number: from,
-        summary: aiSummary,
+        summary: `${moodEmoji} [${analysis.sentiment}] ${analysis.summary}`,
         call_id,
         duration
       });
@@ -73,7 +73,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Webhook Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
