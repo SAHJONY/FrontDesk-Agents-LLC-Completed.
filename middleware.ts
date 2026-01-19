@@ -1,11 +1,6 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-/**
- * Public routes must NEVER redirect to login.
- * Keep this list conservative and explicit.
- */
 const PUBLIC_PREFIXES = [
   "/",
   "/pricing",
@@ -23,9 +18,6 @@ const PUBLIC_PREFIXES = [
   "/_not-found",
 ];
 
-/**
- * Treat Next internals and common static files as public.
- */
 function isStaticOrInternal(pathname: string) {
   return (
     pathname.startsWith("/_next") ||
@@ -49,46 +41,46 @@ function isStaticOrInternal(pathname: string) {
 
 function isPublic(pathname: string) {
   if (isStaticOrInternal(pathname)) return true;
-
-  // Do not gate APIs during debugging (prevents auth loops and broken requests)
   if (pathname.startsWith("/api")) return true;
-
   return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
 export function middleware(req: NextRequest) {
-  const debug = process.env.AUTH_DEBUG === "1";
   const { pathname } = req.nextUrl;
+  const cookies = req.cookies;
+  
+  // 1. Detect Impersonation
+  const impersonatedId = cookies.get('impersonated_owner_id')?.value;
+  const isPublicRoute = isPublic(pathname);
 
-  const cookieHeader = req.headers.get("cookie") || "";
-  const hasLikelyAuthCookie =
-    cookieHeader.includes("sb-") ||
-    cookieHeader.includes("supabase") ||
-    cookieHeader.includes("access_token") ||
-    cookieHeader.includes("refresh_token") ||
-    cookieHeader.includes("fd_session") ||
-    cookieHeader.includes("token=");
+  // 2. Handle Impersonation Logic
+  if (impersonatedId && !isPublicRoute) {
+    // We clone the headers so we can inject the impersonated ID
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set('x-impersonated-user-id', impersonatedId);
 
-  const pub = isPublic(pathname);
-
-  if (debug) {
-    console.log(
-      `[AUTH_DEBUG][MW] path=${pathname} public=${pub} hasAuthCookie=${hasLikelyAuthCookie} cookieLen=${cookieHeader.length}`
-    );
+    // If they are on a protected route while impersonating, 
+    // we let them through but with the injected headers.
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   }
 
-  // ✅ Never block public routes (prevents login loops)
-  if (pub) return NextResponse.next();
+  // 3. Existing Auth Logging (Optional)
+  const debug = process.env.AUTH_DEBUG === "1";
+  if (debug) {
+    const hasLikelyAuthCookie = cookies.getAll().length > 0;
+    console.log(`[AUTH_DEBUG][MW] path=${pathname} public=${isPublicRoute} impersonating=${!!impersonatedId}`);
+  }
 
-  // ✅ TEMP: allow all non-public while we debug auth/session stability.
-  // Next step (after we confirm cookies/session): protect only /dashboard and /settings.
+  // ✅ Never block public routes
+  if (isPublicRoute) return NextResponse.next();
+
   return NextResponse.next();
 }
 
-/**
- * Match all routes but avoid obvious static files to reduce overhead.
- * (Still safe even if it matches broadly because we early-return for public/static.)
- */
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
