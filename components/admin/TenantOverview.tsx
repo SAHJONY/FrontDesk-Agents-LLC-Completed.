@@ -5,9 +5,9 @@ import {
   CurrencyDollarIcon, 
   CpuChipIcon, 
   UsersIcon,
-  ArrowDownTrayIcon, // New Icon
-  Loader2
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
+import { Loader2 } from 'lucide-react'; // Fixed: Import from lucide-react
 import { useRouter } from 'next/navigation';
 
 export default function TenantOverview({ initialData }: { initialData: any }) {
@@ -23,26 +23,21 @@ export default function TenantOverview({ initialData }: { initialData: any }) {
 
   // --- CSV EXPORT LOGIC ---
   const exportToCSV = () => {
-    // Define Headers
     const headers = ["ID", "Company Name", "Owner ID", "MRR", "Agents", "Created At"];
-    
-    // Map data to rows
     const rows = filteredTenants.map((t: any) => [
       t.id,
-      `"${t.name}"`, // Wrap in quotes to handle commas in names
+      `"${t.name}"`, 
       t.owner_id,
       t.mrr,
       t.agent_count,
       new Date(t.created_at).toLocaleDateString()
     ]);
 
-    // Combine into a single string
     const csvContent = [
       headers.join(","),
       ...rows.map(e => e.join(","))
     ].join("\n");
 
-    // Create a blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -88,7 +83,7 @@ export default function TenantOverview({ initialData }: { initialData: any }) {
           <input
             type="text"
             placeholder="Search by company name..."
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 sm:text-sm text-black"
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
@@ -105,7 +100,7 @@ export default function TenantOverview({ initialData }: { initialData: any }) {
       {/* --- TENANT GRID --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredTenants.map((tenant: any) => (
-          <div key={tenant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+          <div key={tenant.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between hover:border-indigo-200 transition-colors">
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">{tenant.name}</h3>
               <p className="text-xs text-gray-400 font-mono mb-4 uppercase italic">
