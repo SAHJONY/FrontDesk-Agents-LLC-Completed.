@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import './globals.css';
+import ImpersonationBanner from '@/components/admin/ImpersonationBanner';
 
 export const metadata: Metadata = {
   title: 'FrontDesk Agents | AI-Powered Revenue Workforce',
@@ -21,14 +23,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Check for the impersonation cookie on the server
+  const cookieStore = await cookies();
+  const isImpersonating = cookieStore.has('impersonated_owner_id');
+
   return (
     <html lang="en">
       <body className="antialiased bg-white text-gray-900">
+        {/* The banner will only render if the cookie exists */}
+        {isImpersonating && <ImpersonationBanner />}
         {children}
       </body>
     </html>
