@@ -11,11 +11,13 @@ import {
   Loader2, 
   Zap, 
   Activity,
-  ArrowUpRight
+  ArrowUpRight,
+  ListFilter
 } from "lucide-react";
 
 // Componentes del Protocolo
 import { UsageStatus } from "@/components/dashboard/UsageStatus"; 
+import { CallLogTable } from "@/components/dashboard/CallLogTable";
 import { useAccountMetrics } from "@/hooks/useAccountMetrics";
 
 export default function DashboardPage() {
@@ -64,7 +66,6 @@ export default function DashboardPage() {
 
       {/* FILA DE INFRAESTRUCTURA Y VISUAL */}
       <div className="grid gap-6 lg:grid-cols-12">
-        {/* Widget de Control de Uso */}
         <div className="lg:col-span-5 xl:col-span-4">
           <UsageStatus 
             tier={metrics.tier} 
@@ -74,7 +75,6 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Visual de Sistema */}
         <div className="lg:col-span-7 xl:col-span-8 relative rounded-3xl border border-slate-800 overflow-hidden group min-h-[240px]">
           {hero && (
             <Image
@@ -97,7 +97,7 @@ export default function DashboardPage() {
         {/* Llamadas Respondidas */}
         <motion.div 
           whileHover={{ y: -4 }}
-          className="group rounded-3xl border border-slate-800 bg-slate-900/30 p-8 transition-all hover:border-slate-700"
+          className="group rounded-3xl border border-slate-800 bg-slate-900/30 p-8 transition-all hover:border-slate-700 cursor-pointer"
         >
           <div className="flex items-center justify-between mb-4">
             <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Atención Hoy</p>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
         {/* Citas Agendadas */}
         <motion.div 
           whileHover={{ y: -4 }}
-          className="group rounded-3xl border border-slate-800 bg-slate-900/30 p-8 transition-all hover:border-slate-700"
+          className="group rounded-3xl border border-slate-800 bg-slate-900/30 p-8 transition-all hover:border-slate-700 cursor-pointer"
         >
           <div className="flex items-center justify-between mb-4">
             <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Conversión Directa</p>
@@ -130,7 +130,7 @@ export default function DashboardPage() {
           </p>
         </motion.div>
 
-        {/* Pipeline de Ingresos (El "Why" del producto) */}
+        {/* Pipeline de Ingresos */}
         <motion.div 
           whileHover={{ y: -4 }}
           className="group rounded-3xl border border-sky-500/30 bg-sky-500/[0.03] p-8 transition-all hover:border-sky-500/50"
@@ -146,6 +146,33 @@ export default function DashboardPage() {
             ROI Estimado basado en captación de leads.
           </p>
         </motion.div>
+      </section>
+
+      {/* SECCIÓN DE REGISTROS DE LLAMADAS (Call Log) */}
+      <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-200">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-3">
+            <ListFilter className="w-4 h-4 text-slate-500" />
+            <h2 className="text-sm font-black italic uppercase tracking-tighter text-slate-200">
+              Últimas Interacciones de Nodo
+            </h2>
+          </div>
+          <Link 
+            href="/dashboard/calls" 
+            className="text-[10px] font-black text-sky-500 hover:text-sky-400 transition-colors uppercase tracking-[0.2em] border-b border-sky-500/20 pb-1"
+          >
+            Protocolo Completo →
+          </Link>
+        </div>
+
+        {isLoading ? (
+          <div className="h-64 rounded-3xl border border-slate-800 bg-slate-900/10 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-6 h-6 animate-spin text-slate-700" />
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Sincronizando registros...</span>
+          </div>
+        ) : (
+          <CallLogTable calls={metrics.recentCalls || []} />
+        )}
       </section>
     </div>
   );
