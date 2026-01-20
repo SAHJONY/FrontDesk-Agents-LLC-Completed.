@@ -12,12 +12,12 @@ const getStripe = () => {
 
 const getWebhookSecret = () => process.env.STRIPE_WEBHOOK_SECRET;
 
-// ✅ TIER CONFIGURATION (Aligns with your 2026 Profit Model)
-const TIER_CONFIGS: Record<string, { mins: number; overage: number }> = {
-  starter: { mins: 300, overage: 0.45 },
-  professional: { mins: 1200, overage: 0.40 },
-  growth: { mins: 3000, overage: 0.35 },
-  enterprise: { mins: 7000, overage: 0.30 },
+// ✅ PROTOCOL TIER CONFIGURATION (Revenue Lock: $149 - $1,999)
+const TIER_CONFIGS: Record<string, { mins: number; overage: number; label: string }> = {
+  starter: { mins: 300, overage: 0.45, label: 'Starter Node' },
+  professional: { mins: 1200, overage: 0.40, label: 'Professional Fleet' },
+  growth: { mins: 3000, overage: 0.35, label: 'Growth Cluster' },
+  enterprise: { mins: 7000, overage: 0.30, label: 'Enterprise Protocol' },
 };
 
 export async function POST(request: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   const webhookSecret = getWebhookSecret();
 
   if (!stripe || !webhookSecret) {
-    console.error('❌ Stripe configuration incomplete');
+    console.error('❌ Protocol Error: Stripe configuration incomplete');
     return NextResponse.json({ error: 'Missing configuration' }, { status: 500 });
   }
 
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   try {
     supabase = requireSupabaseServer();
   } catch (error: any) {
-    console.error('❌ Supabase Error:', error.message);
+    console.error('❌ Database Connection Error:', error.message);
     return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
   }
   
@@ -47,11 +47,11 @@ export async function POST(request: NextRequest) {
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err: any) {
-      console.error('❌ Signature verification failed:', err.message);
+      console.error('❌ Protocol Breach: Invalid signature', err.message);
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    console.log(`🔔 Sovereign Event: ${event.type}`);
+    console.log(`🔔 FrontDesk Event Received: ${event.type}`);
 
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -74,56 +74,59 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error('❌ Webhook Handler Error:', error.message);
+    console.error('❌ Internal Protocol Error:', error.message);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 async function handleInitialSubscription(session: Stripe.Checkout.Session, supabase: any) {
-  const tenantId = session.metadata?.tenant_id;
-  const plan = (session.metadata?.plan || 'starter').toLowerCase();
+  const tenantId = session.client_reference_id || session.metadata?.tenant_id;
+  const plan = (session.metadata?.plan_key || 'starter').toLowerCase();
   const config = TIER_CONFIGS[plan] || TIER_CONFIGS.starter;
 
   if (!tenantId) {
-    console.error('❌ CRITICAL: No tenant_id in session metadata.');
+    console.error('❌ CRITICAL: No tenant_id detected. Activation aborted.');
     return;
   }
 
-  // Provisioning: Create Bland AI Subaccount (Conceptual logic)
-  // await provisionBlandSubaccount(tenantId, session.customer_details?.email);
-
+  // Activación de Infraestructura en Supabase
   const { error } = await supabase
     .from('tenants')
     .update({
       tier: plan,
+      tier_label: config.label,
       stripe_customer_id: session.customer as string,
       stripe_subscription_id: session.subscription as string,
       subscription_status: 'active',
       max_minutes: config.mins,
       overage_rate: config.overage,
-      performance_royalty_enabled: plan === 'enterprise', // Section 3 Trigger
       updated_at: new Date().toISOString()
     })
     .eq('id', tenantId);
 
-  if (error) console.error('❌ Update Error:', error.message);
+  if (error) {
+    console.error('❌ Provisioning Error:', error.message);
+  } else {
+    console.log(`✅ Node Activated: Tenant ${tenantId} on ${config.label}`);
+    // Opcional: Disparar aquí la compra de número en Bland AI
+  }
 }
 
 async function handleSubscriptionChange(subscription: Stripe.Subscription, supabase: any) {
   const tenantId = subscription.metadata?.tenant_id;
   if (!tenantId) return;
 
-  const plan = (subscription.metadata?.plan || 'starter').toLowerCase();
+  const plan = (subscription.metadata?.plan_key || 'starter').toLowerCase();
   const config = TIER_CONFIGS[plan] || TIER_CONFIGS.starter;
 
   const { error } = await supabase
     .from('tenants')
     .update({
       tier: plan,
+      tier_label: config.label,
       subscription_status: subscription.status,
       max_minutes: config.mins,
       overage_rate: config.overage,
-      performance_royalty_enabled: plan === 'enterprise',
       updated_at: new Date().toISOString()
     })
     .eq('id', tenantId);
