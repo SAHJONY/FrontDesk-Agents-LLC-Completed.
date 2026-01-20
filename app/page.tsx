@@ -40,7 +40,7 @@ export default function HomePage() {
   const features = [
     { icon: Cpu, title: "Autonomous Nodes", description: "Dedicated AI instances with sub-150ms latency for natural human dialogue." },
     { icon: Globe, title: "Global Routing", description: "Deploy localized agents across 15+ regional data centers for zero-lag response." },
-    { icon: Shield, title: "Sovereign Data", description: "Your proprietary scripts and lead data remain 100% private and encrypted." },
+    { icon: Shield, title: "Encrypted Data", description: "Your proprietary scripts and lead data remain 100% private and protected." },
     { icon: TrendingUp, title: "Yield Capture", description: "Automated ROI tracking that monitors every appointment and lead value." },
   ];
 
@@ -107,7 +107,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-6xl md:text-9xl font-black mb-8 leading-[0.85] tracking-tighter uppercase italic"
           >
-            Sovereign <br />
+            Autonomous <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-700">
               Infrastructure
             </span>
@@ -230,7 +230,7 @@ export default function HomePage() {
 
             {/* Enterprise - $1,999 */}
             <div className="p-10 rounded-none bg-zinc-950 border border-zinc-900 flex flex-col hover:border-zinc-700 transition-colors">
-              <div className="text-zinc-600 font-black uppercase tracking-widest text-[10px] mb-6">Enterprise Sovereign</div>
+              <div className="text-zinc-600 font-black uppercase tracking-widest text-[10px] mb-6">Enterprise Protocol</div>
               <div className="text-6xl font-black text-white mb-2 italic tracking-tighter">$1,999</div>
               <p className="text-zinc-500 text-xs italic mb-8">Infinite scale with performance royalties.</p>
               <ul className="space-y-4 mb-12 flex-grow">
@@ -242,7 +242,7 @@ export default function HomePage() {
                 </li>
               </ul>
               <Link href="/contact" className="w-full py-4 text-center font-black text-[10px] uppercase tracking-widest bg-zinc-800 text-white hover:bg-white hover:text-black transition-all">
-                Consult Sovereignty
+                Consult Protocol
               </Link>
             </div>
           </div>
