@@ -5,12 +5,11 @@ import Stripe from 'stripe';
 export const dynamic = 'force-dynamic';
 
 const getStripe = () => {
-  const stripeKey = process.env.STRIPE_SECRET_KEY; // Usamos la clave secreta (NUNCA NEXT_PUBLIC)
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
   if (!stripeKey) return null;
   return new Stripe(stripeKey, { apiVersion: '2024-12-18.acacia' });
 };
 
-// IMPORTANTE: Asegúrate de que en Vercel la variable sea STRIPE_WEBHOOK_SECRET (sin NEXT_PUBLIC)
 const getWebhookSecret = () => process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(request: NextRequest) {
@@ -18,38 +17,37 @@ export async function POST(request: NextRequest) {
   const webhookSecret = getWebhookSecret();
 
   if (!stripe || !webhookSecret) {
-    console.error('❌ Configuración de Stripe incompleta');
-    return NextResponse.json({ error: 'Configuración faltante' }, { status: 500 });
+    console.error('❌ Stripe configuration incomplete');
+    return NextResponse.json({ error: 'Missing configuration' }, { status: 500 });
   }
 
   let supabase;
   try {
     supabase = requireSupabaseServer();
   } catch (error: any) {
-    console.error('❌ Error Supabase:', error.message);
-    return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 });
+    console.error('❌ Supabase Error:', error.message);
+    return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
   }
   
   try {
     const body = await request.text();
     const signature = request.headers.get('stripe-signature');
 
-    if (!signature) return NextResponse.json({ error: 'Sin firma' }, { status: 400 });
+    if (!signature) return NextResponse.json({ error: 'No signature' }, { status: 400 });
 
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err: any) {
-      console.error('❌ Error de firma:', err.message);
-      return NextResponse.json({ error: 'Firma inválida' }, { status: 400 });
+      console.error('❌ Signature verification failed:', err.message);
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    console.log(`🔔 Evento recibido: ${event.type}`);
+    console.log(`🔔 Stripe Event Received: ${event.type}`);
 
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        // Aquí es donde vinculamos el pago con el Tenant
         await handleInitialSubscription(session, supabase);
         break;
       }
@@ -70,47 +68,50 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error('❌ Webhook handler Error:', error.message);
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+    console.error('❌ Webhook Handler Error:', error.message);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 /**
- * Maneja la finalización exitosa del checkout
+ * Handle successful checkout - Sets up the initial plan and limits
  */
 async function handleInitialSubscription(session: Stripe.Checkout.Session, supabase: any) {
   const tenantId = session.metadata?.tenant_id;
-  const planTier = session.metadata?.plan;
+  const planTier = session.metadata?.plan || 'Starter';
 
   if (!tenantId) {
-    console.error('❌ Metadata tenant_id no encontrada en la sesión');
+    console.error('❌ CRITICAL: No tenant_id in session metadata. Manual fix required.');
     return;
   }
 
-  // Actualizamos la tabla principal 'tenants'
+  // Calculate usage limit based on tier
+  const maxSeconds = planTier === 'Pro' ? 30000 : planTier === 'Elite' ? 90000 : 5000;
+
   const { error } = await supabase
     .from('tenants')
     .update({
-      tier: planTier || 'Starter',
+      tier: planTier,
       stripe_customer_id: session.customer as string,
       subscription_status: 'active',
+      max_seconds: maxSeconds, // Sync usage limits
       updated_at: new Date().toISOString()
     })
     .eq('id', tenantId);
 
-  if (error) console.error('❌ Error actualizando tenant:', error.message);
-  else console.log(`✅ Tenant ${tenantId} actualizado a nivel ${planTier}`);
+  if (error) console.error('❌ Error updating tenant:', error.message);
+  else console.log(`✅ Success: Tenant ${tenantId} activated on ${planTier} plan.`);
 }
 
 /**
- * Maneja cambios en el ciclo de vida de la suscripción (upgrade, downgrade, cancelación)
+ * Syncs upgrades, downgrades, and cancellations
  */
 async function handleSubscriptionChange(subscription: Stripe.Subscription, supabase: any) {
   const tenantId = subscription.metadata?.tenant_id;
-  
-  // Mapeo de estados de Stripe a tu lógica de negocio
-  const status = subscription.status === 'active' ? 'active' : 'inactive';
+  if (!tenantId) return;
+
   const tier = subscription.metadata?.plan || 'Starter';
+  const maxSeconds = tier === 'Pro' ? 30000 : tier === 'Elite' ? 90000 : 5000;
 
   const { error } = await supabase
     .from('tenants')
@@ -118,22 +119,27 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription, supab
       tier: tier,
       subscription_status: subscription.status,
       stripe_subscription_id: subscription.id,
+      max_seconds: maxSeconds, // Update limits on plan change
+      updated_at: new Date().toISOString()
     })
     .eq('id', tenantId);
 
-  if (error) console.error('❌ Error sincronizando suscripción:', error.message);
+  if (error) console.error('❌ Error syncing subscription change:', error.message);
 }
 
 /**
- * Maneja fallos de pago para suspender el servicio
+ * Suspend service on payment failure
  */
 async function handlePaymentFailure(invoice: Stripe.Invoice, supabase: any) {
   const customerId = invoice.customer as string;
   
   const { error } = await supabase
     .from('tenants')
-    .update({ subscription_status: 'past_due' })
+    .update({ 
+        subscription_status: 'past_due',
+        updated_at: new Date().toISOString()
+    })
     .eq('stripe_customer_id', customerId);
 
-  if (error) console.error('❌ Error marcando pago fallido:', error.message);
+  if (error) console.error('❌ Error marking payment as past_due:', error.message);
 }
