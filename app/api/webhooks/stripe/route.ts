@@ -12,6 +12,14 @@ const getStripe = () => {
 
 const getWebhookSecret = () => process.env.STRIPE_WEBHOOK_SECRET;
 
+// ✅ TIER CONFIGURATION (Aligns with your 2026 Profit Model)
+const TIER_CONFIGS: Record<string, { mins: number; overage: number }> = {
+  starter: { mins: 300, overage: 0.45 },
+  professional: { mins: 1200, overage: 0.40 },
+  growth: { mins: 3000, overage: 0.35 },
+  enterprise: { mins: 7000, overage: 0.30 },
+};
+
 export async function POST(request: NextRequest) {
   const stripe = getStripe();
   const webhookSecret = getWebhookSecret();
@@ -43,7 +51,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    console.log(`🔔 Stripe Event Received: ${event.type}`);
+    console.log(`🔔 Sovereign Event: ${event.type}`);
 
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -51,14 +59,12 @@ export async function POST(request: NextRequest) {
         await handleInitialSubscription(session, supabase);
         break;
       }
-
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
         await handleSubscriptionChange(subscription, supabase);
         break;
       }
-
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
         await handlePaymentFailure(invoice, supabase);
@@ -73,73 +79,65 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Handle successful checkout - Sets up the initial plan and limits
- */
 async function handleInitialSubscription(session: Stripe.Checkout.Session, supabase: any) {
   const tenantId = session.metadata?.tenant_id;
-  const planTier = session.metadata?.plan || 'Starter';
+  const plan = (session.metadata?.plan || 'starter').toLowerCase();
+  const config = TIER_CONFIGS[plan] || TIER_CONFIGS.starter;
 
   if (!tenantId) {
-    console.error('❌ CRITICAL: No tenant_id in session metadata. Manual fix required.');
+    console.error('❌ CRITICAL: No tenant_id in session metadata.');
     return;
   }
 
-  // Calculate usage limit based on tier
-  const maxSeconds = planTier === 'Pro' ? 30000 : planTier === 'Elite' ? 90000 : 5000;
+  // Provisioning: Create Bland AI Subaccount (Conceptual logic)
+  // await provisionBlandSubaccount(tenantId, session.customer_details?.email);
 
   const { error } = await supabase
     .from('tenants')
     .update({
-      tier: planTier,
+      tier: plan,
       stripe_customer_id: session.customer as string,
+      stripe_subscription_id: session.subscription as string,
       subscription_status: 'active',
-      max_seconds: maxSeconds, // Sync usage limits
+      max_minutes: config.mins,
+      overage_rate: config.overage,
+      performance_royalty_enabled: plan === 'enterprise', // Section 3 Trigger
       updated_at: new Date().toISOString()
     })
     .eq('id', tenantId);
 
-  if (error) console.error('❌ Error updating tenant:', error.message);
-  else console.log(`✅ Success: Tenant ${tenantId} activated on ${planTier} plan.`);
+  if (error) console.error('❌ Update Error:', error.message);
 }
 
-/**
- * Syncs upgrades, downgrades, and cancellations
- */
 async function handleSubscriptionChange(subscription: Stripe.Subscription, supabase: any) {
   const tenantId = subscription.metadata?.tenant_id;
   if (!tenantId) return;
 
-  const tier = subscription.metadata?.plan || 'Starter';
-  const maxSeconds = tier === 'Pro' ? 30000 : tier === 'Elite' ? 90000 : 5000;
+  const plan = (subscription.metadata?.plan || 'starter').toLowerCase();
+  const config = TIER_CONFIGS[plan] || TIER_CONFIGS.starter;
 
   const { error } = await supabase
     .from('tenants')
     .update({
-      tier: tier,
+      tier: plan,
       subscription_status: subscription.status,
-      stripe_subscription_id: subscription.id,
-      max_seconds: maxSeconds, // Update limits on plan change
+      max_minutes: config.mins,
+      overage_rate: config.overage,
+      performance_royalty_enabled: plan === 'enterprise',
       updated_at: new Date().toISOString()
     })
     .eq('id', tenantId);
 
-  if (error) console.error('❌ Error syncing subscription change:', error.message);
+  if (error) console.error('❌ Sync Error:', error.message);
 }
 
-/**
- * Suspend service on payment failure
- */
 async function handlePaymentFailure(invoice: Stripe.Invoice, supabase: any) {
   const customerId = invoice.customer as string;
-  
-  const { error } = await supabase
+  await supabase
     .from('tenants')
     .update({ 
         subscription_status: 'past_due',
         updated_at: new Date().toISOString()
     })
     .eq('stripe_customer_id', customerId);
-
-  if (error) console.error('❌ Error marking payment as past_due:', error.message);
 }
