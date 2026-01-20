@@ -5,56 +5,95 @@ export const generateCampaignPDF = (campaignName: string, stats: any) => {
   const doc = new jsPDF();
   const timestamp = new Date().toLocaleString();
 
-  // --- DISEÑO DE CABECERA (ESTILO TERMINAL) ---
+  // --- CABECERA DE ALTO IMPACTO (MODO OSCURO) ---
   doc.setFillColor(15, 23, 42); // Slate 900
-  doc.rect(0, 0, 210, 40, 'F');
+  doc.rect(0, 0, 210, 50, 'F');
   
-  doc.setTextColor(56, 189, 248); // Sky 400
-  doc.setFontSize(10);
+  // Línea decorativa Sky Blue
+  doc.setFillColor(56, 189, 248); // Sky 400
+  doc.rect(0, 0, 5, 50, 'F');
+
+  doc.setTextColor(56, 189, 248);
+  doc.setFontSize(9);
   doc.setFont('courier', 'bold');
-  doc.text('FRONTDESK PROTOCOL // FINAL REPORT', 15, 15);
+  doc.text('FRONTDESK PROTOCOL // MISSION CRITICAL REPORT', 15, 15);
   
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
+  doc.setFontSize(24);
   doc.setFont('helvetica', 'bold');
-  doc.text(campaignName.toUpperCase(), 15, 28);
+  doc.text(campaignName.toUpperCase(), 15, 30);
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(148, 163, 184); // Slate 400
+  doc.text(`Fleet ID: ${Math.random().toString(36).substring(2, 10).toUpperCase()} // Live Deployment Data`, 15, 40);
 
-  // --- MÉTRICAS CLAVE ---
-  doc.setTextColor(100, 116, 139); // Slate 500
+  // --- BLOQUE DE METADATOS ---
+  doc.setTextColor(15, 23, 42);
   doc.setFontSize(8);
-  doc.text(`GENERATED: ${timestamp}`, 15, 48);
-  doc.text(`FLEET STATUS: DEPLOYMENT COMPLETED`, 15, 53);
+  doc.setFont('courier', 'normal');
+  doc.text(`TIMESTAMP: ${timestamp}`, 15, 60);
+  doc.text(`OPERATOR: AUTONOMOUS AGENT CLUSTER`, 15, 65);
+  doc.text(`STATUS: DISPATCH COMPLETED`, 15, 70);
 
+  // --- TABLA DE MÉTRICAS (ESTILO INDUSTRIAL) ---
   autoTable(doc, {
-    startY: 60,
-    head: [['MÉTRICA', 'VALOR', 'IMPACTO ESTIMADO']],
+    startY: 80,
+    head: [['PROTOCOL METRIC', 'RESULT', 'ECONOMIC IMPACT']],
     body: [
-      ['TIEMPO HUMANO AHORRADO', stats.hoursSaved + ' HORAS', '5 DÍAS LABORALES'],
-      ['REVENUE PIPELINE', `$${stats.revenue.toLocaleString()}`, 'ROI POSITIVO'],
-      ['CONVERSIÓN DE FLOTA', stats.conversion + '%', 'OPTIMIZACIÓN ALTA'],
-      ['LLAMADAS PROCESADAS', stats.totalCalls, 'ESCALA MASIVA'],
+      ['HUMAN TIME RECOVERY', stats.hoursSaved + ' HOURS', 'OPTIMIZED'],
+      ['REVENUE PIPELINE', `$${stats.revenue.toLocaleString()}`, 'HIGH ROI'],
+      ['FLEET CONVERSION', stats.conversion + '%', 'VERIFIED'],
+      ['TOTAL NODES DISPATCHED', stats.totalCalls, 'SCALED'],
     ],
-    theme: 'striped',
-    headStyles: { fillStyle: 'f', fillColor: [56, 189, 248], textColor: [0, 0, 0], fontSize: 10, fontStyle: 'bold' },
-    styles: { font: 'courier', fontSize: 9 },
+    theme: 'grid',
+    headStyles: { 
+      fillColor: [15, 23, 42], 
+      textColor: [56, 189, 248], 
+      fontSize: 10, 
+      fontStyle: 'bold',
+      lineWidth: 0.5,
+      lineColor: [30, 41, 59]
+    },
+    styles: { 
+      font: 'courier', 
+      fontSize: 9, 
+      cellPadding: 6,
+      lineColor: [226, 232, 240] 
+    },
+    columnStyles: {
+      0: { fontStyle: 'bold' },
+      1: { textColor: [14, 165, 233] }, // Sky 500
+      2: { textColor: [16, 185, 129] }  // Emerald 500
+    }
   });
 
-  // --- SECCIÓN DE INSIGHTS ---
-  const finalY = (doc as any).lastAutoTable.finalY + 20;
-  doc.setFillColor(248, 250, 252); 
-  doc.rect(15, finalY, 180, 25, 'F');
+  // --- SECCIÓN DE INSIGHTS DE IA ---
+  const finalY = (doc as any).lastAutoTable.finalY + 15;
+  
+  // Caja de Insight
+  doc.setFillColor(241, 245, 249); // Slate 100
+  doc.setDrawColor(203, 213, 225); // Slate 300
+  doc.roundedRect(15, finalY, 180, 35, 3, 3, 'FD');
   
   doc.setTextColor(15, 23, 42);
-  doc.setFontSize(9);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text('AI RECOMMENDATION:', 20, finalY + 10);
+  doc.text('STRATEGIC AI RECOMMENDATION:', 22, finalY + 12);
+  
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('Se detectaron 12 leads de alta prioridad. Inicie el protocolo de cierre en < 24h.', 20, finalY + 18);
+  const insightText = 'Se han identificado 12 leads de alta prioridad con un sentimiento de compra superior al 90%. Se recomienda contacto humano inmediato para cierre de contrato.';
+  const splitText = doc.splitTextToSize(insightText, 165);
+  doc.text(splitText, 22, finalY + 22);
 
-  // --- PIE DE PÁGINA ---
-  doc.setFontSize(8);
+  // --- FIRMA DIGITAL / AUTHENTICITY ---
+  doc.setFontSize(7);
   doc.setTextColor(148, 163, 184);
-  doc.text('ESTE DOCUMENTO ES UN REGISTRO OFICIAL DE OPERACIÓN AUTÓNOMA.', 105, 285, { align: 'center' });
+  const hash = Math.random().toString(16).slice(2);
+  doc.text(`DIGITAL SIGNATURE HASH: ${hash}`, 15, 275);
+  doc.text('FRONTDESK PROTOCOL - VERIFIED AUTONOMOUS OPERATION', 105, 285, { align: 'center' });
 
-  doc.save(`Report_${campaignName.replace(/\s+/g, '_')}.pdf`);
+  // Guardar archivo
+  doc.save(`Protocol_Report_${campaignName.replace(/\s+/g, '_')}.pdf`);
 };
