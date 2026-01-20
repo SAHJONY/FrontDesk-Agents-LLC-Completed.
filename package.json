@@ -3,11 +3,17 @@
   "version": "2.2.0",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
+    "preinstall": "corepack enable",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "pnpm -s approve-builds || true",
     "prepare": "node -e \"if(process.env.NODE_ENV!=='production'){try{require('husky').install()}catch(e){}}\""
   },
   "dependencies": {
