@@ -15,7 +15,8 @@ import {
   Building2,
   Check,
   Mic,
-  Zap
+  Zap,
+  Loader2
 } from "lucide-react";
 import { getPageHero } from "@/lib/siteImages";
 
@@ -29,15 +30,50 @@ const STEPS = [
 export default function SetupPage() {
   const hero = getPageHero("setup");
   const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     businessName: "",
     industry: "medical",
     knowledge: "",
-    voice: "female"
+    voice: "female",
+    tier: "professional" // Default tier para el wizard
   });
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
+
+  // FUNCIÓN DE ACTIVACIÓN DE STRIPE
+  const handleStripeCheckout = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planName: formData.tier,
+          tenantId: "ID_DEL_USUARIO_ACTUAL", // Sustituir por ID real de sesión/auth
+          businessName: formData.businessName,
+          metadata: {
+            voice: formData.voice,
+            industry: formData.industry
+          }
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || "Fallo al generar sesión de Stripe");
+      }
+    } catch (error) {
+      console.error("Error en el despliegue del protocolo:", error);
+      alert("Error de conexión con la pasarela de pago. Intente de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -112,12 +148,12 @@ export default function SetupPage() {
               </p>
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] font-bold uppercase">Google Calendar</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Google Calendar</span>
                   <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-slate-950 border border-slate-800 opacity-50">
-                  <span className="text-[10px] font-bold uppercase">GoHighLevel (Próximamente)</span>
-                  <Zap size={12} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">HubSpot CRM</span>
+                  <Zap size={12} className="text-slate-500" />
                 </div>
               </div>
             </div>
@@ -127,14 +163,21 @@ export default function SetupPage() {
         return (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
             <div className="w-16 h-16 bg-sky-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-sky-500/50">
-              <CreditCard className="text-sky-400" />
+              {loading ? <Loader2 className="text-sky-400 animate-spin" /> : <CreditCard className="text-sky-400" />}
             </div>
             <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-2">Protocolo Listo</h2>
-            <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-8">Suscripción: $499/mes • Nodo Profesional</p>
-            <button className="w-full rounded-full bg-sky-500 py-5 text-sm font-black text-slate-950 hover:bg-sky-400 transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(14,165,233,0.3)]">
-              ACTIVAR INFRAESTRUCTURA <ArrowRight size={18} />
+            <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-8">Suscripción: $499/mes • Professional Fleet</p>
+            <button 
+              onClick={handleStripeCheckout}
+              disabled={loading}
+              className="w-full rounded-full bg-sky-500 py-5 text-sm font-black text-slate-950 hover:bg-sky-400 transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(14,165,233,0.3)] disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest"
+            >
+              {loading ? "Cifrando sesión..." : "ACTIVAR INFRAESTRUCTURA"} 
+              {!loading && <ArrowRight size={18} />}
             </button>
-            <p className="mt-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">Pago seguro vía Stripe · Cancelación en 1-clic</p>
+            <p className="mt-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest italic">
+              Se redirigirá a la pasarela segura de Stripe
+            </p>
           </motion.div>
         );
     }
@@ -142,7 +185,6 @@ export default function SetupPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50 selection:bg-sky-500/30">
-      {/* NAVIGATION */}
       <nav className="border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
@@ -168,17 +210,14 @@ export default function SetupPage() {
             Inicializar Infraestructura
           </h1>
           <p className="text-slate-400 text-sm max-w-xl italic">
-            Configura tu agente autónomo, conecta tus calendarios y activa la captura de ingresos en menos de 5 minutos.
+            Configura tu agente autónomo, conecta tus calendarios y activa la captura de ingresos mediante el protocolo oficial.
           </p>
         </header>
 
         <div className="grid lg:grid-cols-3 gap-12 items-start">
-          {/* LADO IZQUIERDO: STEPS & INDICATORS */}
           <div className="lg:col-span-1 space-y-8">
             <div className="relative space-y-6">
-              {/* Vertical line connector */}
               <div className="absolute left-4 top-2 bottom-2 w-px bg-slate-800 z-0" />
-              
               {STEPS.map((step) => (
                 <div key={step.id} className="relative z-10 flex items-center gap-4">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all duration-500 ${
@@ -199,29 +238,12 @@ export default function SetupPage() {
                 </div>
               ))}
             </div>
-
-            {hero && (
-              <div className="hidden lg:block relative aspect-square rounded-2xl overflow-hidden border border-slate-800 group">
-                <Image
-                  src={hero.src}
-                  alt={hero.alt}
-                  fill
-                  className="object-cover opacity-50 group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-1">Preview</p>
-                  <p className="text-xs text-white italic">"Despliegue de nodo autónomo en región EU-West"</p>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* LADO DERECHO: WIZARD CONTENT */}
           <div className="lg:col-span-2">
             <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4">
-                <Zap size={20} className="text-slate-800" />
+                <Zap size={20} className="text-slate-800 opacity-20" />
               </div>
 
               <div className="min-h-[300px]">
@@ -230,9 +252,8 @@ export default function SetupPage() {
                 </AnimatePresence>
               </div>
 
-              {/* ACTION BUTTONS */}
               <div className="mt-12 flex items-center justify-between gap-4">
-                {currentStep > 1 && currentStep < 4 && (
+                {currentStep > 1 && currentStep < 4 && !loading && (
                   <button 
                     onClick={prevStep}
                     className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
@@ -244,7 +265,7 @@ export default function SetupPage() {
                 {currentStep < 4 && (
                   <button 
                     onClick={nextStep}
-                    className="flex-1 sm:flex-none ml-auto rounded-full bg-white px-8 py-4 text-[10px] font-black text-slate-950 hover:bg-sky-400 transition-all flex items-center justify-center gap-2 tracking-widest"
+                    className="flex-1 sm:flex-none ml-auto rounded-full bg-white px-8 py-4 text-[10px] font-black text-slate-950 hover:bg-sky-400 transition-all flex items-center justify-center gap-2 tracking-[0.2em]"
                   >
                     SIGUIENTE PASO
                     <ArrowRight size={14} />
@@ -253,7 +274,6 @@ export default function SetupPage() {
               </div>
             </div>
 
-            {/* SECURITY BADGE */}
             <div className="mt-8 flex items-center justify-center gap-6 opacity-40">
               <div className="flex items-center gap-2">
                 <Check size={12} className="text-sky-400" />
@@ -262,10 +282,6 @@ export default function SetupPage() {
               <div className="flex items-center gap-2">
                 <Check size={12} className="text-sky-400" />
                 <span className="text-[8px] font-bold uppercase tracking-[0.2em]">PCI Compliant</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check size={12} className="text-sky-400" />
-                <span className="text-[8px] font-bold uppercase tracking-[0.2em]">No Data Mining</span>
               </div>
             </div>
           </div>
