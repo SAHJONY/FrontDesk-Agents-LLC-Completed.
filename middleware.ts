@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createClient } from "@supabase/supabase-js"; // Ensure you have this installed
+import { createClient } from "@supabase/supabase-js";
+import { Redis } from "@upstash/redis";
 
 const PUBLIC_PREFIXES = [
   "/", "/pricing", "/demo", "/support", "/features", "/industries",
@@ -8,7 +9,12 @@ const PUBLIC_PREFIXES = [
   "/forgot-password", "/_not-found",
 ];
 
-// Initialize a lightweight Supabase client for usage checks
+// Initialize Services
+const redis = new Redis({
+  url: process.env.REDIS_URL!,
+  token: process.env.REDIS_TOKEN!,
+});
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -19,7 +25,7 @@ function isStaticOrInternal(pathname: string) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/images") ||
-    pathname.startsWith("/static") ||
+    pathname.startsWith("/api") || // API routes handled by their own logic
     pathname === "/robots.txt" ||
     pathname.endsWith(".png") ||
     pathname.endsWith(".jpg")
@@ -28,7 +34,6 @@ function isStaticOrInternal(pathname: string) {
 
 function isPublic(pathname: string) {
   if (isStaticOrInternal(pathname)) return true;
-  if (pathname.startsWith("/api")) return true;
   return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
@@ -37,7 +42,7 @@ export async function middleware(req: NextRequest) {
   const cookies = req.cookies;
   const isPublicRoute = isPublic(pathname);
 
-  // 1. Handle Impersonation
+  // 1. Handle Impersonation (Super Admin Powers)
   const impersonatedId = cookies.get('impersonated_owner_id')?.value;
   if (impersonatedId && !isPublicRoute) {
     const requestHeaders = new Headers(req.headers);
@@ -46,30 +51,49 @@ export async function middleware(req: NextRequest) {
   }
 
   // 2. ✅ PROTECTED ROUTE USAGE GUARD
-  // If the user is trying to access the dashboard, check if they are "Over-Limit"
   if (!isPublicRoute && pathname.startsWith("/dashboard")) {
-    const session = cookies.get("sb-access-token"); // Example Supabase cookie
-    
-    if (session) {
-      // Fetch tenant usage vs limits from Supabase
-      // In production, you might want to cache this in a JWT or Redis to save DB hits
-      const { data: tenant } = await supabase
-        .from('tenants')
-        .select('used_minutes, max_minutes, subscription_status')
-        .eq('auth_user_id', session.value) 
-        .single();
+    // Note: 'sb-access-token' is a placeholder for your specific Auth provider's cookie
+    const userId = cookies.get("sb-user-id")?.value; 
 
-      // Logic: If they hit the hard cap and aren't in 'Enterprise', redirect to upgrade
-      if (tenant && tenant.used_minutes >= tenant.max_minutes) {
-         const upgradeUrl = req.nextUrl.clone();
-         upgradeUrl.pathname = "/pricing";
-         upgradeUrl.searchParams.set("reason", "usage_limit");
-         return NextResponse.redirect(upgradeUrl);
+    if (userId) {
+      /**
+       * ⚡ REDIS-FIRST STRATEGY
+       * We check Redis for the "block_status". This is updated by your 
+       * Bland AI Webhook when minutes run out.
+       */
+      const blockStatus = await redis.get(`block:${userId}`);
+
+      if (blockStatus === 'EXHAUSTED' || blockStatus === 'PAST_DUE') {
+        const upgradeUrl = req.nextUrl.clone();
+        upgradeUrl.pathname = "/pricing";
+        upgradeUrl.searchParams.set("reason", "usage_limit");
+        return NextResponse.redirect(upgradeUrl);
+      }
+
+      /**
+       * 🛡️ DB FALLBACK
+       * If Redis is empty, check Supabase and prime the Redis cache.
+       */
+      if (!blockStatus) {
+        const { data: tenant } = await supabase
+          .from('tenants')
+          .select('used_minutes, max_minutes')
+          .eq('owner_id', userId) 
+          .single();
+
+        if (tenant && tenant.used_minutes >= tenant.max_minutes) {
+          // Sync to Redis for the next request
+          await redis.set(`block:${userId}`, 'EXHAUSTED', { ex: 3600 }); 
+          
+          const upgradeUrl = req.nextUrl.clone();
+          upgradeUrl.pathname = "/pricing";
+          upgradeUrl.searchParams.set("reason", "usage_limit");
+          return NextResponse.redirect(upgradeUrl);
+        }
       }
     }
   }
 
-  if (isPublicRoute) return NextResponse.next();
   return NextResponse.next();
 }
 
