@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { getPageHero } from "@/lib/siteImages";
 import { 
   PhoneCall, 
@@ -12,7 +13,10 @@ import {
   Zap, 
   Activity,
   ArrowUpRight,
-  ListFilter
+  ListFilter,
+  X,
+  User,
+  MessageSquare
 } from "lucide-react";
 
 // Componentes del Protocolo
@@ -23,6 +27,9 @@ import { useAccountMetrics } from "@/hooks/useAccountMetrics";
 export default function DashboardPage() {
   const hero = getPageHero("dashboard");
   const { metrics, isLoading } = useAccountMetrics();
+  
+  // Estado para el Modal de Transcripción
+  const [selectedCall, setSelectedCall] = useState<any>(null);
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in duration-700">
@@ -94,61 +101,12 @@ export default function DashboardPage() {
 
       {/* GRID DE MÉTRICAS DE IMPACTO */}
       <section className="grid gap-6 md:grid-cols-3">
-        {/* Llamadas Respondidas */}
-        <motion.div 
-          whileHover={{ y: -4 }}
-          className="group rounded-3xl border border-slate-800 bg-slate-900/30 p-8 transition-all hover:border-slate-700 cursor-pointer"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Atención Hoy</p>
-            <PhoneCall className="w-5 h-5 text-slate-700 group-hover:text-sky-400 transition-colors" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <p className="text-4xl font-black text-slate-50 tracking-tighter">
-              {isLoading ? <Loader2 className="w-8 h-8 animate-spin text-slate-800" /> : metrics.answeredToday}
-            </p>
-          </div>
-          <p className="mt-3 text-[11px] text-slate-500 font-medium leading-relaxed uppercase italic">
-            Llamadas gestionadas por <span className="text-sky-500/80">nodos autónomos</span>.
-          </p>
-        </motion.div>
-
-        {/* Citas Agendadas */}
-        <motion.div 
-          whileHover={{ y: -4 }}
-          className="group rounded-3xl border border-slate-800 bg-slate-900/30 p-8 transition-all hover:border-slate-700 cursor-pointer"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Conversión Directa</p>
-            <CalendarCheck className="w-5 h-5 text-slate-700 group-hover:text-emerald-400 transition-colors" />
-          </div>
-          <p className="text-4xl font-black text-slate-50 tracking-tighter">
-            {isLoading ? "..." : metrics.appointmentsBooked}
-          </p>
-          <p className="mt-3 text-[11px] text-slate-500 font-medium leading-relaxed uppercase italic">
-            Citas sincronizadas al <span className="text-emerald-500/80">calendario central</span>.
-          </p>
-        </motion.div>
-
-        {/* Pipeline de Ingresos */}
-        <motion.div 
-          whileHover={{ y: -4 }}
-          className="group rounded-3xl border border-sky-500/30 bg-sky-500/[0.03] p-8 transition-all hover:border-sky-500/50"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[10px] text-sky-400 uppercase font-black tracking-widest italic">Revenue Pipeline</p>
-            <TrendingUp className="w-5 h-5 text-sky-400" />
-          </div>
-          <p className="text-4xl font-black text-sky-300 italic tracking-tighter">
-            ${isLoading ? "0" : metrics.estimatedPipeline.toLocaleString()}
-          </p>
-          <p className="mt-3 text-[11px] text-sky-700 font-black leading-relaxed uppercase tracking-tighter">
-            ROI Estimado basado en captación de leads.
-          </p>
-        </motion.div>
+        <MetricCard title="Atención Hoy" value={metrics.answeredToday} icon={PhoneCall} subtitle="Llamadas gestionadas" loading={isLoading} />
+        <MetricCard title="Conversión" value={metrics.appointmentsBooked} icon={CalendarCheck} subtitle="Citas en calendario" loading={isLoading} />
+        <MetricCard title="Revenue Pipeline" value={`$${metrics.estimatedPipeline.toLocaleString()}`} icon={TrendingUp} subtitle="ROI Estimado" loading={isLoading} highlight />
       </section>
 
-      {/* SECCIÓN DE REGISTROS DE LLAMADAS (Call Log) */}
+      {/* SECCIÓN DE REGISTROS DE LLAMADAS */}
       <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-200">
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
@@ -157,12 +115,6 @@ export default function DashboardPage() {
               Últimas Interacciones de Nodo
             </h2>
           </div>
-          <Link 
-            href="/dashboard/calls" 
-            className="text-[10px] font-black text-sky-500 hover:text-sky-400 transition-colors uppercase tracking-[0.2em] border-b border-sky-500/20 pb-1"
-          >
-            Protocolo Completo →
-          </Link>
         </div>
 
         {isLoading ? (
@@ -171,9 +123,104 @@ export default function DashboardPage() {
             <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Sincronizando registros...</span>
           </div>
         ) : (
-          <CallLogTable calls={metrics.recentCalls || []} />
+          <CallLogTable 
+            calls={metrics.recentCalls || []} 
+            onViewTranscript={(call) => setSelectedCall(call)}
+          />
         )}
       </section>
+
+      {/* MODAL DE TRANSCRIPCIÓN (AnimatePresence para transiciones suaves) */}
+      <AnimatePresence>
+        {selectedCall && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              {/* Header del Modal */}
+              <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400">
+                    <MessageSquare size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-500">Protocolo de Transcripción</h3>
+                    <p className="text-lg font-black text-white italic uppercase tracking-tighter">
+                      {selectedCall.from} <span className="text-slate-600 text-xs ml-2">— {selectedCall.duration}</span>
+                    </p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedCall(null)} className="p-3 hover:bg-white/5 rounded-full text-slate-500 transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Cuerpo del Modal (Chat) */}
+              <div className="p-8 h-[450px] overflow-y-auto space-y-8 bg-slate-950/20">
+                {selectedCall.transcript?.map((msg: any, i: number) => (
+                  <div key={i} className={`flex gap-4 ${msg.role === 'assistant' ? 'flex-row' : 'flex-row-reverse'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                      msg.role === 'assistant' ? 'bg-sky-500/10 border-sky-500/20 text-sky-400' : 'bg-slate-800 border-slate-700 text-slate-400'
+                    }`}>
+                      {msg.role === 'assistant' ? <Zap size={16} /> : <User size={16} />}
+                    </div>
+                    <div className={`max-w-[75%] p-5 rounded-3xl text-[13px] leading-relaxed font-medium ${
+                      msg.role === 'assistant' 
+                        ? 'bg-slate-800 text-slate-100 rounded-tl-none border border-white/5' 
+                        : 'bg-sky-500/10 text-sky-100 border border-sky-500/20 rounded-tr-none'
+                    }`}>
+                      <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-2">
+                        {msg.role === 'assistant' ? 'FrontDesk Protocol' : 'Caller ID: Verified'}
+                      </p>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer con Metadatos */}
+              <div className="p-6 bg-slate-900 border-t border-slate-800 flex items-center justify-between">
+                <div className="flex gap-6">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">Sentimiento</span>
+                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest italic">Interesado • Positivo</span>
+                  </div>
+                  <div className="flex flex-col border-l border-slate-800 pl-6">
+                    <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">Resultado</span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-widest italic">Cita Agendada</span>
+                  </div>
+                </div>
+                <button className="px-6 py-2.5 bg-white text-black text-[10px] font-black uppercase rounded-full hover:bg-sky-400 transition-all">
+                  Sync to CRM
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+// Helper: Tarjeta de Métrica Reutilizable
+function MetricCard({ title, value, icon: Icon, subtitle, loading, highlight }: any) {
+  return (
+    <motion.div whileHover={{ y: -4 }} className={`group rounded-3xl border p-8 transition-all ${
+      highlight ? 'border-sky-500/30 bg-sky-500/[0.03] hover:border-sky-500/50' : 'border-slate-800 bg-slate-900/30 hover:border-slate-700'
+    }`}>
+      <div className="flex items-center justify-between mb-4">
+        <p className={`text-[10px] uppercase font-black tracking-widest ${highlight ? 'text-sky-400 italic' : 'text-slate-500'}`}>{title}</p>
+        <Icon className={`w-5 h-5 ${highlight ? 'text-sky-400' : 'text-slate-700 group-hover:text-sky-400'} transition-colors`} />
+      </div>
+      <p className={`text-4xl font-black tracking-tighter ${highlight ? 'text-sky-300 italic' : 'text-slate-50'}`}>
+        {loading ? <Loader2 className="w-8 h-8 animate-spin opacity-10" /> : value}
+      </p>
+      <p className="mt-3 text-[11px] text-slate-500 font-medium leading-relaxed uppercase italic">
+        {subtitle}
+      </p>
+    </motion.div>
   );
 }
