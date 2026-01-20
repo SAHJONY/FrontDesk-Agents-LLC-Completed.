@@ -2,20 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireSupabaseServer } from '@/lib/supabase-server';
 import Stripe from 'stripe';
 
-// Force this route to be dynamic to prevent static generation during build
 export const dynamic = 'force-dynamic';
 
-// Initialize Stripe lazily to avoid crashing during build if env vars are missing
 const getStripe = () => {
-  const stripeKey = process.env.STRIPE_SECRET_KEY;
-  if (!stripeKey) {
-    return null;
-  }
-  return new Stripe(stripeKey, {
-    apiVersion: '2024-12-18.acacia',
-  });
+  const stripeKey = process.env.STRIPE_SECRET_KEY; // Usamos la clave secreta (NUNCA NEXT_PUBLIC)
+  if (!stripeKey) return null;
+  return new Stripe(stripeKey, { apiVersion: '2024-12-18.acacia' });
 };
 
+// IMPORTANTE: Asegúrate de que en Vercel la variable sea STRIPE_WEBHOOK_SECRET (sin NEXT_PUBLIC)
 const getWebhookSecret = () => process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(request: NextRequest) {
@@ -23,113 +18,122 @@ export async function POST(request: NextRequest) {
   const webhookSecret = getWebhookSecret();
 
   if (!stripe || !webhookSecret) {
-    console.error('❌ Stripe or Webhook Secret is not configured');
-    return NextResponse.json(
-      { error: 'Stripe configuration missing' },
-      { status: 500 }
-    );
+    console.error('❌ Configuración de Stripe incompleta');
+    return NextResponse.json({ error: 'Configuración faltante' }, { status: 500 });
   }
 
-  // Initialize supabase at the top of the handler
   let supabase;
   try {
     supabase = requireSupabaseServer();
   } catch (error: any) {
-    console.error('❌ Supabase initialization failed:', error.message);
-    return NextResponse.json(
-      { error: 'Database configuration missing' },
-      { status: 500 }
-    );
+    console.error('❌ Error Supabase:', error.message);
+    return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 });
   }
   
   try {
     const body = await request.text();
     const signature = request.headers.get('stripe-signature');
 
-    if (!signature) {
-      return NextResponse.json({ error: 'No signature provided' }, { status: 400 });
-    }
+    if (!signature) return NextResponse.json({ error: 'Sin firma' }, { status: 400 });
 
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err: any) {
-      console.error('❌ Webhook signature verification failed:', err.message);
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+      console.error('❌ Error de firma:', err.message);
+      return NextResponse.json({ error: 'Firma inválida' }, { status: 400 });
     }
 
-    console.log('✅ Stripe webhook received:', event.type);
+    console.log(`🔔 Evento recibido: ${event.type}`);
 
     switch (event.type) {
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
-        // Pass supabase instance to helper
-        await handleSubscriptionUpdate(subscription, supabase);
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        // Aquí es donde vinculamos el pago con el Tenant
+        await handleInitialSubscription(session, supabase);
         break;
       }
 
+      case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionCancellation(subscription, supabase);
+        await handleSubscriptionChange(subscription, supabase);
         break;
       }
 
-      case 'invoice.paid':
-        console.log('✅ Invoice paid:', (event.data.object as Stripe.Invoice).id);
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice;
+        await handlePaymentFailure(invoice, supabase);
         break;
-
-      case 'invoice.payment_failed':
-        console.error('❌ Payment failed:', (event.data.object as Stripe.Invoice).id);
-        break;
-
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
+      }
     }
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error('❌ Webhook error:', error.message);
-    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
+    console.error('❌ Webhook handler Error:', error.message);
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }
 
-async function handleSubscriptionUpdate(subscription: Stripe.Subscription, supabase: any) {
-  // Pull metadata we set in the Checkout API
-  const customerId = subscription.metadata.customer_id;
-  const planTier = subscription.metadata.plan; 
-  
-  if (!customerId) {
-    console.error('❌ No customer_id in subscription metadata');
+/**
+ * Maneja la finalización exitosa del checkout
+ */
+async function handleInitialSubscription(session: Stripe.Checkout.Session, supabase: any) {
+  const tenantId = session.metadata?.tenant_id;
+  const planTier = session.metadata?.plan;
+
+  if (!tenantId) {
+    console.error('❌ Metadata tenant_id no encontrada en la sesión');
     return;
   }
 
+  // Actualizamos la tabla principal 'tenants'
   const { error } = await supabase
-    .from('subscriptions')
-    .upsert({
-      user_id: customerId, // Matching your schema's likely column name
-      stripe_subscription_id: subscription.id,
-      stripe_customer_id: subscription.customer as string,
-      status: subscription.status,
-      tier: planTier || 'Starter', // Saves 'Starter', 'Professional', etc.
-      plan_id: subscription.items.data[0]?.price.id,
-      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-      cancel_at_period_end: subscription.cancel_at_period_end,
-    }, { onConflict: 'stripe_subscription_id' });
+    .from('tenants')
+    .update({
+      tier: planTier || 'Starter',
+      stripe_customer_id: session.customer as string,
+      subscription_status: 'active',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', tenantId);
 
-  if (error) console.error('❌ Error updating subscription:', error.message);
-  else console.log('✅ DB Updated: Subscription', subscription.id);
+  if (error) console.error('❌ Error actualizando tenant:', error.message);
+  else console.log(`✅ Tenant ${tenantId} actualizado a nivel ${planTier}`);
 }
 
-async function handleSubscriptionCancellation(subscription: Stripe.Subscription, supabase: any) {
-  const { error } = await supabase
-    .from('subscriptions')
-    .update({ 
-      status: 'canceled',
-      canceled_at: new Date().toISOString() 
-    })
-    .eq('stripe_subscription_id', subscription.id);
+/**
+ * Maneja cambios en el ciclo de vida de la suscripción (upgrade, downgrade, cancelación)
+ */
+async function handleSubscriptionChange(subscription: Stripe.Subscription, supabase: any) {
+  const tenantId = subscription.metadata?.tenant_id;
+  
+  // Mapeo de estados de Stripe a tu lógica de negocio
+  const status = subscription.status === 'active' ? 'active' : 'inactive';
+  const tier = subscription.metadata?.plan || 'Starter';
 
-  if (error) console.error('❌ Error canceling subscription:', error.message);
-  else console.log('✅ DB Updated: Subscription canceled', subscription.id);
+  const { error } = await supabase
+    .from('tenants')
+    .update({
+      tier: tier,
+      subscription_status: subscription.status,
+      stripe_subscription_id: subscription.id,
+    })
+    .eq('id', tenantId);
+
+  if (error) console.error('❌ Error sincronizando suscripción:', error.message);
+}
+
+/**
+ * Maneja fallos de pago para suspender el servicio
+ */
+async function handlePaymentFailure(invoice: Stripe.Invoice, supabase: any) {
+  const customerId = invoice.customer as string;
+  
+  const { error } = await supabase
+    .from('tenants')
+    .update({ subscription_status: 'past_due' })
+    .eq('stripe_customer_id', customerId);
+
+  if (error) console.error('❌ Error marcando pago fallido:', error.message);
 }
