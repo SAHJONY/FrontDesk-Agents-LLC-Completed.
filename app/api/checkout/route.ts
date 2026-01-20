@@ -1,11 +1,10 @@
-// app/api/checkout/route.ts
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Usamos la misma versión de API que en el Webhook para evitar conflictos
+// Versión de API alineada con los últimos estándares de seguridad de Stripe
 const STRIPE_API_VERSION = '2024-12-18.acacia';
 
 const stripeKey = process.env.STRIPE_SECRET_KEY;
@@ -16,40 +15,41 @@ const stripe = stripeKey
 type PlanKey = "starter" | "professional" | "growth" | "enterprise";
 
 /**
- * Normaliza el nombre del plan y devuelve el label para Stripe y DB
+ * Normaliza el nombre del plan para el FrontDesk Protocol
  */
 function normalizePlan(input: string): { key: PlanKey; label: string } {
   const raw = (input || "").trim().toLowerCase();
   
   const map: Record<string, { key: PlanKey; label: string }> = {
-    starter: { key: "starter", label: "Starter" },
-    professional: { key: "professional", label: "Professional" },
-    growth: { key: "growth", label: "Growth" },
-    enterprise: { key: "enterprise", label: "Enterprise" },
+    starter: { key: "starter", label: "Starter Node" },
+    professional: { key: "professional", label: "Professional Fleet" },
+    growth: { key: "growth", label: "Growth Cluster" },
+    enterprise: { key: "enterprise", label: "Enterprise Protocol" },
   };
 
   return map[raw] || map.starter;
 }
 
+// PRECIOS ACTUALIZADOS AL PROTOCOLO 2026 ($149 - $1,999)
 const PRICE_USD: Record<PlanKey, number> = {
-  starter: 299,
-  professional: 699,
-  growth: 1299,
-  enterprise: 2499,
+  starter: 149,
+  professional: 499,
+  growth: 999,
+  enterprise: 1999,
 };
 
 const LOCATION_RANGE: Record<PlanKey, string> = {
-  starter: "1 Location",
-  professional: "2–5 Locations",
-  growth: "6–15 Locations",
-  enterprise: "16+ Locations",
+  starter: "1 Node / 300 Mins",
+  professional: "3 Nodes / 1,200 Mins",
+  growth: "10 Nodes / 3,000 Mins",
+  enterprise: "Unlimited Nodes / 7,000 Mins",
 };
 
 const PLAN_DESCRIPTION: Record<PlanKey, string> = {
-  starter: "24/7 AI Receptionist • Call Summaries • CRM Basics",
-  professional: "Multi-staff Scheduling • Advanced Analytics • TCPA Compliance",
-  growth: "Multi-language Support • CRM Connectors • 99.9% SLA",
-  enterprise: "White-labeling • Dedicated Instance • 99.99% SLA",
+  starter: "24/7 Autonomous Receptionist • Core Intelligence • SMS Summaries",
+  professional: "Advanced Fleet Management • CRM Integration • Priority Routing",
+  growth: "Cluster Deployment • Multi-language • Enterprise Security SLA",
+  enterprise: "Dedicated Protocol Instance • White-label • Unlimited Capacity",
 };
 
 const STRIPE_PRICE_ID: Partial<Record<PlanKey, string>> = {
@@ -66,7 +66,7 @@ function baseUrl() {
 export async function POST(req: Request) {
   try {
     if (!stripe) {
-      return NextResponse.json({ error: "Stripe no configurado" }, { status: 500 });
+      return NextResponse.json({ error: "Infraestructura Stripe no detectada" }, { status: 500 });
     }
 
     const body = await req.json().catch(() => ({}));
@@ -74,26 +74,26 @@ export async function POST(req: Request) {
     const tenantId = body?.tenantId; 
 
     if (!tenantId) {
-      return NextResponse.json({ error: "tenantId es requerido para el checkout" }, { status: 400 });
+      return NextResponse.json({ error: "Se requiere tenantId para vincular el nodo" }, { status: 400 });
     }
 
     const { key, label } = normalizePlan(planName);
     const priceId = STRIPE_PRICE_ID[key];
 
-    // Configuración de la sesión de Checkout
+    // Creación de la Sesión de Pago Segura
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
       allow_promotion_codes: true,
       
-      // client_reference_id es el estándar de Stripe para IDs externos
+      // Vincula la sesión directamente con tu tenant en Supabase
       client_reference_id: tenantId,
 
-      // Metadata que recibirá el Webhook para actualizar Supabase
       metadata: {
         tenant_id: tenantId,
-        plan: label,
+        plan_label: label,
         plan_key: key,
+        protocol: "frontdesk_2026"
       },
 
       line_items: [
@@ -103,25 +103,25 @@ export async function POST(req: Request) {
               price_data: {
                 currency: "usd",
                 product_data: {
-                  name: `FrontDesk Agents - ${label} Plan`,
+                  name: `FrontDesk Protocol: ${label}`,
                   description: `${LOCATION_RANGE[key]} • ${PLAN_DESCRIPTION[key]}`,
                 },
-                unit_amount: PRICE_USD[key] * 100, // Stripe usa centavos
+                unit_amount: PRICE_USD[key] * 100, // Stripe maneja centavos
                 recurring: { interval: "month" },
               },
               quantity: 1,
             },
       ],
 
-      success_url: `${baseUrl()}/dashboard?session_id={CHECKOUT_SESSION_ID}&status=success`,
-      cancel_url: `${baseUrl()}/pricing?status=cancelled`,
+      success_url: `${baseUrl()}/dashboard?status=active&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl()}/setup?status=retry`,
     });
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
-    console.error("❌ Error en Checkout Session:", error);
+    console.error("❌ PROTOCOL ERROR (Checkout):", error);
     return NextResponse.json(
-      { error: error?.message || "Error al crear sesión de pago" },
+      { error: error?.message || "Fallo en la pasarela de pago" },
       { status: 500 }
     );
   }
