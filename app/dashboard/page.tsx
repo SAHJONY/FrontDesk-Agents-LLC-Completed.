@@ -3,15 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getPageHero } from "@/lib/siteImages";
-import { PhoneCall, CalendarCheck, TrendingUp, Loader2, Zap } from "lucide-react";
+import { PhoneCall, CalendarCheck, TrendingUp, Loader2, Zap, Activity } from "lucide-react";
 
-// Integrated Components & Hooks
-import { NodeStatus } from "@/components/dashboard/NodeStatus";
-import { useNodeMetrics } from "@/hooks/useNodeMetrics";
+// Updated components to reflect clean utility branding
+import { UsageStatus } from "@/components/dashboard/UsageStatus"; 
+import { useAccountMetrics } from "@/hooks/useAccountMetrics";
 
 export default function DashboardPage() {
   const hero = getPageHero("dashboard");
-  const { metrics, isLoading } = useNodeMetrics();
+  const { metrics, isLoading } = useAccountMetrics();
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in duration-700">
@@ -20,7 +20,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-1">
             <div className={`h-1.5 w-1.5 rounded-full ${isLoading ? 'bg-slate-600' : 'bg-sky-400 animate-pulse'}`} />
             <p className="text-xs font-semibold tracking-[0.3em] text-sky-400 uppercase">
-              {isLoading ? 'Synchronizing Node...' : 'Client Dashboard'}
+              {isLoading ? 'Updating Account...' : 'Client Dashboard'}
             </p>
           </div>
           {hero && (
@@ -51,14 +51,14 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Infrastructure Pulse Row */}
+      {/* Usage & Infrastructure Row */}
       <div className="grid gap-6 lg:grid-cols-12">
         <div className="lg:col-span-4">
-          <NodeStatus 
+          <UsageStatus 
             tier={metrics.tier} 
             usedMins={metrics.usedMins} 
             maxMins={metrics.maxMins} 
-            status={isLoading ? "PAST_DUE" : "ACTIVE"} 
+            status={isLoading ? "LOADING" : "ACTIVE"} 
           />
         </div>
         <div className="lg:col-span-8 relative rounded-xl border border-slate-800 overflow-hidden group">
@@ -73,7 +73,8 @@ export default function DashboardPage() {
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-slate-900/80 backdrop-blur-md px-3 py-1 border border-white/5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Instance: PDX-1</span>
+            <Activity className="w-3 h-3 text-sky-400" />
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System Status: Optimal</span>
           </div>
         </div>
       </div>
@@ -91,7 +92,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <p className="mt-2 text-[11px] text-slate-500 leading-relaxed">
-            Connected calls handled by <span className="text-slate-300">AI Node fleet</span>.
+            Connected calls handled by <span className="text-slate-300">AI agents</span>.
           </p>
         </div>
 
@@ -105,21 +106,21 @@ export default function DashboardPage() {
             {isLoading ? "..." : metrics.appointmentsBooked}
           </p>
           <p className="mt-2 text-[11px] text-slate-500 leading-relaxed">
-            Coming directly from AI agents into your <span className="text-slate-300">CRM calendar</span>.
+            Synced directly to your <span className="text-slate-300">connected calendar</span>.
           </p>
         </div>
 
-        {/* Estimated Pipeline */}
+        {/* Estimated Revenue */}
         <div className="group rounded-xl border border-sky-500/20 bg-sky-500/[0.03] p-6 transition-all hover:border-sky-500/50">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs text-sky-400 uppercase font-bold tracking-tight">Estimated pipeline</p>
+            <p className="text-xs text-sky-400 uppercase font-bold tracking-tight">Estimated Revenue</p>
             <TrendingUp className="w-4 h-4 text-sky-400" />
           </div>
           <p className="text-3xl font-black text-sky-300 italic">
             ${isLoading ? "0" : metrics.estimatedPipeline.toLocaleString()}
           </p>
           <p className="mt-2 text-[11px] text-sky-700 font-medium leading-relaxed uppercase">
-            Recaptured yield from active campaigns.
+            Calculated ROI from active campaigns.
           </p>
         </div>
       </section>
