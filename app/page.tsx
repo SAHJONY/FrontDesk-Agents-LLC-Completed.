@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -17,6 +16,8 @@ import {
   Clock,
   TrendingUp,
   Zap,
+  Globe,
+  Cpu
 } from "lucide-react";
 
 export default function HomePage() {
@@ -37,68 +38,78 @@ export default function HomePage() {
   if (!mounted) return <div className="min-h-screen bg-slate-950" />;
 
   const features = [
-    { icon: Phone, title: "AI Voice Agents", description: "Natural conversations that qualify leads and book appointments 24/7" },
-    { icon: MessageSquare, title: "Smart Messaging", description: "Automated SMS follow-ups and appointment reminders" },
-    { icon: BarChart3, title: "Real-Time Analytics", description: "Deep insights into call performance and conversion rates" },
-    { icon: Users, title: "Multi-Location Support", description: "Manage all your locations from one unified dashboard" },
+    { icon: Cpu, title: "Autonomous Nodes", description: "Dedicated AI instances with sub-150ms latency for natural human dialogue." },
+    { icon: Globe, title: "Global Routing", description: "Deploy localized agents across 15+ regional data centers for zero-lag response." },
+    { icon: Shield, title: "Sovereign Data", description: "Your proprietary scripts and lead data remain 100% private and encrypted." },
+    { icon: TrendingUp, title: "Yield Capture", description: "Automated ROI tracking that monitors every appointment and lead value." },
   ];
 
   const stats = [
-    { value: "99.9%", label: "Uptime", icon: Clock },
-    { value: "10K+", label: "Calls/Month", icon: Phone },
-    { value: "40%", label: "Revenue Increase", icon: TrendingUp },
-    { value: "24/7", label: "Always Active", icon: Zap },
+    { value: "150ms", label: "Latency", icon: Zap },
+    { value: "7,000", label: "Max Mins/Node", icon: Phone },
+    { value: "91%", label: "Profit Margin", icon: TrendingUp },
+    { value: "24/7", label: "Active Fleet", icon: Clock },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 overflow-x-hidden">
+    <div className="min-h-screen bg-black text-slate-50 overflow-x-hidden selection:bg-cyan-500/30">
       {/* Background Layer */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.08),transparent_50%)]" />
         <motion.div
-          className="absolute w-[600px] h-[600px] bg-sky-500/10 rounded-full blur-[120px]"
+          className="absolute w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px]"
           animate={{ x: mousePosition.x - 300, y: mousePosition.y - 300 }}
           transition={{ type: "spring", damping: 50, stiffness: 100 }}
         />
       </div>
 
       {/* Nav */}
-      <nav className="relative z-50 border-b border-slate-800/50 backdrop-blur-md bg-slate-950/80 sticky top-0">
+      <nav className="relative z-50 border-b border-zinc-900 backdrop-blur-md bg-black/80 sticky top-0">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <motion.div className="flex items-center gap-2 font-bold text-xl tracking-tighter uppercase" whileHover={{ scale: 1.05 }}>
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
-              <Sparkles size={24} className="text-sky-400" />
-            </motion.div>
-            <span className="bg-gradient-to-r from-sky-400 to-blue-500 bg-clip-text text-transparent">
+            <Sparkles size={20} className="text-cyan-500" />
+            <span className="text-white tracking-widest font-black italic">
               FrontDesk Agents
             </span>
           </motion.div>
 
-          <div className="flex items-center gap-3">
-            <Link href="/pricing" className="text-sm text-slate-300 hover:text-white">
-              Pricing
+          <div className="flex items-center gap-6">
+            <Link href="/pricing" className="text-xs font-bold tracking-widest text-zinc-500 hover:text-white uppercase transition-colors">
+              Infrastructure
             </Link>
             <Link
               href="/setup"
-              className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-5 py-2 rounded-lg font-bold text-sm"
+              className="bg-white text-black px-5 py-2 rounded-sm font-black text-[10px] uppercase tracking-widest hover:bg-cyan-500 transition-colors"
             >
-              Start 14-Day Free Trial
+              Initialize Node
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="relative z-10 pt-24 pb-20 px-6">
+      <section className="relative z-10 pt-32 pb-20 px-6">
         <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="max-w-7xl mx-auto text-center">
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/5 mb-8"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            <span className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.2em]">System Status: Operational</span>
+          </motion.div>
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-6xl md:text-8xl font-black mb-8 leading-tight"
+            className="text-6xl md:text-9xl font-black mb-8 leading-[0.85] tracking-tighter uppercase italic"
           >
-            The AI Workforce for <br />
-            <span className="bg-gradient-to-r from-sky-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-              Multi-Location Brands
+            Sovereign <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-700">
+              Infrastructure
             </span>
           </motion.h1>
 
@@ -106,271 +117,149 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="max-w-3xl mx-auto text-xl text-slate-300 mb-10"
+            className="max-w-2xl mx-auto text-lg text-zinc-400 mb-12 font-medium leading-relaxed"
           >
-            Deploy AI receptionists, revenue follow-ups, and compliance-safe workflows across every location—without hiring,
-            training, or downtime.
+            Deploy autonomous AI fleets that manage intake, qualify leads, and secure revenue with 24/7 reliability.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <Link
               href="/setup"
-              className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-10 py-5 rounded-2xl font-black text-xl inline-flex items-center gap-3"
+              className="bg-cyan-500 text-black px-12 py-6 rounded-none font-black text-xs uppercase tracking-[0.3em] inline-flex items-center gap-4 hover:bg-cyan-400 transition-all active:scale-95"
             >
-              Deploy Your Agents <ArrowRight size={24} />
+              Provision Your Fleet <ArrowRight size={18} />
             </Link>
           </motion.div>
 
-          <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-px bg-zinc-900 max-w-5xl mx-auto border border-zinc-900">
             {stats.map((s) => (
-              <div key={s.label} className="p-5 rounded-2xl bg-slate-900/30 border border-slate-800/60">
-                <div className="flex items-center justify-center gap-2 text-slate-300 text-sm">
-                  <s.icon className="w-4 h-4 text-sky-400" />
+              <div key={s.label} className="p-8 bg-black">
+                <div className="flex items-center justify-center gap-2 text-zinc-600 text-[10px] uppercase font-bold tracking-widest">
+                  <s.icon className="w-3 h-3 text-cyan-500" />
                   {s.label}
                 </div>
-                <div className="text-3xl font-black text-white mt-2">{s.value}</div>
+                <div className="text-4xl font-black text-white mt-3 italic tracking-tighter">{s.value}</div>
               </div>
             ))}
           </div>
         </motion.div>
       </section>
 
-      {/* Features */}
-      <section className="relative z-10 py-24 px-6">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Features Grid */}
+      <section className="relative z-10 py-32 px-6 border-y border-zinc-900">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {features.map((feature) => (
             <motion.div
               key={feature.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="p-6 rounded-2xl bg-slate-800/30 border border-slate-700/50"
+              className="group"
             >
-              <feature.icon className="w-8 h-8 text-sky-400 mb-4" />
-              <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
-              <p className="text-slate-400 text-sm">{feature.description}</p>
+              <feature.icon className="w-6 h-6 text-zinc-700 group-hover:text-cyan-500 transition-colors mb-6" />
+              <h3 className="text-xs font-black mb-3 uppercase tracking-widest text-white">{feature.title}</h3>
+              <p className="text-zinc-500 text-sm leading-relaxed italic">{feature.description}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Pricing Section - Location-Based */}
-      <section className="relative z-10 py-32 px-6 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent">
+      {/* Pricing Section - $149 - $1999 */}
+      <section className="relative z-10 py-32 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-bold mb-4 text-white"
-            >
-              Location-Based Pricing
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-xl text-slate-400"
-            >
-              Scaling infrastructure for your entire footprint
-            </motion.p>
+          <div className="text-center mb-24">
+            <h2 className="text-5xl font-black mb-4 text-white uppercase italic tracking-tighter">Node Capacity</h2>
+            <p className="text-zinc-500 uppercase text-[10px] tracking-[0.4em] font-bold">Scaling Infrastructure for 2026</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-            {/* Starter Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.02 }}
-              className="p-8 rounded-3xl bg-slate-950/50 border border-slate-800 backdrop-blur-sm hover:border-sky-500/50 transition-all flex flex-col"
-            >
-              <div className="text-sky-400 font-bold uppercase tracking-widest text-xs mb-2">STARTER</div>
-              <div className="text-5xl font-bold text-white mb-1">$299</div>
-              <div className="flex items-center gap-1 text-sm font-semibold text-slate-400 mb-6">
-                <Building2 size={16} /> 1 Location
-              </div>
-              <ul className="space-y-4 mb-10 flex-grow">
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  24/7 AI Receptionist
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Starter - $149 */}
+            <div className="p-10 rounded-none bg-zinc-950 border border-zinc-900 flex flex-col hover:border-zinc-700 transition-colors">
+              <div className="text-zinc-600 font-black uppercase tracking-widest text-[10px] mb-6">Starter Node</div>
+              <div className="text-6xl font-black text-white mb-2 italic tracking-tighter">$149</div>
+              <p className="text-zinc-500 text-xs italic mb-8">Essential intake for solo operators.</p>
+              <ul className="space-y-4 mb-12 flex-grow">
+                <li className="flex items-center gap-3 text-[10px] font-bold uppercase text-zinc-400 tracking-wider">
+                  <Zap size={12} className="text-cyan-500" /> 300 Mins Included
                 </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Call Summaries & Notes
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Natural Language Intake
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Standard CRM Basics
+                <li className="flex items-center gap-3 text-[10px] font-bold uppercase text-zinc-400 tracking-wider opacity-50">
+                  <Check size={12} /> Standard Routing
                 </li>
               </ul>
-              <Link
-                href="/setup?plan=starter"
-                className="block w-full py-4 rounded-xl text-center font-bold bg-slate-800 text-white hover:bg-sky-500 hover:text-black transition-all"
-              >
-                Start Trial
+              <Link href="/setup?plan=starter" className="w-full py-4 text-center font-black text-[10px] uppercase tracking-widest bg-white text-black hover:bg-cyan-500 transition-all">
+                Activate Node
               </Link>
-            </motion.div>
-
-            {/* Professional Plan - Most Popular */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              whileHover={{ scale: 1.05, y: -10 }}
-              className="p-8 rounded-3xl border-2 border-sky-500 bg-sky-500/5 backdrop-blur-sm shadow-2xl shadow-sky-500/20 relative flex flex-col"
-            >
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-sky-400 to-blue-500 rounded-full text-xs font-bold">
-                MOST POPULAR
-              </div>
-              <div className="text-sky-400 font-bold uppercase tracking-widest text-xs mb-2">PROFESSIONAL</div>
-              <div className="text-5xl font-bold text-white mb-1">$699</div>
-              <div className="flex items-center gap-1 text-sm font-semibold text-slate-400 mb-6">
-                <Building2 size={16} /> 2–5 Locations
-              </div>
-              <ul className="space-y-4 mb-10 flex-grow">
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Multi-staff Scheduling
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Voicemail Transcription
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Advanced Analytics
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  TCPA/DNC Support
-                </li>
-              </ul>
-              <Link
-                href="/setup?plan=professional"
-                className="block w-full py-4 rounded-xl text-center font-bold bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:shadow-lg hover:shadow-sky-500/50 transition-all"
-              >
-                Start Trial
-              </Link>
-            </motion.div>
-
-            {/* Growth Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              whileHover={{ scale: 1.02 }}
-              className="p-8 rounded-3xl bg-slate-950/50 border border-slate-800 backdrop-blur-sm hover:border-purple-500/50 transition-all flex flex-col"
-            >
-              <div className="text-sky-400 font-bold uppercase tracking-widest text-xs mb-2">GROWTH</div>
-              <div className="text-5xl font-bold text-white mb-1">$1,299</div>
-              <div className="flex items-center gap-1 text-sm font-semibold text-slate-400 mb-6">
-                <Building2 size={16} /> 6–15 Locations
-              </div>
-              <ul className="space-y-4 mb-10 flex-grow">
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Multi-language Support
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  CRM Connectors
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Audit Logs
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  99.9% SLA
-                </li>
-              </ul>
-              <Link
-                href="/setup?plan=growth"
-                className="block w-full py-4 rounded-xl text-center font-bold bg-slate-800 text-white hover:bg-sky-500 hover:text-black transition-all"
-              >
-                Start Trial
-              </Link>
-            </motion.div>
-
-            {/* Enterprise Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              whileHover={{ scale: 1.02 }}
-              className="p-8 rounded-3xl bg-slate-950/50 border border-slate-800 backdrop-blur-sm hover:border-purple-500/50 transition-all flex flex-col"
-            >
-              <div className="text-sky-400 font-bold uppercase tracking-widest text-xs mb-2">ENTERPRISE</div>
-              <div className="text-5xl font-bold text-white mb-1">$2,499</div>
-              <div className="flex items-center gap-1 text-sm font-semibold text-slate-400 mb-6">
-                <Building2 size={16} /> 16+ Locations
-              </div>
-              <ul className="space-y-4 mb-10 flex-grow">
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  White-labeling
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  SSO (SAML) Integration
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  Dedicated Tenant
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check size={16} className="text-green-500 mt-1 flex-shrink-0" />
-                  99.99% SLA
-                </li>
-              </ul>
-              <Link
-                href="/contact?plan=enterprise"
-                className="block w-full py-4 rounded-xl text-center font-bold bg-white text-black hover:bg-slate-100 transition-all"
-              >
-                Schedule Demo
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* Money-back guarantee */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="text-center mt-12"
-          >
-            <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-500/10 border border-green-500/20 rounded-full">
-              <Shield className="w-5 h-5 text-green-400" />
-              <span className="text-green-400 font-medium">14-day money-back guarantee • Cancel anytime</span>
             </div>
-          </motion.div>
+
+            {/* Professional - $499 */}
+            <div className="p-10 rounded-none bg-zinc-900 border-2 border-cyan-500 flex flex-col relative shadow-[0_0_50px_rgba(6,182,212,0.1)]">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-cyan-500 text-black text-[10px] font-black tracking-widest uppercase">Recommended</div>
+              <div className="text-cyan-400 font-black uppercase tracking-widest text-[10px] mb-6">Professional Fleet</div>
+              <div className="text-6xl font-black text-white mb-2 italic tracking-tighter">$499</div>
+              <p className="text-zinc-400 text-xs italic mb-8">Advanced fleet with priority routing.</p>
+              <ul className="space-y-4 mb-12 flex-grow">
+                <li className="flex items-center gap-3 text-[10px] font-bold uppercase text-white tracking-wider">
+                  <Zap size={12} className="text-cyan-500" /> 1,200 Mins Included
+                </li>
+                <li className="flex items-center gap-3 text-[10px] font-bold uppercase text-white tracking-wider">
+                  <Check size={12} className="text-cyan-500" /> 50+ Languages
+                </li>
+              </ul>
+              <Link href="/setup?plan=professional" className="w-full py-4 text-center font-black text-[10px] uppercase tracking-widest bg-cyan-500 text-black hover:bg-cyan-400 transition-all">
+                Scale Fleet
+              </Link>
+            </div>
+
+            {/* Growth - $999 */}
+            <div className="p-10 rounded-none bg-zinc-950 border border-zinc-900 flex flex-col hover:border-zinc-700 transition-colors">
+              <div className="text-zinc-600 font-black uppercase tracking-widest text-[10px] mb-6">Growth Cluster</div>
+              <div className="text-6xl font-black text-white mb-2 italic tracking-tighter">$999</div>
+              <p className="text-zinc-500 text-xs italic mb-8">Multi-location cluster with custom voice.</p>
+              <ul className="space-y-4 mb-12 flex-grow">
+                <li className="flex items-center gap-3 text-[10px] font-bold uppercase text-zinc-400 tracking-wider">
+                  <Zap size={12} className="text-cyan-500" /> 3,000 Mins Included
+                </li>
+                <li className="flex items-center gap-3 text-[10px] font-bold uppercase text-zinc-400 tracking-wider">
+                  <Check size={12} className="text-cyan-500" /> Voice Cloning
+                </li>
+              </ul>
+              <Link href="/setup?plan=growth" className="w-full py-4 text-center font-black text-[10px] uppercase tracking-widest bg-white text-black hover:bg-cyan-500 transition-all">
+                Establish Cluster
+              </Link>
+            </div>
+
+            {/* Enterprise - $1,999 */}
+            <div className="p-10 rounded-none bg-zinc-950 border border-zinc-900 flex flex-col hover:border-zinc-700 transition-colors">
+              <div className="text-zinc-600 font-black uppercase tracking-widest text-[10px] mb-6">Enterprise Sovereign</div>
+              <div className="text-6xl font-black text-white mb-2 italic tracking-tighter">$1,999</div>
+              <p className="text-zinc-500 text-xs italic mb-8">Infinite scale with performance royalties.</p>
+              <ul className="space-y-4 mb-12 flex-grow">
+                <li className="flex items-center gap-3 text-[10px] font-bold uppercase text-zinc-400 tracking-wider">
+                  <Zap size={12} className="text-cyan-500" /> 7,000 Mins Included
+                </li>
+                <li className="flex items-center gap-3 text-[10px] font-bold uppercase text-zinc-400 tracking-wider">
+                  <Check size={12} className="text-cyan-500" /> Dedicated Tenant
+                </li>
+              </ul>
+              <Link href="/contact" className="w-full py-4 text-center font-black text-[10px] uppercase tracking-widest bg-zinc-800 text-white hover:bg-white hover:text-black transition-all">
+                Consult Sovereignty
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-slate-800 py-12 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-slate-500 text-xs">© 2026 FrontDesk Agents LLC. All rights reserved.</div>
-          <div className="flex items-center gap-4 text-xs">
-            <Link href="/privacy" className="text-slate-400 hover:text-white">
-              Privacy
-            </Link>
-            <Link href="/terms" className="text-slate-400 hover:text-white">
-              Terms
-            </Link>
-            <Link href="/support" className="text-slate-400 hover:text-white">
-              Support
-            </Link>
+      <footer className="relative z-10 border-t border-zinc-900 py-20 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-zinc-700" />
+            <span className="text-zinc-500 font-black uppercase tracking-widest text-[10px]">FrontDesk Agents LLC / 2026 Protocol</span>
+          </div>
+          <div className="flex items-center gap-8 text-[10px] font-bold uppercase tracking-widest">
+            <Link href="/privacy" className="text-zinc-600 hover:text-cyan-500">Privacy</Link>
+            <Link href="/terms" className="text-zinc-600 hover:text-cyan-500">Terms</Link>
+            <Link href="/support" className="text-zinc-600 hover:text-cyan-500">Node Support</Link>
           </div>
         </div>
       </footer>
