@@ -34,19 +34,19 @@ function verifyAdmin(request: NextRequest) {
   return !!authHeader && authHeader === `Bearer ${adminSecret}`;
 }
 
-function getServiceSupabase() {
+function getServiceSupabase(): { supabase: any; error: string | null } {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseServiceKey) {
-    return { supabase: null as any, error: "Supabase configuration missing" };
+    return { supabase: null, error: "Supabase configuration missing" };
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  return { supabase, error: null as string | null };
+  return { supabase, error: null };
 }
 
 function readMigrationFile(migration: string) {
@@ -124,7 +124,9 @@ export async function POST(request: NextRequest) {
             statement: i + 1,
             status: "error",
             error: error.message,
-            sql: statement.substring(0, 140) + (statement.length > 140 ? "..." : ""),
+            sql:
+              statement.substring(0, 140) +
+              (statement.length > 140 ? "..." : ""),
           });
           console.error(`❌ Statement ${i + 1} failed:`, error.message);
         } else {
@@ -138,13 +140,17 @@ export async function POST(request: NextRequest) {
           statement: i + 1,
           status: "error",
           error: err?.message || String(err),
-          sql: statement.substring(0, 140) + (statement.length > 140 ? "..." : ""),
+          sql:
+            statement.substring(0, 140) +
+            (statement.length > 140 ? "..." : ""),
         });
         console.error(`❌ Statement ${i + 1} exception:`, err?.message || err);
       }
     }
 
-    console.log(`📊 Migration complete: ${successCount} success, ${errorCount} errors`);
+    console.log(
+      `📊 Migration complete: ${successCount} success, ${errorCount} errors`
+    );
 
     return NextResponse.json({
       success: errorCount === 0,
