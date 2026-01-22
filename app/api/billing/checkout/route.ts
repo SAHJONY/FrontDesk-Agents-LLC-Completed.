@@ -1,32 +1,85 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' });
+// app/api/billing/checkout/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+
+// Force Node.js runtime (Stripe Node SDK)
+export const runtime = "nodejs";
+
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+
+const stripe = stripeKey
+  ? new Stripe(stripeKey, {
+      // Your installed Stripe typings expect a newer literal; keep this flexible to avoid TS build breaks.
+      apiVersion: "2025-12-15.clover" as any,
+    })
+  : null;
 
 export async function POST(req: NextRequest) {
-  const { tenantId, amount, planType } = await req.json();
-
   try {
+    if (!stripe) {
+      return NextResponse.json(
+        { error: "Stripe is not configured on this deployment" },
+        { status: 500 }
+      );
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const tenantId =
+      typeof body?.tenantId === "string" ? body.tenantId.trim() : "";
+    const planType =
+      typeof body?.planType === "string" ? body.planType.trim() : "";
+    const amount = typeof body?.amount === "number" ? body.amount : null;
+
+    if (!tenantId || !planType || amount === null) {
+      return NextResponse.json(
+        { error: "Missing required fields: tenantId, planType, amount" },
+        { status: 400 }
+      );
+    }
+
+    const unitAmount = Math.round(amount * 100);
+    if (!Number.isFinite(unitAmount) || unitAmount <= 0) {
+      return NextResponse.json(
+        { error: "Invalid amount" },
+        { status: 400 }
+      );
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) {
+      return NextResponse.json(
+        { error: "NEXT_PUBLIC_APP_URL is not configured" },
+        { status: 500 }
+      );
+    }
+
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: { 
-            name: `Recarga de Créditos - Plan ${planType}`,
-            description: "Créditos para llamadas de IA y automatización de agenda."
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `Recarga de Créditos - Plan ${planType}`,
+              description: "Créditos para llamadas de IA y automatización de agenda.",
+            },
+            unit_amount: unitAmount,
           },
-          unit_amount: amount * 100, // En centavos
+          quantity: 1,
         },
-        quantity: 1,
-      }],
-      mode: 'payment',
+      ],
+      mode: "payment",
       client_reference_id: tenantId,
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?payment=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?payment=cancelled`,
+      success_url: `${appUrl}/dashboard?payment=success`,
+      cancel_url: `${appUrl}/dashboard?payment=cancelled`,
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("❌ Billing checkout error:", err);
+    return NextResponse.json(
+      { error: err?.message || "Internal server error" },
+      { status: 500 }
+    );
   }
 }
