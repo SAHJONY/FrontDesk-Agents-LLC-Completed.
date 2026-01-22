@@ -1,11 +1,11 @@
-type WhatsAppConfirmationInput = {
+export type WhatsAppConfirmationInput = {
   to: string; // E.164 preferred
   message: string;
   tenantId?: string;
   metadata?: Record<string, any>;
 };
 
-type WhatsAppConfirmationResult = {
+export type WhatsAppConfirmationResult = {
   ok: boolean;
   message: string;
 };
@@ -20,7 +20,7 @@ export async function sendWhatsAppConfirmation(
   }
 
   // No-op (log-only) behavior in production-safe way.
-  // You can replace this with actual provider call.
+  // Replace with real provider call later.
   return {
     ok: true,
     message: `WhatsApp confirmation queued (noop) to ${input.to}`,
