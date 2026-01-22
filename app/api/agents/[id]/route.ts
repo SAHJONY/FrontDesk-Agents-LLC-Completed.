@@ -67,7 +67,7 @@ export async function PATCH(
 
 // DELETE /api/agents/[id] - Delete an agent
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const supabase = requireSupabaseServer();
