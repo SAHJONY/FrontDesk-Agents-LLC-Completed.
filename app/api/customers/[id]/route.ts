@@ -17,20 +17,27 @@ async function getSupabaseServerClient() {
     );
   }
 
-  const cookieStore = await cookies();
+  // Next typings differ across versions; treat cookies() as possibly async.
+  const cookieStore: any = await (cookies() as any);
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
-      getAll() {
-        return cookieStore.getAll();
+      // Avoid getAll() to prevent TS mismatch across Next versions.
+      get(name: string) {
+        return cookieStore.get(name)?.value;
       },
-      setAll(cookiesToSet) {
+      set(name: string, value: string, options: any) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
+          cookieStore.set(name, value, options);
         } catch {
-          // ok: read-only route / restricted runtime
+          // ok (read-only contexts)
+        }
+      },
+      remove(name: string, options: any) {
+        try {
+          cookieStore.set(name, '', { ...options, maxAge: 0 });
+        } catch {
+          // ok
         }
       },
     },
