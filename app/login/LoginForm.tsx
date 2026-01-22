@@ -7,6 +7,22 @@ type Props = {
   defaultRedirect?: "admin" | "dashboard";
 };
 
+type LoginResponse =
+  | {
+      success: true;
+      redirectUrl?: string;
+      user?: {
+        id: string;
+        email: string;
+        role: string;
+      };
+    }
+  | {
+      success?: false;
+      error: string;
+      details?: any;
+    };
+
 export default function LoginForm({ defaultRedirect = "admin" }: Props) {
   const router = useRouter();
   const params = useSearchParams();
@@ -23,28 +39,38 @@ export default function LoginForm({ defaultRedirect = "admin" }: Props) {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const resp = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
+        // IMPORTANT: ensure cookies set by the API response are stored by the browser
+        credentials: "include",
         body: JSON.stringify({
           email: email.trim(),
           password,
         }),
       });
 
-      const data = await res.json().catch(() => ({}));
+      const data = (await resp.json().catch(() => ({}))) as LoginResponse;
 
-      if (!res.ok) {
-        setErrorMsg(data?.error || "Login failed.");
+      if (!resp.ok || ("error" in data && data.error)) {
+        setErrorMsg(("error" in data && data.error) ? data.error : "Login failed.");
         return;
       }
 
-      // Prefer safe `next` if present, else backend redirectUrl, else fallback
-      const fallback = defaultRedirect === "admin" ? "/admin" : "/dashboard";
+      // Priority 1: ?next=/some/path (safe)
       const safeNext =
         next && next.startsWith("/") && !next.startsWith("//") ? next : "";
 
-      const target = safeNext || data?.redirectUrl || fallback;
+      // Priority 2: backend suggested redirectUrl (role-based)
+      const backendRedirect =
+        "success" in data && data.success && data.redirectUrl
+          ? data.redirectUrl
+          : "";
+
+      // Priority 3: fallback
+      const fallback = defaultRedirect === "admin" ? "/admin" : "/dashboard";
+
+      const target = safeNext || backendRedirect || fallback;
 
       router.replace(target);
       router.refresh();
