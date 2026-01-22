@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Campaign Analytics & ROI Dashboard API
- * 
+ *
  * Provides real-time analytics, ROI tracking, and performance metrics
  * for global sales campaigns
  */
@@ -17,47 +17,41 @@ export async function GET(request: NextRequest) {
     switch (action) {
       case 'overview':
         return handleGetOverview(campaignId, timeframe);
-      
+
       case 'performance':
         return handleGetPerformance(campaignId, timeframe);
-      
+
       case 'roi':
         return handleGetROI(campaignId);
-      
+
       case 'funnel':
         return handleGetFunnel(campaignId);
-      
+
       case 'channels':
         return handleGetChannelPerformance(campaignId);
-      
+
       case 'leads':
         return handleGetLeadMetrics(campaignId, timeframe);
-      
+
       case 'revenue':
         return handleGetRevenueMetrics(campaignId, timeframe);
-      
+
       case 'comparison':
         return handleGetComparison(timeframe);
-      
+
       default:
-        return NextResponse.json(
-          { error: 'Invalid action' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
   } catch (error) {
     console.error('Campaign analytics API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 /**
  * Get campaign overview
  */
-async function handleGetOverview(campaignId: string | null, timeframe: string) {
+async function handleGetOverview(_campaignId: string | null, timeframe: string) {
   const overview = {
     totalCampaigns: 12,
     activeCampaigns: 5,
@@ -91,7 +85,7 @@ async function handleGetPerformance(campaignId: string | null, timeframe: string
       leadsGenerated: 1250,
       leadsQualified: 375,
       leadQualificationRate: 30.0,
-      
+
       // Outreach metrics
       emailsSent: 3750,
       emailsDelivered: 3675,
@@ -100,7 +94,7 @@ async function handleGetPerformance(campaignId: string | null, timeframe: string
       emailBounceRate: 2.0,
       emailOpenRate: 40.0,
       emailClickRate: 12.0,
-      
+
       // Call metrics
       callsMade: 625,
       callsAnswered: 187,
@@ -108,25 +102,25 @@ async function handleGetPerformance(campaignId: string | null, timeframe: string
       callsNoAnswer: 126,
       callAnswerRate: 30.0,
       averageCallDuration: 185, // seconds
-      
+
       // SMS metrics
       smsSent: 500,
       smsDelivered: 495,
       smsReplied: 74,
       smsReplyRate: 15.0,
-      
+
       // Social metrics
       linkedInConnectionsSent: 400,
       linkedInConnectionsAccepted: 280,
       linkedInMessagesReplied: 98,
       linkedInAcceptanceRate: 70.0,
       linkedInReplyRate: 35.0,
-      
+
       // Engagement metrics
       websiteVisits: 892,
       contentDownloads: 156,
       webinarAttendees: 67,
-      
+
       // Conversion metrics
       meetingsBooked: 94,
       meetingShowRate: 85.0,
@@ -135,7 +129,7 @@ async function handleGetPerformance(campaignId: string | null, timeframe: string
       dealsWon: 23,
       dealsLost: 18,
       dealsPending: 15,
-      
+
       // Conversion rates
       leadToMeetingRate: 7.5,
       meetingToProposalRate: 70.0,
@@ -161,7 +155,7 @@ async function handleGetPerformance(campaignId: string | null, timeframe: string
 async function handleGetROI(campaignId: string | null) {
   const roi = {
     campaignId: campaignId || 'all',
-    
+
     // Investment
     totalInvestment: 165000,
     breakdown: {
@@ -171,31 +165,31 @@ async function handleGetROI(campaignId: string | null) {
       dataServices: 15000,
       other: 10000,
     },
-    
+
     // Revenue
     totalRevenue: 1150000,
     averageDealSize: 50000,
     dealsWon: 23,
-    
+
     // ROI Calculations
     grossProfit: 985000,
     roi: 5.97,
     roiPercentage: 597,
-    
+
     // Cost metrics
     costPerLead: 132,
     costPerQualifiedLead: 440,
     costPerMeeting: 1755,
     costPerProposal: 2946,
     costPerDeal: 7174,
-    
+
     // Lifetime value
     averageCustomerLifetimeValue: 250000,
     ltvToCAC: 34.8,
-    
+
     // Payback period
     paybackPeriodMonths: 3.4,
-    
+
     // Projections
     projectedAnnualRevenue: 6900000,
     projectedAnnualROI: 7.2,
@@ -214,42 +208,12 @@ async function handleGetFunnel(campaignId: string | null) {
   const funnel = {
     campaignId: campaignId || 'all',
     stages: [
-      {
-        stage: 'Leads Generated',
-        count: 1250,
-        percentage: 100,
-        conversionToNext: 30.0,
-      },
-      {
-        stage: 'Qualified Leads',
-        count: 375,
-        percentage: 30.0,
-        conversionToNext: 25.1,
-      },
-      {
-        stage: 'Meetings Booked',
-        count: 94,
-        percentage: 7.5,
-        conversionToNext: 85.1,
-      },
-      {
-        stage: 'Meetings Held',
-        count: 80,
-        percentage: 6.4,
-        conversionToNext: 70.0,
-      },
-      {
-        stage: 'Proposals Sent',
-        count: 56,
-        percentage: 4.5,
-        conversionToNext: 41.1,
-      },
-      {
-        stage: 'Deals Won',
-        count: 23,
-        percentage: 1.8,
-        conversionToNext: null,
-      },
+      { stage: 'Leads Generated', count: 1250, percentage: 100, conversionToNext: 30.0 },
+      { stage: 'Qualified Leads', count: 375, percentage: 30.0, conversionToNext: 25.1 },
+      { stage: 'Meetings Booked', count: 94, percentage: 7.5, conversionToNext: 85.1 },
+      { stage: 'Meetings Held', count: 80, percentage: 6.4, conversionToNext: 70.0 },
+      { stage: 'Proposals Sent', count: 56, percentage: 4.5, conversionToNext: 41.1 },
+      { stage: 'Deals Won', count: 23, percentage: 1.8, conversionToNext: null },
     ],
     averageTimeInStage: {
       'Leads Generated': 2,
@@ -283,7 +247,7 @@ async function handleGetChannelPerformance(campaignId: string | null) {
         meetingsBooked: 38,
         dealsWon: 8,
         revenue: 400000,
-        costPerLead: 0.50,
+        costPerLead: 0.5,
         roi: 8.5,
         rating: 'Excellent',
       },
@@ -295,7 +259,7 @@ async function handleGetChannelPerformance(campaignId: string | null) {
         meetingsBooked: 28,
         dealsWon: 7,
         revenue: 350000,
-        costPerLead: 2.00,
+        costPerLead: 2.0,
         roi: 7.2,
         rating: 'Excellent',
       },
@@ -307,7 +271,7 @@ async function handleGetChannelPerformance(campaignId: string | null) {
         meetingsBooked: 20,
         dealsWon: 5,
         revenue: 250000,
-        costPerLead: 5.00,
+        costPerLead: 5.0,
         roi: 4.8,
         rating: 'Good',
       },
@@ -331,7 +295,7 @@ async function handleGetChannelPerformance(campaignId: string | null) {
         meetingsBooked: 3,
         dealsWon: 1,
         revenue: 50000,
-        costPerLead: 8.00,
+        costPerLead: 8.0,
         roi: 2.1,
         rating: 'Fair',
       },
@@ -357,7 +321,7 @@ async function handleGetLeadMetrics(campaignId: string | null, timeframe: string
   const leads = {
     campaignId: campaignId || 'all',
     timeframe,
-    
+
     // Lead sources
     sources: [
       { source: 'LinkedIn Sales Navigator', count: 450, percentage: 36.0 },
@@ -367,7 +331,7 @@ async function handleGetLeadMetrics(campaignId: string | null, timeframe: string
       { source: 'Referrals', count: 75, percentage: 6.0 },
       { source: 'Inbound', count: 25, percentage: 2.0 },
     ],
-    
+
     // Lead quality
     quality: {
       highQuality: 375,
@@ -375,7 +339,7 @@ async function handleGetLeadMetrics(campaignId: string | null, timeframe: string
       lowQuality: 250,
       averageScore: 68,
     },
-    
+
     // Lead distribution
     byIndustry: [
       { industry: 'Software SaaS', count: 350, percentage: 28.0 },
@@ -385,7 +349,7 @@ async function handleGetLeadMetrics(campaignId: string | null, timeframe: string
       { industry: 'Manufacturing', count: 150, percentage: 12.0 },
       { industry: 'Other', count: 125, percentage: 10.0 },
     ],
-    
+
     byRegion: [
       { region: 'USA', count: 625, percentage: 50.0 },
       { region: 'Europe', count: 312, percentage: 25.0 },
@@ -393,7 +357,7 @@ async function handleGetLeadMetrics(campaignId: string | null, timeframe: string
       { region: 'Latin America', count: 75, percentage: 6.0 },
       { region: 'Middle East & Africa', count: 50, percentage: 4.0 },
     ],
-    
+
     byBusinessSize: [
       { size: 'Small (10-49)', count: 500, percentage: 40.0 },
       { size: 'Medium (50-249)', count: 437, percentage: 35.0 },
@@ -415,12 +379,12 @@ async function handleGetRevenueMetrics(campaignId: string | null, timeframe: str
   const revenue = {
     campaignId: campaignId || 'all',
     timeframe,
-    
+
     // Revenue breakdown
     totalRevenue: 1150000,
     recurringRevenue: 920000,
     oneTimeRevenue: 230000,
-    
+
     // By industry
     byIndustry: [
       { industry: 'Software SaaS', revenue: 400000, deals: 8, avgDealSize: 50000 },
@@ -429,7 +393,7 @@ async function handleGetRevenueMetrics(campaignId: string | null, timeframe: str
       { industry: 'Financial Services', revenue: 150000, deals: 3, avgDealSize: 50000 },
       { industry: 'Manufacturing', revenue: 100000, deals: 2, avgDealSize: 50000 },
     ],
-    
+
     // By region
     byRegion: [
       { region: 'USA', revenue: 575000, deals: 12, percentage: 50.0 },
@@ -437,7 +401,7 @@ async function handleGetRevenueMetrics(campaignId: string | null, timeframe: str
       { region: 'Asia Pacific', revenue: 172500, deals: 4, percentage: 15.0 },
       { region: 'Other', revenue: 57500, deals: 1, percentage: 5.0 },
     ],
-    
+
     // Monthly trend
     monthlyRevenue: [
       { month: 'Jan', revenue: 100000, deals: 2 },
@@ -451,7 +415,7 @@ async function handleGetRevenueMetrics(campaignId: string | null, timeframe: str
       { month: 'Sep', revenue: 100000, deals: 2 },
       { month: 'Oct', revenue: 100000, deals: 2 },
     ],
-    
+
     // Projections
     projectedMonthlyRevenue: 115000,
     projectedAnnualRevenue: 1380000,
