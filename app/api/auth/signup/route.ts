@@ -38,32 +38,23 @@ export async function POST(req: Request) {
     const subdomain = parsed.subdomain.trim().toLowerCase();
     const country = parsed.country.trim();
 
-    // Validate password match
     if (parsed.password !== parsed.confirmPassword) {
       return NextResponse.json({ error: "Passwords do not match" }, { status: 400 });
     }
 
-    // Service Supabase
     const supabase = getServiceSupabase();
     if (!supabase) {
       console.error("Supabase configuration missing");
-      return NextResponse.json(
-        { error: "Server configuration error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
-    // JWT secret must exist (NO insecure fallback)
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error("JWT_SECRET is not configured");
-      return NextResponse.json(
-        { error: "Server configuration error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
-    // Check if user already exists (handle 0-row from .single())
+    // email exists?
     const { data: existingUser, error: existingUserError } = await supabase
       .from("users")
       .select("id")
@@ -72,20 +63,14 @@ export async function POST(req: Request) {
 
     if (existingUserError) {
       console.error("Error checking existing user:", existingUserError);
-      return NextResponse.json(
-        { error: "Server error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Email already registered" },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "Email already registered" }, { status: 409 });
     }
 
-    // Check if subdomain is available
+    // subdomain exists?
     const { data: existingSubdomain, error: existingSubdomainError } = await supabase
       .from("users")
       .select("id")
@@ -94,23 +79,15 @@ export async function POST(req: Request) {
 
     if (existingSubdomainError) {
       console.error("Error checking subdomain:", existingSubdomainError);
-      return NextResponse.json(
-        { error: "Server error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     if (existingSubdomain) {
-      return NextResponse.json(
-        { error: "Subdomain already taken" },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "Subdomain already taken" }, { status: 409 });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(parsed.password, 10);
 
-    // Generate identifiers
     const nodeId = `node_${subdomain}_${Date.now()}`;
     const clientKey = `FDDG-${subdomain
       .toUpperCase()
@@ -118,7 +95,6 @@ export async function POST(req: Request) {
 
     const nowIso = new Date().toISOString();
 
-    // Insert new user
     const { data: newUser, error: insertError } = await supabase
       .from("users")
       .insert({
@@ -141,13 +117,9 @@ export async function POST(req: Request) {
 
     if (insertError || !newUser) {
       console.error("Database insert error:", insertError);
-      return NextResponse.json(
-        { error: "Failed to create account" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to create account" }, { status: 500 });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       {
         userId: newUser.id,
@@ -159,7 +131,6 @@ export async function POST(req: Request) {
       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
 
-    // Response
     const response = NextResponse.json(
       {
         success: true,
@@ -177,7 +148,6 @@ export async function POST(req: Request) {
       { status: 201 }
     );
 
-    // Cookie
     response.cookies.set("auth-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
