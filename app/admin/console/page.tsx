@@ -1,67 +1,102 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { ShieldAlert, Zap, LockOpen, PlusCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { ShieldAlert, LockOpen, PlusCircle } from "lucide-react";
 
 export default function AdminConsole() {
-  const [tenantId, setTenantId] = useState('');
+  const [tenantId, setTenantId] = useState("");
+  const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
 
-  const runAction = async (action: string, value: any = null) => {
+  async function callOverride(mode: "unlock" | "provision") {
     setLoading(true);
-    await fetch('/api/admin/override', {
-      method: 'POST',
-      body: JSON.stringify({ tenantId, action, value }),
-    });
-    setLoading(false);
-    alert(`Protocol ${action} Executed.`);
-  };
+    setResult(null);
+
+    try {
+      const res = await fetch("/api/admin/override", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tenantId: tenantId.trim(),
+          reason: reason.trim() || "admin_override",
+          mode,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        setResult(json?.error || "Request failed");
+      } else {
+        setResult("Success");
+      }
+    } catch (e: any) {
+      setResult(e?.message || "Unexpected error");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-black p-12 text-white">
-      <div className="max-w-2xl mx-auto space-y-8">
-        <div className="flex items-center gap-4 border-b border-zinc-800 pb-8">
-          <ShieldAlert className="w-10 h-10 text-red-500" />
-          <div>
-            <h1 className="text-2xl font-black uppercase italic tracking-tighter">Sovereign Command Console</h1>
-            <p className="text-xs text-zinc-500 font-mono">AUTHORIZED PERSONNEL ONLY // GLOBAL OVERRIDE ACCESS</p>
+    <div className="min-h-screen bg-[#fafafa] p-8">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex items-center gap-3">
+          <ShieldAlert className="w-6 h-6 text-gray-900" />
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+            Admin Console
+          </h1>
+        </div>
+
+        <p className="text-gray-600">
+          Emergency tools for tenant overrides. Use only when necessary.
+        </p>
+
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+          <label className="block">
+            <span className="text-sm font-semibold text-gray-800">Tenant ID</span>
+            <input
+              value={tenantId}
+              onChange={(e) => setTenantId(e.target.value)}
+              placeholder="tenant_uuid_or_owner_id"
+              className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-semibold text-gray-800">Reason</span>
+            <input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="why are you overriding?"
+              className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            />
+          </label>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => callOverride("unlock")}
+              disabled={loading || !tenantId.trim()}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 text-white px-5 py-3 font-semibold disabled:opacity-50"
+            >
+              <LockOpen className="w-4 h-4" />
+              Unlock Tenant
+            </button>
+
+            <button
+              onClick={() => callOverride("provision")}
+              disabled={loading || !tenantId.trim()}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-gray-200 text-gray-900 px-5 py-3 font-semibold disabled:opacity-50"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Provision Defaults
+            </button>
           </div>
-        </div>
 
-        <div className="space-y-4">
-          <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Target Tenant ID</label>
-          <input 
-            value={tenantId}
-            onChange={(e) => setTenantId(e.target.value)}
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-sm font-mono focus:border-red-500 outline-none transition-all"
-            placeholder="uuid-id-of-tenant"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <button 
-            disabled={loading || !tenantId}
-            onClick={() => runAction('GIFT_MINUTES', 100)}
-            className="flex flex-col items-center justify-center gap-3 p-8 bg-zinc-950 border border-zinc-800 rounded-3xl hover:border-sky-500 transition-all group"
-          >
-            <PlusCircle className="w-6 h-6 text-sky-500 group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Gift 100 Mins</span>
-          </button>
-
-          <button 
-            disabled={loading || !tenantId}
-            onClick={() => runAction('MANUAL_UNBLOCK')}
-            className="flex flex-col items-center justify-center gap-3 p-8 bg-zinc-950 border border-zinc-800 rounded-3xl hover:border-emerald-500 transition-all group"
-          >
-            <LockOpen className="w-6 h-6 text-emerald-500 group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Manual Unblock</span>
-          </button>
-        </div>
-
-        <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
-          <p className="text-[9px] text-red-500/80 font-bold uppercase tracking-widest leading-relaxed text-center">
-            Warning: Overrides bypass standard Stripe/Bland AI billing checks. <br />Use only for verified support interventions.
-          </p>
+          {result && (
+            <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800">
+              {result}
+            </div>
+          )}
         </div>
       </div>
     </div>
