@@ -10,8 +10,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-function getTenantId(req: Request) {
-  const cookieStore = cookies();
+async function getTenantId(req: Request): Promise<string | null> {
+  const cookieStore = await cookies();
   return (
     cookieStore.get("tenant_id")?.value ||
     req.headers.get("x-impersonated-user-id") ||
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing message" }, { status: 400 });
     }
 
-    const tenantId = getTenantId(req);
+    const tenantId = await getTenantId(req);
     if (!tenantId) {
       return NextResponse.json({ error: "Missing tenantId" }, { status: 400 });
     }
@@ -101,7 +101,6 @@ export async function POST(req: Request) {
     });
 
     const reply = completion.choices?.[0]?.message?.content || "";
-
     return NextResponse.json({ reply });
   } catch (error: any) {
     console.error("❌ AI preview error:", error);
