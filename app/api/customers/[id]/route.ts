@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 
-// Force Node.js runtime (avoid Edge issues with some deps)
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-function getSupabaseServerClient() {
+async function getSupabaseServerClient() {
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseAnonKey =
@@ -18,7 +17,7 @@ function getSupabaseServerClient() {
     );
   }
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -31,7 +30,7 @@ function getSupabaseServerClient() {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // In some runtimes, setting cookies may be restricted; safe to ignore for read-only routes.
+          // ok: read-only route / restricted runtime
         }
       },
     },
@@ -44,7 +43,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient();
 
     const { data, error } = await supabase
       .from('customers')
