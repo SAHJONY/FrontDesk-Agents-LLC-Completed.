@@ -1,14 +1,28 @@
-// lib/sovereign-sync.ts
-export type SovereignSyncEvent =
-  | { type: "CALL_ENDED"; tenantId?: string; payload?: any }
-  | { type: "ADMIN_OVERRIDE"; tenantId?: string; payload?: any };
+type SyncTenantStatusInput = {
+  tenantId?: string;
+  ownerId?: string;
+  status?: "active" | "past_due" | "blocked" | "trial" | "canceled";
+  reason?: string;
+};
 
-export async function sovereignSync(event: SovereignSyncEvent) {
-  // Safe no-op sync layer.
-  // Later: write to Supabase/Redis audit stream, triggers, queues, etc.
+type SyncTenantStatusResult = {
+  ok: boolean;
+  message: string;
+};
+
+export async function syncTenantStatus(
+  input: SyncTenantStatusInput
+): Promise<SyncTenantStatusResult> {
+  // Minimal safe stub that won’t break builds.
+  // Replace with your real sovereign sync implementation if you already have one.
+  const tenantRef = input.tenantId || input.ownerId;
+
+  if (!tenantRef) {
+    return { ok: false, message: "Missing tenantId/ownerId" };
+  }
+
   return {
     ok: true,
-    event,
-    ts: new Date().toISOString(),
+    message: `syncTenantStatus accepted for ${tenantRef} (${input.status || "unknown"})`,
   };
 }
