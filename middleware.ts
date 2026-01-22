@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
 
 const PUBLIC_PREFIXES = [
   "/",
@@ -23,8 +23,8 @@ function isStaticOrInternal(pathname: string) {
   return (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
-    pathname.startsWith("/images") ||
-    pathname.startsWith("/api") || // API routes handled by their own logic
+    pathname.startsWith("/images") || // your public/images served as /images/*
+    pathname.startsWith("/api") || // API routes handled separately
     pathname === "/robots.txt" ||
     pathname.endsWith(".png") ||
     pathname.endsWith(".jpg") ||
@@ -43,40 +43,22 @@ function isPublic(pathname: string) {
 // ---- Optional Redis (Upstash) ----
 type UpstashRedisClient = {
   get: (key: string) => Promise<unknown>;
-  set: (
-    key: string,
-    value: string,
-    opts?: { ex?: number }
-  ) => Promise<unknown>;
+  set: (key: string, value: string, opts?: { ex?: number }) => Promise<unknown>;
 };
 
 async function getRedisClient(): Promise<UpstashRedisClient | null> {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  // If Upstash env is not configured, skip Redis locking.
   if (!url || !token) return null;
 
   try {
-    // Dynamic import prevents build-time "module not found"
     const mod = await import("@upstash/redis");
-    const Redis = mod.Redis;
-
-    return new Redis({ url, token }) as unknown as UpstashRedisClient;
+    return new mod.Redis({ url, token }) as unknown as UpstashRedisClient;
   } catch {
-    // If package isn't installed, skip Redis locking.
     return null;
   }
 }
-
-// ---- Supabase (DB fallback) ----
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-const supabase =
-  supabaseUrl && supabaseAnon
-    ? createClient(supabaseUrl, supabaseAnon)
-    : null;
 
 function redirectToPricing(req: NextRequest) {
   const upgradeUrl = req.nextUrl.clone();
@@ -85,18 +67,45 @@ function redirectToPricing(req: NextRequest) {
   return NextResponse.redirect(upgradeUrl);
 }
 
-function getUserIdFromCookies(req: NextRequest): string | null {
-  // Your original cookie name
-  const direct = req.cookies.get("sb-user-id")?.value;
-  if (direct) return direct;
+function redirectToLogin(req: NextRequest) {
+  const loginUrl = req.nextUrl.clone();
+  loginUrl.pathname = "/login";
+  loginUrl.searchParams.set("next", req.nextUrl.pathname);
+  return NextResponse.redirect(loginUrl);
+}
 
-  // If you store user id elsewhere, keep it here.
-  return null;
+function getSupabase(req: NextRequest, res: NextResponse) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnon) return null;
+
+  return createServerClient(supabaseUrl, supabaseAnon, {
+    cookies: {
+      get(name: string) {
+        return req.cookies.get(name)?.value;
+      },
+      set(name: string, value: string, options: any) {
+        // Middleware requires writing cookies on the response
+        res.cookies.set({ name, value, ...options });
+      },
+      remove(name: string, options: any) {
+        res.cookies.set({ name, value: "", ...options });
+      },
+    },
+  });
 }
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Hard short-circuit for static/internal
+  if (isStaticOrInternal(pathname)) return NextResponse.next();
+
   const isPublicRoute = isPublic(pathname);
+
+  // Prepare a response object early (needed for Supabase cookie refresh)
+  const res = NextResponse.next();
 
   // 1) Impersonation header pass-through (admin only)
   const impersonatedId = req.cookies.get("impersonated_owner_id")?.value;
@@ -108,45 +117,51 @@ export async function middleware(req: NextRequest) {
 
   // 2) Protected usage guard only for dashboard routes
   if (!isPublicRoute && pathname.startsWith("/dashboard")) {
-    const userId = getUserIdFromCookies(req);
+    const supabase = getSupabase(req, res);
 
-    if (!userId) {
-      // If you want dashboard to require login, redirect to /login
-      // Otherwise leave as-is.
-      const loginUrl = req.nextUrl.clone();
-      loginUrl.pathname = "/login";
-      return NextResponse.redirect(loginUrl);
+    if (!supabase) {
+      // If Supabase env is missing, fail closed for dashboard
+      return redirectToLogin(req);
     }
 
-    // Redis-first, DB fallback
-    const redis = await getRedisClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
+    if (!user?.id) {
+      return redirectToLogin(req);
+    }
+
+    const userId = user.id;
+
+    // Redis-first
+    const redis = await getRedisClient();
     if (redis) {
       const blockStatus = await redis.get(`block:${userId}`);
-
       if (blockStatus === "EXHAUSTED" || blockStatus === "PAST_DUE") {
         return redirectToPricing(req);
       }
     }
 
     // DB fallback (and optionally prime Redis)
-    if (supabase) {
-      const { data: tenant, error } = await supabase
-        .from("tenants")
-        .select("used_minutes, max_minutes")
-        .eq("owner_id", userId)
-        .single();
+    const { data: tenant, error } = await supabase
+      .from("tenants")
+      .select("used_minutes, max_minutes")
+      .eq("owner_id", userId)
+      .single();
 
-      if (!error && tenant && tenant.used_minutes >= tenant.max_minutes) {
-        if (redis) {
-          await redis.set(`block:${userId}`, "EXHAUSTED", { ex: 3600 });
-        }
-        return redirectToPricing(req);
+    if (!error && tenant && tenant.used_minutes >= tenant.max_minutes) {
+      if (redis) {
+        await redis.set(`block:${userId}`, "EXHAUSTED", { ex: 3600 });
       }
+      return redirectToPricing(req);
     }
+
+    // Return the response so any Supabase cookie refresh is applied
+    return res;
   }
 
-  return NextResponse.next();
+  return res;
 }
 
 export const config = {
