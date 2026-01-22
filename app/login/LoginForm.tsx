@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type Props = {
   defaultRedirect?: "admin" | "dashboard";
@@ -11,8 +10,6 @@ type Props = {
 export default function LoginForm({ defaultRedirect = "admin" }: Props) {
   const router = useRouter();
   const params = useSearchParams();
-
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
   const next = params.get("next") || "";
   const [email, setEmail] = useState("");
@@ -26,20 +23,28 @@ export default function LoginForm({ defaultRedirect = "admin" }: Props) {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
       });
 
-      if (error) {
-        setErrorMsg(error.message);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setErrorMsg(data?.error || "Login failed.");
         return;
       }
 
-      // If login succeeded, route:
+      // Prefer safe `next` if present, else backend redirectUrl, else fallback
       const fallback = defaultRedirect === "admin" ? "/admin" : "/dashboard";
-      const target =
-        next && next.startsWith("/") && !next.startsWith("//") ? next : fallback;
+      const safeNext =
+        next && next.startsWith("/") && !next.startsWith("//") ? next : "";
+
+      const target = safeNext || data?.redirectUrl || fallback;
 
       router.replace(target);
       router.refresh();
@@ -93,17 +98,11 @@ export default function LoginForm({ defaultRedirect = "admin" }: Props) {
       </button>
 
       <div className="flex items-center justify-between pt-2">
-        <a
-          href="/forgot-password"
-          className="text-xs text-slate-300 hover:text-sky-300"
-        >
+        <a href="/forgot-password" className="text-xs text-slate-300 hover:text-sky-300">
           Forgot password?
         </a>
 
-        <a
-          href="/signup"
-          className="text-xs text-slate-300 hover:text-sky-300"
-        >
+        <a href="/signup" className="text-xs text-slate-300 hover:text-sky-300">
           Create account
         </a>
       </div>
