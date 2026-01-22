@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
 
 const PUBLIC_PREFIXES = [
   "/",
@@ -37,35 +36,7 @@ function isStaticOrInternal(pathname: string) {
 
 function isPublic(pathname: string) {
   if (isStaticOrInternal(pathname)) return true;
-  return PUBLIC_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
-}
-
-// ---- Optional Redis (Upstash) ----
-type UpstashRedisClient = {
-  get: (key: string) => Promise<unknown>;
-  set: (key: string, value: string, opts?: { ex?: number }) => Promise<unknown>;
-};
-
-async function getRedisClient(): Promise<UpstashRedisClient | null> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return null;
-
-  try {
-    const mod = await import("@upstash/redis");
-    return new mod.Redis({ url, token }) as unknown as UpstashRedisClient;
-  } catch {
-    return null;
-  }
-}
-
-function redirectToPricing(req: NextRequest) {
-  const upgradeUrl = req.nextUrl.clone();
-  upgradeUrl.pathname = "/pricing";
-  upgradeUrl.searchParams.set("reason", "usage_limit");
-  return NextResponse.redirect(upgradeUrl);
+  return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
 function redirectToLogin(req: NextRequest) {
@@ -81,60 +52,63 @@ function redirectToDashboard(req: NextRequest) {
   return NextResponse.redirect(url);
 }
 
-type CookieToSet = { name: string; value: string; options?: any };
-
-function getSupabase(req: NextRequest, res: NextResponse) {
-  const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-  const supabaseAnon =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnon) return null;
-
-  return createServerClient(supabaseUrl, supabaseAnon, {
-    cookies: {
-      getAll() {
-        return req.cookies.getAll();
-      },
-      setAll(cookiesToSet: CookieToSet[]) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            res.cookies.set(name, value, options);
-          });
-        } catch {
-          // ok in restricted contexts
-        }
-      },
-    },
-  });
+/**
+ * Edge-safe JWT verify (HS256) using WebCrypto.
+ * Token format: header.payload.signature (base64url)
+ */
+function base64UrlToUint8Array(base64url: string) {
+  const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = base64.length % 4 ? "=".repeat(4 - (base64.length % 4)) : "";
+  const str = atob(base64 + pad);
+  const bytes = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) bytes[i] = str.charCodeAt(i);
+  return bytes;
 }
 
-function isOwnerByEmailOrRole(user: any): boolean {
-  const ownerEmail = process.env.OWNER_EMAIL?.trim().toLowerCase();
-  const email = String(user?.email || "").trim().toLowerCase();
-
-  const role =
-    user?.app_metadata?.role ||
-    user?.user_metadata?.role ||
-    user?.app_metadata?.claims?.role ||
-    null;
-
-  if (ownerEmail && email === ownerEmail) return true;
-  if (role && String(role).trim().toLowerCase() === "owner") return true;
-
-  return false;
+function decodeBase64UrlJson(base64url: string) {
+  const bytes = base64UrlToUint8Array(base64url);
+  const json = new TextDecoder().decode(bytes);
+  return JSON.parse(json);
 }
 
-async function isOwnerByDb(supabase: any, userId: string): Promise<boolean> {
-  // Owner = someone who has a tenant with owner_id = user.id
-  const { data, error } = await supabase
-    .from("tenants")
-    .select("id, owner_id")
-    .eq("owner_id", userId)
-    .maybeSingle();
+async function verifyJwtHS256(token: string, secret: string) {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
 
-  if (error) return false;
-  return Boolean(data?.owner_id);
+  const [headerB64, payloadB64, sigB64] = parts;
+
+  // basic header check
+  const header = decodeBase64UrlJson(headerB64);
+  if (!header || header.alg !== "HS256") return null;
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["verify"]
+  );
+
+  const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
+  const signature = base64UrlToUint8Array(sigB64);
+
+  const ok = await crypto.subtle.verify("HMAC", key, signature, data);
+  if (!ok) return null;
+
+  const payload = decodeBase64UrlJson(payloadB64);
+
+  // exp validation (seconds)
+  if (payload?.exp && typeof payload.exp === "number") {
+    const now = Math.floor(Date.now() / 1000);
+    if (now >= payload.exp) return null;
+  }
+
+  return payload;
+}
+
+function isOwnerOrAdmin(payload: any) {
+  const role = String(payload?.role || "").trim().toUpperCase();
+  return role === "OWNER" || role === "ADMIN";
 }
 
 export async function middleware(req: NextRequest) {
@@ -143,9 +117,8 @@ export async function middleware(req: NextRequest) {
   if (isStaticOrInternal(pathname)) return NextResponse.next();
 
   const isPublicRoute = isPublic(pathname);
-  const res = NextResponse.next();
 
-  // 1) Impersonation header pass-through (admin only) — keep your behavior
+  // Keep your impersonation header pass-through behavior
   const impersonatedId = req.cookies.get("impersonated_owner_id")?.value;
   if (impersonatedId && !isPublicRoute) {
     const requestHeaders = new Headers(req.headers);
@@ -153,63 +126,29 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // 2) Protect admin + dashboard (must be signed in)
   const isAdminRoute = pathname.startsWith("/admin");
   const isDashboardRoute = pathname.startsWith("/dashboard");
   const isProtected = !isPublicRoute && (isAdminRoute || isDashboardRoute);
 
-  if (!isProtected) return res;
+  if (!isProtected) return NextResponse.next();
 
-  const supabase = getSupabase(req, res);
-  if (!supabase) return redirectToLogin(req);
+  const token = req.cookies.get("auth-token")?.value || req.cookies.get("token")?.value;
+  if (!token) return redirectToLogin(req);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return redirectToLogin(req);
 
-  if (!user?.id) return redirectToLogin(req);
+  const payload = await verifyJwtHS256(token, secret);
+  if (!payload?.userId) return redirectToLogin(req);
 
-  // 2a) Owner gate for /admin:
-  // Pass if OWNER_EMAIL or role=owner OR tenant.owner_id match
-  if (isAdminRoute) {
-    const okByEmailOrRole = isOwnerByEmailOrRole(user);
-    const okByDb = okByEmailOrRole ? true : await isOwnerByDb(supabase, user.id);
-
-    if (!okByDb) {
-      // avoid pointless redirect loop if already in dashboard
-      return redirectToDashboard(req);
-    }
-
-    return res;
+  // Owner/Admin gate for /admin
+  if (isAdminRoute && !isOwnerOrAdmin(payload)) {
+    return redirectToDashboard(req);
   }
 
-  // 2b) Usage guard ONLY for /dashboard (your logic)
-  if (isDashboardRoute) {
-    const userId = user.id;
-
-    const redis = await getRedisClient();
-    if (redis) {
-      const blockStatus = await redis.get(`block:${userId}`);
-      if (blockStatus === "EXHAUSTED" || blockStatus === "PAST_DUE") {
-        return redirectToPricing(req);
-      }
-    }
-
-    const { data: tenant, error } = await supabase
-      .from("tenants")
-      .select("used_minutes, max_minutes")
-      .eq("owner_id", userId)
-      .single();
-
-    if (!error && tenant && tenant.used_minutes >= tenant.max_minutes) {
-      if (redis) await redis.set(`block:${userId}`, "EXHAUSTED", { ex: 3600 });
-      return redirectToPricing(req);
-    }
-
-    return res;
-  }
-
-  return res;
+  // NOTE: Usage-limit checks should NOT be in Edge middleware if they require DB calls.
+  // Do them in Node routes or server components.
+  return NextResponse.next();
 }
 
 export const config = {
