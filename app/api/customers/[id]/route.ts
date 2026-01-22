@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireSupabaseServer } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 // GET /api/customers/[id] - Get a single customer
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = requireSupabaseServer();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('customers')
