@@ -23,8 +23,8 @@ function isStaticOrInternal(pathname: string) {
   return (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
-    pathname.startsWith("/images") || // your public/images served as /images/*
-    pathname.startsWith("/api") || // API routes handled separately
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/api") ||
     pathname === "/robots.txt" ||
     pathname.endsWith(".png") ||
     pathname.endsWith(".jpg") ||
@@ -49,7 +49,6 @@ type UpstashRedisClient = {
 async function getRedisClient(): Promise<UpstashRedisClient | null> {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-
   if (!url || !token) return null;
 
   try {
@@ -74,26 +73,43 @@ function redirectToLogin(req: NextRequest) {
   return NextResponse.redirect(loginUrl);
 }
 
+type CookieToSet = { name: string; value: string; options?: any };
+
 function getSupabase(req: NextRequest, res: NextResponse) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseAnon =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnon) return null;
 
   return createServerClient(supabaseUrl, supabaseAnon, {
     cookies: {
-      get(name: string) {
-        return req.cookies.get(name)?.value;
+      getAll() {
+        return req.cookies.getAll();
       },
-      set(name: string, value: string, options: any) {
-        // Middleware requires writing cookies on the response
-        res.cookies.set({ name, value, ...options });
-      },
-      remove(name: string, options: any) {
-        res.cookies.set({ name, value: "", ...options });
+      setAll(cookiesToSet: CookieToSet[]) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          res.cookies.set(name, value, options);
+        });
       },
     },
   });
+}
+
+function isOwner(user: any): boolean {
+  const ownerEmail = process.env.OWNER_EMAIL?.toLowerCase();
+  const email = String(user?.email || "").toLowerCase();
+
+  const role =
+    user?.app_metadata?.role ||
+    user?.user_metadata?.role ||
+    user?.app_metadata?.claims?.role ||
+    null;
+
+  if (ownerEmail && email === ownerEmail) return true;
+  if (role && String(role).toLowerCase() === "owner") return true;
+
+  return false;
 }
 
 export async function middleware(req: NextRequest) {
@@ -107,7 +123,7 @@ export async function middleware(req: NextRequest) {
   // Prepare a response object early (needed for Supabase cookie refresh)
   const res = NextResponse.next();
 
-  // 1) Impersonation header pass-through (admin only)
+  // 1) Impersonation header pass-through (admin only) — keep your behavior
   const impersonatedId = req.cookies.get("impersonated_owner_id")?.value;
   if (impersonatedId && !isPublicRoute) {
     const requestHeaders = new Headers(req.headers);
@@ -115,46 +131,50 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // 2) Protected usage guard only for dashboard routes
-  if (!isPublicRoute && pathname.startsWith("/dashboard")) {
-    const supabase = getSupabase(req, res);
+  // 2) Protect admin + dashboard (must be signed in)
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isProtected = !isPublicRoute && (isAdminRoute || isDashboardRoute);
 
-    if (!supabase) {
-      // If Supabase env is missing, fail closed for dashboard
-      return redirectToLogin(req);
-    }
+  if (isProtected) {
+    const supabase = getSupabase(req, res);
+    if (!supabase) return redirectToLogin(req);
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user?.id) {
-      return redirectToLogin(req);
+    if (!user?.id) return redirectToLogin(req);
+
+    // 2a) Owner gate for /admin
+    if (isAdminRoute && !isOwner(user)) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
     }
 
-    const userId = user.id;
+    // 2b) Usage guard ONLY for /dashboard (keep your logic)
+    if (isDashboardRoute) {
+      const userId = user.id;
 
-    // Redis-first
-    const redis = await getRedisClient();
-    if (redis) {
-      const blockStatus = await redis.get(`block:${userId}`);
-      if (blockStatus === "EXHAUSTED" || blockStatus === "PAST_DUE") {
+      const redis = await getRedisClient();
+      if (redis) {
+        const blockStatus = await redis.get(`block:${userId}`);
+        if (blockStatus === "EXHAUSTED" || blockStatus === "PAST_DUE") {
+          return redirectToPricing(req);
+        }
+      }
+
+      const { data: tenant, error } = await supabase
+        .from("tenants")
+        .select("used_minutes, max_minutes")
+        .eq("owner_id", userId)
+        .single();
+
+      if (!error && tenant && tenant.used_minutes >= tenant.max_minutes) {
+        if (redis) await redis.set(`block:${userId}`, "EXHAUSTED", { ex: 3600 });
         return redirectToPricing(req);
       }
-    }
-
-    // DB fallback (and optionally prime Redis)
-    const { data: tenant, error } = await supabase
-      .from("tenants")
-      .select("used_minutes, max_minutes")
-      .eq("owner_id", userId)
-      .single();
-
-    if (!error && tenant && tenant.used_minutes >= tenant.max_minutes) {
-      if (redis) {
-        await redis.set(`block:${userId}`, "EXHAUSTED", { ex: 3600 });
-      }
-      return redirectToPricing(req);
     }
 
     // Return the response so any Supabase cookie refresh is applied
