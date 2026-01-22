@@ -5,6 +5,12 @@ import { createServerClient } from '@supabase/ssr';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: Record<string, any>;
+};
+
 async function getSupabaseServerClient() {
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -17,27 +23,22 @@ async function getSupabaseServerClient() {
     );
   }
 
-  // Next typings differ across versions; treat cookies() as possibly async.
+  // Next typings differ across versions; cookies() may be sync or async.
   const cookieStore: any = await (cookies() as any);
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
-      // Avoid getAll() to prevent TS mismatch across Next versions.
-      get(name: string) {
-        return cookieStore.get(name)?.value;
+      getAll() {
+        // If getAll exists, use it; otherwise fallback to empty array.
+        return typeof cookieStore.getAll === 'function' ? cookieStore.getAll() : [];
       },
-      set(name: string, value: string, options: any) {
+      setAll(cookiesToSet: CookieToSet[]) {
         try {
-          cookieStore.set(name, value, options);
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
         } catch {
-          // ok (read-only contexts)
-        }
-      },
-      remove(name: string, options: any) {
-        try {
-          cookieStore.set(name, '', { ...options, maxAge: 0 });
-        } catch {
-          // ok
+          // ok: read-only route / restricted runtime
         }
       },
     },
