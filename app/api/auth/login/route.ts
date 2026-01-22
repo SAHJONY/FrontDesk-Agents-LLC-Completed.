@@ -16,13 +16,20 @@ function cookieSecure() {
   return process.env.NODE_ENV === "production";
 }
 
+function normalizeRole(role: unknown): "ADMIN" | "OWNER" | "USER" {
+  const r = String(role ?? "").trim().toUpperCase();
+  if (r === "ADMIN") return "ADMIN";
+  if (r === "OWNER") return "OWNER";
+  return "USER";
+}
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { email, password } = loginSchema.parse(body);
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
@@ -32,10 +39,12 @@ export async function POST(req: Request) {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    const emailNorm = email.trim().toLowerCase();
+
     const { data: users, error: dbError } = await supabase
       .from("users")
       .select("*")
-      .eq("email", email.toLowerCase())
+      .eq("email", emailNorm)
       .limit(1);
 
     if (dbError) {
@@ -58,16 +67,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Server missing JWT_SECRET" }, { status: 500 });
     }
 
+    const role = normalizeRole(user.role);
+
     const accessToken = jwt.sign(
       {
         userId: user.id,
         email: user.email,
-        role: user.role,
+        role,
         tier: user.tier,
         tenantId: user.tenant_id,
       },
       jwtSecret,
-      { expiresIn: "7d" }
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
 
     const refreshToken = jwt.sign(
@@ -76,13 +87,10 @@ export async function POST(req: Request) {
       { expiresIn: "30d" }
     );
 
-    // ✅ Logic Update: Direct Admins to the Executive Hub
+    // Redirect policy (stable + predictable)
     let redirectUrl = "/dashboard";
-    if (user.role === "admin") {
-      redirectUrl = "/admin/tenants";
-    } else if (user.role === "OWNER") {
-      redirectUrl = "/dashboard/owner";
-    }
+    if (role === "ADMIN") redirectUrl = "/admin/tenants";
+    if (role === "OWNER") redirectUrl = "/admin";
 
     const res = NextResponse.json({
       success: true,
@@ -91,7 +99,7 @@ export async function POST(req: Request) {
         id: user.id,
         email: user.email,
         name: user.full_name,
-        role: user.role,
+        role,
         tier: user.tier,
         tenantId: user.tenant_id,
       },
@@ -107,7 +115,7 @@ export async function POST(req: Request) {
       path: "/",
     };
 
-    // ✅ Clean up: Remove any lingering impersonation state on fresh login
+    // Clean up lingering impersonation state
     res.cookies.delete("impersonated_owner_id");
 
     // Primary cookies
