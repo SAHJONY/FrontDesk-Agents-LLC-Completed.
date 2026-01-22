@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireSupabaseServer } from '@/lib/supabase-server';
+import { NextRequest, NextResponse } from "next/server";
+import { requireSupabaseServer } from "@/lib/supabase-server";
 
+export const runtime = "nodejs";
 
 // GET /api/agents/[id] - Get a single agent
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -12,25 +13,19 @@ export async function GET(
     const { id } = params;
 
     const { data, error } = await supabase
-      .from('agents')
-      .select('*')
-      .eq('id', id)
+      .from("agents")
+      .select("*")
+      .eq("id", id)
       .single();
 
     if (error || !data) {
-      return NextResponse.json(
-        { error: 'Agent not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Agent not found" }, { status: 404 });
     }
 
     return NextResponse.json({ agent: data });
   } catch (error) {
-    console.error('❌ Unexpected error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("❌ Unexpected error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -51,28 +46,22 @@ export async function PATCH(
     delete body.customer_id; // Prevent changing ownership
 
     const { data, error } = await supabase
-      .from('agents')
+      .from("agents")
       .update(body)
-      .eq('id', id)
+      .eq("id", id)
       .select()
       .single();
 
     if (error || !data) {
-      console.error('❌ Error updating agent:', error);
-      return NextResponse.json(
-        { error: 'Failed to update agent' },
-        { status: 500 }
-      );
+      console.error("❌ Error updating agent:", error);
+      return NextResponse.json({ error: "Failed to update agent" }, { status: 500 });
     }
 
-    console.log('✅ Agent updated successfully:', id);
+    console.log("✅ Agent updated successfully:", id);
     return NextResponse.json({ agent: data });
   } catch (error) {
-    console.error('❌ Unexpected error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("❌ Unexpected error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -87,27 +76,21 @@ export async function DELETE(
 
     // Soft delete by setting status to 'deleted'
     const { data, error } = await supabase
-      .from('agents')
-      .update({ status: 'deleted' })
-      .eq('id', id)
+      .from("agents")
+      .update({ status: "deleted" })
+      .eq("id", id)
       .select()
       .single();
 
     if (error || !data) {
-      console.error('❌ Error deleting agent:', error);
-      return NextResponse.json(
-        { error: 'Failed to delete agent' },
-        { status: 500 }
-      );
+      console.error("❌ Error deleting agent:", error);
+      return NextResponse.json({ error: "Failed to delete agent" }, { status: 500 });
     }
 
-    console.log('✅ Agent deleted successfully:', id);
-    return NextResponse.json({ message: 'Agent deleted successfully' });
+    console.log("✅ Agent deleted successfully:", id);
+    return NextResponse.json({ message: "Agent deleted successfully" });
   } catch (error) {
-    console.error('❌ Unexpected error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("❌ Unexpected error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
