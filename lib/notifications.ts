@@ -1,172 +1,102 @@
-import { Resend } from 'resend';
+import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase-admin';
+import { sendLeadNotification, sendCapacityAlert, sendWhatsAppConfirmation } from '@/lib/notifications';
+import { syncTenantStatus } from '@/lib/sovereign-sync';
 
-type LeadNotificationPayload = {
-  leadId?: string;
-  customerId?: string;
-  name?: string;
-  phone?: string;
-  email?: string;
-  source?: string;
-  notes?: string;
-  [key: string]: any;
-};
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { 
+    call_id, 
+    customer_number, 
+    duration, 
+    summary, 
+    completed, 
+    tenant_id,
+    transcript // Bland AI envía el texto completo aquí
+  } = body;
 
-type CapacityAlertPayload = {
-  customerId?: string;
-  agentId?: string;
-  locationId?: string;
-  message?: string;
-  severity?: 'info' | 'warning' | 'critical';
-  [key: string]: any;
-};
+  if (!completed) return NextResponse.json({ status: 'ignored' });
 
-type WhatsAppConfirmationPayload = {
-  to?: string; // E.164 preferred: +1678346628
-  customerId?: string;
-  leadId?: string;
-  message?: string;
-  templateName?: string;
-  templateVars?: Record<string, string | number | boolean | null>;
-  [key: string]: any;
-};
+  let isBooked = false;
 
-function getResendClient(): Resend | null {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return null;
-  return new Resend(key);
-}
-
-function getFromEmail(): string {
-  return (
-    process.env.NOTIFICATIONS_FROM_EMAIL ||
-    'FrontDesk Agents <no-reply@frontdeskagents.com>'
-  );
-}
-
-function getToEmailFallback(): string | null {
-  // Owner/admin inbox for alerts
-  return (
-    process.env.NOTIFICATIONS_TO_EMAIL ||
-    process.env.SUPPORT_INBOX_EMAIL ||
-    process.env.OWNER_EMAIL ||
-    null
-  );
-}
-
-/**
- * Sends a "new lead" notification.
- * Safe default: if RESEND_API_KEY is missing, it will NO-OP (log only) so builds and webhooks won't break.
- */
-export async function sendLeadNotification(payload: LeadNotificationPayload) {
   try {
-    const resend = getResendClient();
-    const to = getToEmailFallback();
+    // 1. Log the Call and Update Minutes
+    const { data: tenant, error } = await supabaseAdmin
+      .from('tenants')
+      .select('name, email, used_minutes, max_minutes, tier, whatsapp_enabled')
+      .eq('id', tenant_id)
+      .single();
 
-    if (!resend || !to) {
-      console.log(
-        '[notifications] sendLeadNotification NO-OP (missing RESEND_API_KEY or TO email)',
-        {
-          hasResendKey: Boolean(process.env.RESEND_API_KEY),
-          hasTo: Boolean(to),
-          payload,
-        }
-      );
-      return { success: true, noop: true };
+    if (error || !tenant) throw new Error('Tenant not found');
+
+    const callDurationMinutes = duration / 60;
+    const newUsedMinutes = tenant.used_minutes + callDurationMinutes;
+
+    await supabaseAdmin
+      .from('tenants')
+      .update({ used_minutes: newUsedMinutes })
+      .eq('id', tenant_id);
+
+    // 2. LEAD INTELLIGENCE & AUTO-CONVERSION
+    // Si la llamada dura más de 30s, es un lead potencial.
+    if (duration > 30) {
+      await sendLeadNotification({
+        email: tenant.email,
+        call_id,
+        customer_number,
+        summary,
+        duration
+      });
+
+      // Lógica de Cierre: Detectar si se agendó una cita en el transcript
+      const successKeywords = ['agendado', 'confirmado', 'cita', 'appointment', 'booked', 'listo'];
+      isBooked = successKeywords.some(key => transcript?.toLowerCase().includes(key));
+
+      if (isBooked && tenant.whatsapp_enabled) {
+        await sendWhatsAppConfirmation({
+          to: customer_number,
+          type: 'APPOINTMENT_CONFIRMATION',
+          tenant_name: tenant.name || 'La Clínica',
+          summary: summary
+        });
+        
+        // Registrar conversión en la tabla de analíticas para el ROI del dashboard
+        await supabaseAdmin.from('conversions').insert({
+          tenant_id,
+          call_id,
+          type: 'APPOINTMENT',
+          value: 50 // Valor estimado de la cita para el Revenue Pipeline
+        });
+      }
     }
 
-    const subject = `New Lead${payload?.name ? `: ${payload.name}` : ''}`;
-    const text = JSON.stringify(payload ?? {}, null, 2);
+    // 3. Automated Capacity Monitoring (80% and 95% thresholds)
+    const usageRatio = newUsedMinutes / tenant.max_minutes;
+    if (usageRatio >= 0.95) {
+      await sendCapacityAlert({
+        email: tenant.email,
+        tier: tenant.tier,
+        threshold: 95
+      });
+    } else if (usageRatio >= 0.80) {
+      await sendCapacityAlert({
+        email: tenant.email,
+        tier: tenant.tier,
+        threshold: 80
+      });
+    }
 
-    const result = await resend.emails.send({
-      from: getFromEmail(),
-      to,
-      subject,
-      text,
+    // 4. Sync status to Redis for Middleware (Real-time enforcement)
+    await syncTenantStatus(tenant_id);
+
+    return NextResponse.json({ 
+      success: true, 
+      processed_at: new Date().toISOString(),
+      conversion_detected: isBooked 
     });
 
-    return { success: true, result };
-  } catch (error: any) {
-    console.error('[notifications] sendLeadNotification error:', error);
-    // Do not throw: webhooks should not fail hard on notification issues
-    return { success: false, error: error?.message || 'Unknown error' };
-  }
-}
-
-/**
- * Sends an "agent capacity" alert.
- * Safe default: if RESEND_API_KEY is missing, it will NO-OP (log only).
- */
-export async function sendCapacityAlert(payload: CapacityAlertPayload) {
-  try {
-    const resend = getResendClient();
-    const to = getToEmailFallback();
-
-    if (!resend || !to) {
-      console.log(
-        '[notifications] sendCapacityAlert NO-OP (missing RESEND_API_KEY or TO email)',
-        {
-          hasResendKey: Boolean(process.env.RESEND_API_KEY),
-          hasTo: Boolean(to),
-          payload,
-        }
-      );
-      return { success: true, noop: true };
-    }
-
-    const sev = payload?.severity?.toUpperCase?.() || 'INFO';
-    const subject = `[${sev}] Capacity Alert`;
-    const text = JSON.stringify(payload ?? {}, null, 2);
-
-    const result = await resend.emails.send({
-      from: getFromEmail(),
-      to,
-      subject,
-      text,
-    });
-
-    return { success: true, result };
-  } catch (error: any) {
-    console.error('[notifications] sendCapacityAlert error:', error);
-    return { success: false, error: error?.message || 'Unknown error' };
-  }
-}
-
-/**
- * Sends a WhatsApp confirmation (placeholder).
- * Safe default: NO-OP unless you wire a provider (Twilio/Meta) and env vars.
- * This exists to prevent build failures when webhook routes import it.
- */
-export async function sendWhatsAppConfirmation(
-  payload: WhatsAppConfirmationPayload
-) {
-  try {
-    // If you later implement Twilio/Meta, gate by env vars here.
-    // Example env gates:
-    // - TWILIO_ACCOUNT_SID
-    // - TWILIO_AUTH_TOKEN
-    // - TWILIO_WHATSAPP_FROM (e.g. "whatsapp:+14155238886")
-    const hasProvider =
-      Boolean(process.env.TWILIO_ACCOUNT_SID) &&
-      Boolean(process.env.TWILIO_AUTH_TOKEN) &&
-      Boolean(process.env.TWILIO_WHATSAPP_FROM);
-
-    if (!hasProvider) {
-      console.log(
-        '[notifications] sendWhatsAppConfirmation NO-OP (provider not configured)',
-        { payload }
-      );
-      return { success: true, noop: true };
-    }
-
-    // Provider implementation intentionally omitted for now.
-    // Keep webhook stable even if WhatsApp is not configured.
-    console.log(
-      '[notifications] sendWhatsAppConfirmation SKIPPED (provider stub)',
-      { payload }
-    );
-    return { success: true, noop: true, skipped: true };
-  } catch (error: any) {
-    console.error('[notifications] sendWhatsAppConfirmation error:', error);
-    return { success: false, error: error?.message || 'Unknown error' };
+  } catch (err: any) {
+    console.error('Webhook processing failed:', err.message);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
