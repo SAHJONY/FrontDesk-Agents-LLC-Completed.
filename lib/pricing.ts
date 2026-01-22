@@ -1,113 +1,98 @@
 // lib/pricing.ts
 export type PlanKey = "starter" | "professional" | "growth" | "enterprise";
 
-export type LocationRange = {
-  label: string;      // "1 Location", "2–5 Locations", etc.
-  min: number;        // inclusive
-  max: number | null; // inclusive, null = open ended
-};
-
 export type PricingPlan = {
   key: PlanKey;
-  name: string;
+  name: string; // Display name
   priceMonthlyUsd: number;
-  locationRange: LocationRange;
-  features: string[];
+
+  // Canonical entitlement model (minutes-based)
+  includedMinutes: number;
+  overagePerMinuteUsd: number;
+
+  description: string;
+  featured?: boolean;
+
   ctaLabel: string;
   ctaHref: string;
-  badge?: "MOST POPULAR";
+
+  badge?: "RECOMMENDED";
 };
 
 export const PRICING_META = {
-  headline: "Location-Based Pricing",
-  subheadline: "Scaling infrastructure for your entire footprint",
-  guarantee: "14-day money-back guarantee • Cancel anytime",
+  headline: "Global Node Access",
+  subheadline: "Choose the capacity tier that matches your call volume.",
   currency: "USD",
   cadence: "monthly",
 } as const;
 
 /**
- * ✅ Permanent prices (source of truth)
- * 299 | 699 | 1299 | 2499
+ * ✅ Canonical prices (source of truth):
+ * $149 / $499 / $999 / $1999
  */
 export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "starter",
-    name: "STARTER",
-    priceMonthlyUsd: 299,
-    locationRange: { label: "1 Location", min: 1, max: 1 },
-    features: [
-      "24/7 AI Receptionist",
-      "Call Summaries & Notes",
-      "Natural Language Intake",
-      "Standard CRM Basics",
-    ],
-    ctaLabel: "Start Trial",
+    name: "Starter",
+    priceMonthlyUsd: 149,
+    includedMinutes: 300,
+    overagePerMinuteUsd: 0.45,
+    description: "Essential autonomous intake for solo operators.",
+    ctaLabel: "Activate Node",
     ctaHref: "/signup?plan=starter",
   },
   {
     key: "professional",
-    name: "PROFESSIONAL",
-    priceMonthlyUsd: 699,
-    locationRange: { label: "2–5 Locations", min: 2, max: 5 },
-    features: [
-      "Multi-staff Scheduling",
-      "Voicemail Transcription",
-      "Advanced Analytics",
-      "TCPA/DNC Support",
-    ],
-    ctaLabel: "Start Trial",
+    name: "Professional",
+    priceMonthlyUsd: 499,
+    includedMinutes: 1200,
+    overagePerMinuteUsd: 0.40,
+    description: "Advanced fleet with priority routing and 50+ languages.",
+    featured: true,
+    badge: "RECOMMENDED",
+    ctaLabel: "Scale Fleet",
     ctaHref: "/signup?plan=professional",
-    badge: "MOST POPULAR",
   },
   {
     key: "growth",
-    name: "GROWTH",
-    priceMonthlyUsd: 1299,
-    locationRange: { label: "6–15 Locations", min: 6, max: 15 },
-    features: [
-      "Multi-language Support",
-      "CRM Connectors",
-      "Audit Logs",
-      "99.9% SLA",
-    ],
-    ctaLabel: "Start Trial",
+    name: "Growth",
+    priceMonthlyUsd: 999,
+    includedMinutes: 3000,
+    overagePerMinuteUsd: 0.35,
+    description: "Multi-location cluster with custom voice cloning.",
+    ctaLabel: "Establish Cluster",
     ctaHref: "/signup?plan=growth",
   },
   {
     key: "enterprise",
-    name: "ENTERPRISE",
-    priceMonthlyUsd: 2499,
-    locationRange: { label: "16+ Locations", min: 16, max: null },
-    features: [
-      "White-labeling",
-      "SSO (SAML) Integration",
-      "Dedicated Tenant",
-      "99.99% SLA",
-    ],
-    ctaLabel: "Schedule Demo",
+    name: "Enterprise",
+    priceMonthlyUsd: 1999,
+    includedMinutes: 7000,
+    overagePerMinuteUsd: 0.30,
+    description: "Infinite scale with performance royalties (Sec. 3).",
+    ctaLabel: "Consult Sovereignty",
     ctaHref: "/demo?plan=enterprise",
   },
 ];
 
-/**
- * Fast lookup to prevent repeated `.find()` and to keep pricing consistent everywhere.
- */
 export const PRICING_BY_KEY = Object.freeze(
-  Object.fromEntries(PRICING_PLANS.map((p) => [p.key, p])) as Record<PlanKey, PricingPlan>
+  Object.fromEntries(PRICING_PLANS.map((p) => [p.key, p])) as Record<
+    PlanKey,
+    PricingPlan
+  >
 );
 
 export function isPlanKey(value: unknown): value is PlanKey {
-  return value === "starter" || value === "professional" || value === "growth" || value === "enterprise";
+  return (
+    value === "starter" ||
+    value === "professional" ||
+    value === "growth" ||
+    value === "enterprise"
+  );
 }
 
-/**
- * Use this in APIs (checkout, signup) to fail fast on invalid plan inputs.
- */
 export function assertPlanKey(value: unknown): asserts value is PlanKey {
-  if (!isPlanKey(value)) {
-    throw new Error(`Invalid plan key: ${String(value)}`);
-  }
+  if (!isPlanKey(value)) throw new Error(`Invalid plan key: ${String(value)}`);
 }
 
 export function planByKey(key: PlanKey): PricingPlan {
@@ -118,11 +103,6 @@ export function formatUsd(amount: number) {
   return `$${amount.toLocaleString("en-US")}`;
 }
 
-export function planForLocations(locations: number): PricingPlan {
-  const n = Math.max(1, Math.floor(locations));
-  const match = PRICING_PLANS.find((p) => {
-    const { min, max } = p.locationRange;
-    return n >= min && (max === null ? true : n <= max);
-  });
-  return match ?? PRICING_PLANS[0];
+export function formatOverage(amount: number) {
+  return `$${amount.toFixed(2)}/min`;
 }
