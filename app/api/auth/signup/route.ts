@@ -5,6 +5,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import * as z from "zod";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const signupSchema = z.object({
   fullName: z.string().min(2),
   email: z.string().email(),
@@ -120,6 +123,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to create account" }, { status: 500 });
     }
 
+    // ---- AUTO-PROVISION TENANT (best-effort; won't block signup) ----
+    try {
+      // Adjust fields if your tenants schema differs.
+      const { error: tenantErr } = await supabase.from("tenants").insert({
+        owner_id: newUser.id,
+        name: companyName,
+        company_name: companyName,
+        subdomain,
+        used_minutes: 0,
+        max_minutes: 0,
+        created_at: nowIso,
+        updated_at: nowIso,
+      });
+
+      if (tenantErr) {
+        console.warn("[signup] tenant auto-provision failed (non-blocking):", tenantErr);
+      }
+    } catch (e) {
+      console.warn("[signup] tenant auto-provision exception (non-blocking):", e);
+    }
+
     const token = jwt.sign(
       {
         userId: newUser.id,
@@ -134,7 +158,7 @@ export async function POST(req: Request) {
     const response = NextResponse.json(
       {
         success: true,
-        message: "Node Provisioned Successfully",
+        message: "Account created successfully",
         nodeId,
         subdomain,
         tier: "BASIC",
