@@ -1,3 +1,4 @@
+// app/api/owner/outreach/leads/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
         score: 78,
         status: 'new',
         source: 'AI Lead Generation',
-        lastContact: null,
+        lastContact: null as string | null,
         nextAction: 'Send initial outreach',
         campaignId: campaignId || 'camp_001',
       },
@@ -66,45 +67,49 @@ export async function GET(request: NextRequest) {
     ];
 
     // Filter by campaign if specified
-    const filteredLeads = campaignId 
-      ? leads.filter(lead => lead.campaignId === campaignId)
+    const filteredLeads = campaignId
+      ? leads.filter((lead) => lead.campaignId === campaignId)
       : leads;
 
-    return NextResponse.json({ 
+    const total = filteredLeads.length;
+    const avgScore =
+      total > 0
+        ? Math.round(filteredLeads.reduce((sum, l) => sum + l.score, 0) / total)
+        : 0;
+
+    return NextResponse.json({
       leads: filteredLeads,
-      total: filteredLeads.length,
+      total,
       stats: {
-        new: filteredLeads.filter(l => l.status === 'new').length,
-        contacted: filteredLeads.filter(l => l.status === 'contacted').length,
-        responded: filteredLeads.filter(l => l.status === 'responded').length,
-        converted: filteredLeads.filter(l => l.status === 'converted').length,
-        avgScore: Math.round(filteredLeads.reduce((sum, l) => sum + l.score, 0) / filteredLeads.length),
-      }
+        new: filteredLeads.filter((l) => l.status === 'new').length,
+        contacted: filteredLeads.filter((l) => l.status === 'contacted').length,
+        responded: filteredLeads.filter((l) => l.status === 'responded').length,
+        converted: filteredLeads.filter((l) => l.status === 'converted').length,
+        avgScore,
+      },
     });
   } catch (error) {
     console.error('Error fetching leads:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { campaignId, count, industry, region } = body;
+    const { campaignId, count, industry, region } = body ?? {};
 
-    // Generate leads using AI
+    if (!campaignId || typeof campaignId !== 'string') {
+      return NextResponse.json({ error: 'campaignId is required' }, { status: 400 });
+    }
+    if (typeof count !== 'number' || !Number.isFinite(count) || count <= 0) {
+      return NextResponse.json({ error: 'count must be a positive number' }, { status: 400 });
+    }
+
+    // Generate leads using AI (mock)
     console.log(`Generating ${count} leads for campaign ${campaignId}`);
-    console.log(`Industry: ${industry}, Region: ${region}`);
-
-    // In production, this would:
-    // 1. Query lead databases (Apollo, ZoomInfo, etc.)
-    // 2. Use AI to score and qualify leads
-    // 3. Enrich lead data with company info
-    // 4. Generate personalized outreach messages
-    // 5. Save to database
+    if (industry) console.log(`Industry: ${industry}`);
+    if (region) console.log(`Region: ${region}`);
 
     const generatedLeads = {
       campaignId,
@@ -113,38 +118,43 @@ export async function POST(request: NextRequest) {
       estimatedCompletion: new Date(Date.now() + 300000).toISOString(), // 5 minutes
     };
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       data: generatedLeads,
-      message: `Generating ${count} leads. This may take a few minutes.`
+      message: `Generating ${count} leads. This may take a few minutes.`,
     });
   } catch (error) {
     console.error('Error generating leads:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { leadId, status, notes } = body;
+    const { leadId, status, notes } = body ?? {};
+
+    if (!leadId || typeof leadId !== 'string') {
+      return NextResponse.json({ error: 'leadId is required' }, { status: 400 });
+    }
+    if (!status || typeof status !== 'string') {
+      return NextResponse.json({ error: 'status is required' }, { status: 400 });
+    }
 
     console.log(`Updating lead ${leadId} to status: ${status}`);
 
+    // Use notes so TypeScript doesn't fail with noUnusedLocals
+    if (typeof notes === 'string' && notes.trim()) {
+      console.log(`Notes for ${leadId}: ${notes.trim()}`);
+    }
+
     // In production, this would update the lead in the database
-    
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      message: 'Lead updated successfully'
+      message: 'Lead updated successfully',
     });
   } catch (error) {
     console.error('Error updating lead:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
