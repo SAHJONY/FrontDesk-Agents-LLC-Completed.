@@ -121,12 +121,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, data: logs });
     }
 
-    /**
-     * IMPORTANT:
-     * Your AuditLogger type does NOT implement exportLogs().
-     * So we implement "export" by calling getLogs() with the date range.
-     * This returns JSON logs suitable for download/CSV conversion later.
-     */
+    // "Export" implemented via getLogs (since AuditLogger has no exportLogs)
     if (action === "export_audit_logs") {
       const startDate = parseRequiredDate(searchParams.get("startDate"), "startDate");
       const endDate = parseRequiredDate(searchParams.get("endDate"), "endDate");
@@ -157,24 +152,25 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Missing customerId" }, { status: 400 });
       }
 
-      const reportType = searchParams.get("type");
-      let report: any;
+      const reportType = (searchParams.get("type") || "").toLowerCase();
 
-      switch (reportType) {
-        case "gdpr":
-          report = await complianceManager.generateGDPRReport(customerId);
-          break;
-        case "hipaa":
-          report = await complianceManager.generateHIPAAReport(customerId);
-          break;
-        case "soc2":
-          report = await complianceManager.generateSOC2Report(customerId);
-          break;
-        default:
-          return NextResponse.json({ error: "Invalid report type" }, { status: 400 });
+      // ✅ Only GDPR is guaranteed by current ComplianceManager typing
+      if (reportType === "gdpr") {
+        const report = await complianceManager.generateGDPRReport(customerId);
+        return NextResponse.json({ success: true, data: report });
       }
 
-      return NextResponse.json({ success: true, data: report });
+      // 🚫 HIPAA/SOC2 not implemented in ComplianceManager (avoid TS build breaks)
+      if (reportType === "hipaa" || reportType === "soc2") {
+        return NextResponse.json(
+          {
+            error: `Report type '${reportType}' is not enabled on this deployment yet.`,
+          },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({ error: "Invalid report type" }, { status: 400 });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
