@@ -1,70 +1,158 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+// app/api/webhooks/bland/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import * as z from "zod";
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import {
+  sendLeadNotification,
+  sendCapacityAlert,
+  sendWhatsAppConfirmation,
+} from "@/lib/notifications";
+import { syncTenantStatus } from "@/lib/sovereign-sync";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export async function GET(_req: Request) {
+const BlandWebhookSchema = z.object({
+  call_id: z.union([z.string(), z.number()]).optional(),
+  customer_number: z.string().min(3).optional(),
+  duration: z.number().nonnegative().optional(), // seconds
+  summary: z.string().optional(),
+  completed: z.boolean().optional(),
+  tenant_id: z.union([z.string(), z.number()]),
+  transcript: z.string().optional(),
+});
+
+export async function POST(req: NextRequest) {
+  const raw = await req.json().catch(() => ({}));
+  const parsed = BlandWebhookSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid payload", details: parsed.error.flatten() },
+      { status: 400 }
+    );
+  }
+
+  const body = parsed.data;
+
+  const {
+    call_id,
+    customer_number,
+    duration = 0,
+    summary = "",
+    completed = false,
+    tenant_id,
+    transcript = "",
+  } = body;
+
+  // If Bland marks it not completed, ignore fast.
+  if (!completed) return NextResponse.json({ status: "ignored" });
+
+  let isBooked = false;
+
   try {
-    const { data: appointments, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .order('created_at', { ascending: false });
+    // 1) Fetch tenant
+    const { data: tenant, error } = await supabaseAdmin
+      .from("tenants")
+      .select("id, owner_id, name, email, used_minutes, max_minutes, tier, whatsapp_enabled")
+      .eq("id", String(tenant_id))
+      .single();
 
-    if (error) throw error;
+    if (error || !tenant) throw new Error("Tenant not found");
 
-    const today = new Date().toISOString().split('T')[0];
-    
-    // 1. Cálculos de Revenue basados en el Triage HVAC
-    const revenueToday = appointments
-      .filter(a => a.created_at.startsWith(today))
-      .reduce((sum, a) => sum + (Number(a.estimated_value) || 0), 0);
+    const usedMinutes = Number(tenant.used_minutes || 0);
+    const maxMinutes = Math.max(1, Number(tenant.max_minutes || 1));
 
-    const goldLeads = appointments.filter(a => a.unit_age >= 10);
-    const emergencyCount = appointments.filter(a => a.is_emergency).length;
-    
-    // 2. Cálculo de Comisión Proyectada (Tu 5% sobre Gold Leads)
-    // Asumimos ticket de reemplazo promedio de $10,000
-    const projectedCommission = goldLeads.length * (10000 * 0.05);
+    // 2) Update minutes (duration is seconds)
+    const callDurationMinutes = duration / 60;
+    const newUsedMinutes = usedMinutes + callDurationMinutes;
+
+    await supabaseAdmin
+      .from("tenants")
+      .update({
+        used_minutes: newUsedMinutes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", tenant.id);
+
+    // 3) Lead intelligence (duration > 30s => lead)
+    if (duration > 30) {
+      await sendLeadNotification({
+        // keep these consistent with notifications.ts
+        email: tenant.email,
+        tenant_id: tenant.id,
+        call_id: call_id ? String(call_id) : undefined,
+        customer_number: customer_number || undefined,
+        summary,
+        duration_seconds: duration,
+      });
+
+      // Booking detection from transcript
+      const t = transcript.toLowerCase();
+      const successKeywords = [
+        "agendado",
+        "confirmado",
+        "cita",
+        "appointment",
+        "booked",
+        "listo",
+        "scheduled",
+      ];
+      isBooked = successKeywords.some((k) => t.includes(k));
+
+      if (isBooked && tenant.whatsapp_enabled && customer_number) {
+        await sendWhatsAppConfirmation({
+          to: customer_number,
+          type: "APPOINTMENT_CONFIRMATION",
+          tenant_name: tenant.name || "FrontDesk",
+          summary: summary || "Cita confirmada",
+        });
+
+        // conversion record for ROI
+        await supabaseAdmin.from("conversions").insert({
+          tenant_id: tenant.id,
+          call_id: call_id ? String(call_id) : null,
+          type: "APPOINTMENT",
+          value: 50, // default value; tune per trade
+          created_at: new Date().toISOString(),
+        });
+      }
+    }
+
+    // 4) Capacity thresholds (80% / 95%)
+    const usageRatio = newUsedMinutes / maxMinutes;
+
+    if (usageRatio >= 0.95) {
+      await sendCapacityAlert({
+        email: tenant.email,
+        tenant_id: tenant.id,
+        tier: tenant.tier,
+        threshold: 95,
+        used_minutes: newUsedMinutes,
+        max_minutes: maxMinutes,
+      });
+    } else if (usageRatio >= 0.8) {
+      await sendCapacityAlert({
+        email: tenant.email,
+        tenant_id: tenant.id,
+        tier: tenant.tier,
+        threshold: 80,
+        used_minutes: newUsedMinutes,
+        max_minutes: maxMinutes,
+      });
+    }
+
+    // 5) Redis sync (real-time enforcement/cache)
+    await syncTenantStatus(String(tenant.id));
 
     return NextResponse.json({
       success: true,
-      data: {
-        systemHealth: { status: 'operational', apiUptime: '99.9%' },
-        metrics: {
-          totalCalls: appointments.length,
-          emergencyRate: `${((emergencyCount / (appointments.length || 1)) * 100).toFixed(1)}%`,
-          goldLeadCount: goldLeads.length, // Vital para la oferta del 5%
-        },
-        revenue: {
-          today: revenueToday,
-          totalCaptured: appointments.reduce((sum, a) => sum + (Number(a.estimated_value) || 0), 0),
-          projectedAgencyCommission: projectedCommission, // Cuánto has ganado tú
-          mrr: 499,
-          breakdown: [
-            { label: 'Urgencias ($450)', value: emergencyCount },
-            { label: 'Oportunidades de Reemplazo', value: goldLeads.length }
-          ]
-        },
-        recentActivity: appointments.slice(0, 8).map(a => ({
-          id: a.id,
-          // Etiqueta dinámica para el UI
-          type: a.unit_age >= 10 ? 'GOLD_LEAD' : (a.is_emergency ? 'EMERGENCY' : 'STANDARD'),
-          title: a.customer_name,
-          value: `$${Number(a.estimated_value).toLocaleString()}`,
-          isOldUnit: a.unit_age >= 10,
-          time: a.created_at
-        })),
-        timestamp: new Date().toISOString()
-      }
+      processed_at: new Date().toISOString(),
+      conversion_detected: isBooked,
     });
-  } catch (error: any) {
-    console.error('❌ Dashboard live error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (err: any) {
+    console.error("Webhook processing failed:", err?.message || err);
+    return NextResponse.json({ error: err?.message || "Internal error" }, { status: 500 });
   }
 }
