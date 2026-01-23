@@ -5,7 +5,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-// Ensure these managers init Supabase lazily / safely
 import {
   ssoManager,
   rbacManager,
@@ -16,13 +15,10 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/**
- * DB readiness:
- * - For enterprise actions (audit/compliance), you typically need server creds.
- * - We treat URL + (ANON or SERVICE) as configured, but prefer SERVICE for server actions.
- */
+// DB readiness (prefer service key for server actions)
 const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL || !!process.env.SUPABASE_URL;
-const hasAnon = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || !!process.env.SUPABASE_ANON_KEY;
+const hasAnon =
+  !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || !!process.env.SUPABASE_ANON_KEY;
 const hasService =
   !!process.env.SUPABASE_SERVICE_ROLE_KEY || !!process.env.SUPABASE_SERVICE_KEY;
 
@@ -46,13 +42,11 @@ function parseLimit(value: string | null): number | undefined {
   if (!value) return undefined;
   const n = Number.parseInt(value, 10);
   if (!Number.isFinite(n) || Number.isNaN(n)) return undefined;
-  // hard safety bounds
   return Math.min(Math.max(n, 1), 5000);
 }
 
 export async function GET(request: NextRequest) {
   try {
-    // 1) Safety check (prevents confusing runtime failures)
     if (!isDbConfigured) {
       console.warn("Enterprise API: DB credentials missing.");
       return NextResponse.json(
@@ -127,6 +121,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, data: logs });
     }
 
+    /**
+     * IMPORTANT:
+     * Your AuditLogger type does NOT implement exportLogs().
+     * So we implement "export" by calling getLogs() with the date range.
+     * This returns JSON logs suitable for download/CSV conversion later.
+     */
     if (action === "export_audit_logs") {
       const startDate = parseRequiredDate(searchParams.get("startDate"), "startDate");
       const endDate = parseRequiredDate(searchParams.get("endDate"), "endDate");
@@ -138,7 +138,14 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const logs = await auditLogger.exportLogs(startDate, endDate);
+      const limit = parseLimit(searchParams.get("limit"));
+
+      const logs = await auditLogger.getLogs({
+        startDate,
+        endDate,
+        limit: limit ?? 5000,
+      });
+
       return NextResponse.json({ success: true, data: logs });
     }
 
