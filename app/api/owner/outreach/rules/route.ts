@@ -1,181 +1,141 @@
+// app/api/owner/outreach/rules/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Mock automation rules
     const rules = [
       {
         id: 'rule_001',
-        name: 'Auto Follow-Up Non-Responders',
-        trigger: 'No response after 3 days',
-        action: 'Send follow-up email',
+        name: 'Auto-follow-up after no response',
         enabled: true,
-        executionCount: 245,
-        successRate: 98.5,
-        lastExecuted: new Date(Date.now() - 3600000).toISOString(),
+        trigger: {
+          event: 'no_response',
+          afterHours: 48,
+        },
+        action: {
+          type: 'send_followup_email',
+          template: 'followup_1',
+        },
+        scope: {
+          campaigns: 'all',
+        },
+        createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
       },
       {
         id: 'rule_002',
-        name: 'Escalate Hot Leads',
-        trigger: 'Lead score > 90 and responded',
-        action: 'Notify sales team + Schedule call',
+        name: 'Escalate hot leads to call',
         enabled: true,
-        executionCount: 12,
-        successRate: 100,
-        lastExecuted: new Date(Date.now() - 7200000).toISOString(),
+        trigger: {
+          event: 'lead_score_threshold',
+          minScore: 85,
+        },
+        action: {
+          type: 'schedule_call_task',
+          withinHours: 4,
+        },
+        scope: {
+          campaigns: 'all',
+        },
+        createdAt: new Date(Date.now() - 10 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
       },
       {
         id: 'rule_003',
-        name: 'Pause Cold Leads',
-        trigger: 'No response after 3 attempts',
-        action: 'Mark as cold + Stop outreach',
+        name: 'Pause outreach on negative reply',
         enabled: true,
-        executionCount: 48,
-        successRate: 100,
-        lastExecuted: new Date(Date.now() - 14400000).toISOString(),
-      },
-      {
-        id: 'rule_004',
-        name: 'Multi-Channel Engagement',
-        trigger: 'Email opened but no response',
-        action: 'Send SMS follow-up',
-        enabled: true,
-        executionCount: 67,
-        successRate: 95.5,
-        lastExecuted: new Date(Date.now() - 1800000).toISOString(),
-      },
-      {
-        id: 'rule_005',
-        name: 'Track Conversions',
-        trigger: 'Lead status changed to converted',
-        action: 'Update metrics + Send to CRM',
-        enabled: true,
-        executionCount: 5,
-        successRate: 100,
-        lastExecuted: new Date(Date.now() - 86400000).toISOString(),
+        trigger: {
+          event: 'negative_reply',
+        },
+        action: {
+          type: 'pause_lead',
+          reason: 'Negative reply received',
+        },
+        scope: {
+          campaigns: 'all',
+        },
+        createdAt: new Date(Date.now() - 14 * 86400000).toISOString(),
+        updatedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
       },
     ];
 
-    return NextResponse.json({ 
-      rules,
-      total: rules.length,
-      active: rules.filter(r => r.enabled).length,
-      totalExecutions: rules.reduce((sum, r) => sum + r.executionCount, 0),
-    });
+    return NextResponse.json({ success: true, rules, count: rules.length });
   } catch (error) {
     console.error('Error fetching rules:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, trigger, action, conditions } = body;
+    const { name, enabled, trigger, action, scope } = body ?? {};
 
-    // Validate required fields
-    if (!name || !trigger || !action) {
-      return NextResponse.json(
-        { error: 'Missing required fields: name, trigger, action' },
-        { status: 400 }
-      );
+    if (!name || typeof name !== 'string') {
+      return NextResponse.json({ error: 'name is required' }, { status: 400 });
+    }
+    if (!trigger || typeof trigger !== 'object') {
+      return NextResponse.json({ error: 'trigger is required' }, { status: 400 });
+    }
+    if (!action || typeof action !== 'object') {
+      return NextResponse.json({ error: 'action is required' }, { status: 400 });
     }
 
-    // Create new automation rule
     const rule = {
       id: `rule_${Date.now()}`,
       name,
+      enabled: typeof enabled === 'boolean' ? enabled : true,
       trigger,
       action,
-      conditions: conditions || {},
-      enabled: true,
-      executionCount: 0,
-      successRate: 0,
+      scope: scope ?? { campaigns: 'all' },
       createdAt: new Date().toISOString(),
-      lastExecuted: null,
+      updatedAt: new Date().toISOString(),
     };
 
-    console.log('Automation rule created:', rule);
+    // In production: persist rule
+    console.log('Rule created:', rule);
 
-    // In production, this would:
-    // 1. Save to database
-    // 2. Register with automation engine
-    // 3. Start monitoring for trigger conditions
-
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       rule,
-      message: 'Automation rule created successfully'
+      message: 'Rule created successfully',
     });
   } catch (error) {
     console.error('Error creating rule:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ruleId, enabled, name, trigger, action } = body;
+    const { ruleId, enabled, name, trigger, action, scope } = body ?? {};
 
-    if (!ruleId) {
-      return NextResponse.json(
-        { error: 'Missing required field: ruleId' },
-        { status: 400 }
-      );
+    if (!ruleId || typeof ruleId !== 'string') {
+      return NextResponse.json({ error: 'ruleId is required' }, { status: 400 });
     }
 
-    console.log(`Updating rule ${ruleId}`);
+    const updates: Record<string, unknown> = {
+      updatedAt: new Date().toISOString(),
+    };
+    if (typeof enabled === 'boolean') updates.enabled = enabled;
+    if (typeof name === 'string') updates.name = name;
+    if (trigger && typeof trigger === 'object') updates.trigger = trigger;
+    if (action && typeof action === 'object') updates.action = action;
+    if (scope && typeof scope === 'object') updates.scope = scope;
 
-    // In production, this would update the rule in the database
-    
-    return NextResponse.json({ 
+    // In production: update rule in DB
+    console.log('Rule updated:', { ruleId, updates });
+
+    return NextResponse.json({
       success: true,
-      message: 'Rule updated successfully'
+      ruleId,
+      updates,
+      message: 'Rule updated successfully',
     });
   } catch (error) {
     console.error('Error updating rule:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const ruleId = searchParams.get('ruleId');
-
-    if (!ruleId) {
-      return NextResponse.json(
-        { error: 'Missing required parameter: ruleId' },
-        { status: 400 }
-      );
-    }
-
-    console.log(`Deleting rule ${ruleId}`);
-
-    // In production, this would:
-    // 1. Disable the rule
-    // 2. Remove from automation engine
-    // 3. Archive in database
-
-    return NextResponse.json({ 
-      success: true,
-      message: 'Rule deleted successfully'
-    });
-  } catch (error) {
-    console.error('Error deleting rule:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
