@@ -1,7 +1,7 @@
 // lib/rbac/RBACManager.ts
 import { createClient } from "@supabase/supabase-js";
 import { serverEnv } from "@/lib/env/server";
-import { isRole, type Role } from "./roles";
+import type { Role } from "./roles";
 
 export type WorkspaceId = string;
 export type LocationId = string;
@@ -35,9 +35,10 @@ export class RBACManager {
    *  2) Legacy API used by app/api/enterprise/route.ts: removeRole(userId, roleOrId, workspaceId?)
    *
    * Legacy behavior:
-   *  - If roleOrId matches a known Role => delete by { user_id, role, workspace_id? }
-   *  - Else => assume roleOrId is a user_roles row id and delete by { id, user_id, workspace_id? }
-   *  - If workspaceId is not provided in legacy form, deletion occurs across all workspaces.
+   *  - Tries delete by role first (user_id + role [+ workspace_id?])
+   *  - Then also tries delete by row id (id + user_id [+ workspace_id?])
+   *  - If workspaceId is omitted in legacy form, deletion occurs across all workspaces.
+   *  - Deletes are idempotent: if nothing matches, no error is thrown.
    */
   async removeRole(params: {
     userId: string;
@@ -87,8 +88,8 @@ export class RBACManager {
       throw new Error("RBAC removeRole legacy call missing roleOrId");
     }
 
-    // If roleOrId is actually a Role enum, delete by role; otherwise assume it's a row id.
-    if (isRole(roleOrId)) {
+    // 1) Try delete assuming roleOrId is a role value
+    {
       let q = this.supabase
         .from("user_roles")
         .delete()
@@ -99,20 +100,21 @@ export class RBACManager {
 
       const { error } = await q;
       if (error) throw new Error(`RBAC removeRole (legacy role) failed: ${error.message}`);
-      return;
     }
 
-    // Assume roleOrId is a user_roles row id (id/uuid)
-    let q = this.supabase
-      .from("user_roles")
-      .delete()
-      .eq("id", roleOrId)
-      .eq("user_id", userId);
+    // 2) Try delete assuming roleOrId is a user_roles row id
+    {
+      let q = this.supabase
+        .from("user_roles")
+        .delete()
+        .eq("id", roleOrId)
+        .eq("user_id", userId);
 
-    if (workspaceId) q = q.eq("workspace_id", workspaceId);
+      if (workspaceId) q = q.eq("workspace_id", workspaceId);
 
-    const { error } = await q;
-    if (error) throw new Error(`RBAC removeRole (legacy id) failed: ${error.message}`);
+      const { error } = await q;
+      if (error) throw new Error(`RBAC removeRole (legacy id) failed: ${error.message}`);
+    }
   }
 
   async getRoles(params: { userId: string; workspaceId: WorkspaceId }): Promise<Role[]> {
