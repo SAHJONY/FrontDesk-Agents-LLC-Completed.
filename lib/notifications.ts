@@ -1,102 +1,124 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
-import { sendLeadNotification, sendCapacityAlert, sendWhatsAppConfirmation } from '@/lib/notifications';
-import { syncTenantStatus } from '@/lib/sovereign-sync';
+// lib/notifications.ts
+import "server-only";
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { 
-    call_id, 
-    customer_number, 
-    duration, 
-    summary, 
-    completed, 
-    tenant_id,
-    transcript // Bland AI envía el texto completo aquí
-  } = body;
+type LeadNotification = {
+  email?: string | null;
+  tenant_id?: string | null;
+  call_id?: string | null;
+  customer_number?: string | null;
+  summary?: string | null;
+  duration_seconds?: number | null;
 
-  if (!completed) return NextResponse.json({ status: 'ignored' });
+  // Backward-compatible fields (if used elsewhere)
+  leadId?: string | number | null;
+  name?: string | null;
+  phone?: string | null;
+  source?: string | null;
+  notes?: string | null;
+};
 
-  let isBooked = false;
+type CapacityAlert = {
+  email?: string | null;
+  tenant_id?: string | null;
+  tier?: string | null;
+  threshold?: 80 | 95 | number;
+  used_minutes?: number | null;
+  max_minutes?: number | null;
+};
+
+type WhatsAppConfirmation = {
+  to: string; // E.164 (+1...)
+  type: "APPOINTMENT_CONFIRMATION" | "GENERIC" | string;
+  tenant_name?: string | null;
+  summary?: string | null;
+
+  // Optional extra fields supported
+  customerName?: string | null;
+  appointmentTime?: string | null;
+  address?: string | null;
+};
+
+function getEnv(k: string) {
+  return process.env[k];
+}
+
+async function postToSlack(text: string) {
+  const url = getEnv("SLACK_WEBHOOK_URL");
+  if (!url) return;
 
   try {
-    // 1. Log the Call and Update Minutes
-    const { data: tenant, error } = await supabaseAdmin
-      .from('tenants')
-      .select('name, email, used_minutes, max_minutes, tier, whatsapp_enabled')
-      .eq('id', tenant_id)
-      .single();
-
-    if (error || !tenant) throw new Error('Tenant not found');
-
-    const callDurationMinutes = duration / 60;
-    const newUsedMinutes = tenant.used_minutes + callDurationMinutes;
-
-    await supabaseAdmin
-      .from('tenants')
-      .update({ used_minutes: newUsedMinutes })
-      .eq('id', tenant_id);
-
-    // 2. LEAD INTELLIGENCE & AUTO-CONVERSION
-    // Si la llamada dura más de 30s, es un lead potencial.
-    if (duration > 30) {
-      await sendLeadNotification({
-        email: tenant.email,
-        call_id,
-        customer_number,
-        summary,
-        duration
-      });
-
-      // Lógica de Cierre: Detectar si se agendó una cita en el transcript
-      const successKeywords = ['agendado', 'confirmado', 'cita', 'appointment', 'booked', 'listo'];
-      isBooked = successKeywords.some(key => transcript?.toLowerCase().includes(key));
-
-      if (isBooked && tenant.whatsapp_enabled) {
-        await sendWhatsAppConfirmation({
-          to: customer_number,
-          type: 'APPOINTMENT_CONFIRMATION',
-          tenant_name: tenant.name || 'La Clínica',
-          summary: summary
-        });
-        
-        // Registrar conversión en la tabla de analíticas para el ROI del dashboard
-        await supabaseAdmin.from('conversions').insert({
-          tenant_id,
-          call_id,
-          type: 'APPOINTMENT',
-          value: 50 // Valor estimado de la cita para el Revenue Pipeline
-        });
-      }
-    }
-
-    // 3. Automated Capacity Monitoring (80% and 95% thresholds)
-    const usageRatio = newUsedMinutes / tenant.max_minutes;
-    if (usageRatio >= 0.95) {
-      await sendCapacityAlert({
-        email: tenant.email,
-        tier: tenant.tier,
-        threshold: 95
-      });
-    } else if (usageRatio >= 0.80) {
-      await sendCapacityAlert({
-        email: tenant.email,
-        tier: tenant.tier,
-        threshold: 80
-      });
-    }
-
-    // 4. Sync status to Redis for Middleware (Real-time enforcement)
-    await syncTenantStatus(tenant_id);
-
-    return NextResponse.json({ 
-      success: true, 
-      processed_at: new Date().toISOString(),
-      conversion_detected: isBooked 
+    await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text }),
     });
+  } catch (e) {
+    console.error("Slack notify failed:", e);
+  }
+}
 
-  } catch (err: any) {
-    console.error('Webhook processing failed:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+export async function sendLeadNotification(payload: LeadNotification) {
+  const msg =
+    `LEAD EVENT\n` +
+    `tenant_id=${payload.tenant_id ?? ""}\n` +
+    `email=${payload.email ?? ""}\n` +
+    `call_id=${payload.call_id ?? ""}\n` +
+    `customer=${payload.customer_number ?? payload.phone ?? ""}\n` +
+    `duration=${payload.duration_seconds ?? ""}\n` +
+    `summary=${payload.summary ?? payload.notes ?? ""}\n` +
+    `source=${payload.source ?? "bland"}\n`;
+
+  await postToSlack(msg);
+}
+
+export async function sendCapacityAlert(payload: CapacityAlert) {
+  const msg =
+    `CAPACITY ALERT\n` +
+    `tenant_id=${payload.tenant_id ?? ""}\n` +
+    `email=${payload.email ?? ""}\n` +
+    `tier=${payload.tier ?? ""}\n` +
+    `threshold=${payload.threshold ?? ""}%\n` +
+    `used=${payload.used_minutes ?? ""}\n` +
+    `max=${payload.max_minutes ?? ""}\n`;
+
+  await postToSlack(msg);
+}
+
+export async function sendWhatsAppConfirmation(payload: WhatsAppConfirmation) {
+  // Twilio WhatsApp config (optional)
+  const sid = getEnv("TWILIO_ACCOUNT_SID");
+  const token = getEnv("TWILIO_AUTH_TOKEN");
+  const from = getEnv("TWILIO_WHATSAPP_FROM"); // e.g. whatsapp:+14155238886
+
+  const bodyLines = [
+    payload.type === "APPOINTMENT_CONFIRMATION"
+      ? `✅ Confirmación de cita — ${payload.tenant_name ?? "FrontDesk"}`
+      : `📩 Mensaje — ${payload.tenant_name ?? "FrontDesk"}`,
+    payload.summary ? `Resumen: ${payload.summary}` : "",
+    payload.customerName ? `Cliente: ${payload.customerName}` : "",
+    payload.appointmentTime ? `Hora: ${payload.appointmentTime}` : "",
+    payload.address ? `Dirección: ${payload.address}` : "",
+  ].filter(Boolean);
+
+  const body = bodyLines.join("\n");
+
+  // Fallback: if Twilio not configured, at least log to Slack.
+  if (!sid || !token || !from) {
+    await postToSlack(`WHATSAPP (fallback)\nTO=${payload.to}\n${body}`);
+    return;
+  }
+
+  try {
+    const twilioMod = await import("twilio");
+    const client = twilioMod.default(sid, token);
+
+    await client.messages.create({
+      from,
+      to: `whatsapp:${payload.to}`,
+      body,
+    });
+  } catch (e) {
+    console.error("WhatsApp send failed:", e);
+    await postToSlack(`WHATSAPP SEND FAILED\nTO=${payload.to}\n${body}`);
   }
 }
