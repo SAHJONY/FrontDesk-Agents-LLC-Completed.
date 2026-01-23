@@ -1,16 +1,20 @@
-// lib/supabase/admin.ts
-import 'server-only'
-import { createClient } from '@supabase/supabase-js'
+// lib/supabase-admin.ts
+import "server-only";
+import { createClient } from "@supabase/supabase-js";
 
-export function createSupabaseAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const serviceKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
-  if (!url || !serviceKey) {
-    throw new Error('Missing env vars: NEXT_PUBLIC_SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY')
-  }
-
-  return createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  })
+if (!url) {
+  throw new Error("Missing Supabase URL: set NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL)");
 }
+if (!serviceKey) {
+  throw new Error(
+    "Missing Supabase service key: set SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY)"
+  );
+}
+
+export const supabaseAdmin = createClient(url, serviceKey, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
