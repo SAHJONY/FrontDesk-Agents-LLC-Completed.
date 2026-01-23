@@ -27,16 +27,13 @@
   ],
   "functions": {
     "app/api/cron/daily-digest/route.ts": {
-      "maxDuration": 60,
-      "runtime": "nodejs20.x"
+      "maxDuration": 60
     },
     "app/api/wholesale/sync-bulk-secrets/route.ts": {
-      "maxDuration": 30,
-      "runtime": "nodejs20.x"
+      "maxDuration": 30
     },
     "app/api/**/route.ts": {
-      "maxDuration": 60,
-      "runtime": "nodejs20.x"
+      "maxDuration": 60
     }
   },
   "headers": [
