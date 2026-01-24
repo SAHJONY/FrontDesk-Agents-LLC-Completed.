@@ -1,11 +1,22 @@
-// ... existing imports
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import OpenAI from 'openai';
+// Asegúrate de que esta ruta de importación sea la correcta en tu proyecto
+import { sendLeadNotification } from '@/lib/mail/notifications'; 
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { call_id, transcript, recording_url, duration, to, from } = body;
 
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!, 
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     // 1. Enhanced AI Analysis (Structured Data)
     let analysis = {
@@ -55,7 +66,7 @@ export async function POST(req: Request) {
       recording_url,
       duration,
       summary: analysis.summary,
-      sentiment: analysis.sentiment, // Make sure this column exists in your DB!
+      sentiment: analysis.sentiment,
       status: 'completed'
     }, { onConflict: 'call_id' });
 
@@ -73,6 +84,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    console.error('Webhook Error:', error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
