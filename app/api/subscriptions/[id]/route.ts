@@ -10,14 +10,15 @@ function getStripeClient() {
   if (!key) return null;
 
   // IMPORTANT: do NOT create Stripe at module scope (build-time crash risk)
+  // Actualizado a la versión requerida por tu SDK actual: 2025-12-15.clover
   return new Stripe(key, {
-    apiVersion: "2024-12-18.acacia",
+    apiVersion: "2025-12-15.clover",
   });
 }
 
 // GET /api/subscriptions/[id] - Get subscription details
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest, // Añadido "_" para evitar error de variable no usada
   { params }: { params: { id: string } }
 ) {
   try {
@@ -26,8 +27,6 @@ export async function GET(
       return NextResponse.json({ error: "Missing subscription id" }, { status: 400 });
     }
 
-    // Supabase (server-only). If this function throws when env is missing,
-    // it will be caught and returned as degraded instead of breaking build.
     const supabase = requireSupabaseServer();
 
     const { data, error } = await supabase
@@ -44,7 +43,6 @@ export async function GET(
     if (data.stripe_subscription_id) {
       const stripe = getStripeClient();
       if (!stripe) {
-        // Do not fail request; return DB data + degraded stripe status
         return NextResponse.json({
           subscription: data,
           stripe_subscription: null,
@@ -68,7 +66,6 @@ export async function GET(
     const msg = typeof error?.message === "string" ? error.message : "Internal server error";
     console.error("❌ Unexpected error:", msg);
 
-    // If env is missing for Supabase/Stripe, return degraded instead of hard-failing builds
     const isEnvIssue =
       msg.toLowerCase().includes("supabase") ||
       msg.toLowerCase().includes("key") ||
@@ -101,7 +98,6 @@ export async function DELETE(
     const { searchParams } = new URL(request.url);
     const immediate = searchParams.get("immediate") === "true";
 
-    // Get subscription
     const { data: subscription, error } = await supabase
       .from("subscriptions")
       .select("*")
@@ -112,7 +108,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
     }
 
-    // Cancel in Stripe (only if configured + has stripe_subscription_id)
     if (subscription.stripe_subscription_id) {
       const stripe = getStripeClient();
       if (!stripe) {
@@ -134,7 +129,6 @@ export async function DELETE(
       }
     }
 
-    // Update database
     const { data: updated, error: updateError } = await supabase
       .from("subscriptions")
       .update({
@@ -151,7 +145,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Failed to cancel subscription" }, { status: 500 });
     }
 
-    console.log("✅ Subscription canceled:", id);
     return NextResponse.json({
       message: immediate
         ? "Subscription canceled immediately"
