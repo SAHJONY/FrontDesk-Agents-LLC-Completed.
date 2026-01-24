@@ -22,8 +22,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email using Resend
-    const data = await getResend().emails.send({
-      from: 'FrontDesk Agents <noreply@resend.dev>', // Using resend.dev until domain is verified
+    // La respuesta de Resend ahora viene estructurada como { data, error }
+    const response = await getResend().emails.send({
+      from: 'FrontDesk Agents <noreply@resend.dev>',
       to: to,
       subject: subject,
       html: `
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
                 display: inline-block;
                 padding: 12px 30px;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
+                color: white !important;
                 text-decoration: none;
                 border-radius: 6px;
                 margin: 20px 0;
@@ -132,7 +133,7 @@ export async function POST(request: NextRequest) {
                 </div>
               </div>
               
-              <p>This email confirms that your Resend integration is working perfectly! Your platform can now send:</p>
+              <p>Your platform can now send:</p>
               
               <ul>
                 <li>✉️ Welcome emails to new customers</li>
@@ -148,7 +149,7 @@ export async function POST(request: NextRequest) {
               
               <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 14px; color: #666;">
                 <strong>Platform Status:</strong> 🎯 Production Ready<br>
-                <strong>Email Service:</strong> Resend (via Vercel Marketplace)<br>
+                <strong>Email Service:</strong> Resend<br>
                 <strong>Sent:</strong> ${new Date().toLocaleString()}
               </p>
             </div>
@@ -159,7 +160,6 @@ export async function POST(request: NextRequest) {
                 AI-Powered Revenue Workforce
               </p>
               <p style="margin: 10px 0 0 0; font-size: 12px;">
-                This is a test email from your production platform<br>
                 <a href="https://frontdeskagents.com" style="color: #667eea;">frontdeskagents.com</a>
               </p>
             </div>
@@ -168,11 +168,17 @@ export async function POST(request: NextRequest) {
       `,
     });
 
+    // Manejo de errores de Resend según su nueva API
+    if (response.error) {
+      return NextResponse.json({ error: response.error }, { status: 400 });
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Email sent successfully!',
-      emailId: data.id,
-      data: data,
+      // Forzamos el acceso al ID de forma segura para TS
+      emailId: (response.data as any)?.id,
+      data: response.data,
     });
   } catch (error: any) {
     console.error('Error sending email:', error);
@@ -180,23 +186,17 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: error.message || 'Failed to send email',
-        details: error,
       },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   return NextResponse.json({
     message: 'Test Email API Endpoint',
     status: 'active',
     method: 'POST',
     requiredFields: ['to', 'subject', 'message'],
-    example: {
-      to: 'user@example.com',
-      subject: 'Test Email from FrontDesk Agents',
-      message: 'This is a test email to verify Resend integration.',
-    },
   });
 }
