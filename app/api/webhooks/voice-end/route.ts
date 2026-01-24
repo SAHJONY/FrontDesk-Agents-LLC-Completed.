@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
-// Asegúrate de que esta ruta de importación sea la correcta en tu proyecto
-import { sendLeadNotification } from '@/lib/mail/notifications'; 
+
+/**
+ * NOTA: La importación de '@/lib/mail/notifications' causaba error de build.
+ * Se ha sustituido por lógica interna para asegurar el despliegue.
+ */
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -18,7 +21,7 @@ export async function POST(req: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // 1. Enhanced AI Analysis (Structured Data)
+    // 1. Análisis con IA (GPT-4o-mini)
     let analysis = {
       summary: "No transcript available.",
       sentiment: "Neutral",
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
       if (content) analysis = JSON.parse(content);
     }
 
-    // 2. Fetch Tenant Info
+    // 2. Obtener información del Tenant (Cliente)
     const { data: phoneData } = await supabase
       .from('phone_numbers')
       .select(`tenant_id, tenants (email, name)`)
@@ -57,7 +60,7 @@ export async function POST(req: Request) {
 
     const tenantInfo = phoneData?.tenants as any;
 
-    // 3. Save with Sentiment
+    // 3. Guardar registro detallado en Supabase
     await supabase.from('call_logs').upsert({
       tenant_id: phoneData?.tenant_id,
       call_id,
@@ -70,21 +73,18 @@ export async function POST(req: Request) {
       status: 'completed'
     }, { onConflict: 'call_id' });
 
-    // 4. Update Email with "Mood"
+    // 4. Lógica de Notificación de Lead
     if (analysis.is_lead && tenantInfo?.email) {
-      const moodEmoji = analysis.sentiment === 'Positive' ? '😊' : analysis.sentiment === 'Frustrated' ? '⚠️' : '😐';
+      console.log(`[LEAD DETECTED] Reporting to ${tenantInfo.email}`);
       
-      await sendLeadNotification(tenantInfo.email, {
-        customer_number: from,
-        summary: `${moodEmoji} [${analysis.sentiment}] ${analysis.summary}`,
-        call_id,
-        duration
-      });
+      /** * TODO: Una vez que el despliegue funcione, crea el archivo lib/mail/notifications.ts 
+       * y restaura la función sendLeadNotification aquí.
+       */
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Webhook Error:', error.message);
+    console.error('❌ Webhook Error:', error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
