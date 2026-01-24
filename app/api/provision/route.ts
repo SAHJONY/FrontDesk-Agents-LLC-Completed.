@@ -26,12 +26,16 @@ async function getAuthedUser() {
       getAll() {
         return cookieStore.getAll();
       },
-      setAll(cookiesToSet) {
+      // Añadimos : any[] aquí para corregir el error de compilación en Vercel
+      setAll(cookiesToSet: any[]) {
         try {
-          cookiesToSet.forEach(({ name, value, options }: any) => {
+          cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options);
           });
-        } catch {}
+        } catch {
+          // Las cookies no se pueden establecer desde un Server Component, 
+          // el try-catch evita que la app falle.
+        }
       },
     },
   });
@@ -59,7 +63,7 @@ export async function POST() {
       return NextResponse.json({ success: true, tenantId: existing.id, created: false });
     }
 
-    // Create tenant (assume columns exist; adjust names if your schema differs)
+    // Create tenant
     const now = new Date().toISOString();
     const { data: tenant, error } = await service
       .from("tenants")
@@ -67,7 +71,7 @@ export async function POST() {
         owner_id: user.id,
         name: user.email,
         used_minutes: 0,
-        max_minutes: 500, // default; align with tier later
+        max_minutes: 500,
         created_at: now,
         updated_at: now,
       })
