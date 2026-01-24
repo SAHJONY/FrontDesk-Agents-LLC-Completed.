@@ -1,87 +1,75 @@
-# FrontDesk Agents — Regenerated Production Pack (Auth + Marketing + Landing)
+# FrontDesk Agents (Vercel-ready)
 
-This ZIP is a **drop‑in patch pack** designed for the existing repo structure of:
-`SAHJONY/FrontDesk-Agents-LLC-Completed`
+This repo is a deployable MVP of **FrontDesk Agents** designed for Vercel:
+- Next.js app (marketing + dashboard + widget iframe)
+- API routes (tenants, crawl/ingest, widget messaging, Stripe billing)
+- Postgres via Prisma (Neon/Supabase recommended)
 
-It contains **real Next.js App Router code** to:
-- Stabilize authentication (stop redirect/login loops)
-- Provide a consistent session/me surface for the UI
-- Add the Fortune‑500 style **/marketing** page + landing pricing section
+> Note: The advanced long-running workforce (queues/workers) is not ideal on serverless.
+> This MVP uses serverless-safe crawl batches and cron endpoints. You can attach Upstash QStash later.
 
-> Important: I cannot export your *entire* GitHub repository from here (I don’t have direct access to it). This pack contains **all modified/added files** (auth + marketing + landing + middleware) in the **correct repo paths**, so you can unzip on top of your repo and commit.
+## 1) Requirements
+- Postgres database (Neon/Supabase)
+- (Optional) SMTP credentials for handoff emails
+- (Optional) Stripe for subscriptions
 
----
+## 2) Environment variables (Vercel Project Settings → Environment Variables)
 
-## What’s inside
+Required:
+- DATABASE_URL=postgresql://...
+- NEXT_PUBLIC_BASE_URL=https://www.frontdeskagents.com (or your Vercel URL)
+- NEXT_PUBLIC_API_BASE=https://www.frontdeskagents.com (same origin is fine)
+- ADMIN_EMAIL=you@frontdeskagents.com
+- ADMIN_PASSWORD=strong-password
 
-### 1) Middleware (no auth loops)
-- `middleware.ts`
-  - Never gates public routes
-  - Treats Next internals/static assets as public
-  - Temporarily allows non‑public while you validate session stability
+Optional (handoff email via SMTP):
+- SMTP_HOST=
+- SMTP_PORT=587
+- SMTP_USER=
+- SMTP_PASS=
+- SMTP_FROM=FrontDesk Agents <no-reply@frontdeskagents.com>
 
-### 2) Auth API (server‑side, JWT cookies)
-- `app/api/auth/login/route.ts`
-  - Validates email/password against your `users` table
-  - Issues JWT access + refresh
-  - Sets **HTTP‑only cookies** (plus compatibility cookie aliases)
+Optional (Stripe):
+- STRIPE_SECRET_KEY=
+- STRIPE_WEBHOOK_SECRET=
+- STRIPE_PRICE_STARTER=
+- STRIPE_PRICE_PRO=
+- STRIPE_PRICE_SCALE=
 
-- `app/api/auth/me/route.ts`
-- `app/api/auth/session/route.ts`
-- `app/api/auth/logout/route.ts`
+Optional (cron):
+- CRON_SECRET=some-long-random-string
+- CRAWL_MAX_PAGES=10
 
-### 3) JWT helper
-- `lib/auth/jwt.ts`
+## 3) Local dev
+```bash
+pnpm i
+pnpm prisma:generate
+pnpm prisma:migrate
+pnpm dev
+```
 
-### 4) Marketing page + assets
-- `app/marketing/page.tsx`
-- `public/images/marketing/*` (cinematic images)
+## 4) Create a tenant
+Go to:
+- /app  → login with ADMIN_EMAIL/PASSWORD
+- /app/onboarding → create tenant
+- /app/tenants → copy widget snippet
 
-### 5) Landing pricing section (location-based)
-- `app/page.tsx`
+## 5) Install widget on customer website
+Paste the snippet into their site:
+```html
+<script src="https://www.frontdeskagents.com/widget-loader.js"
+        data-public-key="pk_live_..."
+        data-api-base="https://www.frontdeskagents.com"
+        async></script>
+```
 
----
+## 6) Crawl & ingest
+In /app/tenants, click "Start crawl & ingest" (serverless batch).
 
-## Required ENV (Vercel)
-Set these in **Vercel → Project → Settings → Environment Variables** for **Production + Preview**:
+## 7) Vercel Cron (optional)
+Create a Vercel Cron Job for monthly usage reset:
+- POST https://YOUR_DOMAIN/api/cron/reset-usage?secret=CRON_SECRET
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `JWT_SECRET`
-
-Optional (only if you call OpenAI server-side):
-- `OPENAI_API_KEY`
-
----
-
-## Supabase expectations
-Table: `users`
-
-Minimum columns:
-- `id`
-- `email`
-- `password_hash`
-
-Optional columns used if present:
-- `full_name`
-- `role` (e.g., `OWNER`, `admin`, etc.)
-- `tier`
-- `tenant_id`
-
----
-
-## How to apply (safe)
-1. **Unzip** this pack at the **repo root** (same level as `app/`, `public/`, `middleware.ts`).
-2. **Commit** the changes to GitHub.
-3. Verify **Vercel ENV vars** exist and are correct.
-4. Redeploy.
-
----
-
-## Quick validation checklist
-- `POST /api/auth/login` returns `success: true` for a real user.
-- Browser has `auth-token` (HTTP-only) set after login.
-- `GET /api/auth/me` returns the user object.
-- `/marketing` loads with images.
-- `/` shows the Location‑Based Pricing section.
-
+## Notes
+- Retrieval is keyword-based in this MVP for serverless simplicity.
+- Upgrade path: add pgvector column + embedding provider to enable semantic retrieval.
