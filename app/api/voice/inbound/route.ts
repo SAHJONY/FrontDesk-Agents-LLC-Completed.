@@ -4,7 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { call_id, from, to } = body;
+    // Eliminamos 'call_id' de la desestructuración ya que no se utiliza
+    const { from, to } = body;
 
     // 1. Identify the Tenant based on the phone number called
     const supabase = createClient(
@@ -20,6 +21,7 @@ export async function POST(req: Request) {
       .single();
 
     if (!phoneData) {
+      console.warn(`⚠️ No tenant found for phone number: ${to} (Call from: ${from})`);
       return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
     }
 
@@ -46,13 +48,16 @@ export async function POST(req: Request) {
     // 4. Respond to the Voice Provider with the instructions
     return NextResponse.json({
       task: systemPrompt,
-      voice: "nat", // Or the tenant's chosen voice ID
+      voice: "nat", 
       first_sentence: "Thank you for calling. How can I help you today?",
       wait_for_greeting: true
     });
 
   } catch (error: any) {
-    console.error('Voice Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('❌ Voice Inbound Error:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error', details: error.message }, 
+      { status: 500 }
+    );
   }
 }
