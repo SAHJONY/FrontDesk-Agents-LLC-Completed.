@@ -1,0 +1,6 @@
+diff --git a/app/api/workflows/route.ts b/app/api/workflows/route.ts
+--- a/app/api/workflows/route.ts
++++ b/app/api/workflows/route.ts
+@@
+-export async function GET(req: NextRequest) {
++export async function GET(_req: NextRequest) {
