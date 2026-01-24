@@ -1,7 +1,6 @@
 /**
  * Voice Cloning API
- * 
- * Create and manage custom voices
+ * * Create and manage custom voices
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest) {
  * GET /api/voice/clone
  * List available voices
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) { // Prefijo '_' añadido para evitar error de variable no utilizada
   try {
     const voices = await voiceCloningSystem.listPrebuiltVoices();
     return NextResponse.json({ success: true, data: voices });
