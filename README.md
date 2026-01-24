@@ -73,3 +73,14 @@ Create a Vercel Cron Job for monthly usage reset:
 ## Notes
 - Retrieval is keyword-based in this MVP for serverless simplicity.
 - Upgrade path: add pgvector column + embedding provider to enable semantic retrieval.
+
+
+## Semantic retrieval (pgvector + OpenAI embeddings)
+- Set:
+  - EMBEDDINGS_PROVIDER=openai
+  - OPENAI_API_KEY=...
+  - OPENAI_EMBED_MODEL=text-embedding-3-small
+- Run migrations on your Postgres:
+  - `prisma migrate deploy`
+
+This adds `embedding_vector vector(1536)` and an IVFFLAT cosine index to `KbChunk`.
