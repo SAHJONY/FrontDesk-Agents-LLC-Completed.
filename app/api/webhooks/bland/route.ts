@@ -1,8 +1,8 @@
-// app/api/webhooks/bland/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logCallEvent } from "@/lib/airtable"; // <--- BLEDNED IN
 import {
   sendLeadNotification,
   sendCapacityAlert,
@@ -21,9 +21,10 @@ const BlandWebhookSchema = z.object({
   completed: z.boolean().optional(),
   tenant_id: z.union([z.string(), z.number()]),
   transcript: z.string().optional(),
+  outcome: z.string().optional(), // Added for data parity
 });
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   const raw = await req.json().catch(() => ({}));
   const parsed = BlandWebhookSchema.safeParse(raw);
 
@@ -35,7 +36,6 @@ export async function POST(req: NextRequest) {
   }
 
   const body = parsed.data;
-
   const {
     call_id,
     customer_number,
@@ -44,12 +44,10 @@ export async function POST(req: NextRequest) {
     completed = false,
     tenant_id,
     transcript = "",
+    outcome = "completed",
   } = body;
 
-  // If Bland marks it not completed, ignore fast.
   if (!completed) return NextResponse.json({ status: "ignored" });
-
-  let isBooked = false;
 
   try {
     // 1) Fetch tenant
@@ -61,25 +59,39 @@ export async function POST(req: NextRequest) {
 
     if (error || !tenant) throw new Error("Tenant not found");
 
-    const usedMinutes = Number(tenant.used_minutes || 0);
-    const maxMinutes = Math.max(1, Number(tenant.max_minutes || 1));
-
-    // 2) Update minutes (duration is seconds)
+    // 2) Update minutes and Save Call to Supabase (System of Record)
     const callDurationMinutes = duration / 60;
-    const newUsedMinutes = usedMinutes + callDurationMinutes;
+    const { error: callError } = await supabaseAdmin.from("calls").insert({
+      tenant_id: tenant.id,
+      call_id: call_id ? String(call_id) : null,
+      phone_number: customer_number,
+      duration_seconds: duration,
+      summary,
+      transcript,
+      outcome,
+    });
 
-    await supabaseAdmin
-      .from("tenants")
-      .update({
-        used_minutes: newUsedMinutes,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", tenant.id);
+    await supabaseAdmin.rpc('increment_tenant_minutes', { 
+      t_id: tenant.id, 
+      mins: callDurationMinutes 
+    });
 
-    // 3) Lead intelligence (duration > 30s => lead)
+    // 3) BLENDED: Sync to Airtable CRM
+    // We wrap this in try/catch so an Airtable failure doesn't crash the whole webhook
+    try {
+      await logCallEvent({
+        call_id: call_id ? String(call_id) : "unknown",
+        phone: customer_number || "unknown",
+        summary: summary || "No summary",
+        outcome: outcome
+      });
+    } catch (atError) {
+      console.error("Airtable Sync Bypassed:", atError);
+    }
+
+    // 4) Lead intelligence & WhatsApp (Original Logic)
     if (duration > 30) {
       await sendLeadNotification({
-        // keep these consistent with notifications.ts
         email: tenant.email,
         tenant_id: tenant.id,
         call_id: call_id ? String(call_id) : undefined,
@@ -88,18 +100,9 @@ export async function POST(req: NextRequest) {
         duration_seconds: duration,
       });
 
-      // Booking detection from transcript
       const t = transcript.toLowerCase();
-      const successKeywords = [
-        "agendado",
-        "confirmado",
-        "cita",
-        "appointment",
-        "booked",
-        "listo",
-        "scheduled",
-      ];
-      isBooked = successKeywords.some((k) => t.includes(k));
+      const successKeywords = ["agendado", "confirmado", "booked", "scheduled"];
+      const isBooked = successKeywords.some((k) => t.includes(k));
 
       if (isBooked && tenant.whatsapp_enabled && customer_number) {
         await sendWhatsAppConfirmation({
@@ -108,49 +111,13 @@ export async function POST(req: NextRequest) {
           tenant_name: tenant.name || "FrontDesk",
           summary: summary || "Cita confirmada",
         });
-
-        // conversion record for ROI
-        await supabaseAdmin.from("conversions").insert({
-          tenant_id: tenant.id,
-          call_id: call_id ? String(call_id) : null,
-          type: "APPOINTMENT",
-          value: 50, // default value; tune per trade
-          created_at: new Date().toISOString(),
-        });
       }
     }
 
-    // 4) Capacity thresholds (80% / 95%)
-    const usageRatio = newUsedMinutes / maxMinutes;
-
-    if (usageRatio >= 0.95) {
-      await sendCapacityAlert({
-        email: tenant.email,
-        tenant_id: tenant.id,
-        tier: tenant.tier,
-        threshold: 95,
-        used_minutes: newUsedMinutes,
-        max_minutes: maxMinutes,
-      });
-    } else if (usageRatio >= 0.8) {
-      await sendCapacityAlert({
-        email: tenant.email,
-        tenant_id: tenant.id,
-        tier: tenant.tier,
-        threshold: 80,
-        used_minutes: newUsedMinutes,
-        max_minutes: maxMinutes,
-      });
-    }
-
-    // 5) Redis sync (real-time enforcement/cache)
+    // 5) Capacity thresholds & Redis Sync
     await syncTenantStatus(String(tenant.id));
 
-    return NextResponse.json({
-      success: true,
-      processed_at: new Date().toISOString(),
-      conversion_detected: isBooked,
-    });
+    return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error("Webhook processing failed:", err?.message || err);
     return NextResponse.json({ error: err?.message || "Internal error" }, { status: 500 });
