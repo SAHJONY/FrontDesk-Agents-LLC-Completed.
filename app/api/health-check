@@ -1,10 +1,56 @@
-// Add these to your imports at the top
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
 import { Redis } from '@upstash/redis';
 import Airtable from 'airtable';
 
-// ... inside your GET() try/catch blocks ...
+export const dynamic = 'force-dynamic';
 
-  // 3. Check Upstash Redis (Fixes the "URL missing" warning)
+export async function GET() {
+  const healthStatus: any = {
+    status: 'operational',
+    timestamp: new Date().toISOString(),
+    checks: {
+      supabase: 'untested',
+      stripe: 'untested',
+      redis: 'untested',
+      airtable: 'untested',
+    }
+  };
+
+  // 1. Check Supabase
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      healthStatus.checks.supabase = 'missing configuration';
+    } else {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const { error: sbError } = await supabase.from('sso_providers').select('count', { count: 'exact', head: true });
+      healthStatus.checks.supabase = sbError ? `error: ${sbError.message}` : 'healthy';
+    }
+  } catch (e: any) {
+    healthStatus.checks.supabase = `failed: ${e.message}`;
+  }
+
+  // 2. Check Stripe (FIXED VERSION)
+  try {
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeKey) {
+      healthStatus.checks.stripe = 'missing configuration';
+    } else {
+      const stripe = new Stripe(stripeKey, {
+        apiVersion: '2024-12-18.acacia' as any, // Stable version
+      });
+      await stripe.balance.retrieve();
+      healthStatus.checks.stripe = 'healthy';
+    }
+  } catch (e: any) {
+    healthStatus.checks.stripe = `failed: ${e.message}`;
+  }
+
+  // 3. Check Upstash Redis
   try {
     const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
     const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -20,7 +66,7 @@ import Airtable from 'airtable';
     healthStatus.checks.redis = `failed: ${e.message}`;
   }
 
-  // 4. Check Airtable (Fixes the "Workforce" data)
+  // 4. Check Airtable
   try {
     const airtableKey = process.env.AIRTABLE_API_KEY;
     const baseId = process.env.AIRTABLE_BASE_ID;
@@ -28,10 +74,19 @@ import Airtable from 'airtable';
     if (!airtableKey || !baseId) {
       healthStatus.checks.airtable = 'missing configuration';
     } else {
-      const base = new Airtable({ apiKey: airtableKey }).base(baseId);
-      // Attempt to list one record from any table to verify the key
+      // Just verifying the instance can be created with the key
+      new Airtable({ apiKey: airtableKey }).base(baseId);
       healthStatus.checks.airtable = 'healthy (key present)';
     }
   } catch (e: any) {
     healthStatus.checks.airtable = `failed: ${e.message}`;
   }
+
+  // Determine overall status
+  const allHealthy = Object.values(healthStatus.checks).every(status => status === 'healthy' || status === 'healthy (key present)');
+  if (!allHealthy) {
+    healthStatus.status = 'degraded';
+  }
+
+  return NextResponse.json(healthStatus);
+}
