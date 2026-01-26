@@ -3,14 +3,15 @@
 import { motion } from "framer-motion";
 import { Zap, AlertTriangle, TrendingUp } from "lucide-react";
 
+// FIXED: Removed billedOverage from interface to satisfy Linter
 interface UsageProps {
   used: number;
   max: number;
   rate: number;
-  billedOverage: number;
 }
 
-export default function UsageControl({ used, max, rate, billedOverage }: UsageProps) {
+// FIXED: Removed billedOverage from destructuring
+export default function UsageControl({ used, max, rate }: UsageProps) {
   const percentage = Math.min((used / max) * 100, 100);
   const isOverage = used > max;
   const overageMinutes = Math.max(0, used - max);
