@@ -6,7 +6,9 @@ import { useUser } from "@/hooks/useUser"; // Adjust this import based on your A
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, profile } = useUser(); // Access the profile with the SUPER_ADMIN role
+  // FIXED: Removed 'user' variable since it was declared but never read, 
+  // which caused the Vercel build to fail.
+  const { profile } = useUser(); 
 
   // Check if current user is the Master Owner
   const isOwner = profile?.role === 'SUPER_ADMIN';
