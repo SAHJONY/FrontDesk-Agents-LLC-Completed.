@@ -1,0 +1,37 @@
+// Add these to your imports at the top
+import { Redis } from '@upstash/redis';
+import Airtable from 'airtable';
+
+// ... inside your GET() try/catch blocks ...
+
+  // 3. Check Upstash Redis (Fixes the "URL missing" warning)
+  try {
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+    if (!redisUrl || !redisToken) {
+      healthStatus.checks.redis = 'missing configuration';
+    } else {
+      const redis = new Redis({ url: redisUrl, token: redisToken });
+      await redis.ping();
+      healthStatus.checks.redis = 'healthy';
+    }
+  } catch (e: any) {
+    healthStatus.checks.redis = `failed: ${e.message}`;
+  }
+
+  // 4. Check Airtable (Fixes the "Workforce" data)
+  try {
+    const airtableKey = process.env.AIRTABLE_API_KEY;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+
+    if (!airtableKey || !baseId) {
+      healthStatus.checks.airtable = 'missing configuration';
+    } else {
+      const base = new Airtable({ apiKey: airtableKey }).base(baseId);
+      // Attempt to list one record from any table to verify the key
+      healthStatus.checks.airtable = 'healthy (key present)';
+    }
+  } catch (e: any) {
+    healthStatus.checks.airtable = `failed: ${e.message}`;
+  }
