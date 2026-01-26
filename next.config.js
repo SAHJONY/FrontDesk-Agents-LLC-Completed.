@@ -1,7 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: true,
+    // Keep unoptimized: true if you are hosting on Vercel's free tier 
+    // to avoid image optimization usage limits.
+    unoptimized: true, 
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.frontdeskagents.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'resend.com',
+      }
+    ],
   },
   // 1. Bypass linting errors during build
   eslint: {
@@ -11,9 +23,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  /* 3. Fix: In Next.js 15, 'serverComponentsExternalPackages' 
-     is now 'serverExternalPackages' at the root level.
-  */
+  // 3. Next.js 15 root-level external packages
   serverExternalPackages: ['airtable', 'sharp', 'resend'],
 };
 
