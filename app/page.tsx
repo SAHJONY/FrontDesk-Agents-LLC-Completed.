@@ -7,115 +7,120 @@ import Link from 'next/link';
 import { 
   ChevronRight, 
   Globe, 
-  Shield, 
+  ShieldCheck, 
   Cpu, 
-  BarChart, 
-  Command,
+  Activity, 
   ArrowRight,
   X,
   Lock,
-  Mail
+  Mail,
+  Scale
 } from 'lucide-react';
 
-export default function FortuneLanding() {
+export default function GlobalEnterpriseLanding() {
   const [showAuth, setShowAuth] = useState(false);
   const [userRole, setUserRole] = useState<'customer' | 'owner'>('customer');
 
   return (
-    <main className="min-h-screen bg-white text-slate-900 font-sans antialiased">
-      {/* Global Executive Header */}
-      <nav className="fixed top-0 w-full z-[100] border-b border-slate-100 bg-white/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-12">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-blue-700" />
-              <span className="text-xl font-bold tracking-tight uppercase">FrontDesk</span>
+    <main className="min-h-screen bg-white text-[#0A192F] font-sans antialiased selection:bg-blue-600 selection:text-white">
+      
+      {/* Institutional Header */}
+      <nav className="fixed top-0 w-full z-[100] border-b border-slate-200/60 bg-white/90 backdrop-blur-xl">
+        <div className="max-w-[1440px] mx-auto px-10 h-24 flex items-center justify-between">
+          <div className="flex items-center gap-16">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-8 h-8 bg-[#2563EB] rounded-sm transition-transform group-hover:rotate-90 duration-500" />
+              <span className="text-2xl font-black tracking-tighter uppercase text-[#0A192F]">FrontDesk</span>
             </Link>
-            <div className="hidden lg:flex gap-8">
-              {['Solutions', 'Infrastructure', 'Intelligence', 'Company'].map((item) => (
-                <Link key={item} href="#" className="text-sm font-medium text-slate-500 hover:text-blue-700 transition-colors uppercase tracking-widest">
+            <div className="hidden xl:flex gap-10">
+              {['Infrastructure', 'Global Nodes', 'Intelligence', 'Governance'].map((item) => (
+                <Link key={item} href="#" className="text-[11px] font-bold text-slate-500 hover:text-[#2563EB] transition-colors uppercase tracking-[0.2em]">
                   {item}
                 </Link>
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
             <button 
               onClick={() => setShowAuth(true)}
-              className="text-sm font-bold uppercase tracking-widest text-slate-900 border-b-2 border-slate-900 pb-1 hover:text-blue-700 hover:border-blue-700 transition-all"
+              className="hidden sm:block text-[11px] font-black uppercase tracking-[0.2em] text-[#0A192F] hover:text-[#2563EB] transition-all"
             >
-              Client Login
+              Client Access
             </button>
             <button 
               onClick={() => setShowAuth(true)}
-              className="px-6 py-3 bg-blue-700 text-white text-xs font-bold uppercase tracking-widest hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/10"
+              className="px-8 py-4 bg-[#0A192F] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#2563EB] transition-all shadow-2xl shadow-blue-900/20"
             >
-              Request Consultation
+              Consult an Expert
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Hero: The Authority Section */}
-      <section className="relative pt-48 pb-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-12 gap-16 items-center">
+      {/* Hero: 8K Cinematic Architecture */}
+      <section className="relative min-h-screen flex items-center pt-24 overflow-hidden bg-[#F8FAFC]">
+        <div className="max-w-[1440px] mx-auto px-10 grid lg:grid-cols-2 gap-20 relative z-10">
           <motion.div 
-            className="lg:col-span-7"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="text-blue-700 font-bold uppercase tracking-[0.3em] text-xs mb-6 block">
-              Enterprise Voice Infrastructure
-            </span>
-            <h1 className="text-6xl lg:text-[84px] font-medium leading-[0.95] tracking-tight text-slate-900 mb-8">
-              Autonomous Front Desk <br />
-              <span className="text-slate-400">At Global Scale.</span>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="h-px w-12 bg-[#2563EB]" />
+              <span className="text-[#2563EB] font-black uppercase tracking-[0.4em] text-[10px]">
+                Tier-1 Voice Infrastructure
+              </span>
+            </div>
+            <h1 className="text-7xl xl:text-[110px] font-bold leading-[0.9] tracking-[-0.04em] text-[#0A192F] mb-10">
+              Global <br />
+              Intelligence <br />
+              <span className="text-slate-300">Provisioning.</span>
             </h1>
-            <p className="text-xl text-slate-600 max-w-xl mb-12 leading-relaxed font-light">
-              Transform your business operations with institutional-grade AI agents. 
-              We provide the intelligence layer for the world&apos;s most demanding enterprises.
+            <p className="text-xl text-slate-500 max-w-lg mb-12 leading-relaxed font-light">
+              Architecting autonomous front desk solutions for the world&apos;s most resilient organizations. 
+              Sub-millisecond latency. Military-grade security. Infinite scale.
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-6">
               <button 
                 onClick={() => setShowAuth(true)}
-                className="px-10 py-5 bg-slate-900 text-white font-bold text-sm uppercase tracking-widest hover:bg-blue-700 transition-all"
+                className="px-12 py-6 bg-[#2563EB] text-white font-black text-[11px] uppercase tracking-[0.2em] hover:bg-[#0A192F] transition-all group flex items-center gap-3"
               >
-                Deploy Infrastructure
+                Initialize Deployment <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </button>
-              <button className="px-10 py-5 border border-slate-200 text-slate-900 font-bold text-sm uppercase tracking-widest hover:border-slate-900 transition-all flex items-center gap-2">
-                Whitepaper <ChevronRight size={16} />
+              <button className="px-12 py-6 border border-slate-300 text-[#0A192F] font-black text-[11px] uppercase tracking-[0.2em] hover:border-[#0A192F] transition-all">
+                Download Architecture
               </button>
             </div>
           </motion.div>
 
-          {/* Cinematic Data Visualization */}
           <motion.div 
-            className="lg:col-span-5 relative h-[500px] w-full"
-            initial={{ opacity: 0, scale: 0.95 }}
+            className="relative hidden lg:block h-[700px]"
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="absolute inset-0 bg-slate-50 border border-slate-100 rounded-sm overflow-hidden shadow-2xl">
+            {/* 8K Realistic Image Placeholder - High gloss architecture */}
+            <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]">
               <Image 
-                src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
-                alt="Architecture"
+                src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop" 
+                alt="Corporate Architecture 8K"
                 fill
-                className="object-cover opacity-20 grayscale"
+                className="object-cover brightness-[0.85] contrast-[1.1]"
               />
-              <div className="absolute inset-0 p-12 flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="h-12 w-12 border-2 border-blue-700 flex items-center justify-center">
-                    <Command className="text-blue-700" size={24} />
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#0A192F]/40 to-transparent" />
+              
+              {/* Floating UI HUD Element */}
+              <div className="absolute bottom-10 left-10 right-10 p-8 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-xl">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Network Load</p>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-4 w-1 bg-[#2563EB]" />)}
+                    </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Network Status</p>
-                    <p className="text-sm font-bold text-green-600">ACTIVE // GLOBAL</p>
+                    <p className="text-2xl font-light text-white italic tracking-tighter">Operational</p>
                   </div>
-                </div>
-                <div>
-                  <div className="h-px w-full bg-slate-200 mb-6" />
-                  <p className="text-4xl font-light text-slate-800 tracking-tighter">99.999% <span className="text-sm font-bold block uppercase tracking-widest text-slate-400 mt-2">Uptime Reliability</span></p>
                 </div>
               </div>
             </div>
@@ -123,82 +128,38 @@ export default function FortuneLanding() {
         </div>
       </section>
 
-      {/* Trust Metrics Section */}
-      <section className="bg-slate-50 py-24 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
+      {/* Global Status Bar */}
+      <div className="bg-[#0A192F] py-10 px-10">
+        <div className="max-w-[1440px] mx-auto flex flex-wrap justify-between items-center gap-8 opacity-60">
+          {['Standard & Poors 500 Compliant', 'ISO 27001 Certified', 'GDPR Sovereign Data', '24/7 Global NOC'].map((text, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <ShieldCheck size={16} className="text-[#2563EB]" />
+              <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Institutional Credentials */}
+      <section className="py-32 px-10 max-w-[1440px] mx-auto">
+        <div className="grid md:grid-cols-3 gap-24">
           {[
-            { label: 'Fortune 500 Trusted', value: '42%' },
-            { label: 'Calls Managed Yearly', value: '2.4B' },
-            { label: 'Global Data Centers', value: '184' },
-            { label: 'Security Compliance', value: 'Tier 4' }
-          ].map((stat, i) => (
-            <div key={i}>
-              <p className="text-4xl font-bold text-slate-900 mb-2">{stat.value}</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
+            { icon: Scale, title: 'Elastic Provisioning', desc: 'Deploy 10,000 concurrent AI agents in under 120 seconds. Built for burst-heavy enterprise traffic.' },
+            { icon: Activity, title: 'Real-time Telemetry', desc: 'Monitor call sentiment, conversion rates, and latency through our proprietary Command Center.' },
+            { icon: Globe, title: 'Global Backbone', desc: 'Native peering with Tier-1 carriers ensures sub-millisecond jitter across 184 global regions.' }
+          ].map((item, i) => (
+            <div key={i} className="group cursor-default">
+              <div className="mb-10 w-16 h-16 bg-[#F8FAFC] border border-slate-200 flex items-center justify-center group-hover:bg-[#2563EB] group-hover:border-[#2563EB] transition-all duration-500">
+                <item.icon size={24} className="group-hover:text-white transition-colors" />
+              </div>
+              <h3 className="text-2xl font-bold mb-6 tracking-tight">{item.title}</h3>
+              <p className="text-slate-500 leading-relaxed font-light">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Strategic Capabilities */}
-      <section className="py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="max-w-2xl mb-24">
-            <h2 className="text-4xl font-medium tracking-tight mb-6">Built for high-stakes environments.</h2>
-            <div className="w-20 h-2 bg-blue-700 mb-8" />
-            <p className="text-lg text-slate-500 font-light">Our platform is engineered for consistency, security, and the ability to scale across complex organizational structures without friction.</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-16">
-            {[
-              { icon: Shield, title: 'Institutional Security', desc: 'SOC 2 Type II, GDPR, and HIPAA compliant infrastructure. Your data is encrypted at rest and in transit.' },
-              { icon: Globe, title: 'Global Provisioning', desc: 'Instant local presence in 140+ countries. Seamless localized AI voice synthesis for a global client base.' },
-              { icon: BarChart, title: 'Predictive Intelligence', desc: 'Real-time call sentiment analysis and predictive outcome modeling to optimize every client interaction.' }
-            ].map((cap, i) => (
-              <div key={i} className="group">
-                <div className="mb-8 p-4 bg-slate-50 w-fit group-hover:bg-blue-700 group-hover:text-white transition-all">
-                  <cap.icon size={28} />
-                </div>
-                <h3 className="text-xl font-bold mb-4">{cap.title}</h3>
-                <p className="text-slate-500 leading-relaxed font-light">{cap.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer: Institutional Look */}
-      <footer className="bg-slate-900 text-white py-24">
-        <div className="max-w-7xl mx-auto px-8 grid md:grid-cols-4 gap-16">
-          <div className="col-span-2">
-            <div className="flex items-center gap-2 mb-8">
-              <div className="w-6 h-6 bg-blue-600" />
-              <span className="text-xl font-bold tracking-tight uppercase">FrontDesk</span>
-            </div>
-            <p className="text-slate-400 max-w-sm font-light">Empowering the next generation of global businesses with autonomous communication infrastructure.</p>
-          </div>
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-widest mb-8 text-blue-500">Infrastructure</h4>
-            <ul className="space-y-4 text-sm text-slate-300">
-              <li>API Documentation</li>
-              <li>Network Status</li>
-              <li>Global Nodes</li>
-              <li>Security Vault</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-widest mb-8 text-blue-500">Corporate</h4>
-            <ul className="space-y-4 text-sm text-slate-300">
-              <li>Investor Relations</li>
-              <li>Sustainability</li>
-              <li>Privacy Governance</li>
-              <li>Terms of Service</li>
-            </ul>
-          </div>
-        </div>
-      </footer>
-
-      {/* Executive Auth Modal */}
+      {/* Premium Auth Terminal Overlay */}
       <AnimatePresence>
         {showAuth && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
@@ -207,50 +168,50 @@ export default function FortuneLanding() {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setShowAuth(false)}
-              className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" 
+              className="absolute inset-0 bg-[#0A192F]/95 backdrop-blur-md" 
             />
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="relative w-full max-w-md bg-white p-12 shadow-2xl rounded-sm"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-xl bg-white rounded-sm overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)]"
             >
-              <button onClick={() => setShowAuth(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors">
-                <X size={20} />
-              </button>
-              <div className="text-center mb-10">
-                <h2 className="text-2xl font-bold tracking-tight mb-2">Internal Access</h2>
-                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Client Portal & Management</p>
-              </div>
-
-              {/* Role Switch */}
-              <div className="flex border-b border-slate-100 mb-8">
-                <button 
-                  onClick={() => setUserRole('customer')}
-                  className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${userRole === 'customer' ? 'border-b-2 border-blue-700 text-blue-700' : 'text-slate-400'}`}
-                >
-                  Client
-                </button>
-                <button 
-                  onClick={() => setUserRole('owner')}
-                  className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${userRole === 'owner' ? 'border-b-2 border-blue-700 text-blue-700' : 'text-slate-400'}`}
-                >
-                  Administrator
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                <div className="relative border-b border-slate-200 focus-within:border-blue-700 transition-colors">
-                  <Mail className="absolute left-0 top-3 text-slate-400" size={16} />
-                  <input type="email" placeholder="CORPORATE EMAIL" className="w-full py-3 pl-8 bg-transparent outline-none text-xs font-bold uppercase tracking-widest" />
+              <div className="p-16">
+                <div className="flex justify-between items-start mb-16">
+                  <div>
+                    <h2 className="text-3xl font-bold tracking-tighter text-[#0A192F]">Node Entry</h2>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Biometric / Key Signature Required</p>
+                  </div>
+                  <button onClick={() => setShowAuth(false)} className="p-2 hover:bg-slate-100 transition-all">
+                    <X size={24} />
+                  </button>
                 </div>
-                <div className="relative border-b border-slate-200 focus-within:border-blue-700 transition-colors">
-                  <Lock className="absolute left-0 top-3 text-slate-400" size={16} />
-                  <input type="password" placeholder="ACCESS KEY" className="w-full py-3 pl-8 bg-transparent outline-none text-xs font-bold uppercase tracking-widest" />
+
+                <div className="flex border-b border-slate-100 mb-12">
+                  {['Customer', 'Administrator'].map((role) => (
+                    <button 
+                      key={role}
+                      onClick={() => setUserRole(role.toLowerCase() as any)}
+                      className={`flex-1 py-4 text-[11px] font-black uppercase tracking-widest transition-all ${userRole === role.toLowerCase() ? 'border-b-2 border-[#2563EB] text-[#2563EB]' : 'text-slate-400'}`}
+                    >
+                      {role}
+                    </button>
+                  ))}
                 </div>
-                <button className="w-full bg-slate-900 text-white py-4 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/10">
-                  Authenticate <ArrowRight size={14} />
-                </button>
+
+                <div className="space-y-8">
+                  <div className="relative border-b border-slate-200 focus-within:border-[#2563EB] transition-colors pb-2">
+                    <Mail className="absolute left-0 top-1 text-slate-300" size={16} />
+                    <input type="email" placeholder="IDENTIFICATION EMAIL" className="w-full pl-8 bg-transparent outline-none text-[11px] font-bold uppercase tracking-widest placeholder:text-slate-300" />
+                  </div>
+                  <div className="relative border-b border-slate-200 focus-within:border-[#2563EB] transition-colors pb-2">
+                    <Lock className="absolute left-0 top-1 text-slate-300" size={16} />
+                    <input type="password" placeholder="ACCESS KEY" className="w-full pl-8 bg-transparent outline-none text-[11px] font-bold uppercase tracking-widest placeholder:text-slate-300" />
+                  </div>
+                  <button className="w-full bg-[#0A192F] text-white py-6 font-black uppercase tracking-[0.3em] text-[11px] hover:bg-[#2563EB] transition-all shadow-xl shadow-blue-900/20">
+                    Verify & Connect
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
