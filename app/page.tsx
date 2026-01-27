@@ -1,222 +1,261 @@
 'use client';
 
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
-  ShieldCheck, Zap, PhoneCall, Globe, ArrowRight, 
-  LayoutDashboard, Users, X, Lock, Mail, Play, 
-  Sparkles, MessageSquare, Calendar, BarChart
+  ChevronRight, 
+  Globe, 
+  Shield, 
+  Cpu, 
+  BarChart, 
+  Command,
+  ArrowRight,
+  X,
+  Lock,
+  Mail
 } from 'lucide-react';
 
-export default function Home() {
-  const [showAuthModal, setShowAuthModal] = useState(false);
+export default function FortuneLanding() {
+  const [showAuth, setShowAuth] = useState(false);
   const [userRole, setUserRole] = useState<'customer' | 'owner'>('customer');
-  const [activeStep, setActiveStep] = useState(0);
-  
-  const { scrollYProgress } = useScroll();
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
-  const opacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-
-  const capabilities = [
-    { title: "Voice Intelligence", desc: "Human-grade synthesis with <500ms latency.", icon: <PhoneCall className="text-blue-400" /> },
-    { title: "Smart Scheduling", desc: "Native integration with all major calendars.", icon: <Calendar className="text-purple-400" /> },
-    { title: "Global Reach", desc: "Provision local numbers in 140+ countries.", icon: <Globe className="text-emerald-400" /> },
-    { title: "Predictive Analytics", desc: "Convert data into revenue-driving insights.", icon: <BarChart className="text-orange-400" /> }
-  ];
 
   return (
-    <main className="min-h-screen w-full bg-[#030303] text-white selection:bg-blue-500/40 selection:text-white overflow-x-hidden font-sans">
-      
-      {/* Dynamic Cursor Gradient */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 blur-[150px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[150px] rounded-full" />
-      </div>
-
-      {/* Floating Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-5xl">
-        <div className="flex items-center justify-between px-6 py-3 rounded-full border border-white/10 bg-black/40 backdrop-blur-2xl shadow-2xl">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 bg-gradient-to-tr from-blue-600 to-cyan-400 rounded-lg flex items-center justify-center font-black">F</div>
-            <span className="font-bold tracking-tighter text-lg uppercase">FrontDesk</span>
+    <main className="min-h-screen bg-white text-slate-900 font-sans antialiased">
+      {/* Global Executive Header */}
+      <nav className="fixed top-0 w-full z-[100] border-b border-slate-100 bg-white/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-12">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-blue-700" />
+              <span className="text-xl font-bold tracking-tight uppercase">FrontDesk</span>
+            </Link>
+            <div className="hidden lg:flex gap-8">
+              {['Solutions', 'Infrastructure', 'Intelligence', 'Company'].map((item) => (
+                <Link key={item} href="#" className="text-sm font-medium text-slate-500 hover:text-blue-700 transition-colors uppercase tracking-widest">
+                  {item}
+                </Link>
+              ))}
+            </div>
           </div>
-          
-          <div className="hidden md:flex items-center gap-8">
-            {['Capabilities', 'Architecture', 'Pricing'].map((item) => (
-              <Link key={item} href={`#${item.toLowerCase()}`} className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">
-                {item}
-              </Link>
-            ))}
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => setShowAuth(true)}
+              className="text-sm font-bold uppercase tracking-widest text-slate-900 border-b-2 border-slate-900 pb-1 hover:text-blue-700 hover:border-blue-700 transition-all"
+            >
+              Client Login
+            </button>
+            <button 
+              onClick={() => setShowAuth(true)}
+              className="px-6 py-3 bg-blue-700 text-white text-xs font-bold uppercase tracking-widest hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/10"
+            >
+              Request Consultation
+            </button>
           </div>
-
-          <button 
-            onClick={() => setShowAuthModal(true)}
-            className="px-6 py-2 rounded-full bg-white text-black text-[11px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-          >
-            Launch Node
-          </button>
         </div>
       </nav>
 
-      {/* Hero Section: Cinematic Power */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20">
-        <motion.div style={{ scale, opacity }} className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2560&auto=format&fit=crop"
-            alt="8K Cinematic Background"
-            fill
-            className="object-cover opacity-40 brightness-50"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#030303]/80 to-[#030303]" />
-        </motion.div>
-
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <span className="px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] mb-8 inline-block">
-              <Sparkles size={12} className="inline mr-2" /> The Future of Workforce
+      {/* Hero: The Authority Section */}
+      <section className="relative pt-48 pb-32 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-12 gap-16 items-center">
+          <motion.div 
+            className="lg:col-span-7"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <span className="text-blue-700 font-bold uppercase tracking-[0.3em] text-xs mb-6 block">
+              Enterprise Voice Infrastructure
             </span>
-            <h1 className="text-[12vw] lg:text-[10vw] font-black leading-[0.8] tracking-tighter uppercase mb-8 italic">
-              Scale <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-white to-blue-400 animate-gradient-x">Beyond</span> <br /> Humans.
+            <h1 className="text-6xl lg:text-[84px] font-medium leading-[0.95] tracking-tight text-slate-900 mb-8">
+              Autonomous Front Desk <br />
+              <span className="text-slate-400">At Global Scale.</span>
             </h1>
-            <p className="max-w-2xl mx-auto text-slate-400 text-lg md:text-xl mb-12 leading-relaxed font-light">
-              Your autonomous front desk infrastructure. 24/7 AI-powered calls, scheduling, and customer relations with zero overhead.
+            <p className="text-xl text-slate-600 max-w-xl mb-12 leading-relaxed font-light">
+              Transform your business operations with institutional-grade AI agents. 
+              We provide the intelligence layer for the world&apos;s most demanding enterprises.
             </p>
-
-            <div className="flex flex-wrap items-center justify-center gap-6">
+            <div className="flex gap-4">
               <button 
-                onClick={() => setShowAuthModal(true)}
-                className="group relative px-10 py-5 bg-white text-black rounded-full font-black uppercase tracking-widest overflow-hidden transition-all hover:pr-14"
+                onClick={() => setShowAuth(true)}
+                className="px-10 py-5 bg-slate-900 text-white font-bold text-sm uppercase tracking-widest hover:bg-blue-700 transition-all"
               >
-                Start Build
-                <ArrowRight className="absolute right-6 opacity-0 group-hover:opacity-100 transition-all" size={20} />
+                Deploy Infrastructure
               </button>
-              <button className="px-10 py-5 rounded-full border border-white/20 font-black uppercase tracking-widest hover:bg-white/5 transition-all text-[12px]">
-                Watch Architecture
+              <button className="px-10 py-5 border border-slate-200 text-slate-900 font-bold text-sm uppercase tracking-widest hover:border-slate-900 transition-all flex items-center gap-2">
+                Whitepaper <ChevronRight size={16} />
               </button>
+            </div>
+          </motion.div>
+
+          {/* Cinematic Data Visualization */}
+          <motion.div 
+            className="lg:col-span-5 relative h-[500px] w-full"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+          >
+            <div className="absolute inset-0 bg-slate-50 border border-slate-100 rounded-sm overflow-hidden shadow-2xl">
+              <Image 
+                src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
+                alt="Architecture"
+                fill
+                className="object-cover opacity-20 grayscale"
+              />
+              <div className="absolute inset-0 p-12 flex flex-col justify-between">
+                <div className="flex justify-between items-start">
+                  <div className="h-12 w-12 border-2 border-blue-700 flex items-center justify-center">
+                    <Command className="text-blue-700" size={24} />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Network Status</p>
+                    <p className="text-sm font-bold text-green-600">ACTIVE // GLOBAL</p>
+                  </div>
+                </div>
+                <div>
+                  <div className="h-px w-full bg-slate-200 mb-6" />
+                  <p className="text-4xl font-light text-slate-800 tracking-tighter">99.999% <span className="text-sm font-bold block uppercase tracking-widest text-slate-400 mt-2">Uptime Reliability</span></p>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Interactive Capabilities Section */}
-      <section id="capabilities" className="py-32 container mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-20 items-center">
+      {/* Trust Metrics Section */}
+      <section className="bg-slate-50 py-24 border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
+          {[
+            { label: 'Fortune 500 Trusted', value: '42%' },
+            { label: 'Calls Managed Yearly', value: '2.4B' },
+            { label: 'Global Data Centers', value: '184' },
+            { label: 'Security Compliance', value: 'Tier 4' }
+          ].map((stat, i) => (
+            <div key={i}>
+              <p className="text-4xl font-bold text-slate-900 mb-2">{stat.value}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Strategic Capabilities */}
+      <section className="py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="max-w-2xl mb-24">
+            <h2 className="text-4xl font-medium tracking-tight mb-6">Built for high-stakes environments.</h2>
+            <div className="w-20 h-2 bg-blue-700 mb-8" />
+            <p className="text-lg text-slate-500 font-light">Our platform is engineered for consistency, security, and the ability to scale across complex organizational structures without friction.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-16">
+            {[
+              { icon: Shield, title: 'Institutional Security', desc: 'SOC 2 Type II, GDPR, and HIPAA compliant infrastructure. Your data is encrypted at rest and in transit.' },
+              { icon: Globe, title: 'Global Provisioning', desc: 'Instant local presence in 140+ countries. Seamless localized AI voice synthesis for a global client base.' },
+              { icon: BarChart, title: 'Predictive Intelligence', desc: 'Real-time call sentiment analysis and predictive outcome modeling to optimize every client interaction.' }
+            ].map((cap, i) => (
+              <div key={i} className="group">
+                <div className="mb-8 p-4 bg-slate-50 w-fit group-hover:bg-blue-700 group-hover:text-white transition-all">
+                  <cap.icon size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-4">{cap.title}</h3>
+                <p className="text-slate-500 leading-relaxed font-light">{cap.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer: Institutional Look */}
+      <footer className="bg-slate-900 text-white py-24">
+        <div className="max-w-7xl mx-auto px-8 grid md:grid-cols-4 gap-16">
+          <div className="col-span-2">
+            <div className="flex items-center gap-2 mb-8">
+              <div className="w-6 h-6 bg-blue-600" />
+              <span className="text-xl font-bold tracking-tight uppercase">FrontDesk</span>
+            </div>
+            <p className="text-slate-400 max-w-sm font-light">Empowering the next generation of global businesses with autonomous communication infrastructure.</p>
+          </div>
           <div>
-            <h2 className="text-5xl font-black tracking-tighter uppercase mb-8 italic">Platform <br />Capabilities.</h2>
-            <div className="space-y-4">
-              {capabilities.map((cap, i) => (
-                <motion.div 
-                  key={i}
-                  whileHover={{ x: 10 }}
-                  className="p-6 rounded-3xl bg-white/[0.03] border border-white/5 flex gap-6 cursor-pointer hover:border-blue-500/50 transition-all"
-                >
-                  <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
-                    {cap.icon}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-xl tracking-tight">{cap.title}</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">{cap.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            <h4 className="text-xs font-bold uppercase tracking-widest mb-8 text-blue-500">Infrastructure</h4>
+            <ul className="space-y-4 text-sm text-slate-300">
+              <li>API Documentation</li>
+              <li>Network Status</li>
+              <li>Global Nodes</li>
+              <li>Security Vault</li>
+            </ul>
           </div>
-
-          {/* Interactive Phone Simulator Preview */}
-          <div className="relative aspect-[4/5] rounded-[60px] bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-white/10 p-8 flex flex-col items-center justify-center overflow-hidden shadow-[0_0_80px_rgba(37,99,235,0.1)]">
-             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
-             <div className="relative w-full max-w-[280px] bg-black rounded-[45px] border-[8px] border-[#1a1a1a] aspect-[9/19] shadow-2xl p-6 flex flex-col gap-4">
-                <div className="flex justify-between items-center opacity-40">
-                  <span className="text-[10px] font-bold">FRONTDESK OS</span>
-                  <div className="h-1 w-12 bg-white/20 rounded-full" />
-                </div>
-                <div className="mt-8 text-center">
-                  <div className="h-16 w-16 bg-blue-500 rounded-full mx-auto mb-4 animate-pulse flex items-center justify-center">
-                    <PhoneCall size={24} />
-                  </div>
-                  <p className="text-xs font-black uppercase tracking-widest text-blue-400">Incoming Call</p>
-                  <p className="text-lg font-bold mt-1 tracking-tight">+1 (888) FD-AGENT</p>
-                </div>
-                <div className="mt-auto space-y-2">
-                  <div className="p-3 bg-white/5 rounded-xl text-[10px] font-mono text-blue-300">
-                    {">"} AI: Hello! How can I help you?
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-xl text-[10px] font-mono text-slate-500">
-                    {">"} User: I need to book a demo.
-                  </div>
-                  <div className="p-3 bg-blue-600 rounded-xl text-[10px] font-mono text-white">
-                    {">"} AI: Available at 2PM today. Confirm?
-                  </div>
-                </div>
-             </div>
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-widest mb-8 text-blue-500">Corporate</h4>
+            <ul className="space-y-4 text-sm text-slate-300">
+              <li>Investor Relations</li>
+              <li>Sustainability</li>
+              <li>Privacy Governance</li>
+              <li>Terms of Service</li>
+            </ul>
           </div>
         </div>
-      </section>
+      </footer>
 
-      {/* Premium Bento Grid: Operational Excellence */}
-      <section id="architecture" className="py-32 container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          <div className="md:col-span-4 lg:col-span-4 h-[400px] rounded-[40px] bg-white/[0.02] border border-white/5 p-12 flex flex-col justify-end relative overflow-hidden group">
-            <Image src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop" fill alt="Secured" className="object-cover opacity-20 group-hover:scale-105 transition-transform duration-[4s]" />
-            <div className="relative z-10">
-              <ShieldCheck size={48} className="text-blue-500 mb-6" />
-              <h3 className="text-4xl font-black tracking-tighter uppercase italic">SOC-2 Enterprise Security</h3>
-              <p className="text-slate-500 max-w-md mt-4">Military-grade encryption for every voice byte and data point processed by your agents.</p>
-            </div>
-          </div>
-          <div className="md:col-span-2 lg:col-span-2 h-[400px] rounded-[40px] bg-blue-600 p-12 flex flex-col justify-between group cursor-pointer overflow-hidden">
-             <motion.div whileHover={{ rotate: 15 }} transition={{ type: "spring" }}>
-               <Zap size={64} fill="white" />
-             </motion.div>
-             <h3 className="text-3xl font-black tracking-tighter uppercase leading-none italic">Infinite <br /> Scalability</h3>
-          </div>
-        </div>
-      </section>
-
-      {/* Auth Modal: Ultra-Premium Experience */}
+      {/* Executive Auth Modal */}
       <AnimatePresence>
-        {showAuthModal && (
+        {showAuth && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAuthModal(false)} className="absolute inset-0 bg-black/95 backdrop-blur-3xl" />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} className="relative w-full max-w-xl bg-[#0a0a0a] border border-white/10 rounded-[50px] shadow-[0_0_100px_rgba(37,99,235,0.25)] overflow-hidden">
-              <div className="p-12">
-                <div className="flex justify-between items-center mb-12">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold">F</div>
-                    <span className="font-black uppercase tracking-widest text-xs">Node Authorization</span>
-                  </div>
-                  <button onClick={() => setShowAuthModal(false)} className="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                    <X size={20} />
-                  </button>
-                </div>
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAuth(false)}
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" 
+            />
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="relative w-full max-w-md bg-white p-12 shadow-2xl rounded-sm"
+            >
+              <button onClick={() => setShowAuth(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors">
+                <X size={20} />
+              </button>
+              <div className="text-center mb-10">
+                <h2 className="text-2xl font-bold tracking-tight mb-2">Internal Access</h2>
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Client Portal & Management</p>
+              </div>
 
-                <div className="flex p-1 bg-white/5 rounded-2xl mb-10">
-                  <button onClick={() => setUserRole('customer')} className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${userRole === 'customer' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>Customer</button>
-                  <button onClick={() => setUserRole('owner')} className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${userRole === 'owner' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}>Owner</button>
-                </div>
+              {/* Role Switch */}
+              <div className="flex border-b border-slate-100 mb-8">
+                <button 
+                  onClick={() => setUserRole('customer')}
+                  className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${userRole === 'customer' ? 'border-b-2 border-blue-700 text-blue-700' : 'text-slate-400'}`}
+                >
+                  Client
+                </button>
+                <button 
+                  onClick={() => setUserRole('owner')}
+                  className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${userRole === 'owner' ? 'border-b-2 border-blue-700 text-blue-700' : 'text-slate-400'}`}
+                >
+                  Administrator
+                </button>
+              </div>
 
-                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                  <div className="group relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-blue-500 transition-colors" size={20} />
-                    <input type="email" placeholder="USER ID (EMAIL)" className="w-full bg-white/5 border border-white/5 rounded-2xl py-5 pl-12 text-[11px] font-black tracking-widest outline-none focus:border-blue-500 transition-all" />
-                  </div>
-                  <div className="group relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-blue-500 transition-colors" size={20} />
-                    <input type="password" placeholder="ACCESS KEY (PASSWORD)" className="w-full bg-white/5 border border-white/5 rounded-2xl py-5 pl-12 text-[11px] font-black tracking-widest outline-none focus:border-blue-500 transition-all" />
-                  </div>
-                  <button className="w-full bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] py-6 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-[0_0_40px_rgba(37,99,235,0.3)]">
-                    Initialize Deployment
-                  </button>
-                </form>
+              <div className="space-y-6">
+                <div className="relative border-b border-slate-200 focus-within:border-blue-700 transition-colors">
+                  <Mail className="absolute left-0 top-3 text-slate-400" size={16} />
+                  <input type="email" placeholder="CORPORATE EMAIL" className="w-full py-3 pl-8 bg-transparent outline-none text-xs font-bold uppercase tracking-widest" />
+                </div>
+                <div className="relative border-b border-slate-200 focus-within:border-blue-700 transition-colors">
+                  <Lock className="absolute left-0 top-3 text-slate-400" size={16} />
+                  <input type="password" placeholder="ACCESS KEY" className="w-full py-3 pl-8 bg-transparent outline-none text-xs font-bold uppercase tracking-widest" />
+                </div>
+                <button className="w-full bg-slate-900 text-white py-4 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/10">
+                  Authenticate <ArrowRight size={14} />
+                </button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-
     </main>
   );
 }
