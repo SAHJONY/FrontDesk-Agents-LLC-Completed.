@@ -23,10 +23,17 @@
     {
       "path": "/api/cron/daily-digest",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/bill-overage",
+      "schedule": "0 0 * * *"
     }
   ],
   "functions": {
     "app/api/cron/daily-digest/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/cron/bill-overage/route.ts": {
       "maxDuration": 60
     },
     "app/api/wholesale/sync-bulk-secrets/route.ts": {
