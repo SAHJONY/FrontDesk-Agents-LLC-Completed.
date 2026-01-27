@@ -3,211 +3,219 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
-  ShieldCheck, 
+  Shield, 
   Zap, 
-  BarChart3, 
+  Layers, 
   Globe, 
-  ArrowRight, 
+  ArrowUpRight, 
   LayoutDashboard, 
   Users,
   X,
   Lock,
   Mail,
-  Loader2
+  Play
 } from 'lucide-react';
 
 export default function Home() {
-  const [imageError, setImageError] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [userRole, setUserRole] = useState<'customer' | 'owner'>('customer');
+  const { scrollY } = useScroll();
+  
+  // Parallax effect for the hero image
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
 
   return (
-    <main className="min-h-screen w-full bg-[#030712] text-slate-200 selection:bg-blue-500/30">
-      {/* Premium Ambient Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute top-[20%] -right-[10%] w-[30%] h-[50%] bg-cyan-500/10 blur-[120px] rounded-full" />
-      </div>
-
-      {/* Navigation Bar */}
-      <nav className="sticky top-0 z-[60] w-full border-b border-white/5 bg-[#030712]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <span className="text-white font-bold text-xl">F</span>
-            </div>
-            <span className="text-lg font-bold tracking-tight text-white hidden sm:block">FrontDesk Agents</span>
+    <main className="min-h-screen w-full bg-[#02040a] text-white selection:bg-blue-500/50 overflow-x-hidden">
+      
+      {/* Cinematic Navigation */}
+      <nav className="fixed top-0 z-[100] w-full px-6 py-8">
+        <div className="mx-auto max-w-7xl flex items-center justify-between px-8 py-4 rounded-full border border-white/10 bg-black/20 backdrop-blur-2xl">
+          <div className="flex items-center gap-2 group cursor-pointer">
+            <div className="h-8 w-8 rounded-lg bg-blue-600 rotate-45 group-hover:rotate-180 transition-transform duration-700" />
+            <span className="text-xl font-black tracking-tighter uppercase">FrontDesk</span>
           </div>
           
-          <div className="flex items-center gap-8">
-            <div className="hidden md:flex items-center gap-6">
-              {['Features', 'Pricing', 'Network'].map((item) => (
-                <Link key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
-                  {item}
-                </Link>
-              ))}
-            </div>
-            <button
-              onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
-              className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-slate-200 transition-all active:scale-95"
-            >
-              Sign In
-            </button>
+          <div className="hidden md:flex items-center gap-10">
+            {['Intelligence', 'Architecture', 'Global'].map((item) => (
+              <Link key={item} href="#" className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 hover:text-blue-400 transition-colors">
+                {item}
+              </Link>
+            ))}
           </div>
+
+          <button 
+            onClick={() => setShowAuthModal(true)}
+            className="flex items-center gap-2 px-6 py-2 rounded-full bg-white text-black text-[11px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all"
+          >
+            Access Terminal <ArrowUpRight size={14} />
+          </button>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-32 px-6">
-        <div className="mx-auto max-w-7xl text-center lg:text-left grid lg:grid-cols-2 gap-16 items-center">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+      {/* Hero Section: Cinematic 8K Background */}
+      <section className="relative h-[110vh] w-full flex items-center justify-center overflow-hidden">
+        <motion.div style={{ y: y1 }} className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?q=80&w=2560&auto=format&fit=crop" 
+            alt="Cinematic Tech Background"
+            fill
+            className="object-cover scale-110 opacity-60 brightness-[0.4]"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#02040a]/60 to-[#02040a]" />
+        </motion.div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
-              <Zap size={14} /> NEW: MULTI-REGION AI NODES
-            </div>
-            <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
-              The Sovereign <br />
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                AI Phone OS
-              </span>
+            <span className="inline-block text-[10px] tracking-[0.4em] font-black uppercase text-blue-500 mb-4 px-4 py-2 border border-blue-500/20 rounded-full bg-blue-500/5">
+              Intelligence Without Limits
+            </span>
+            <h1 className="text-[12vw] lg:text-[8vw] font-black leading-[0.85] tracking-tighter mb-8 italic">
+              AI PHONE <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-500">SYSTEM.</span>
             </h1>
-            <p className="text-xl text-slate-400 max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed">
-              Empower your business with autonomous agents that handle calls, scheduling, and customer logic with human-like precision. Built for the modern enterprise.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6">
               <button 
-                onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}
-                className="group relative flex items-center justify-center gap-2 bg-blue-600 px-8 py-4 rounded-full text-white font-bold hover:bg-blue-500 transition-all"
+                onClick={() => setShowAuthModal(true)}
+                className="px-12 py-5 rounded-full bg-blue-600 text-white font-black uppercase tracking-tighter hover:bg-white hover:text-black transition-all text-lg flex items-center gap-3"
               >
-                Start Free Trial
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                Deploy Now <Zap size={20} fill="currentColor" />
               </button>
-              <Link href="#features" className="flex items-center justify-center px-8 py-4 rounded-full border border-white/10 text-white font-bold hover:bg-white/5 transition-all">
-                View Architecture
-              </Link>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative"
-          >
-            <div className="absolute inset-0 bg-blue-500/20 blur-[100px] rounded-full" />
-            <div className="relative rounded-3xl border border-white/10 bg-slate-900/50 backdrop-blur-3xl p-4 shadow-2xl overflow-hidden">
-              <div className="aspect-video relative rounded-2xl overflow-hidden bg-slate-950">
-                {!imageError ? (
-                  <Image
-                    src="/images/ai_receptionist/hero-en.jpg"
-                    alt="Platform Preview"
-                    fill
-                    className="object-cover opacity-80"
-                    onError={() => setImageError(true)}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center flex-col gap-4">
-                    <BarChart3 size={48} className="text-blue-500" />
-                    <span className="text-slate-500 font-mono text-xs uppercase tracking-widest">System Operational</span>
-                  </div>
-                )}
-              </div>
+              <button className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest group">
+                <div className="h-12 w-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                  <Play size={16} fill="currentColor" />
+                </div>
+                Watch Reel
+              </button>
             </div>
           </motion.div>
         </div>
-      </section>
 
-      {/* Trust Badges */}
-      <section className="py-12 border-y border-white/5 bg-white/[0.02]">
-        <div className="mx-auto max-w-7xl px-6 flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all">
-          <div className="flex items-center gap-2 font-bold text-xl"><Globe size={20}/> GLOBAL</div>
-          <div className="flex items-center gap-2 font-bold text-xl"><ShieldCheck size={20}/> SECURE</div>
-          <div className="flex items-center gap-2 font-bold text-xl">⚡ LATENCY-OPTIMIZED</div>
+        {/* Floating Stats */}
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-full max-w-5xl px-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: "Latency", val: "<24ms" },
+            { label: "Uptime", val: "99.99%" },
+            { label: "Nodes", val: "Global" },
+            { label: "Security", val: "AES-256" }
+          ].map((stat, i) => (
+            <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+              <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">{stat.label}</p>
+              <p className="text-xl font-bold font-mono tracking-tighter">{stat.val}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Auth Modal - The "Premium" Component */}
+      {/* Bento Grid: Premium Features */}
+      <section className="py-32 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-[800px]">
+          
+          <div className="md:col-span-8 rounded-[40px] bg-[#0a0c14] border border-white/5 overflow-hidden relative group">
+            <Image 
+              src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" 
+              alt="Network" fill className="object-cover opacity-30 group-hover:scale-110 transition-transform duration-[3s]" 
+            />
+            <div className="absolute inset-0 p-12 flex flex-col justify-end">
+              <h3 className="text-4xl font-bold mb-4 tracking-tighter">Global Voice Infrastructure</h3>
+              <p className="text-slate-400 max-w-md">Provision enterprise-grade phone lines across 120+ countries with localized AI routing.</p>
+            </div>
+          </div>
+
+          <div className="md:col-span-4 rounded-[40px] bg-gradient-to-br from-blue-600 to-blue-900 border border-white/10 p-12 flex flex-col justify-between">
+            <Globe size={48} />
+            <div>
+              <h3 className="text-3xl font-bold mb-4 tracking-tighter">Real-time Translation</h3>
+              <p className="text-blue-100/70">Break language barriers with sub-second voice synthesis in 40+ languages.</p>
+            </div>
+          </div>
+
+          <div className="md:col-span-4 rounded-[40px] bg-[#0a0c14] border border-white/5 p-12 flex flex-col justify-between hover:border-blue-500/50 transition-colors">
+            <Shield size={48} className="text-blue-500" />
+            <h3 className="text-2xl font-bold tracking-tighter">Enterprise Vault Security</h3>
+          </div>
+
+          <div className="md:col-span-8 rounded-[40px] bg-[#0a0c14] border border-white/5 p-12 flex flex-col md:flex-row gap-8 items-center justify-between">
+            <div className="max-w-xs">
+               <h3 className="text-3xl font-bold mb-4 tracking-tighter">Autonomous Scheduling</h3>
+               <p className="text-slate-400">Sync with Outlook, Google, and Apple Calendars instantly.</p>
+            </div>
+            <div className="h-full aspect-square bg-blue-500/10 rounded-3xl border border-blue-500/20 flex items-center justify-center">
+              <Layers size={64} className="text-blue-500 animate-pulse" />
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Premium Auth Modal */}
       <AnimatePresence>
         {showAuthModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
             <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowAuthModal(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md" 
+              className="absolute inset-0 bg-black/90 backdrop-blur-xl" 
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-[#111827] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl"
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              className="relative w-full max-w-xl bg-[#0a0c14] border border-white/10 rounded-[40px] overflow-hidden shadow-[0_0_100px_rgba(37,99,235,0.2)]"
             >
-              <button onClick={() => setShowAuthModal(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors">
-                <X size={24} />
-              </button>
-
-              <div className="p-10">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-white mb-2">
-                    {authMode === 'login' ? 'Welcome Back' : 'Get Started'}
-                  </h2>
-                  <p className="text-slate-400">Join the FrontDesk global network</p>
+              <div className="p-12">
+                <div className="flex justify-between items-start mb-12">
+                  <div>
+                    <h2 className="text-4xl font-bold tracking-tighter mb-2">Secure Entry</h2>
+                    <p className="text-slate-500 uppercase text-[10px] tracking-[0.2em] font-black">Authorized Personnel Only</p>
+                  </div>
+                  <button onClick={() => setShowAuthModal(false)} className="h-10 w-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all">
+                    <X size={20} />
+                  </button>
                 </div>
 
-                {/* Role Switcher */}
-                <div className="flex p-1 bg-black/40 rounded-2xl mb-8">
+                <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 rounded-2xl mb-8">
                   <button 
                     onClick={() => setUserRole('customer')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold rounded-xl transition-all ${userRole === 'customer' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}
+                    className={`flex items-center justify-center gap-2 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${userRole === 'customer' ? 'bg-blue-600' : 'hover:bg-white/5 text-slate-500'}`}
                   >
-                    <Users size={16} /> Customer
+                    <Users size={14} /> Customer
                   </button>
                   <button 
                     onClick={() => setUserRole('owner')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold rounded-xl transition-all ${userRole === 'owner' ? 'bg-blue-600 text-white' : 'text-slate-500'}`}
+                    className={`flex items-center justify-center gap-2 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${userRole === 'owner' ? 'bg-blue-600' : 'hover:bg-white/5 text-slate-500'}`}
                   >
-                    <LayoutDashboard size={16} /> Platform Owner
+                    <LayoutDashboard size={14} /> Platform Owner
                   </button>
                 </div>
 
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-4 text-slate-500" size={20} />
-                    <input type="email" placeholder="Email Address" className="w-full bg-black/20 border border-white/5 rounded-2xl py-4 pl-12 pr-4 focus:border-blue-500 outline-none transition-all text-white" />
+                <div className="space-y-4">
+                  <div className="group relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={20} />
+                    <input type="email" placeholder="IDENTIFICATION (EMAIL)" className="w-full bg-white/5 border border-white/5 rounded-2xl py-5 pl-12 pr-4 text-[11px] font-bold tracking-widest outline-none focus:border-blue-500 transition-all placeholder:text-slate-700" />
                   </div>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-4 text-slate-500" size={20} />
-                    <input type="password" placeholder="Password" className="w-full bg-black/20 border border-white/5 rounded-2xl py-4 pl-12 pr-4 focus:border-blue-500 outline-none transition-all text-white" />
+                  <div className="group relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={20} />
+                    <input type="password" placeholder="ACCESS KEY (PASSWORD)" className="w-full bg-white/5 border border-white/5 rounded-2xl py-5 pl-12 pr-4 text-[11px] font-bold tracking-widest outline-none focus:border-blue-500 transition-all placeholder:text-slate-700" />
                   </div>
-                  <button className="w-full bg-white text-black font-bold py-4 rounded-2xl hover:bg-slate-200 transition-all mt-4 flex items-center justify-center gap-2">
-                    {authMode === 'login' ? 'Sign In' : 'Create Account'}
-                    <ArrowRight size={18} />
-                  </button>
-                </form>
-
-                <div className="mt-6 text-center">
-                  <button 
-                    onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
-                    className="text-sm text-slate-400 hover:text-blue-400 transition-colors"
-                  >
-                    {authMode === 'login' ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-                  </button>
                 </div>
+
+                <button className="w-full bg-white text-black font-black uppercase tracking-[0.2em] text-[11px] py-6 rounded-2xl hover:bg-blue-600 hover:text-white transition-all mt-8 active:scale-[0.98]">
+                  Initialize Session
+                </button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* Footer and other sections... (Keeping standard for brevity) */}
     </main>
   );
 }
