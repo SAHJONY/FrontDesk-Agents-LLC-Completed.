@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export type AccountMetrics = {
   tier: string;
@@ -15,11 +15,11 @@ export type AccountMetrics = {
 };
 
 export function useAccountMetrics() {
-  const [isLoading, setIsLoading] = useState(true); // Renamed to match your Dashboard component
+  const [isLoading, setIsLoading] = useState(true);
   const [metrics, setMetrics] = useState<AccountMetrics>({
-    tier: "PRO",
+    tier: "Standard",
     usedMins: 0,
-    maxMins: 0,
+    maxMins: 100,
     usagePct: 0,
     isOverLimit: false,
     answeredToday: 0,
@@ -28,37 +28,47 @@ export function useAccountMetrics() {
     recentCalls: [],
   });
 
-  useEffect(() => {
-    const run = async () => {
-      try {
-        // Fetch from your billing/dashboard API
-        const res = await fetch("/api/billing", { cache: "no-store" });
-        if (!res.ok) throw new Error("API not ready");
-        const data = await res.json();
+  const fetchMetrics = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      // Ensure this endpoint is updated to use createClient() from @supabase/ssr
+      const res = await fetch("/api/billing", { 
+        cache: "no-store",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!res.ok) throw new Error("Supabase Sync: Protocol logic offline");
+      
+      const data = await res.json();
 
-        const usedMins = Number(data?.minutesUsed ?? 0);
-        const maxMins = Number(data?.minutesIncluded ?? 1000);
-        const usagePct = maxMins > 0 ? Math.min(100, (usedMins / maxMins) * 100) : 0;
+      // Mapping Supabase table columns to your UI state
+      const usedMins = Number(data?.minutesUsed ?? 0);
+      const maxMins = Number(data?.minutesIncluded ?? 100);
+      const usagePct = maxMins > 0 ? Math.min(100, (usedMins / maxMins) * 100) : 0;
 
-        setMetrics({
-          tier: data?.tier ?? "Standard",
-          usedMins,
-          maxMins,
-          usagePct,
-          isOverLimit: maxMins > 0 && usedMins >= maxMins,
-          answeredToday: data?.answeredToday ?? 0,
-          appointmentsBooked: data?.appointmentsBooked ?? 0,
-          estimatedPipeline: data?.estimatedPipeline ?? 0,
-          recentCalls: data?.recentCalls ?? [],
-        });
-      } catch (err) {
-        console.warn("Using fallback metrics: Protocol sync in progress...");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    run();
+      setMetrics({
+        tier: data?.tier?.toUpperCase() ?? "FREE",
+        usedMins,
+        maxMins,
+        usagePct,
+        isOverLimit: maxMins > 0 && usedMins >= maxMins,
+        answeredToday: Number(data?.answeredToday ?? 0),
+        appointmentsBooked: Number(data?.appointmentsBooked ?? 0),
+        estimatedPipeline: Number(data?.estimatedPipeline ?? 0),
+        recentCalls: Array.isArray(data?.recentCalls) ? data.recentCalls : [],
+      });
+    } catch (err) {
+      console.warn("⚠️ Dashboard fallback: Redirecting logic to Supabase fallback state.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { metrics, isLoading };
+  useEffect(() => {
+    fetchMetrics();
+  }, [fetchMetrics]);
+
+  return { metrics, isLoading, refresh: fetchMetrics };
 }
