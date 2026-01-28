@@ -2,7 +2,6 @@
   "framework": "nextjs",
   "buildCommand": "pnpm build",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "nodeVersion": "24.x",
   "regions": ["iad1"],
   "env": {
     "NEXT_TELEMETRY_DISABLED": "1"
