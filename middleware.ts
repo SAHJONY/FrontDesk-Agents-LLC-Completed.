@@ -22,15 +22,11 @@ function isStaticOrInternal(pathname: string) {
   return (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
-    pathname.startsWith("/images") ||
+    pathname.startsWith("/assets") || // FIX: Added /assets
+    pathname.startsWith("/images") || // Keep for backward compatibility
     pathname.startsWith("/api") ||
     pathname === "/robots.txt" ||
-    pathname.endsWith(".png") ||
-    pathname.endsWith(".jpg") ||
-    pathname.endsWith(".jpeg") ||
-    pathname.endsWith(".webp") ||
-    pathname.endsWith(".svg") ||
-    pathname.endsWith(".ico")
+    /\.(png|jpg|jpeg|webp|svg|ico|gif|mp4|webm)$/i.test(pathname) // Use regex for cleaner extension check
   );
 }
 
@@ -53,7 +49,7 @@ export async function middleware(req: NextRequest) {
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-url', pathname);
 
-  // 2. Performance: Immediate skip for static/internal
+  // 2. Performance: Immediate skip for static/internal/assets
   if (isStaticOrInternal(pathname)) {
     return NextResponse.next({
       request: { headers: requestHeaders },
@@ -68,10 +64,10 @@ export async function middleware(req: NextRequest) {
   }
 
   // 4. Identify Protected Routes
-  const isAdminRoute = pathname.startsWith("/admin");
-  const isDashboardRoute = pathname.startsWith("/dashboard");
-  const isOwnerRoute = pathname.startsWith("/owner");
-  const isProtected = isAdminRoute || isDashboardRoute || isOwnerRoute;
+  const isProtected = 
+    pathname.startsWith("/admin") || 
+    pathname.startsWith("/dashboard") || 
+    pathname.startsWith("/owner");
 
   if (!isProtected) {
     return NextResponse.next({
@@ -79,16 +75,14 @@ export async function middleware(req: NextRequest) {
     });
   }
 
-  // 5. Robust Auth & Impersonation Detection
+  // 5. Robust Auth Detection
   try {
     const allCookies = req.cookies.getAll();
     
-    // Detect Supabase SSR dynamic cookies
     const hasSupabaseAuth = allCookies.some(c => 
       c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
     );
 
-    // Detect our custom Impersonation state
     const isImpersonating = req.cookies.has("impersonate_id") || req.cookies.has("impersonated_owner_id");
 
     const hasAuth = 
@@ -99,23 +93,19 @@ export async function middleware(req: NextRequest) {
       req.cookies.has("token");
 
     if (!hasAuth) {
-      console.log(`Middleware: Unauthenticated access attempt to ${pathname}. Redirecting.`);
       return redirectToLogin(req);
     }
 
-    // 6. Security: Prevent non-admins from hitting /admin even if "authenticated" as a user
-    // (Optional: Basic client-side role check can be added here if you store roles in cookies)
-    
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
   } catch (error) {
-    // Fallback: If cookie parsing fails, default to login for safety
     console.error("Middleware Auth Error:", error);
     return redirectToLogin(req);
   }
 }
 
+// 6. Optimized Matcher: Added 'assets' to the exclusion list
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|images|api/auth).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|assets|images|api/auth).*)"],
 };
