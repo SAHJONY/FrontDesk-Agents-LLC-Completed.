@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+// 1. Define routes that don't require authentication
 const PUBLIC_PREFIXES = [
   "/",
   "/pricing",
@@ -22,11 +23,12 @@ function isStaticOrInternal(pathname: string) {
   return (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
-    pathname.startsWith("/assets") || // FIX: Added /assets
-    pathname.startsWith("/images") || // Keep for backward compatibility
+    pathname.startsWith("/assets") || 
+    pathname.startsWith("/images") || 
     pathname.startsWith("/api") ||
     pathname === "/robots.txt" ||
-    /\.(png|jpg|jpeg|webp|svg|ico|gif|mp4|webm)$/i.test(pathname) // Use regex for cleaner extension check
+    pathname === "/sitemap.xml" ||
+    /\.(png|jpg|jpeg|webp|svg|ico|gif|mp4|webm|pdf|txt)$/i.test(pathname)
   );
 }
 
@@ -37,6 +39,9 @@ function isPublic(pathname: string) {
 
 function redirectToLogin(req: NextRequest) {
   const loginUrl = req.nextUrl.clone();
+  // Don't redirect if already on login to prevent infinite loops
+  if (loginUrl.pathname === "/login") return NextResponse.next();
+  
   loginUrl.pathname = "/login";
   loginUrl.searchParams.set("next", req.nextUrl.pathname);
   return NextResponse.redirect(loginUrl);
@@ -50,6 +55,7 @@ export async function middleware(req: NextRequest) {
   requestHeaders.set('x-url', pathname);
 
   // 2. Performance: Immediate skip for static/internal/assets
+  // This acts as a double-layer with the config matcher
   if (isStaticOrInternal(pathname)) {
     return NextResponse.next({
       request: { headers: requestHeaders },
@@ -69,16 +75,19 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/dashboard") || 
     pathname.startsWith("/owner");
 
+  // If it's not a known public route and not explicitly protected, 
+  // we default to allowing it (or change this to redirectToLogin for a "lockdown" approach)
   if (!isProtected) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
   }
 
-  // 5. Robust Auth Detection
+  // 5. Auth Detection Logic
   try {
     const allCookies = req.cookies.getAll();
     
+    // Supabase usually uses 'sb-<project-id>-auth-token'
     const hasSupabaseAuth = allCookies.some(c => 
       c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
     );
@@ -96,6 +105,7 @@ export async function middleware(req: NextRequest) {
       return redirectToLogin(req);
     }
 
+    // Auth looks good, proceed
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
@@ -105,7 +115,10 @@ export async function middleware(req: NextRequest) {
   }
 }
 
-// 6. Optimized Matcher: Added 'assets' to the exclusion list
+// 6. Optimized Matcher
+// Ensures middleware doesn't even wake up for these paths
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|assets|images|api/auth).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|assets|images|api/auth|robots.txt|sitemap.xml|.*\\..*$).*)",
+  ],
 };
