@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Keep unoptimized: true if you are hosting on Vercel's free tier 
-    // to avoid image optimization usage limits.
+    // Enabled for Vercel Free Tier safety
     unoptimized: true, 
     remotePatterns: [
       {
@@ -12,10 +11,18 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'resend.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co', // For Supabase storage assets
+      },
+      {
+        protocol: 'https',
+        hostname: 'files.stripe.com', // For Stripe invoice/product images
       }
     ],
   },
-  // 1. Bypass linting errors during build
+  // 1. Bypass linting errors during build (Speeds up deployment)
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -23,8 +30,20 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // 3. Next.js 15 root-level external packages
-  serverExternalPackages: ['airtable', 'sharp', 'resend'],
+  // 3. Performance & Stability for AI/External SDKs
+  serverExternalPackages: [
+    'airtable', 
+    'sharp', 
+    'resend', 
+    'twilio', 
+    'openai', 
+    'stripe'
+  ],
+  // 4. Next.js 15 Experimental Features
+  experimental: {
+    // Enhances reliability of server-side redirects (like your impersonation logout)
+    authInterrupts: true,
+  }
 };
 
 export default nextConfig;
