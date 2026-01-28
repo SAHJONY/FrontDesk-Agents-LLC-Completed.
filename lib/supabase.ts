@@ -1,79 +1,89 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Create a single supabase client for interacting with your database
+/**
+ * Creates a Supabase client.
+ * Uses the Service Role Key for server-side operations to bypass RLS.
+ */
 export function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Prioritize Service Role Key for server-side admin tasks (creating users, etc.)
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase environment variables');
+    throw new Error('Missing Supabase environment variables: Ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set.');
   }
 
-  return createClient(supabaseUrl, supabaseKey);
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
 }
 
-// Export a default client instance for backward compatibility
+// Export a default client instance
 export const supabase = getSupabaseClient();
 
-// Database schema types
+// --- Database Schema Types ---
+
 export interface User {
   id: string;
   email: string;
   password_hash: string;
   full_name: string;
-  name: string;
   company_name: string;
   subdomain: string;
   country: string;
-  node_id: string;
-  client_key: string;
   role: 'OWNER' | 'STAFF' | 'ADMIN';
   tier: 'BASIC' | 'PROFESSIONAL' | 'GROWTH' | 'ELITE';
   created_at: string;
   updated_at: string;
 }
 
-// Helper functions for common database operations
+// New interface to replace Redis agent tracking
+export interface AIAgent {
+  id: string;
+  name: string;
+  status: 'ready' | 'busy' | 'offline';
+  jurisdiction: string;
+  specialty: string;
+  last_active: string;
+}
+
+// --- Helper Functions ---
+
 export async function getUserByEmail(email: string): Promise<User | null> {
-  const supabase = getSupabaseClient();
-  
   const { data, error } = await supabase
     .from('users')
     .select('*')
     .eq('email', email)
-    .single();
+    .maybeSingle(); // maybeSingle avoids errors if user isn't found
 
   if (error) {
-    console.error('Error fetching user:', error);
+    console.error('Error fetching user by email:', error);
     return null;
   }
-
   return data;
 }
 
 export async function getUserById(id: string): Promise<User | null> {
-  const supabase = getSupabaseClient();
-  
   const { data, error } = await supabase
     .from('users')
     .select('*')
     .eq('id', id)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    console.error('Error fetching user:', error);
+    console.error('Error fetching user by ID:', error);
     return null;
   }
-
   return data;
 }
 
 export async function createUser(userData: Partial<User>): Promise<User | null> {
-  const supabase = getSupabaseClient();
-  
   const { data, error } = await supabase
     .from('users')
-    .insert(userData)
+    .insert([{ ...userData, created_at: new Date().toISOString() }])
     .select()
     .single();
 
@@ -81,24 +91,22 @@ export async function createUser(userData: Partial<User>): Promise<User | null> 
     console.error('Error creating user:', error);
     return null;
   }
-
   return data;
 }
 
-export async function updateUser(id: string, updates: Partial<User>): Promise<User | null> {
-  const supabase = getSupabaseClient();
-  
+/**
+ * Fetches the active AI workforce from Supabase
+ * Replaces the old Redis 'workforce-initialized' logic
+ */
+export async function getActiveWorkforce(): Promise<AIAgent[]> {
   const { data, error } = await supabase
-    .from('users')
-    .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq('id', id)
-    .select()
-    .single();
+    .from('ai_agents')
+    .select('*')
+    .eq('status', 'ready');
 
   if (error) {
-    console.error('Error updating user:', error);
-    return null;
+    console.error('Error fetching workforce:', error);
+    return [];
   }
-
-  return data;
+  return data || [];
 }
