@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { supabase } from "@/lib/supabase"; // Ensure this points to your Supabase admin/client
+import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +10,8 @@ type SignupBody = {
   password?: string;
   name?: string;
   company?: string;
-  [key: string]: unknown;
+  subdomain?: string;
+  country?: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
     const email = typeof body.email === "string" ? body.email.trim() : "";
     const password = typeof body.password === "string" ? body.password : "";
     const name = typeof body.name === "string" ? body.name.trim() : "New User";
+    const company = typeof body.company === "string" ? body.company.trim() : "";
 
     if (!email || !password) {
       return NextResponse.json(
@@ -34,23 +36,42 @@ export async function POST(req: NextRequest) {
       email,
       password,
       options: {
-        data: { full_name: name },
+        data: { full_name: name, company_name: company },
       },
     });
 
     if (authError) throw authError;
     if (!authData.user) throw new Error("User creation failed");
 
-    // 3. Database Record (The 'accountId')
-    // We attempt to create a profile; we return the user ID as the accountId 
-    // to satisfy the frontend's requirement.
-    const accountId = authData.user.id;
+    const userId = authData.user.id;
+
+    // 3. Sync to Public 'users' table
+    // This is crucial for your dashboard logic to work
+    const { error: dbError } = await supabase
+      .from('users')
+      .upsert({
+        id: userId,
+        email: email,
+        full_name: name,
+        company_name: company,
+        subdomain: body.subdomain || `${company.toLowerCase().replace(/\s+/g, '-')}`,
+        country: body.country || 'USA',
+        role: 'OWNER',
+        tier: 'BASIC',
+        updated_at: new Date().toISOString()
+      });
+
+    if (dbError) {
+      console.error("Database Profile Sync Error:", dbError.message);
+      // We don't necessarily throw here so the user isn't blocked by a profile lag
+    }
 
     // 4. Set Session Cookie
-    // This allows the middleware to recognize the user immediately
     const cookieStore = await cookies();
-    if (authData.session?.access_token) {
-      cookieStore.set("sb-access-token", authData.session.access_token, {
+    const session = authData.session;
+    
+    if (session?.access_token) {
+      cookieStore.set("sb-access-token", session.access_token, {
         path: "/",
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -63,7 +84,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Signup successful",
-      accountId: accountId, // CRITICAL: This fixes the frontend error
+      accountId: userId, 
       email: authData.user.email,
     });
 
