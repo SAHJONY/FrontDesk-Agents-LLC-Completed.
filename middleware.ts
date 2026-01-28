@@ -1,4 +1,3 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -50,25 +49,47 @@ function redirectToLogin(req: NextRequest) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (isStaticOrInternal(pathname)) return NextResponse.next();
-  if (isPublic(pathname)) return NextResponse.next();
+  // 1. Always inject the current URL into headers so RootLayout can see it
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-url', pathname);
+
+  // 2. Allow static files and internal Next.js routes
+  if (isStaticOrInternal(pathname)) {
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+  }
+
+  // 3. Allow public pages
+  if (isPublic(pathname)) {
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+  }
 
   const isAdminRoute = pathname.startsWith("/admin");
   const isDashboardRoute = pathname.startsWith("/dashboard");
   const isProtected = isAdminRoute || isDashboardRoute;
 
-  if (!isProtected) return NextResponse.next();
+  if (!isProtected) {
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+  }
 
-  // ✅ Simple auth gate in Edge: check your app's auth cookie(s)
+  // 4. Auth Gate
   const hasAuth =
     Boolean(req.cookies.get("auth-token")?.value) ||
     Boolean(req.cookies.get("token")?.value) ||
-    Boolean(req.cookies.get("fd_session")?.value) ||
+    // Common Supabase/NextAuth patterns
+    Boolean(req.cookies.get("sb-access-token")?.value) ||
     Boolean(req.cookies.get("access_token")?.value);
 
   if (!hasAuth) return redirectToLogin(req);
 
-  return NextResponse.next();
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 }
 
 export const config = {
