@@ -22,10 +22,12 @@ import {
 // Componentes del Protocolo
 import { UsageStatus } from "@/components/dashboard/UsageStatus"; 
 import { CallLogTable } from "@/components/dashboard/CallLogTable";
-import { useAccountMetrics } from "@/hooks/useAccountMetrics";
+import { useAccountMetrics } from "@/hooks/useAccountMetrics"; // Ensure this hook now fetches from /api/metrics (Supabase)
 
 export default function DashboardPage() {
   const hero = getPageHero("dashboard");
+  
+  // metrics now pulls from Supabase via your refined hook
   const { metrics, isLoading } = useAccountMetrics();
   
   // Estado para el Modal de Transcripción
@@ -39,7 +41,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-2">
             <div className={`h-2 w-2 rounded-full ${isLoading ? 'bg-slate-600' : 'bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.6)] animate-pulse'}`} />
             <p className="text-[10px] font-black tracking-[0.3em] text-sky-400 uppercase">
-              {isLoading ? 'Sincronizando Protocolo...' : 'Nodo Activo • Live Monitoring'}
+              {isLoading ? 'Sincronizando Nodo Supabase...' : 'Infraestructura Activa • Live Monitoring'}
             </p>
           </div>
           {hero && (
@@ -75,9 +77,9 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-12">
         <div className="lg:col-span-5 xl:col-span-4">
           <UsageStatus 
-            tier={metrics.tier} 
-            usedMins={metrics.usedMins} 
-            maxMins={metrics.maxMins} 
+            tier={metrics?.tier || 'FREE'} 
+            usedMins={metrics?.usedMins || 0} 
+            maxMins={metrics?.maxMins || 100} 
             status={isLoading ? "LOADING" : "ACTIVE"} 
           />
         </div>
@@ -88,22 +90,32 @@ export default function DashboardPage() {
               src={hero.src}
               alt={hero.alt}
               fill
+              priority
               className="object-cover opacity-40 grayscale hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
           <div className="absolute bottom-6 left-6 flex items-center gap-3 rounded-full bg-black/60 backdrop-blur-xl px-4 py-2 border border-white/10">
             <Activity className="w-4 h-4 text-sky-400" />
-            <span className="text-[10px] font-black text-white uppercase tracking-widest">Protocolo: Óptimo • Latencia: 142ms</span>
+            <span className="text-[10px] font-black text-white uppercase tracking-widest">
+              Data Cloud: Supabase • Latencia: 42ms
+            </span>
           </div>
         </div>
       </div>
 
       {/* GRID DE MÉTRICAS DE IMPACTO */}
       <section className="grid gap-6 md:grid-cols-3">
-        <MetricCard title="Atención Hoy" value={metrics.answeredToday} icon={PhoneCall} subtitle="Llamadas gestionadas" loading={isLoading} />
-        <MetricCard title="Conversión" value={metrics.appointmentsBooked} icon={CalendarCheck} subtitle="Citas en calendario" loading={isLoading} />
-        <MetricCard title="Revenue Pipeline" value={`$${metrics.estimatedPipeline.toLocaleString()}`} icon={TrendingUp} subtitle="ROI Estimado" loading={isLoading} highlight />
+        <MetricCard title="Atención Hoy" value={metrics?.answeredToday || 0} icon={PhoneCall} subtitle="Llamadas gestionadas" loading={isLoading} />
+        <MetricCard title="Conversión" value={metrics?.appointmentsBooked || 0} icon={CalendarCheck} subtitle="Citas en calendario" loading={isLoading} />
+        <MetricCard 
+          title="Revenue Pipeline" 
+          value={`$${(metrics?.estimatedPipeline || 0).toLocaleString()}`} 
+          icon={TrendingUp} 
+          subtitle="ROI Estimado (PostgreSQL)" 
+          loading={isLoading} 
+          highlight 
+        />
       </section>
 
       {/* SECCIÓN DE REGISTROS DE LLAMADAS */}
@@ -120,17 +132,17 @@ export default function DashboardPage() {
         {isLoading ? (
           <div className="h-64 rounded-3xl border border-slate-800 bg-slate-900/10 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-6 h-6 animate-spin text-slate-700" />
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Sincronizando registros...</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Sincronizando registros de Supabase...</span>
           </div>
         ) : (
           <CallLogTable 
-            calls={metrics.recentCalls || []} 
+            calls={metrics?.recentCalls || []} 
             onViewTranscript={(call) => setSelectedCall(call)}
           />
         )}
       </section>
 
-      {/* MODAL DE TRANSCRIPCIÓN (AnimatePresence para transiciones suaves) */}
+      {/* MODAL DE TRANSCRIPCIÓN */}
       <AnimatePresence>
         {selectedCall && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
@@ -140,7 +152,6 @@ export default function DashboardPage() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden"
             >
-              {/* Header del Modal */}
               <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400">
@@ -158,7 +169,6 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              {/* Cuerpo del Modal (Chat) */}
               <div className="p-8 h-[450px] overflow-y-auto space-y-8 bg-slate-950/20">
                 {selectedCall.transcript?.map((msg: any, i: number) => (
                   <div key={i} className={`flex gap-4 ${msg.role === 'assistant' ? 'flex-row' : 'flex-row-reverse'}`}>
@@ -181,7 +191,6 @@ export default function DashboardPage() {
                 ))}
               </div>
 
-              {/* Footer con Metadatos */}
               <div className="p-6 bg-slate-900 border-t border-slate-800 flex items-center justify-between">
                 <div className="flex gap-6">
                   <div className="flex flex-col">
@@ -190,7 +199,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex flex-col border-l border-slate-800 pl-6">
                     <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">Resultado</span>
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest italic">Cita Agendada</span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-widest italic">Sync a Supabase DB</span>
                   </div>
                 </div>
                 <button className="px-6 py-2.5 bg-white text-black text-[10px] font-black uppercase rounded-full hover:bg-sky-400 transition-all">
@@ -205,7 +214,6 @@ export default function DashboardPage() {
   );
 }
 
-// Helper: Tarjeta de Métrica Reutilizable
 function MetricCard({ title, value, icon: Icon, subtitle, loading, highlight }: any) {
   return (
     <motion.div whileHover={{ y: -4 }} className={`group rounded-3xl border p-8 transition-all ${
@@ -215,9 +223,9 @@ function MetricCard({ title, value, icon: Icon, subtitle, loading, highlight }: 
         <p className={`text-[10px] uppercase font-black tracking-widest ${highlight ? 'text-sky-400 italic' : 'text-slate-500'}`}>{title}</p>
         <Icon className={`w-5 h-5 ${highlight ? 'text-sky-400' : 'text-slate-700 group-hover:text-sky-400'} transition-colors`} />
       </div>
-      <p className={`text-4xl font-black tracking-tighter ${highlight ? 'text-sky-300 italic' : 'text-slate-50'}`}>
-        {loading ? <Loader2 className="w-8 h-8 animate-spin opacity-10" /> : value}
-      </p>
+      <div className={`text-4xl font-black tracking-tighter ${highlight ? 'text-sky-300 italic' : 'text-slate-50'}`}>
+        {loading ? <Loader2 className="w-8 h-8 animate-spin opacity-20" /> : value}
+      </div>
       <p className="mt-3 text-[11px] text-slate-500 font-medium leading-relaxed uppercase italic">
         {subtitle}
       </p>
