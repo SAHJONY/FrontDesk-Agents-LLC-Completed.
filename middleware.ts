@@ -49,21 +49,25 @@ function redirectToLogin(req: NextRequest) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // 1. Inject URL into headers for Layout accessibility
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-url', pathname);
 
+  // 2. Performance: Immediate skip for static/internal
   if (isStaticOrInternal(pathname)) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
   }
 
+  // 3. Allow Public Pages
   if (isPublic(pathname)) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
   }
 
+  // 4. Identify Protected Routes
   const isAdminRoute = pathname.startsWith("/admin");
   const isDashboardRoute = pathname.startsWith("/dashboard");
   const isOwnerRoute = pathname.startsWith("/owner");
@@ -75,27 +79,41 @@ export async function middleware(req: NextRequest) {
     });
   }
 
-  // --- UPDATED AUTH DETECTION ---
-  // Supabase SSR uses cookies named 'sb-[project-id]-auth-token'
-  const allCookies = req.cookies.getAll();
-  const hasSupabaseAuth = allCookies.some(c => 
-    c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
-  );
+  // 5. Robust Auth & Impersonation Detection
+  try {
+    const allCookies = req.cookies.getAll();
+    
+    // Detect Supabase SSR dynamic cookies
+    const hasSupabaseAuth = allCookies.some(c => 
+      c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
+    );
 
-  const hasAuth = 
-    hasSupabaseAuth ||
-    req.cookies.has("sb-access-token") || 
-    req.cookies.has("auth-token") || 
-    req.cookies.has("token");
+    // Detect our custom Impersonation state
+    const isImpersonating = req.cookies.has("impersonate_id") || req.cookies.has("impersonated_owner_id");
 
-  if (!hasAuth) {
-    console.log(`Middleware: Unauthenticated access attempt to ${pathname}.`);
+    const hasAuth = 
+      hasSupabaseAuth || 
+      isImpersonating ||
+      req.cookies.has("sb-access-token") || 
+      req.cookies.has("auth-token") || 
+      req.cookies.has("token");
+
+    if (!hasAuth) {
+      console.log(`Middleware: Unauthenticated access attempt to ${pathname}. Redirecting.`);
+      return redirectToLogin(req);
+    }
+
+    // 6. Security: Prevent non-admins from hitting /admin even if "authenticated" as a user
+    // (Optional: Basic client-side role check can be added here if you store roles in cookies)
+    
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+  } catch (error) {
+    // Fallback: If cookie parsing fails, default to login for safety
+    console.error("Middleware Auth Error:", error);
     return redirectToLogin(req);
   }
-
-  return NextResponse.next({
-    request: { headers: requestHeaders },
-  });
 }
 
 export const config = {
