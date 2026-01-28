@@ -49,28 +49,24 @@ function redirectToLogin(req: NextRequest) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // 1. Inject URL into headers for Layout accessibility
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-url', pathname);
 
-  // 2. Performance: Immediate skip for static/internal/API
   if (isStaticOrInternal(pathname)) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
   }
 
-  // 3. Allow Public Pages
   if (isPublic(pathname)) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
   }
 
-  // 4. Identify Protected Routes
   const isAdminRoute = pathname.startsWith("/admin");
   const isDashboardRoute = pathname.startsWith("/dashboard");
-  const isOwnerRoute = pathname.startsWith("/owner"); // Added for your owner outreach logic
+  const isOwnerRoute = pathname.startsWith("/owner");
   const isProtected = isAdminRoute || isDashboardRoute || isOwnerRoute;
 
   if (!isProtected) {
@@ -79,15 +75,21 @@ export async function middleware(req: NextRequest) {
     });
   }
 
-  // 5. Supabase Auth Gate
-  // We prioritize 'sb-access-token' which we set in our signup API
+  // --- UPDATED AUTH DETECTION ---
+  // Supabase SSR uses cookies named 'sb-[project-id]-auth-token'
+  const allCookies = req.cookies.getAll();
+  const hasSupabaseAuth = allCookies.some(c => 
+    c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
+  );
+
   const hasAuth = 
+    hasSupabaseAuth ||
     req.cookies.has("sb-access-token") || 
     req.cookies.has("auth-token") || 
     req.cookies.has("token");
 
   if (!hasAuth) {
-    console.log(`Middleware: Unauthenticated access attempt to ${pathname}. Redirecting to /login.`);
+    console.log(`Middleware: Unauthenticated access attempt to ${pathname}.`);
     return redirectToLogin(req);
   }
 
@@ -97,6 +99,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Optimized matcher to exclude static assets
   matcher: ["/((?!_next/static|_next/image|favicon.ico|images|api/auth).*)"],
 };
