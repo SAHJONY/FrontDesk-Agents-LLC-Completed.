@@ -49,27 +49,29 @@ function redirectToLogin(req: NextRequest) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // 1. Always inject the current URL into headers so RootLayout can see it
+  // 1. Inject URL into headers for Layout accessibility
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-url', pathname);
 
-  // 2. Allow static files and internal Next.js routes
+  // 2. Performance: Immediate skip for static/internal/API
   if (isStaticOrInternal(pathname)) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
   }
 
-  // 3. Allow public pages
+  // 3. Allow Public Pages
   if (isPublic(pathname)) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
   }
 
+  // 4. Identify Protected Routes
   const isAdminRoute = pathname.startsWith("/admin");
   const isDashboardRoute = pathname.startsWith("/dashboard");
-  const isProtected = isAdminRoute || isDashboardRoute;
+  const isOwnerRoute = pathname.startsWith("/owner"); // Added for your owner outreach logic
+  const isProtected = isAdminRoute || isDashboardRoute || isOwnerRoute;
 
   if (!isProtected) {
     return NextResponse.next({
@@ -77,15 +79,17 @@ export async function middleware(req: NextRequest) {
     });
   }
 
-  // 4. Auth Gate
-  const hasAuth =
-    Boolean(req.cookies.get("auth-token")?.value) ||
-    Boolean(req.cookies.get("token")?.value) ||
-    // Common Supabase/NextAuth patterns
-    Boolean(req.cookies.get("sb-access-token")?.value) ||
-    Boolean(req.cookies.get("access_token")?.value);
+  // 5. Supabase Auth Gate
+  // We prioritize 'sb-access-token' which we set in our signup API
+  const hasAuth = 
+    req.cookies.has("sb-access-token") || 
+    req.cookies.has("auth-token") || 
+    req.cookies.has("token");
 
-  if (!hasAuth) return redirectToLogin(req);
+  if (!hasAuth) {
+    console.log(`Middleware: Unauthenticated access attempt to ${pathname}. Redirecting to /login.`);
+    return redirectToLogin(req);
+  }
 
   return NextResponse.next({
     request: { headers: requestHeaders },
@@ -93,5 +97,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Optimized matcher to exclude static assets
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|images|api/auth).*)"],
 };
