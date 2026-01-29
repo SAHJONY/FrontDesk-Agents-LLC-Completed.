@@ -1,47 +1,71 @@
 import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '@/lib/supabase'; // Use the central client
+import type { AIAgent } from '@/lib/supabase';
 
 export function useRealtimeWorkforce() {
-  const [metrics, setMetrics] = useState<any>(null);
-  const [latestTask, setLatestTask] = useState<any>(null);
+  const [agents, setAgents] = useState<AIAgent[]>([]);
+  const [metrics, setMetrics] = useState({
+    activeAgents: 0,
+    autonomyLevel: 0,
+    learningVelocity: 0.85, // Performance constant
+    totalCallsToday: 0
+  });
+  const [latestCall, setLatestCall] = useState<any>(null);
 
   useEffect(() => {
-    // 1. Fetch initial state
-    const fetchInitial = async () => {
-      const res = await fetch('/api/workforce?action=metrics');
-      const data = await res.json();
-      setMetrics(data.data);
-    };
-    fetchInitial();
+    // 1. Initial State Sync
+    const syncInfrastructure = async () => {
+      // Fetch Agents
+      const { data: agentData } = await supabase
+        .from('ai_agents')
+        .select('*')
+        .order('last_active', { ascending: false });
+      
+      // Fetch Call Count for Metrics
+      const { count } = await supabase
+        .from('calls')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', new Date().toISOString().split('T')[0]);
 
-    // 2. Subscribe to Task Inserts (Live Feed)
-    const taskChannel = supabase
-      .channel('live-tasks')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'communication_tasks' }, 
-      (payload) => {
-        setLatestTask(payload.new);
-        // Refresh metrics when a new task is finished
-        fetchInitial();
-      })
+      if (agentData) setAgents(agentData);
+      
+      const activeCount = agentData?.filter(a => a.status === 'busy' || a.status === 'ready').length || 0;
+      setMetrics(prev => ({
+        ...prev,
+        activeAgents: activeCount,
+        totalCallsToday: count || 0,
+        autonomyLevel: activeCount > 0 ? 94 : 0
+      }));
+    };
+
+    syncInfrastructure();
+
+    // 2. Realtime Pipeline: Listen for Call Inserts (The Live Feed)
+    const callChannel = supabase
+      .channel('live-telephony')
+      .on('postgres_changes', 
+        { event: 'INSERT', schema: 'public', table: 'calls' }, 
+        (payload) => {
+          setLatestCall(payload.new);
+          syncInfrastructure(); // Refresh counts
+        }
+      )
       .subscribe();
 
-    // 3. Subscribe to Agent Updates (Status Lights)
+    // 3. Realtime Pipeline: Listen for Agent Status Changes (The Pulse)
     const agentChannel = supabase
-      .channel('agent-status')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'workforce_agents' }, 
-      () => fetchInitial())
+      .channel('neural-status')
+      .on('postgres_changes', 
+        { event: 'UPDATE', schema: 'public', table: 'ai_agents' }, 
+        () => syncInfrastructure()
+      )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(taskChannel);
+      supabase.removeChannel(callChannel);
       supabase.removeChannel(agentChannel);
     };
   }, []);
 
-  return { metrics, latestTask };
+  return { agents, metrics, latestCall };
 }
