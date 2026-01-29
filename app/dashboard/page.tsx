@@ -25,14 +25,17 @@ import {
 import { UsageStatus } from "@/components/dashboard/UsageStatus"; 
 import { CallLogTable } from "@/components/dashboard/CallLogTable";
 import { useAccountMetrics } from "@/hooks/useAccountMetrics";
-// NEW: Realtime Workforce Components
 import { LiveActivityFeed } from "@/components/workforce/live-activity-feed";
 import { useRealtimeWorkforce } from "@/hooks/use-realtime-workforce";
+
+// NEW: Workforce Management Components
+import { AgentPerformanceGrid } from "@/components/workforce/agent-performance-grid";
+import { TrainingModeToggle } from "@/components/workforce/training-mode-toggle";
 
 export default function DashboardPage() {
   const hero = getPageHero("dashboard");
   const { metrics, isLoading } = useAccountMetrics();
-  const { metrics: realtimeMetrics } = useRealtimeWorkforce(); // Realtime sync
+  const { metrics: realtimeMetrics } = useRealtimeWorkforce();
   
   const [selectedCall, setSelectedCall] = useState<any>(null);
 
@@ -84,7 +87,6 @@ export default function DashboardPage() {
             status={isLoading ? "LOADING" : "ACTIVE"} 
           />
           
-          {/* NEW: Live Agent Activity Stream */}
           <div className="rounded-3xl border border-slate-800 bg-slate-900/20 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
@@ -108,7 +110,6 @@ export default function DashboardPage() {
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
           
-          {/* NEW: System Health Overlays */}
           <div className="absolute top-6 right-6 flex flex-col gap-2">
             <SystemHealthBadge 
               icon={ShieldCheck} 
@@ -145,6 +146,33 @@ export default function DashboardPage() {
         />
       </section>
 
+      {/* NEW: NEURAL WORKFORCE MANAGEMENT GRID */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-3 px-2">
+          <Cpu className="w-4 h-4 text-sky-500" />
+          <h2 className="text-sm font-black italic uppercase tracking-tighter text-slate-200">
+            Workforce Neural Management
+          </h2>
+        </div>
+        
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <AgentPerformanceGrid />
+          </div>
+          <div className="space-y-6">
+            <TrainingModeToggle />
+            <div className="rounded-3xl border border-slate-800 bg-black/20 p-6">
+              <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                Infrastructure Note
+              </span>
+              <p className="text-[10px] text-slate-400 mt-2 leading-relaxed font-medium uppercase italic">
+                All agent nodes are currently syncing with <strong>PostgreSQL</strong> via Supabase Realtime. RL weights are backed up every 50 episodes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SECCIÓN DE REGISTROS DE LLAMADAS */}
       <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-200">
         <div className="flex items-center justify-between px-2">
@@ -169,24 +197,54 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* MODAL DE TRANSCRIPCIÓN (Remains same as your original) */}
       <AnimatePresence>
         {selectedCall && (
-          // ... (Existing modal code remains unchanged)
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-             {/* [Your existing modal content] */}
-             <button onClick={() => setSelectedCall(null)} className="absolute top-8 right-8 text-white"><X /></button>
-             <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 max-w-2xl w-full max-h-[80vh] overflow-auto">
-               <h2 className="text-xl font-black italic uppercase text-white mb-4">Transcription Log</h2>
-               <div className="space-y-4">
-                  {selectedCall.transcript?.map((t: any, i: number) => (
-                    <div key={i} className={`p-4 rounded-2xl ${t.role === 'assistant' ? 'bg-sky-500/10' : 'bg-slate-800'}`}>
-                      <p className="text-[10px] font-black uppercase text-sky-400 mb-1">{t.role}</p>
-                      <p className="text-sm text-slate-200">{t.text}</p>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400">
+                    <MessageSquare size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-500">Protocolo de Transcripción</h3>
+                    <p className="text-lg font-black text-white italic uppercase tracking-tighter">
+                      {selectedCall.from} <span className="text-slate-600 text-xs ml-2">— {selectedCall.duration}</span>
+                    </p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedCall(null)} className="p-3 hover:bg-white/5 rounded-full text-slate-500 transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="p-8 h-[450px] overflow-y-auto space-y-8 bg-slate-950/20">
+                {selectedCall.transcript?.map((msg: any, i: number) => (
+                  <div key={i} className={`flex gap-4 ${msg.role === 'assistant' ? 'flex-row' : 'flex-row-reverse'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                      msg.role === 'assistant' ? 'bg-sky-500/10 border-sky-500/20 text-sky-400' : 'bg-slate-800 border-slate-700 text-slate-400'
+                    }`}>
+                      {msg.role === 'assistant' ? <Zap size={16} /> : <User size={16} />}
                     </div>
-                  ))}
-               </div>
-             </div>
+                    <div className={`max-w-[75%] p-5 rounded-3xl text-[13px] leading-relaxed font-medium ${
+                      msg.role === 'assistant' 
+                        ? 'bg-slate-800 text-slate-100 rounded-tl-none border border-white/5' 
+                        : 'bg-sky-500/10 text-sky-100 border border-sky-500/20 rounded-tr-none'
+                    }`}>
+                      <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-2">
+                        {msg.role === 'assistant' ? 'FrontDesk Protocol' : 'Caller ID: Verified'}
+                      </p>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>
@@ -194,7 +252,6 @@ export default function DashboardPage() {
   );
 }
 
-// NEW Helper: System Health Badge for Hero
 function SystemHealthBadge({ icon: Icon, label, value }: any) {
   return (
     <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/5 px-4 py-2 rounded-2xl">
