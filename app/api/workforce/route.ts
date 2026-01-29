@@ -1,129 +1,86 @@
-/**
- * Autonomous Communication Workforce API
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { autonomousCommunicationWorkforce } from '@/lib/workforce/autonomous-communication-workforce';
 import { reinforcementLearningSystem } from '@/lib/workforce/reinforcement-learning';
 import { autonomousDecisionMaking } from '@/lib/workforce/autonomous-decision-making';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 
+    // 1. Metrics Action
     if (action === 'metrics') {
-      const workforceMetrics = autonomousCommunicationWorkforce.getMetrics();
-      const learningMetrics = reinforcementLearningSystem.getLearningMetrics();
-      const automationMetrics = autonomousDecisionMaking.getMetrics();
-
       return NextResponse.json({
         success: true,
         data: {
-          workforce: workforceMetrics,
-          learning: learningMetrics,
-          automation: automationMetrics,
+          workforce: autonomousCommunicationWorkforce.getMetrics(),
+          learning: reinforcementLearningSystem.getLearningMetrics(),
+          automation: autonomousDecisionMaking.getMetrics(),
         },
       });
     }
 
+    // 2. Agents List
     if (action === 'agents') {
       const agents = autonomousCommunicationWorkforce.getAgents();
-
-      return NextResponse.json({
-        success: true,
-        data: agents,
-      });
+      return NextResponse.json({ success: true, data: agents });
     }
 
+    // 3. Specific Agent Detail
     if (action === 'agent') {
       const agentId = searchParams.get('agentId');
-      if (!agentId) {
-        return NextResponse.json({ error: 'Missing agentId' }, { status: 400 });
-      }
+      if (!agentId) return NextResponse.json({ error: 'Missing agentId' }, { status: 400 });
 
       const agent = autonomousCommunicationWorkforce.getAgent(agentId);
-      if (!agent) {
-        return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
-      }
+      if (!agent) return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
 
-      return NextResponse.json({
-        success: true,
-        data: agent,
-      });
+      return NextResponse.json({ success: true, data: agent });
     }
 
+    // 4. Task Queue & History
     if (action === 'queue') {
-      const queue = autonomousCommunicationWorkforce.getTaskQueue();
-
-      return NextResponse.json({
-        success: true,
-        data: queue,
-      });
+      return NextResponse.json({ success: true, data: autonomousCommunicationWorkforce.getTaskQueue() });
     }
 
     if (action === 'completed_tasks') {
-      const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 100;
-      const tasks = autonomousCommunicationWorkforce.getCompletedTasks(limit);
-
-      return NextResponse.json({
-        success: true,
-        data: tasks,
-      });
+      const limit = parseInt(searchParams.get('limit') || '100');
+      return NextResponse.json({ success: true, data: autonomousCommunicationWorkforce.getCompletedTasks(limit) });
     }
 
+    // 5. Intelligence & Learning Data
     if (action === 'learning_episodes') {
-      const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 100;
-      const episodes = reinforcementLearningSystem.getEpisodes(limit);
-
-      return NextResponse.json({
-        success: true,
-        data: episodes,
-      });
+      const limit = parseInt(searchParams.get('limit') || '100');
+      return NextResponse.json({ success: true, data: reinforcementLearningSystem.getEpisodes(limit) });
     }
 
     if (action === 'q_table') {
-      const qTable = reinforcementLearningSystem.exportQTable();
-
-      return NextResponse.json({
-        success: true,
-        data: qTable,
-      });
+      return NextResponse.json({ success: true, data: reinforcementLearningSystem.exportQTable() });
     }
 
+    // 6. Decision Making & Escalation
     if (action === 'escalation_rules') {
-      const rules = autonomousDecisionMaking.getEscalationRules();
-
-      return NextResponse.json({
-        success: true,
-        data: rules,
-      });
+      return NextResponse.json({ success: true, data: autonomousDecisionMaking.getEscalationRules() });
     }
 
     if (action === 'decision_history') {
-      const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 100;
-      const history = autonomousDecisionMaking.getDecisionHistory(limit);
-
-      return NextResponse.json({
-        success: true,
-        data: history,
-      });
+      const limit = parseInt(searchParams.get('limit') || '100');
+      return NextResponse.json({ success: true, data: autonomousDecisionMaking.getDecisionHistory(limit) });
     }
 
+    // 7. Manual Optimization Trigger
     if (action === 'optimize') {
       const agents = autonomousCommunicationWorkforce.getAgents();
       const optimization = await reinforcementLearningSystem.optimizeWorkforce(agents);
-
-      return NextResponse.json({
-        success: true,
-        data: optimization,
-      });
+      return NextResponse.json({ success: true, data: optimization });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
-    console.error('Workforce API error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('❌ Workforce GET API error:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -150,30 +107,20 @@ export async function POST(request: NextRequest) {
         context: context || {},
       });
 
-      return NextResponse.json({
-        success: true,
-        data: task,
-      });
+      return NextResponse.json({ success: true, data: task });
     }
 
     if (action === 'add_escalation_rule') {
       const { rule } = body;
-
-      if (!rule) {
-        return NextResponse.json({ error: 'Missing rule parameter' }, { status: 400 });
-      }
+      if (!rule) return NextResponse.json({ error: 'Missing rule parameter' }, { status: 400 });
 
       autonomousDecisionMaking.addEscalationRule(rule);
-
-      return NextResponse.json({
-        success: true,
-        message: 'Escalation rule added successfully',
-      });
+      return NextResponse.json({ success: true, message: 'Escalation rule added' });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
-    console.error('Workforce API error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('❌ Workforce POST API error:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
