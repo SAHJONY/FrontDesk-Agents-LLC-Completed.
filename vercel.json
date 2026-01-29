@@ -26,7 +26,11 @@
     },
     {
       "path": "/api/cron/bill-overage",
-      "schedule": "0 0 * * *"
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/cron/reset-usage",
+      "schedule": "0 0 1 * *"
     }
   ],
   "functions": {
@@ -34,6 +38,9 @@
       "maxDuration": 60
     },
     "app/api/cron/bill-overage/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/cron/reset-usage/route.ts": {
       "maxDuration": 60
     },
     "app/api/wholesale/sync-bulk-secrets/route.ts": {
