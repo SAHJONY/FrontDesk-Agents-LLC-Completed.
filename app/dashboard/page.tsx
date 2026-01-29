@@ -19,7 +19,8 @@ import {
   MessageSquare,
   ShieldCheck,
   Cpu,
-  FlaskConical
+  FlaskConical,
+  ShieldAlert
 } from "lucide-react";
 
 // Protocol Components
@@ -29,15 +30,20 @@ import { useAccountMetrics } from "@/hooks/useAccountMetrics";
 import { LiveActivityFeed } from "@/components/workforce/live-activity-feed";
 import { useRealtimeWorkforce } from "@/hooks/use-realtime-workforce";
 
-// NEW: Workforce & Lab Components
+// NEW: Workforce & Escalation Components
 import { AgentPerformanceGrid } from "@/components/workforce/agent-performance-grid";
 import { TrainingModeToggle } from "@/components/workforce/training-mode-toggle";
 import { CampaignSimulator } from "@/components/workforce/campaign-simulator";
+import { EscalationHub } from "@/components/workforce/escalation-hub";
+import { useEscalations } from "@/hooks/use-escalations";
 
 export default function DashboardPage() {
   const hero = getPageHero("dashboard");
   const { metrics, isLoading } = useAccountMetrics();
   const { metrics: realtimeMetrics } = useRealtimeWorkforce();
+  
+  // NEW: Neural Escalation Hook
+  const { escalations } = useEscalations();
   
   const [selectedCall, setSelectedCall] = useState<any>(null);
 
@@ -79,7 +85,22 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* 2. FILA DE INFRAESTRUCTURA Y VISUAL */}
+      {/* 2. CRITICAL ESCALATION LAYER */}
+      {/* Slides in only when AI detects high-value or high-risk interactions */}
+      <AnimatePresence>
+        {escalations.length > 0 && (
+          <motion.section 
+            initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+            animate={{ height: 'auto', opacity: 1, marginBottom: 32 }}
+            exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+            className="overflow-hidden"
+          >
+            <EscalationHub escalations={escalations} />
+          </motion.section>
+        )}
+      </AnimatePresence>
+
+      {/* 3. FILA DE INFRAESTRUCTURA Y VISUAL */}
       <div className="grid gap-6 lg:grid-cols-12">
         <div className="lg:col-span-5 xl:col-span-4 space-y-6">
           <UsageStatus 
@@ -134,7 +155,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 3. GRID DE MÉTRICAS DE IMPACTO */}
+      {/* 4. GRID DE MÉTRICAS DE IMPACTO */}
       <section className="grid gap-6 md:grid-cols-3">
         <MetricCard title="Atención Hoy" value={metrics?.answeredToday || 0} icon={PhoneCall} subtitle="Llamadas gestionadas" loading={isLoading} />
         <MetricCard title="Conversión" value={metrics?.appointmentsBooked || 0} icon={CalendarCheck} subtitle="Citas en calendario" loading={isLoading} />
@@ -148,7 +169,7 @@ export default function DashboardPage() {
         />
       </section>
 
-      {/* 4. WORKFORCE NEURAL MANAGEMENT LAYER */}
+      {/* 5. WORKFORCE NEURAL MANAGEMENT LAYER */}
       <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-100">
         <div className="flex items-center gap-3 px-2">
           <Cpu className="w-4 h-4 text-sky-500" />
@@ -176,7 +197,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* 5. NEURAL LAB & SIMULATION */}
+      {/* 6. NEURAL LAB & SIMULATION */}
       <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-300">
         <div className="flex items-center gap-3 px-2">
           <FlaskConical className="w-4 h-4 text-indigo-500" />
@@ -187,7 +208,7 @@ export default function DashboardPage() {
         <CampaignSimulator />
       </section>
 
-      {/* 6. SECCIÓN DE REGISTROS DE LLAMADAS */}
+      {/* 7. SECCIÓN DE REGISTROS DE LLAMADAS */}
       <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-500">
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
@@ -211,7 +232,7 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* 7. MODAL DE TRANSCRIPCIÓN */}
+      {/* MODAL DE TRANSCRIPCIÓN */}
       <AnimatePresence>
         {selectedCall && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
@@ -267,6 +288,7 @@ export default function DashboardPage() {
   );
 }
 
+// Helpers (SystemHealthBadge & MetricCard) remain the same as previous version...
 function SystemHealthBadge({ icon: Icon, label, value }: any) {
   return (
     <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/5 px-4 py-2 rounded-2xl">
