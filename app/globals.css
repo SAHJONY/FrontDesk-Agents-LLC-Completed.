@@ -5,6 +5,8 @@
 :root {
   --background: 0 0% 0%;
   --foreground: 0 0% 100%;
+  /* Shifted to Emerald for the new 8K Protocol */
+  --primary-emerald: 161 72% 48%; 
   --primary-blue: 217 91% 60%;
 }
 
@@ -38,16 +40,36 @@ body {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
 }
 
-/* Elite Tier Glow Effect */
+/* Elite Tier Glow Effect (Emerald Variant) */
 .elite-glow {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
 /* Custom Selection Color */
 ::selection {
-  background: rgba(59, 130, 246, 0.3);
+  background: rgba(16, 185, 129, 0.3);
   color: white;
+}
+
+/* Responsive Layout Logic for 8K Dashboard */
+@media (max-width: 1024px) {
+  /* Force grid to single column on tablet/mobile */
+  .neural-grid-container {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* Ensure the Terminal stays compact and appears after the Hero */
+  .transcript-terminal-container {
+    height: 350px !important; 
+    order: 2; 
+  }
+
+  /* Make metrics full width */
+  .metric-card-stack {
+    grid-template-cols: 1fr !important;
+  }
 }
 
 /* Smooth Scroll for Terminal/Feed Components */
@@ -58,7 +80,7 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #10b981; /* Emerald thumb to match dashboard */
   border-radius: 10px;
 }
 
