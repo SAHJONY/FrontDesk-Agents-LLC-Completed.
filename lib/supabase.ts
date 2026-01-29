@@ -3,10 +3,10 @@ import { createClient } from '@supabase/supabase-js';
 /**
  * Creates a Supabase client.
  * Uses the Service Role Key for server-side operations to bypass RLS.
+ * Includes Realtime configuration for the Neural Command Center.
  */
 export function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  // Prioritize Service Role Key for server-side admin tasks (creating users, etc.)
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
@@ -17,7 +17,13 @@ export function getSupabaseClient() {
     auth: {
       autoRefreshToken: false,
       persistSession: false
-    }
+    },
+    // ADDED: Realtime config to handle high-frequency dashboard updates
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
   });
 }
 
@@ -40,24 +46,40 @@ export interface User {
   updated_at: string;
 }
 
-// New interface to replace Redis agent tracking
 export interface AIAgent {
   id: string;
   name: string;
-  status: 'ready' | 'busy' | 'offline';
+  status: 'ready' | 'busy' | 'offline' | 'training';
   jurisdiction: string;
   specialty: string;
   last_active: string;
+  efficiency_score?: number;
 }
 
 // --- Helper Functions ---
+
+/**
+ * Updates an agent's status in realtime.
+ * This REPLACES: redis.set(`agent:${id}:status`, status)
+ */
+export async function updateAgentStatus(agentId: string, status: AIAgent['status']) {
+  const { error } = await supabase
+    .from('ai_agents')
+    .update({ 
+      status, 
+      last_active: new Date().toISOString() 
+    })
+    .eq('id', agentId);
+
+  if (error) console.error('Failed to update agent status:', error);
+}
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   const { data, error } = await supabase
     .from('users')
     .select('*')
     .eq('email', email)
-    .maybeSingle(); // maybeSingle avoids errors if user isn't found
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching user by email:', error);
@@ -102,7 +124,8 @@ export async function getActiveWorkforce(): Promise<AIAgent[]> {
   const { data, error } = await supabase
     .from('ai_agents')
     .select('*')
-    .eq('status', 'ready');
+    .neq('status', 'offline') // Get both 'ready' and 'busy' agents
+    .order('last_active', { ascending: false });
 
   if (error) {
     console.error('Error fetching workforce:', error);
