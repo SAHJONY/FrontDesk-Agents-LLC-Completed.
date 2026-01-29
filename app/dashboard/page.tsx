@@ -18,19 +18,21 @@ import {
   User,
   MessageSquare,
   ShieldCheck,
-  Cpu
+  Cpu,
+  FlaskConical
 } from "lucide-react";
 
-// Componentes del Protocolo
+// Protocol Components
 import { UsageStatus } from "@/components/dashboard/UsageStatus"; 
 import { CallLogTable } from "@/components/dashboard/CallLogTable";
 import { useAccountMetrics } from "@/hooks/useAccountMetrics";
 import { LiveActivityFeed } from "@/components/workforce/live-activity-feed";
 import { useRealtimeWorkforce } from "@/hooks/use-realtime-workforce";
 
-// NEW: Workforce Management Components
+// NEW: Workforce & Lab Components
 import { AgentPerformanceGrid } from "@/components/workforce/agent-performance-grid";
 import { TrainingModeToggle } from "@/components/workforce/training-mode-toggle";
+import { CampaignSimulator } from "@/components/workforce/campaign-simulator";
 
 export default function DashboardPage() {
   const hero = getPageHero("dashboard");
@@ -41,7 +43,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in duration-700">
-      {/* HEADER DE COMANDO */}
+      {/* 1. HEADER DE COMANDO */}
       <header className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2 mb-2">
@@ -77,7 +79,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* FILA DE INFRAESTRUCTURA Y VISUAL */}
+      {/* 2. FILA DE INFRAESTRUCTURA Y VISUAL */}
       <div className="grid gap-6 lg:grid-cols-12">
         <div className="lg:col-span-5 xl:col-span-4 space-y-6">
           <UsageStatus 
@@ -132,7 +134,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* GRID DE MÉTRICAS DE IMPACTO */}
+      {/* 3. GRID DE MÉTRICAS DE IMPACTO */}
       <section className="grid gap-6 md:grid-cols-3">
         <MetricCard title="Atención Hoy" value={metrics?.answeredToday || 0} icon={PhoneCall} subtitle="Llamadas gestionadas" loading={isLoading} />
         <MetricCard title="Conversión" value={metrics?.appointmentsBooked || 0} icon={CalendarCheck} subtitle="Citas en calendario" loading={isLoading} />
@@ -146,8 +148,8 @@ export default function DashboardPage() {
         />
       </section>
 
-      {/* NEW: NEURAL WORKFORCE MANAGEMENT GRID */}
-      <section className="space-y-4">
+      {/* 4. WORKFORCE NEURAL MANAGEMENT LAYER */}
+      <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-100">
         <div className="flex items-center gap-3 px-2">
           <Cpu className="w-4 h-4 text-sky-500" />
           <h2 className="text-sm font-black italic uppercase tracking-tighter text-slate-200">
@@ -166,15 +168,27 @@ export default function DashboardPage() {
                 Infrastructure Note
               </span>
               <p className="text-[10px] text-slate-400 mt-2 leading-relaxed font-medium uppercase italic">
-                All agent nodes are currently syncing with <strong>PostgreSQL</strong> via Supabase Realtime. RL weights are backed up every 50 episodes.
+                All agent nodes are currently syncing with <strong>PostgreSQL</strong> via Supabase. 
+                RL weights are backed up every 50 episodes.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECCIÓN DE REGISTROS DE LLAMADAS */}
-      <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-200">
+      {/* 5. NEURAL LAB & SIMULATION */}
+      <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-300">
+        <div className="flex items-center gap-3 px-2">
+          <FlaskConical className="w-4 h-4 text-indigo-500" />
+          <h2 className="text-sm font-black italic uppercase tracking-tighter text-slate-200">
+            Neural Lab & Stress Test
+          </h2>
+        </div>
+        <CampaignSimulator />
+      </section>
+
+      {/* 6. SECCIÓN DE REGISTROS DE LLAMADAS */}
+      <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000 delay-500">
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
             <ListFilter className="w-4 h-4 text-slate-500" />
@@ -197,6 +211,7 @@ export default function DashboardPage() {
         )}
       </section>
 
+      {/* 7. MODAL DE TRANSCRIPCIÓN */}
       <AnimatePresence>
         {selectedCall && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
@@ -270,7 +285,7 @@ function MetricCard({ title, value, icon: Icon, subtitle, loading, highlight }: 
       highlight ? 'border-sky-500/30 bg-sky-500/[0.03] hover:border-sky-500/50' : 'border-slate-800 bg-slate-900/30 hover:border-slate-700'
     }`}>
       <div className="flex items-center justify-between mb-4">
-        <p className={`text-[10px] uppercase font-black tracking-widest ${highlight ? 'text-sky-400 italic' : 'text-slate-500'}`}>{title}</p>
+        <p className={`text-[10px] uppercase font-black tracking-widest ${highlight ? 'text-sky-400 italic' : 'text-slate-50'}`}>{title}</p>
         <Icon className={`w-5 h-5 ${highlight ? 'text-sky-400' : 'text-slate-700 group-hover:text-sky-400'} transition-colors`} />
       </div>
       <div className={`text-4xl font-black tracking-tighter ${highlight ? 'text-sky-300 italic' : 'text-slate-50'}`}>
