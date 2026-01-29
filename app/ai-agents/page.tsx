@@ -1,7 +1,13 @@
-import { NeuralHero } from "@/components/dashboard/NeuralHero";
-import { AgentGrid } from "@/components/agents/AgentGrid"; 
+"use client";
+
+import React from 'react';
+// Corrected imports to match the kebab-case naming convention
+import { NeuralHero } from "@/components/dashboard/neural-hero";
+import { AgentGrid } from "@/components/agents/agent-grid"; 
 
 // This ensures the page reflects "Agent Smith's" status changes in real-time
+// Note: 'force-dynamic' is a server-side hint; in a 'use client' file, 
+// the real-time heavy lifting is handled by your Supabase hooks.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -19,21 +25,21 @@ export default function AIAgentsPage() {
         <section className="animate-in fade-in duration-700 delay-300">
           <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Active Neural Workforce</h2>
-              <p className="text-gray-400 mt-1">Real-time status of your autonomous agents across all jurisdictions.</p>
+              <h2 className="text-3xl font-bold tracking-tight italic uppercase">Active Neural Workforce</h2>
+              <p className="text-gray-400 mt-1 font-medium">Real-time status of your autonomous agents across all jurisdictions.</p>
             </div>
             
             {/* Status Indicator for Supabase Realtime */}
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="text-xs font-medium text-green-400 uppercase tracking-wider">Live Sync</span>
+              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Live Sync Active</span>
             </div>
           </div>
 
-          {/* AgentGrid renders Agent Smith and the other 14 agents */}
+          {/* AgentGrid renders Agent Smith and the other agents */}
           <AgentGrid />
         </section>
       </div>
