@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Centralized client for the agent-service
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -17,17 +18,23 @@ export interface AgentDNA {
 
 /**
  * Syncs Agent DNA to Supabase.
- * Updates based on the 'type' unique constraint.
+ * Uses an UPSERT logic to ensure we don't duplicate agent nodes.
  */
 export async function syncAgentDNA(dna: AgentDNA) {
+  // Ensure we are hitting the correct table 'workforce_agents' 
+  // with a conflict strategy on the 'type' column.
   const { data, error } = await supabase
     .from('workforce_agents')
     .upsert(
       { 
-        ...dna, 
+        type: dna.type,
+        name: dna.name,
+        system_prompt: dna.system_prompt,
+        tools: dna.tools, // Stored as JSONB in Postgres
+        risk_threshold: dna.risk_threshold,
         updated_at: new Date().toISOString() 
       }, 
-      { onConflict: 'type' } // Matches the unique 'type' column
+      { onConflict: 'type' } 
     )
     .select()
     .single();
