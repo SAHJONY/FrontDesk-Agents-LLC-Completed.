@@ -1,75 +1,42 @@
-// app/ai-agents/page.tsx
-import Image from "next/image";
-import { getPageHero } from "@/lib/siteImages";
+import { NeuralHero } from "@/components/dashboard/NeuralHero";
+import { AgentGrid } from "@/components/agents/AgentGrid"; 
+
+// This ensures the page reflects "Agent Smith's" status changes in real-time
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default function AIAgentsPage() {
-  
-  const hero = getPageHero("ai-agents");
-
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-10 text-slate-50 lg:px-8">
-      <section className="mx-auto max-w-5xl space-y-8">
-        <header className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-400">
-            AI RECEPTIONIST · AUTONOMOUS AGENTS
-          </p>
-          {hero && (
-            <>
-              <h1 className="text-3xl font-bold sm:text-4xl">
-                {hero.title}
-              </h1>
-              <p className="text-sm text-slate-300 sm:text-base">
-                {hero.description}
-              </p>
-            </>
-          )}
-        </header>
+    <main className="min-h-screen bg-[#0a0a0a] text-white">
+      <div className="flex flex-col gap-10 p-6 max-w-7xl mx-auto">
+        
+        {/* 8K Premium Hero Section */}
+        <section className="animate-in fade-in slide-in-from-top-4 duration-1000">
+          <NeuralHero />
+        </section>
 
-        {hero && (
-          <div className="relative mt-2 aspect-[16/9] overflow-hidden rounded-2xl border border-slate-800">
-            <Image
-              src={hero.src}
-              alt={hero.alt}
-              width={1600}
-              height={900}
-              className="w-full h-auto rounded-xl object-cover"
-              priority
-            />
-          </div>
-        )}
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-            <h2 className="mb-1 text-sm font-semibold text-sky-300">
-              Inbound · Recepción 24/7
-            </h2>
-            <p className="text-xs text-slate-300">
-              Atiende todas las llamadas, agenda citas y responde preguntas
-              frecuentes en más de 100 idiomas y dialectos.
-            </p>
+        {/* The Workforce Grid Section */}
+        <section className="animate-in fade-in duration-700 delay-300">
+          <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight">Active Neural Workforce</h2>
+              <p className="text-gray-400 mt-1">Real-time status of your autonomous agents across all jurisdictions.</p>
+            </div>
+            
+            {/* Status Indicator for Supabase Realtime */}
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              <span className="text-xs font-medium text-green-400 uppercase tracking-wider">Live Sync</span>
+            </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-            <h2 className="mb-1 text-sm font-semibold text-sky-300">
-              Outbound · Recordatorios y cobros
-            </h2>
-            <p className="text-xs text-slate-300">
-              Campañas de llamadas y SMS para recordar citas, reducir
-              no-shows y recuperar facturas pendientes.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-            <h2 className="mb-1 text-sm font-semibold text-sky-300">
-              Retención · Pacientes y clientes VIP
-            </h2>
-            <p className="text-xs text-slate-300">
-              Flujos de seguimiento automatizados para mantener a los clientes
-              activos y aumentar el LTV de cada cuenta.
-            </p>
-          </div>
-        </div>
-      </section>
+          {/* AgentGrid renders Agent Smith and the other 14 agents */}
+          <AgentGrid />
+        </section>
+      </div>
     </main>
   );
 }
