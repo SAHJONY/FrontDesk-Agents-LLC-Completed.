@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabase, getUserByEmail } from "@/lib/supabase"; // Use central client & helper
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import * as z from "zod";
@@ -28,43 +28,24 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}));
     const { email, password } = loginSchema.parse(body);
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    // 1. Fetch user using centralized helper (uses Service Role internally)
+    const user = await getUserByEmail(email);
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-
-    const emailNorm = email.trim().toLowerCase();
-
-    const { data: users, error: dbError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("email", emailNorm)
-      .limit(1);
-
-    if (dbError) {
-      return NextResponse.json({ error: "Database error occurred" }, { status: 500 });
-    }
-
-    if (!users || users.length === 0) {
+    if (!user) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    const user = users[0];
-
+    // 2. Verify Password
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
+    // 3. JWT Signing Logic
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-      return NextResponse.json({ error: "Server missing JWT_SECRET" }, { status: 500 });
+      console.error("CRITICAL: Missing JWT_SECRET");
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
     const role = normalizeRole(user.role);
@@ -87,11 +68,12 @@ export async function POST(req: Request) {
       { expiresIn: "30d" }
     );
 
-    // Redirect policy (stable + predictable)
+    // 4. Determine Redirect URL
     let redirectUrl = "/dashboard";
     if (role === "ADMIN") redirectUrl = "/admin/tenants";
     if (role === "OWNER") redirectUrl = "/admin";
 
+    // 5. Build Response & Set Cookies
     const res = NextResponse.json({
       success: true,
       message: "Authentication successful",
@@ -118,11 +100,11 @@ export async function POST(req: Request) {
     // Clean up lingering impersonation state
     res.cookies.delete("impersonated_owner_id");
 
-    // Primary cookies
+    // Standard Auth Cookies
     res.cookies.set("auth-token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
     res.cookies.set("refresh-token", refreshToken, { ...common, maxAge: 60 * 60 * 24 * 30 });
 
-    // Compatibility aliases
+    // Legacy/Compatibility Cookies
     res.cookies.set("token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
     res.cookies.set("fd_session", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
     res.cookies.set("access_token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
@@ -133,6 +115,7 @@ export async function POST(req: Request) {
     if (error?.name === "ZodError") {
       return NextResponse.json({ error: "Invalid input", details: error.errors }, { status: 400 });
     }
+    console.error("Login Error:", error);
     return NextResponse.json({ error: "Authentication failed" }, { status: 500 });
   }
 }
