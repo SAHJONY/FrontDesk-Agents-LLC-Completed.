@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import Stripe from 'stripe';
 
+export const runtime = 'nodejs';
+
 export async function GET(req: Request) {
-  // 1. Security Guard
+  // 1. Security Guard (Vercel Cron Secret)
   const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response('Unauthorized', { status: 401 });
@@ -20,7 +22,7 @@ export async function GET(req: Request) {
   });
 
   try {
-    // 3. Fetch only tenants with active overage that hasn't been billed yet
+    // 3. Fetch tenants requiring overage processing
     const { data: overageNodes, error } = await supabaseAdmin
       .from('tenants')
       .select('id, stripe_customer_id, used_minutes, max_minutes, overage_rate, billed_overage_minutes')
@@ -31,24 +33,28 @@ export async function GET(req: Request) {
     const results = [];
 
     for (const node of overageNodes) {
-      // Calculate total overage since start of cycle
-      const totalOverageCalculated = Math.max(0, (node.used_minutes || 0) - (node.max_minutes || 0));
-      
-      // Calculate what is newly owed since the last cron run
-      const newOverageToBill = Math.floor(totalOverageCalculated - (node.billed_overage_minutes || 0));
+      const totalOverage = Math.max(0, (node.used_minutes || 0) - (node.max_minutes || 0));
+      const newOverageToBill = Math.floor(totalOverage - (node.billed_overage_minutes || 0));
 
       if (newOverageToBill > 0) {
         const rate = node.overage_rate || 0.15;
         
-        // 4. Create Stripe Invoice Item (Pending Charge)
+        // 4. Create Stripe Invoice Item
         await stripe.invoiceItems.create({
           customer: node.stripe_customer_id as string,
-          amount: Math.round(newOverageToBill * rate * 100), // Convert to cents
+          amount: Math.round(newOverageToBill * rate * 100), 
           currency: 'usd',
-          description: `FrontDesk AI Overage: ${newOverageToBill} mins @ $${rate}/min`,
+          description: `Neural Workforce Overage: ${newOverageToBill} mins @ $${rate}/min`,
         });
 
-        // 5. Atomic-style update to prevent re-billing
+        // 5. Create and Send Invoice immediately (Optional but recommended for overages)
+        await stripe.invoices.create({
+          customer: node.stripe_customer_id as string,
+          auto_advance: true, // Automatically attempt payment
+          description: 'FrontDesk AI Usage-Based Billing'
+        });
+
+        // 6. Update Database to lock in the billed amount
         const { error: updateError } = await supabaseAdmin
           .from('tenants')
           .update({ 
@@ -56,7 +62,7 @@ export async function GET(req: Request) {
           })
           .eq('id', node.id);
 
-        if (updateError) console.error(`Failed to update billing record for ${node.id}`);
+        if (updateError) console.error(`Failed to lock billing for tenant: ${node.id}`);
         
         results.push({ tenant: node.id, billed: newOverageToBill });
       }
@@ -65,11 +71,11 @@ export async function GET(req: Request) {
     return NextResponse.json({ 
       success: true, 
       processed: overageNodes.length,
-      billedUnits: results 
+      billedTenants: results 
     });
 
   } catch (err: any) {
-    console.error('❌ Overage Billing Error:', err.message);
+    console.error('❌ Overage Billing Engine Error:', err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
