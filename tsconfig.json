@@ -23,6 +23,7 @@
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
       "@/lib/*": ["./lib/*"],
+      "@/hooks/*": ["./hooks/*"],
       "@/api/*": ["./api/*"],
       "@/middleware/*": ["./middleware/*"],
       "@/config/*": ["./config/*"],
