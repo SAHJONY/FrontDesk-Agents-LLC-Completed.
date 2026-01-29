@@ -30,22 +30,34 @@ import { useAccountMetrics } from "@/hooks/useAccountMetrics";
 import { LiveActivityFeed } from "@/components/workforce/live-activity-feed";
 import { useRealtimeWorkforce } from "@/hooks/use-realtime-workforce";
 
-// NEW: Workforce & Escalation Components
+// Workforce & Escalation Components
 import { AgentPerformanceGrid } from "@/components/workforce/agent-performance-grid";
 import { TrainingModeToggle } from "@/components/workforce/training-mode-toggle";
 import { CampaignSimulator } from "@/components/workforce/campaign-simulator";
 import { EscalationHub } from "@/components/workforce/escalation-hub";
 import { useEscalations } from "@/hooks/use-escalations";
+import { LiveSessionPanel } from "@/components/workforce/live-session-panel";
+import { ResolutionModal } from "@/components/workforce/resolution-modal";
 
 export default function DashboardPage() {
   const hero = getPageHero("dashboard");
   const { metrics, isLoading } = useAccountMetrics();
   const { metrics: realtimeMetrics } = useRealtimeWorkforce();
-  
-  // NEW: Neural Escalation Hook
   const { escalations } = useEscalations();
   
+  // State for Human-in-the-Loop Interception
+  const [activeSession, setActiveSession] = useState<any>(null);
+  const [showResolution, setShowResolution] = useState(false);
   const [selectedCall, setSelectedCall] = useState<any>(null);
+
+  // Handlers for session bridging
+  const handleIntercept = (session: any) => {
+    setActiveSession(session);
+  };
+
+  const handleCloseSession = () => {
+    setShowResolution(true);
+  };
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in duration-700">
@@ -86,16 +98,18 @@ export default function DashboardPage() {
       </header>
 
       {/* 2. CRITICAL ESCALATION LAYER */}
-      {/* Slides in only when AI detects high-value or high-risk interactions */}
       <AnimatePresence>
-        {escalations.length > 0 && (
+        {escalations.length > 0 && !activeSession && (
           <motion.section 
             initial={{ height: 0, opacity: 0, marginBottom: 0 }}
             animate={{ height: 'auto', opacity: 1, marginBottom: 32 }}
             exit={{ height: 0, opacity: 0, marginBottom: 0 }}
             className="overflow-hidden"
           >
-            <EscalationHub escalations={escalations} />
+            <EscalationHub 
+              escalations={escalations} 
+              onTakeOver={handleIntercept}
+            />
           </motion.section>
         )}
       </AnimatePresence>
@@ -190,7 +204,6 @@ export default function DashboardPage() {
               </span>
               <p className="text-[10px] text-slate-400 mt-2 leading-relaxed font-medium uppercase italic">
                 All agent nodes are currently syncing with <strong>PostgreSQL</strong> via Supabase. 
-                RL weights are backed up every 50 episodes.
               </p>
             </div>
           </div>
@@ -218,13 +231,7 @@ export default function DashboardPage() {
             </h2>
           </div>
         </div>
-
-        {isLoading ? (
-          <div className="h-64 rounded-3xl border border-slate-800 bg-slate-900/10 flex flex-col items-center justify-center gap-3">
-            <Loader2 className="w-6 h-6 animate-spin text-slate-700" />
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Sincronizando registros de Supabase...</span>
-          </div>
-        ) : (
+        {!isLoading && (
           <CallLogTable 
             calls={metrics?.recentCalls || []} 
             onViewTranscript={(call) => setSelectedCall(call)}
@@ -232,70 +239,48 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* MODAL DE TRANSCRIPCIÓN */}
+      {/* GHOST BRIDGE PANEL (Human-in-the-Loop) */}
+      <AnimatePresence>
+        {activeSession && (
+          <LiveSessionPanel 
+            activeSession={activeSession} 
+            onClose={handleCloseSession} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* RESOLUTION WORKFLOW */}
+      <AnimatePresence>
+        {showResolution && (
+          <ResolutionModal 
+            session={activeSession} 
+            onComplete={() => {
+              setShowResolution(false);
+              setActiveSession(null);
+            }} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* TRANSCRIPTION MODAL */}
       <AnimatePresence>
         {selectedCall && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden"
-            >
-              <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400">
-                    <MessageSquare size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-500">Protocolo de Transcripción</h3>
-                    <p className="text-lg font-black text-white italic uppercase tracking-tighter">
-                      {selectedCall.from} <span className="text-slate-600 text-xs ml-2">— {selectedCall.duration}</span>
-                    </p>
-                  </div>
-                </div>
-                <button onClick={() => setSelectedCall(null)} className="p-3 hover:bg-white/5 rounded-full text-slate-500 transition-colors">
-                  <X size={24} />
-                </button>
-              </div>
-
-              <div className="p-8 h-[450px] overflow-y-auto space-y-8 bg-slate-950/20">
-                {selectedCall.transcript?.map((msg: any, i: number) => (
-                  <div key={i} className={`flex gap-4 ${msg.role === 'assistant' ? 'flex-row' : 'flex-row-reverse'}`}>
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
-                      msg.role === 'assistant' ? 'bg-sky-500/10 border-sky-500/20 text-sky-400' : 'bg-slate-800 border-slate-700 text-slate-400'
-                    }`}>
-                      {msg.role === 'assistant' ? <Zap size={16} /> : <User size={16} />}
-                    </div>
-                    <div className={`max-w-[75%] p-5 rounded-3xl text-[13px] leading-relaxed font-medium ${
-                      msg.role === 'assistant' 
-                        ? 'bg-slate-800 text-slate-100 rounded-tl-none border border-white/5' 
-                        : 'bg-sky-500/10 text-sky-100 border border-sky-500/20 rounded-tr-none'
-                    }`}>
-                      <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-2">
-                        {msg.role === 'assistant' ? 'FrontDesk Protocol' : 'Caller ID: Verified'}
-                      </p>
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
+          <TranscriptionModal call={selectedCall} onClose={() => setSelectedCall(null)} />
         )}
       </AnimatePresence>
     </div>
   );
 }
 
-// Helpers (SystemHealthBadge & MetricCard) remain the same as previous version...
+// Sub-components (SystemHealthBadge, MetricCard, TranscriptionModal) extracted for brevity...
+
 function SystemHealthBadge({ icon: Icon, label, value }: any) {
   return (
-    <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/5 px-4 py-2 rounded-2xl">
+    <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl">
       <Icon className="w-3 h-3 text-sky-400" />
       <div className="flex flex-col">
-        <span className="text-[8px] font-black text-slate-500 uppercase leading-none mb-1">{label}</span>
-        <span className="text-xs font-black text-white italic leading-none">{value}</span>
+        <span className="text-[8px] font-black text-slate-500 uppercase mb-1">{label}</span>
+        <span className="text-xs font-black text-white italic">{value}</span>
       </div>
     </div>
   );
@@ -308,14 +293,37 @@ function MetricCard({ title, value, icon: Icon, subtitle, loading, highlight }: 
     }`}>
       <div className="flex items-center justify-between mb-4">
         <p className={`text-[10px] uppercase font-black tracking-widest ${highlight ? 'text-sky-400 italic' : 'text-slate-50'}`}>{title}</p>
-        <Icon className={`w-5 h-5 ${highlight ? 'text-sky-400' : 'text-slate-700 group-hover:text-sky-400'} transition-colors`} />
+        <Icon className={`w-5 h-5 ${highlight ? 'text-sky-400' : 'text-slate-700 group-hover:text-sky-400'}`} />
       </div>
-      <div className={`text-4xl font-black tracking-tighter ${highlight ? 'text-sky-300 italic' : 'text-slate-50'}`}>
+      <div className="text-4xl font-black tracking-tighter text-slate-50">
         {loading ? <Loader2 className="w-8 h-8 animate-spin opacity-20" /> : value}
       </div>
-      <p className="mt-3 text-[11px] text-slate-500 font-medium leading-relaxed uppercase italic">
-        {subtitle}
-      </p>
+      <p className="mt-3 text-[11px] text-slate-500 font-medium uppercase italic">{subtitle}</p>
     </motion.div>
+  );
+}
+
+function TranscriptionModal({ call, onClose }: any) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-[2.5rem] overflow-hidden">
+        <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+          <div className="flex items-center gap-4">
+            <MessageSquare className="text-sky-400" size={20} />
+            <h3 className="text-lg font-black text-white italic uppercase">{call.from}</h3>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full"><X size={24} className="text-slate-500" /></button>
+        </div>
+        <div className="p-8 h-[450px] overflow-y-auto space-y-6 bg-slate-950/20">
+          {call.transcript?.map((msg: any, i: number) => (
+            <div key={i} className={`flex gap-4 ${msg.role === 'assistant' ? 'flex-row' : 'flex-row-reverse'}`}>
+              <div className={`p-4 rounded-3xl text-[13px] ${msg.role === 'assistant' ? 'bg-slate-800 text-slate-100' : 'bg-sky-500/10 text-sky-100 border border-sky-500/20'}`}>
+                {msg.text}
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
   );
 }
