@@ -1,30 +1,22 @@
 import { createClient } from "@supabase/supabase-js";
 
-/* ------------------------------------------------------------------ */
-/* Environment validation                                             */
-/* ------------------------------------------------------------------ */
-
+/**
+ * ENV VALIDATION (fail fast in prod)
+ */
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL) {
   throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
 }
-if (!SUPABASE_ANON_KEY) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
-}
-if (!SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
-}
 
-/* ------------------------------------------------------------------ */
-/* Public Supabase client (safe)                                      */
-/* ------------------------------------------------------------------ */
-
+/**
+ * Public / browser-safe client (anon key)
+ */
 export const supabase = createClient(
   SUPABASE_URL,
-  SUPABASE_ANON_KEY,
+  ANON_KEY ?? "",
   {
     auth: {
       persistSession: false,
@@ -33,65 +25,60 @@ export const supabase = createClient(
   }
 );
 
-/* ------------------------------------------------------------------ */
-/* Admin Supabase client (SERVER ONLY)                                */
-/* ------------------------------------------------------------------ */
+/**
+ * Server / admin client (service role)
+ * ⚠️ NEVER expose this to the browser
+ */
+export const supabaseAdmin = SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    })
+  : null;
 
-const supabaseAdmin = createClient(
-  SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  }
-);
-
-/* ------------------------------------------------------------------ */
-/* Types                                                              */
-/* ------------------------------------------------------------------ */
-
+/**
+ * User model (matches DB)
+ */
 export interface AuthUser {
   id: string;
   email: string;
   full_name: string | null;
+  password_hash: string;
   role: string | null;
   tier: string | null;
   tenant_id: string | null;
-  password_hash: string;
 }
 
-/* ------------------------------------------------------------------ */
-/* Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
 /**
- * SERVER ONLY
- * Used by: /api/auth/login
+ * Fetch user by email (SERVER ONLY)
+ * Used by /api/auth/login
  */
-export async function getUserByEmail(
-  email: string
-): Promise<AuthUser | null> {
+export async function getUserByEmail(email: string): Promise<AuthUser | null> {
+  if (!supabaseAdmin) {
+    throw new Error("supabaseAdmin not initialized (missing SERVICE ROLE key)");
+  }
+
   const { data, error } = await supabaseAdmin
-    .from("users")
+    .from<AuthUser>("users")
     .select(
       `
         id,
         email,
         full_name,
+        password_hash,
         role,
         tier,
-        tenant_id,
-        password_hash
+        tenant_id
       `
     )
-    .eq("email", email.toLowerCase())
+    .eq("email", email)
     .maybeSingle();
 
   if (error) {
     console.error("getUserByEmail error:", error);
-    throw new Error("Failed to fetch user by email");
+    return null;
   }
 
   return data ?? null;
