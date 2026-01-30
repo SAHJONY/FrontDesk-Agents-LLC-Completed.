@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase, getUserByEmail } from "@/lib/supabase"; // Use central client & helper
+import { supabase, getUserByEmail } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import * as z from "zod";
@@ -28,24 +28,37 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}));
     const { email, password } = loginSchema.parse(body);
 
-    // 1. Fetch user using centralized helper (uses Service Role internally)
+    // 1. Fetch user via centralized helper (Service Role)
     const user = await getUserByEmail(email);
 
-    if (!user) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    if (!user || !user.password_hash) {
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
-    // 2. Verify Password
-    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    // 2. Verify password
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password_hash
+    );
+
     if (!passwordMatch) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
-    // 3. JWT Signing Logic
+    // 3. JWT signing
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error("CRITICAL: Missing JWT_SECRET");
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
     }
 
     const role = normalizeRole(user.role);
@@ -68,12 +81,12 @@ export async function POST(req: Request) {
       { expiresIn: "30d" }
     );
 
-    // 4. Determine Redirect URL
+    // 4. Redirect logic
     let redirectUrl = "/dashboard";
     if (role === "ADMIN") redirectUrl = "/admin/tenants";
     if (role === "OWNER") redirectUrl = "/admin";
 
-    // 5. Build Response & Set Cookies
+    // 5. Response + cookies
     const res = NextResponse.json({
       success: true,
       message: "Authentication successful",
@@ -90,32 +103,57 @@ export async function POST(req: Request) {
       redirectUrl,
     });
 
-    const common = {
+    const commonCookie = {
       httpOnly: true,
       secure: cookieSecure(),
       sameSite: "lax" as const,
       path: "/",
     };
 
-    // Clean up lingering impersonation state
+    // Clean impersonation residue
     res.cookies.delete("impersonated_owner_id");
 
-    // Standard Auth Cookies
-    res.cookies.set("auth-token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
-    res.cookies.set("refresh-token", refreshToken, { ...common, maxAge: 60 * 60 * 24 * 30 });
+    // Primary cookies
+    res.cookies.set("auth-token", accessToken, {
+      ...commonCookie,
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    res.cookies.set("refresh-token", refreshToken, {
+      ...commonCookie,
+      maxAge: 60 * 60 * 24 * 30,
+    });
 
-    // Legacy/Compatibility Cookies
-    res.cookies.set("token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
-    res.cookies.set("fd_session", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
-    res.cookies.set("access_token", accessToken, { ...common, maxAge: 60 * 60 * 24 * 7 });
-    res.cookies.set("refresh_token", refreshToken, { ...common, maxAge: 60 * 60 * 24 * 30 });
+    // Legacy / compatibility cookies
+    res.cookies.set("token", accessToken, {
+      ...commonCookie,
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    res.cookies.set("fd_session", accessToken, {
+      ...commonCookie,
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    res.cookies.set("access_token", accessToken, {
+      ...commonCookie,
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    res.cookies.set("refresh_token", refreshToken, {
+      ...commonCookie,
+      maxAge: 60 * 60 * 24 * 30,
+    });
 
     return res;
   } catch (error: any) {
     if (error?.name === "ZodError") {
-      return NextResponse.json({ error: "Invalid input", details: error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid input", details: error.errors },
+        { status: 400 }
+      );
     }
+
     console.error("Login Error:", error);
-    return NextResponse.json({ error: "Authentication failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Authentication failed" },
+      { status: 500 }
+    );
   }
 }
