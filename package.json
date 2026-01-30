@@ -77,39 +77,47 @@
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2"
   },
+
   "pricing_tiers": {
     "Starter": 199,
     "Professional": 399,
     "Growth": 799,
     "Enterprise": 1499
   },
+
   "plan_details": {
     "Starter": {
       "price": 199,
       "locations": "1 Location",
+      "included_minutes": 300,
+      "overage_per_minute": 0.45,
       "features": [
-        "300 Minutes Included",
         "24/7 AI Receptionist",
         "Call Summaries & Notes",
-        "Smart Triage + Tagging"
+        "Smart Triage + Tagging",
+        "Weekly Impact Reporting",
+        "Capacity Alerts + Enforcement"
       ]
     },
     "Professional": {
       "price": 399,
       "locations": "2–5 Locations",
       "popular": true,
+      "included_minutes": 1200,
+      "overage_per_minute": 0.40,
       "features": [
-        "1,200 Minutes Included",
         "Priority Routing Logic",
         "50+ Languages Supported",
-        "Capacity Enforcement"
+        "Weekly Impact Reporting",
+        "Capacity Alerts + Enforcement"
       ]
     },
     "Growth": {
       "price": 799,
       "locations": "6–15 Locations",
+      "included_minutes": 3000,
+      "overage_per_minute": 0.35,
       "features": [
-        "3,000 Minutes Included",
         "Custom Voice Cloning",
         "Multi-Region Deployment",
         "Dedicated Jurisdictional DB"
@@ -118,8 +126,9 @@
     "Enterprise": {
       "price": 1499,
       "locations": "16+ Locations",
+      "included_minutes": 7000,
+      "overage_per_minute": 0.30,
       "features": [
-        "7,000 Minutes Included",
         "Performance Royalties (Sec. 3)",
         "Infinite Scale Architecture",
         "White-labeling Options"
