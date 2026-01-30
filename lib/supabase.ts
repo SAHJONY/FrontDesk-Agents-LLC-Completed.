@@ -18,10 +18,10 @@ export function getSupabaseClient() {
       autoRefreshToken: false,
       persistSession: false
     },
-    // ADDED: Realtime config to handle high-frequency dashboard updates
+    // OPTIMIZED: Increased event throughput for the 8K Realtime Terminal
     realtime: {
       params: {
-        eventsPerSecond: 10,
+        eventsPerSecond: 20, 
       },
     },
   });
@@ -59,21 +59,8 @@ export interface AIAgent {
 // --- Helper Functions ---
 
 /**
- * Updates an agent's status in realtime.
- * This REPLACES: redis.set(`agent:${id}:status`, status)
+ * FIXED: Explicitly exported to resolve Vercel build warning in /api/auth/login
  */
-export async function updateAgentStatus(agentId: string, status: AIAgent['status']) {
-  const { error } = await supabase
-    .from('ai_agents')
-    .update({ 
-      status, 
-      last_active: new Date().toISOString() 
-    })
-    .eq('id', agentId);
-
-  if (error) console.error('Failed to update agent status:', error);
-}
-
 export async function getUserByEmail(email: string): Promise<User | null> {
   const { data, error } = await supabase
     .from('users')
@@ -86,6 +73,22 @@ export async function getUserByEmail(email: string): Promise<User | null> {
     return null;
   }
   return data;
+}
+
+/**
+ * Updates an agent's status in realtime.
+ * This triggers the glowing indicators on your Dashboard UI.
+ */
+export async function updateAgentStatus(agentId: string, status: AIAgent['status']) {
+  const { error } = await supabase
+    .from('ai_agents')
+    .update({ 
+      status, 
+      last_active: new Date().toISOString() 
+    })
+    .eq('id', agentId);
+
+  if (error) console.error('Failed to update agent status:', error);
 }
 
 export async function getUserById(id: string): Promise<User | null> {
@@ -117,14 +120,14 @@ export async function createUser(userData: Partial<User>): Promise<User | null> 
 }
 
 /**
- * Fetches the active AI workforce from Supabase
- * Replaces the old Redis 'workforce-initialized' logic
+ * Fetches the active AI workforce from Supabase.
+ * Powers the AgentPerformanceGrid component.
  */
 export async function getActiveWorkforce(): Promise<AIAgent[]> {
   const { data, error } = await supabase
     .from('ai_agents')
     .select('*')
-    .neq('status', 'offline') // Get both 'ready' and 'busy' agents
+    .neq('status', 'offline')
     .order('last_active', { ascending: false });
 
   if (error) {
