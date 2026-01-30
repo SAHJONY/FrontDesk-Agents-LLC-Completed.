@@ -1,55 +1,82 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import Stripe from 'stripe';
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import Stripe from "stripe";
 
-export const dynamic = 'force-dynamic';
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const healthStatus: any = {
-    status: 'operational',
+  const healthStatus: {
+    status: "operational" | "degraded";
+    timestamp: string;
+    checks: {
+      supabase: string;
+      stripe: string;
+    };
+  } = {
+    status: "operational",
     timestamp: new Date().toISOString(),
     checks: {
-      supabase: 'untested',
-      stripe: 'untested',
-    }
+      supabase: "untested",
+      stripe: "untested",
+    },
   };
 
+  /* ----------------------------
+   * 1) Supabase Health Check
+   * ---------------------------- */
   try {
-    // 1. Check Supabase
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-      healthStatus.checks.supabase = 'missing configuration';
+      healthStatus.checks.supabase = "missing configuration";
     } else {
       const supabase = createClient(supabaseUrl, supabaseKey);
-      const { error: sbError } = await supabase.from('sso_providers').select('count', { count: 'exact', head: true });
-      healthStatus.checks.supabase = sbError ? `error: ${sbError.message}` : 'healthy';
+
+      // lightweight, non-destructive query
+      const { error } = await supabase
+        .from("tenants")
+        .select("id", { head: true, count: "exact" });
+
+      healthStatus.checks.supabase = error
+        ? `error: ${error.message}`
+        : "healthy";
     }
-  } catch (e: any) {
-    healthStatus.checks.supabase = `failed: ${e.message}`;
+  } catch (err: any) {
+    healthStatus.checks.supabase = `failed: ${err.message}`;
   }
 
+  /* ----------------------------
+   * 2) Stripe Health Check
+   * ---------------------------- */
   try {
-    // 2. Check Stripe
     const stripeKey = process.env.STRIPE_SECRET_KEY;
+
     if (!stripeKey) {
-      healthStatus.checks.stripe = 'missing configuration';
+      healthStatus.checks.stripe = "missing configuration";
     } else {
       const stripe = new Stripe(stripeKey, {
-        apiVersion: '2025-01-27' as any,
+        // ✅ Supported & stable for stripe@20.x
+        apiVersion: "2024-06-20",
       });
+
       await stripe.balance.retrieve();
-      healthStatus.checks.stripe = 'healthy';
+      healthStatus.checks.stripe = "healthy";
     }
-  } catch (e: any) {
-    healthStatus.checks.stripe = `failed: ${e.message}`;
+  } catch (err: any) {
+    healthStatus.checks.stripe = `failed: ${err.message}`;
   }
 
-  // Determine overall status
-  if (healthStatus.checks.supabase !== 'healthy' || healthStatus.checks.stripe !== 'healthy') {
-    healthStatus.status = 'degraded';
+  /* ----------------------------
+   * Overall Status
+   * ---------------------------- */
+  if (
+    healthStatus.checks.supabase !== "healthy" ||
+    healthStatus.checks.stripe !== "healthy"
+  ) {
+    healthStatus.status = "degraded";
   }
 
-  return NextResponse.json(healthStatus);
+  return NextResponse.json(healthStatus, { status: 200 });
 }
