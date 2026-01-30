@@ -12,40 +12,50 @@ function isStaticOrInternal(pathname: string) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/api/auth") || 
-    /\.(png|jpg|jpeg|webp|svg|ico|gif|mp4|webm|pdf)$/i.test(pathname)
+    pathname.startsWith("/api/webhooks") || // Added to prevent blocking Stripe/Bland webhooks
+    /\.(png|jpg|jpeg|webp|svg|ico|gif|mp4|webm|pdf|json)$/i.test(pathname)
   );
 }
 
 export async function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
-  if (isStaticOrInternal(pathname)) return NextResponse.next();
+  // 1. Skip middleware for static assets, internal Next.js files, and auth APIs
+  if (isStaticOrInternal(pathname)) {
+    return NextResponse.next();
+  }
 
-  // 1. STRATEGY: Shareable Link Detection
-  // If the URL has ?token=..., we allow access to specific dashboard sub-routes
+  // 2. Shareable Link Detection
   const shareToken = searchParams.get("token");
   const isDashboardRoute = pathname.startsWith("/dashboard");
 
-  // In a real scenario, you'd verify the token via a lightweight KV check or Edge Function
   if (isDashboardRoute && shareToken === "emerald_public_access") {
     return NextResponse.next();
   }
 
-  // 2. Public Page Handling
+  // 3. Public Page Handling
   const isPublic = PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
-  if (isPublic) return NextResponse.next();
+  if (isPublic) {
+    return NextResponse.next();
+  }
 
-  // 3. Auth Detection
+  // 4. Auth Detection (Supabase & Custom)
   const allCookies = req.cookies.getAll();
   const hasAuth = allCookies.some(c => 
-    c.name.startsWith('sb-') || 
+    c.name.includes('sb-') || // Supabase cookies usually look like sb-[project-id]-auth-token
     c.name === "auth-token" || 
-    c.name === "impersonate_id"
+    c.name === "impersonate_id" ||
+    c.name.includes('supabase-auth')
   );
 
-  if (!hasAuth && (pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/owner"))) {
-    const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = "/login";
+  // 5. Protected Route Logic
+  const isProtectedRoute = 
+    pathname.startsWith("/dashboard") || 
+    pathname.startsWith("/admin") || 
+    pathname.startsWith("/owner");
+
+  if (!hasAuth && isProtectedRoute) {
+    const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -54,5 +64,8 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|assets|images|robots.txt|sitemap.xml).*)"],
+  // Refined matcher to ensure static files are ignored immediately
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|assets|images|robots.txt|sitemap.xml|.*\\..*).*)",
+  ],
 };
