@@ -17,6 +17,7 @@ export function getSupabaseClient() {
       autoRefreshToken: false,
       persistSession: false
     },
+    // OPTIMIZED: High-throughput config for real-time workforce monitoring
     realtime: {
       params: {
         eventsPerSecond: 20, 
@@ -25,6 +26,7 @@ export function getSupabaseClient() {
   });
 }
 
+// Export a default client instance
 export const supabase = getSupabaseClient();
 
 // --- Database Schema Types ---
@@ -56,7 +58,8 @@ export interface AIAgent {
 // --- Helper Functions ---
 
 /**
- * FIXED: Explicitly exported to resolve Vercel build warning in /api/auth/login
+ * FIXED: Explicitly exported to resolve Vercel build warning in /api/auth/login.
+ * Fetches user profile from the 'users' table.
  */
 export async function getUserByEmail(email: string): Promise<User | null> {
   const { data, error } = await supabase
@@ -73,8 +76,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 }
 
 /**
- * Updates an agent's status in realtime.
- * Triggers glowing indicators on the Dashboard UI.
+ * Updates an agent's status and broadcasts to the Neural Command Center.
  */
 export async function updateAgentStatus(agentId: string, status: AIAgent['status']) {
   const { error } = await supabase
@@ -89,8 +91,42 @@ export async function updateAgentStatus(agentId: string, status: AIAgent['status
 }
 
 /**
- * Fetches the active AI workforce from Supabase.
- * Powers the AgentPerformanceGrid component.
+ * Retrieves specific user metadata by ID.
+ */
+export async function getUserById(id: string): Promise<User | null> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching user by ID:', error);
+    return null;
+  }
+  return data;
+}
+
+/**
+ * Provisions a new user in the system.
+ */
+export async function createUser(userData: Partial<User>): Promise<User | null> {
+  const { data, error } = await supabase
+    .from('users')
+    .insert([{ ...userData, created_at: new Date().toISOString() }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating user:', error);
+    return null;
+  }
+  return data;
+}
+
+/**
+ * Fetches the active AI workforce. 
+ * Powers the real-time grid view on the /ai-agents page.
  */
 export async function getActiveWorkforce(): Promise<AIAgent[]> {
   const { data, error } = await supabase
