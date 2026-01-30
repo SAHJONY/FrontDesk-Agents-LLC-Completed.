@@ -1,22 +1,21 @@
 // lib/pricing.ts
+
 export type PlanKey = "starter" | "professional" | "growth" | "enterprise";
 
 export type PricingPlan = {
   key: PlanKey;
-  name: string; // Display name
+  name: string;
   priceMonthlyUsd: number;
 
-  // Canonical entitlement model (minutes-based)
   includedMinutes: number;
   overagePerMinuteUsd: number;
 
   description: string;
   featured?: boolean;
+  badge?: "MOST POPULAR" | "RECOMMENDED";
 
   ctaLabel: string;
   ctaHref: string;
-
-  badge?: "RECOMMENDED";
 };
 
 export const PRICING_META = {
@@ -27,14 +26,19 @@ export const PRICING_META = {
 } as const;
 
 /**
- * ✅ Canonical prices (source of truth):
- * $149 / $499 / $999 / $1999
+ * ✅ SOURCE OF TRUTH — Matches production UI
+ * https://www.frontdeskagents.com/pricing
+ *
+ * Starter      $199
+ * Professional $399
+ * Growth       $799
+ * Enterprise   $1499
  */
 export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "starter",
     name: "Starter",
-    priceMonthlyUsd: 149,
+    priceMonthlyUsd: 199,
     includedMinutes: 300,
     overagePerMinuteUsd: 0.45,
     description: "Essential autonomous intake for solo operators.",
@@ -44,19 +48,19 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "professional",
     name: "Professional",
-    priceMonthlyUsd: 499,
+    priceMonthlyUsd: 399,
     includedMinutes: 1200,
     overagePerMinuteUsd: 0.40,
     description: "Advanced fleet with priority routing and 50+ languages.",
     featured: true,
-    badge: "RECOMMENDED",
+    badge: "MOST POPULAR",
     ctaLabel: "Scale Fleet",
     ctaHref: "/signup?plan=professional",
   },
   {
     key: "growth",
     name: "Growth",
-    priceMonthlyUsd: 999,
+    priceMonthlyUsd: 799,
     includedMinutes: 3000,
     overagePerMinuteUsd: 0.35,
     description: "Multi-location cluster with custom voice cloning.",
@@ -66,7 +70,7 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     key: "enterprise",
     name: "Enterprise",
-    priceMonthlyUsd: 1999,
+    priceMonthlyUsd: 1499,
     includedMinutes: 7000,
     overagePerMinuteUsd: 0.30,
     description: "Infinite scale with performance royalties (Sec. 3).",
@@ -92,7 +96,9 @@ export function isPlanKey(value: unknown): value is PlanKey {
 }
 
 export function assertPlanKey(value: unknown): asserts value is PlanKey {
-  if (!isPlanKey(value)) throw new Error(`Invalid plan key: ${String(value)}`);
+  if (!isPlanKey(value)) {
+    throw new Error(`Invalid plan key: ${String(value)}`);
+  }
 }
 
 export function planByKey(key: PlanKey): PricingPlan {
