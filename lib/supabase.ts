@@ -3,7 +3,6 @@ import { createClient } from '@supabase/supabase-js';
 /**
  * Creates a Supabase client.
  * Uses the Service Role Key for server-side operations to bypass RLS.
- * Includes Realtime configuration for the Neural Command Center.
  */
 export function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -18,7 +17,6 @@ export function getSupabaseClient() {
       autoRefreshToken: false,
       persistSession: false
     },
-    // OPTIMIZED: Increased event throughput for the 8K Realtime Terminal
     realtime: {
       params: {
         eventsPerSecond: 20, 
@@ -27,7 +25,6 @@ export function getSupabaseClient() {
   });
 }
 
-// Export a default client instance
 export const supabase = getSupabaseClient();
 
 // --- Database Schema Types ---
@@ -77,7 +74,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 /**
  * Updates an agent's status in realtime.
- * This triggers the glowing indicators on your Dashboard UI.
+ * Triggers glowing indicators on the Dashboard UI.
  */
 export async function updateAgentStatus(agentId: string, status: AIAgent['status']) {
   const { error } = await supabase
@@ -89,34 +86,6 @@ export async function updateAgentStatus(agentId: string, status: AIAgent['status
     .eq('id', agentId);
 
   if (error) console.error('Failed to update agent status:', error);
-}
-
-export async function getUserById(id: string): Promise<User | null> {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error fetching user by ID:', error);
-    return null;
-  }
-  return data;
-}
-
-export async function createUser(userData: Partial<User>): Promise<User | null> {
-  const { data, error } = await supabase
-    .from('users')
-    .insert([{ ...userData, created_at: new Date().toISOString() }])
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating user:', error);
-    return null;
-  }
-  return data;
 }
 
 /**
