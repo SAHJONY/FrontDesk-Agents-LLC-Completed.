@@ -1,16 +1,19 @@
 // app/api/billing/checkout/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { assertPlanKey } from "@/lib/pricing";
+import { getStripePriceId } from "@/lib/stripe-pricing";
 
 // Force Node.js runtime (Stripe Node SDK)
 export const runtime = "nodejs";
 
+// Stripe init
 const stripeKey = process.env.STRIPE_SECRET_KEY;
 
 const stripe = stripeKey
   ? new Stripe(stripeKey, {
-      // Your installed Stripe typings expect a newer literal; keep this flexible to avoid TS build breaks.
-      apiVersion: "2025-12-15.clover" as any,
+      // Keep flexible to avoid TS build breaks
+      apiVersion: "2025-01-27" as any,
     })
   : null;
 
@@ -24,26 +27,24 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
+
     const tenantId =
       typeof body?.tenantId === "string" ? body.tenantId.trim() : "";
     const planType =
       typeof body?.planType === "string" ? body.planType.trim() : "";
-    const amount = typeof body?.amount === "number" ? body.amount : null;
 
-    if (!tenantId || !planType || amount === null) {
+    if (!tenantId || !planType) {
       return NextResponse.json(
-        { error: "Missing required fields: tenantId, planType, amount" },
+        { error: "Missing required fields: tenantId, planType" },
         { status: 400 }
       );
     }
 
-    const unitAmount = Math.round(amount * 100);
-    if (!Number.isFinite(unitAmount) || unitAmount <= 0) {
-      return NextResponse.json(
-        { error: "Invalid amount" },
-        { status: 400 }
-      );
-    }
+    // ✅ Enforce canonical plan keys
+    assertPlanKey(planType);
+
+    // ✅ Resolve Stripe priceId from source of truth
+    const priceId = getStripePriceId(planType);
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
     if (!appUrl) {
@@ -53,25 +54,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ✅ Subscription checkout (monthly)
     const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
       payment_method_types: ["card"],
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: `Recarga de Créditos - Plan ${planType}`,
-              description: "Créditos para llamadas de IA y automatización de agenda.",
-            },
-            unit_amount: unitAmount,
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
-      mode: "payment",
       client_reference_id: tenantId,
-      success_url: `${appUrl}/dashboard?payment=success`,
-      cancel_url: `${appUrl}/dashboard?payment=cancelled`,
+      metadata: {
+        tenantId,
+        planType,
+      },
+      success_url: `${appUrl}/dashboard?checkout=success`,
+      cancel_url: `${appUrl}/pricing?checkout=cancelled`,
     });
 
     return NextResponse.json({ url: session.url });
