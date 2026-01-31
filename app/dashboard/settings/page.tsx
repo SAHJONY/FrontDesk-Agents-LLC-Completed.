@@ -7,6 +7,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import Image from 'next/image';
 import {
   User,
   Building,
@@ -17,6 +18,7 @@ import {
   Zap,
   ChevronRight,
   Database,
+  Layers,
 } from 'lucide-react';
 import { LegalComplianceBadge } from '@/components/legal/LegalComplianceBadge';
 
@@ -24,21 +26,19 @@ type TabId = 'profile' | 'company' | 'billing' | 'notifications' | 'security';
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabId>('profile');
 
-  // If auth is still loading or user is null, render nothing (or a skeleton).
-  if (!user) return null;
-
-  // Safely normalize tenant so TS never complains (and UI always has values).
+  // Safely normalize tenant data
   const tenant = useMemo(() => {
-    const t = user.tenant ?? ({} as any);
+    const t = user?.tenant ?? ({} as any);
     return {
       tier: t.tier ?? 'core',
       currencyCode: t.currencyCode ?? 'USD',
       regionalMultiplier: typeof t.regionalMultiplier === 'number' ? t.regionalMultiplier : 1.0,
     };
-  }, [user.tenant]);
+  }, [user?.tenant]);
 
-  const [activeTab, setActiveTab] = useState<TabId>('profile');
+  if (!user) return null;
 
   const tabs: Array<{ id: TabId; label: string; icon: React.ElementType }> = [
     { id: 'profile', label: 'Identity', icon: User },
@@ -52,11 +52,10 @@ export default function SettingsPage() {
     tenant.tier === 'elite' ? '1,499' : tenant.tier === 'growth' ? '799' : '399';
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 lg:p-12 selection:bg-blue-500/30">
+    <div className="min-h-screen bg-black text-white p-6 lg:p-12 selection:bg-blue-500/30 font-sans">
       <div className="max-w-6xl mx-auto">
         <header className="mb-12">
           <div className="flex items-center gap-4 mb-2">
-            {/* removed duplicate "italic" class */}
             <h1 className="text-4xl font-black tracking-tighter uppercase italic">Control Node</h1>
             <LegalComplianceBadge />
           </div>
@@ -103,20 +102,29 @@ export default function SettingsPage() {
 
           {/* Configuration Terminal */}
           <div className="lg:col-span-3">
-            <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-10 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-5">
-                <Database className="w-32 h-32" />
+            <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-10 relative overflow-hidden shadow-2xl">
+              {/* GitHub Asset Decorator: setup-steps.png */}
+              <div className="absolute top-0 right-0 w-64 h-64 opacity-[0.03] pointer-events-none">
+                <Image 
+                  src="/assets/premium/setup-steps.png" 
+                  alt="" 
+                  fill 
+                  className="object-contain"
+                />
               </div>
 
               {activeTab === 'profile' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
-                  <div>
-                    <h2 className="text-xl font-black uppercase italic tracking-tight mb-2">
-                      Identity Matrix
-                    </h2>
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest">
-                      Update your operative credentials
-                    </p>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h2 className="text-xl font-black uppercase italic tracking-tight mb-2">
+                        Identity Matrix
+                      </h2>
+                      <p className="text-[10px] text-zinc-500 uppercase tracking-widest">
+                        Update your operative credentials
+                      </p>
+                    </div>
+                    <Layers className="text-blue-600 w-6 h-6" />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -147,8 +155,23 @@ export default function SettingsPage() {
                     </p>
                   </div>
 
+                  {/* Feature Visualizer: client-dashboard.png */}
+                  <div className="relative h-40 rounded-2xl overflow-hidden border border-zinc-800 mb-6 group">
+                    <Image 
+                      src="/assets/premium/client-dashboard.png" 
+                      alt="Fleet Overview Preview" 
+                      fill 
+                      className="object-cover opacity-30 grayscale group-hover:grayscale-0 group-hover:opacity-50 transition-all duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
+                    <div className="absolute bottom-4 left-6 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
+                      <span className="text-[9px] font-black uppercase tracking-widest text-zinc-300">White-Label Preview Active</span>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 gap-6">
-                    <div className="p-6 bg-zinc-900 rounded-3xl border border-zinc-800 flex items-center justify-between">
+                    <div className="p-8 bg-zinc-900/50 rounded-3xl border border-zinc-800 flex items-center justify-between shadow-inner">
                       <div>
                         <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">
                           Active Subscription
@@ -158,7 +181,7 @@ export default function SettingsPage() {
                           Permanent Price: ${tierPrice}/mo
                         </p>
                       </div>
-                      <button className="px-6 py-3 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-blue-600 hover:text-white transition-all" type="button">
+                      <button className="px-6 py-3 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-xl" type="button">
                         Upgrade Tier
                       </button>
                     </div>
@@ -179,7 +202,6 @@ export default function SettingsPage() {
                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                           <Zap className="w-3 h-3" /> Regional Multiplier
                         </label>
-                        {/* avoid controlled-input lint by using readOnly/defaultValue */}
                         <input
                           type="text"
                           defaultValue={`${tenant.regionalMultiplier}x`}
@@ -193,7 +215,7 @@ export default function SettingsPage() {
               )}
 
               <div className="mt-12 pt-8 border-t border-zinc-900 flex justify-end">
-                <button className="px-10 py-4 bg-blue-600 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-blue-500 shadow-[0_10px_30px_rgba(37,99,235,0.3)] transition-all" type="button">
+                <button className="px-10 py-4 bg-blue-600 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-blue-500 shadow-[0_10px_30px_rgba(37,99,235,0.3)] transition-all active:scale-95" type="button">
                   Commit Changes
                 </button>
               </div>
@@ -206,8 +228,8 @@ export default function SettingsPage() {
         .input-field {
           width: 100%;
           padding: 1rem 1.5rem;
-          background: #111;
-          border: 1px solid #222;
+          background: #090909;
+          border: 1px solid #1a1a1a;
           border-radius: 1rem;
           font-size: 0.875rem;
           font-weight: 700;
@@ -218,6 +240,7 @@ export default function SettingsPage() {
         .input-field:focus {
           border-color: #2563eb;
           background: #000;
+          box-shadow: 0 0 20px rgba(37, 99, 235, 0.1);
         }
       `}</style>
     </div>
