@@ -8,26 +8,28 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
+  throw new Error("CRITICAL: Missing NEXT_PUBLIC_SUPABASE_URL. Check Vercel Environment Variables.");
 }
 
 /**
  * Public / browser-safe client (anon key)
+ * Used for client-side Auth and RLS-protected queries.
  */
 export const supabase = createClient(
   SUPABASE_URL,
   ANON_KEY ?? "",
   {
     auth: {
-      persistSession: false,
-      autoRefreshToken: false,
+      persistSession: true, // Set to true if using for client-side auth state
+      autoRefreshToken: true,
     },
   }
 );
 
 /**
  * Server / admin client (service role)
- * ⚠️ NEVER expose this to the browser
+ * ⚠️ NEVER expose this to the browser.
+ * Bypasses Row Level Security (RLS).
  */
 export const supabaseAdmin = SERVICE_ROLE_KEY
   ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
@@ -39,7 +41,8 @@ export const supabaseAdmin = SERVICE_ROLE_KEY
   : null;
 
 /**
- * User model (matches DB)
+ * Type Definitions
+ * In a production app, these should ideally be generated via 'supabase gen types'
  */
 export interface AuthUser {
   id: string;
@@ -53,17 +56,18 @@ export interface AuthUser {
 
 /**
  * Fetch user by email (SERVER ONLY)
- * Used by /api/auth/login
+ * Used by /api/auth/login and the Supreme AI Commander for tenant verification.
  */
 export async function getUserByEmail(email: string): Promise<AuthUser | null> {
+  // Guard clause to prevent runtime crashes if the admin client is missing
   if (!supabaseAdmin) {
-    throw new Error("supabaseAdmin not initialized (missing SERVICE ROLE key)");
+    console.error("Supabase Admin Client failed to initialize. Check SUPABASE_SERVICE_ROLE_KEY.");
+    throw new Error("Server configuration error.");
   }
 
   const { data, error } = await supabaseAdmin
-    .from<AuthUser>("users")
-    .select(
-      `
+    .from("users") // v2 uses .from("table") then casts with "as unknown as AuthUser" or uses Database types
+    .select(`
         id,
         email,
         full_name,
@@ -71,15 +75,14 @@ export async function getUserByEmail(email: string): Promise<AuthUser | null> {
         role,
         tier,
         tenant_id
-      `
-    )
+    `)
     .eq("email", email)
     .maybeSingle();
 
   if (error) {
-    console.error("getUserByEmail error:", error);
+    console.error("getUserByEmail database error:", error.message);
     return null;
   }
 
-  return data ?? null;
+  return data as AuthUser | null;
 }
