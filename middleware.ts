@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+/**
+ * Routes that do not require authentication
+ */
 const PUBLIC_PREFIXES = [
   "/", "/pricing", "/demo", "/support", "/features", "/industries",
   "/solutions", "/legal", "/privacy", "/terms", "/login", "/signup",
@@ -10,39 +13,41 @@ const PUBLIC_PREFIXES = [
 export async function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
-  // 1. Shareable Link Detection (Bypass check for specific tokens)
+  // 1. Shareable Link Detection (The "Emerald" Bypass)
+  // Useful for sending temporary access links to prospective clients
   const shareToken = searchParams.get("token");
   if (shareToken === "emerald_public_access") {
     return NextResponse.next();
   }
 
   // 2. Public Page Handling
-  // We check if the current path is in our list of public routes
   const isPublic = PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
-  if (isPublic) {
+  
+  // Also allow API routes to handle their own internal auth logic
+  if (isPublic || pathname.startsWith("/api/")) {
     return NextResponse.next();
   }
 
-  // 3. Auth Detection
-  // We look for Supabase SSR cookies or your custom auth-token
+  // 3. Multi-Provider Auth Detection
+  // Checks for Supabase SSR cookies, custom JWTs, or admin impersonation tokens
   const allCookies = req.cookies.getAll();
   const hasAuth = allCookies.some(c => 
-    c.name.includes('sb-') || 
+    c.name.startsWith('sb-') || 
     c.name === "auth-token" || 
-    c.name.includes('supabase-auth') ||
-    c.name === "impersonate_id"
+    c.name === "token" ||
+    c.name === "impersonated_owner_id"
   );
 
-  // 4. Protected Route Logic
+  // 4. Protected Division Logic
+  // These are the restricted zones for the 8-Division AI Workforce
   const isProtectedRoute = 
     pathname.startsWith("/dashboard") || 
     pathname.startsWith("/admin") || 
     pathname.startsWith("/owner");
 
-  // If trying to access a protected route without a session, redirect to login
   if (isProtectedRoute && !hasAuth) {
     const loginUrl = new URL("/login", req.url);
-    // Append the original destination so user can return after login
+    // Deep-link the user back to where they were trying to go
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -50,14 +55,11 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+/**
+ * Performance-optimized Matcher
+ * Skips the middleware entirely for static files and common media extensions
+ */
 export const config = {
-  /*
-   * Matcher ignores:
-   * - _next/static (static files)
-   * - _next/image (image optimization files)
-   * - favicon.ico (favicon file)
-   * - All files with extensions (svg, png, jpg, etc.)
-   */
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf|json)$).*)',
   ],
