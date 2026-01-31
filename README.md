@@ -128,4 +128,4 @@ For questions or issues, please contact: builder@manus.im
 
 ---
 
-**Built with ❤️ by Manus - Premium Business Solutions**
+**Built with ❤️ by FrontDesk Agents LLC. - Premium Business Solutions**
