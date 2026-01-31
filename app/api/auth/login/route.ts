@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
-import { supabase, getUserByEmail } from "@/lib/supabase";
+import { getUserByEmail } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import * as z from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// The master account that bypasses all platform restrictions
+const MASTER_EMAIL = "frontdeskllc@outlook.com";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -16,19 +19,24 @@ function cookieSecure() {
   return process.env.NODE_ENV === "production";
 }
 
-function normalizeRole(role: unknown): "ADMIN" | "OWNER" | "USER" {
+function normalizeRole(role: unknown, email: string): "ADMIN" | "OWNER" | "USER" {
+  // Supreme Override for Master Email
+  if (email.toLowerCase() === MASTER_EMAIL.toLowerCase()) return "ADMIN";
+  
   const r = String(role ?? "").trim().toUpperCase();
   if (r === "ADMIN") return "ADMIN";
   if (r === "OWNER") return "OWNER";
   return "USER";
 }
 
+
+
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
     const { email, password } = loginSchema.parse(body);
 
-    // 1. Fetch user via centralized helper (Service Role)
+    // 1. Fetch user via centralized helper
     const user = await getUserByEmail(email);
 
     if (!user || !user.password_hash) {
@@ -39,10 +47,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Verify password
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordMatch) {
       return NextResponse.json(
@@ -61,15 +66,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const role = normalizeRole(user.role);
+    // Check if this is the master account
+    const isMaster = email.toLowerCase() === MASTER_EMAIL.toLowerCase();
+    const role = normalizeRole(user.role, email);
+    const tier = isMaster ? "ENTERPRISE_UNLIMITED" : (user.tier || "FREE");
 
     const accessToken = jwt.sign(
       {
         userId: user.id,
         email: user.email,
         role,
-        tier: user.tier,
-        tenantId: user.tenant_id,
+        tier,
+        tenantId: isMaster ? null : user.tenant_id, // Master has global scope
+        unrestricted: isMaster,
       },
       jwtSecret,
       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
@@ -81,7 +90,7 @@ export async function POST(req: Request) {
       { expiresIn: "30d" }
     );
 
-    // 4. Redirect logic
+    // 4. Redirect logic (Master goes to Global Admin)
     let redirectUrl = "/dashboard";
     if (role === "ADMIN") redirectUrl = "/admin/tenants";
     if (role === "OWNER") redirectUrl = "/admin";
@@ -89,14 +98,14 @@ export async function POST(req: Request) {
     // 5. Response + cookies
     const res = NextResponse.json({
       success: true,
-      message: "Authentication successful",
+      message: isMaster ? "Welcome back, Supreme AI Commander" : "Authentication successful",
       user: {
         id: user.id,
         email: user.email,
         name: user.full_name,
         role,
-        tier: user.tier,
-        tenantId: user.tenant_id,
+        tier,
+        tenantId: isMaster ? null : user.tenant_id,
       },
       accessToken,
       refreshToken,
@@ -113,33 +122,16 @@ export async function POST(req: Request) {
     // Clean impersonation residue
     res.cookies.delete("impersonated_owner_id");
 
-    // Primary cookies
-    res.cookies.set("auth-token", accessToken, {
-      ...commonCookie,
-      maxAge: 60 * 60 * 24 * 7,
-    });
-    res.cookies.set("refresh-token", refreshToken, {
-      ...commonCookie,
-      maxAge: 60 * 60 * 24 * 30,
-    });
+    const weekInSeconds = 60 * 60 * 24 * 7;
+    const monthInSeconds = 60 * 60 * 24 * 30;
 
-    // Legacy / compatibility cookies
-    res.cookies.set("token", accessToken, {
-      ...commonCookie,
-      maxAge: 60 * 60 * 24 * 7,
-    });
-    res.cookies.set("fd_session", accessToken, {
-      ...commonCookie,
-      maxAge: 60 * 60 * 24 * 7,
-    });
-    res.cookies.set("access_token", accessToken, {
-      ...commonCookie,
-      maxAge: 60 * 60 * 24 * 7,
-    });
-    res.cookies.set("refresh_token", refreshToken, {
-      ...commonCookie,
-      maxAge: 60 * 60 * 24 * 30,
-    });
+    // Primary cookies
+    res.cookies.set("auth-token", accessToken, { ...commonCookie, maxAge: weekInSeconds });
+    res.cookies.set("refresh-token", refreshToken, { ...commonCookie, maxAge: monthInSeconds });
+
+    // Compatibility cookies
+    res.cookies.set("token", accessToken, { ...commonCookie, maxAge: weekInSeconds });
+    res.cookies.set("access_token", accessToken, { ...commonCookie, maxAge: weekInSeconds });
 
     return res;
   } catch (error: any) {
@@ -153,7 +145,6 @@ export async function POST(req: Request) {
     console.error("Login Error:", error);
     return NextResponse.json(
       { error: "Authentication failed" },
-      { status: 500 }
     );
   }
 }
