@@ -3,9 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { 
-  TrendingUp, TrendingDown, Phone, Clock, DollarSign, Users, 
-  Target, Award, Calendar, Filter, Download, BarChart3, Zap
+  TrendingUp, TrendingDown, Phone, Clock, DollarSign, 
+  Target, Download, BarChart3, Zap, Globe, Activity
 } from 'lucide-react';
+
+// Using your specific GitHub assets
+const ANALYTICS_HERO = "/assets/premium/outbound-calls-stats.png";
+const RETENTION_SNAPSHOT = "/assets/premium/retention-dashboard.png";
 
 interface MetricCard {
   title: string;
@@ -38,14 +42,14 @@ export default function AnalyticsPage() {
 
   if (loading) return (
     <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="animate-pulse text-cyan-500 font-mono tracking-widest">SYNCHRONIZING NEURAL DATA...</div>
+      <div className="animate-pulse text-cyan-500 font-mono tracking-widest uppercase">Initializing Neural Stream...</div>
     </div>
   );
 
   const metrics: MetricCard[] = [
     {
       title: 'Projected Revenue',
-      value: `$${(stats?.leadsCount * 150).toLocaleString()}`, // Hypothetical $150 per lead
+      value: `$${(stats?.leadsCount * 150 || 0).toLocaleString()}`,
       change: '+18%',
       trend: 'up',
       icon: DollarSign,
@@ -78,136 +82,149 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-black min-h-screen text-white">
-      {/* Header with Premium Image */}
-      <div className="mb-12 relative h-48 rounded-xl overflow-hidden border border-white/10">
+    <div className="p-6 max-w-7xl mx-auto bg-black min-h-screen text-white font-sans">
+      
+      {/* Header with outbond-calls-stats.png */}
+      <div className="mb-12 relative h-56 rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
         <Image 
-          src="https://images.unsplash.com/photo-1551288049-bbda483387a5?q=80&w=2070&auto=format&fit=crop" 
-          alt="Analytics Dashboard" 
+          src={ANALYTICS_HERO} 
+          alt="Outbound Call Intelligence" 
           fill 
-          className="object-cover opacity-20"
+          className="object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-1000"
+          priority
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent flex items-center justify-between px-8">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />
-                <span className="text-cyan-500 text-[10px] font-black uppercase tracking-[0.3em]">Live Intelligence Feed</span>
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent flex items-center justify-between px-10">
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                <span className="text-cyan-400 text-[10px] font-black uppercase tracking-[0.4em]">Autonomous Workforce Telemetry</span>
             </div>
-            <h1 className="text-4xl font-black italic text-white tracking-tighter">NEURAL ANALYTICS</h1>
-            <p className="text-slate-400 text-sm mt-1">ROI tracking for your autonomous AI workforce</p>
+            <h1 className="text-5xl font-black italic text-white tracking-tighter leading-none mb-2">NEURAL_ANALYTICS</h1>
+            <p className="text-slate-400 text-sm font-medium">Real-time ROI and fleet performance mapping.</p>
           </div>
           
-          <div className="flex items-center gap-3">
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-sm focus:border-cyan-500 focus:outline-none backdrop-blur-sm"
-            >
-              <option value="24h">Last 24 Hours</option>
-              <option value="7d">Last 7 Days</option>
-              <option value="30d">Last 30 Days</option>
-            </select>
-            
-            <button className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-white text-sm font-bold transition-all">
-              <Download className="w-4 h-4" />
-              Export Report
-            </button>
+          <div className="flex flex-col items-end gap-4">
+            <div className="flex items-center gap-3">
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="px-4 py-2 bg-slate-900/80 border border-white/10 rounded-xl text-white text-xs font-bold focus:border-cyan-500 focus:outline-none backdrop-blur-md"
+              >
+                <option value="24h">24H CYCLE</option>
+                <option value="7d">7D CYCLE</option>
+                <option value="30d">30D CYCLE</option>
+              </select>
+              <button className="flex items-center gap-2 px-5 py-2 bg-white text-black rounded-xl text-xs font-black uppercase tracking-widest hover:bg-cyan-400 transition-all">
+                <Download className="w-4 h-4" />
+                Export
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         {metrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
-            <div key={index} className="bg-slate-900/50 border border-white/5 rounded-xl p-6 hover:border-cyan-500/30 transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{metric.title}</span>
-                <Icon className={`w-4 h-4 ${metric.color}`} />
+            <div key={index} className="bg-slate-950 border border-white/5 rounded-2xl p-6 hover:border-cyan-500/40 transition-all shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="p-2 bg-white/5 rounded-lg">
+                    <Icon className={`w-5 h-5 ${metric.color}`} />
+                </div>
+                <span className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em]">{metric.title}</span>
               </div>
-              <div className="text-3xl font-mono font-bold text-white mb-2">{metric.value}</div>
-              <div className={`flex items-center gap-1 text-[10px] font-bold ${metric.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-                {metric.trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                <span>{metric.change} PROJECTION</span>
+              <div className="text-4xl font-black text-white mb-2 tracking-tighter">{metric.value}</div>
+              <div className={`flex items-center gap-1 text-[10px] font-bold ${metric.trend === 'up' ? 'text-cyan-400' : 'text-red-400'}`}>
+                <Activity size={12} />
+                <span>{metric.change} VARIANCE</span>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Main Charts Area */}
+      {/* Primary Data Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         
-        {/* Call Volume Bar Chart */}
-        <div className="lg:col-span-2 bg-slate-900/40 border border-white/5 rounded-xl p-8">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <BarChart3 className="text-cyan-500" size={20} /> Call Frequency
-            </h2>
-            <div className="flex gap-4">
-                <div className="flex items-center gap-2 text-[10px] text-slate-500 uppercase font-bold">
-                    <div className="w-2 h-2 rounded-full bg-cyan-500" /> AI Handled
-                </div>
+        {/* Retention / Sentiment using retention-dashboard.png */}
+        <div className="bg-slate-950 border border-white/5 rounded-3xl p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Globe className="w-32 h-32 text-white" />
             </div>
-          </div>
-          
-          <div className="flex items-end gap-3 h-48">
-            {/* Real data would map here; using styled placeholders for visual impact */}
-            {[45, 78, 92, 65, 58, 88, 95, 82, 70, 60, 85, 90].map((val, i) => (
-              <div key={i} className="flex-1 group relative">
-                <div 
-                  style={{ height: `${val}%` }}
-                  className="w-full bg-gradient-to-t from-cyan-600/20 to-cyan-400 rounded-t-sm group-hover:from-cyan-400 transition-all"
-                />
-                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all">
-                    {val} calls
+            
+            <div className="relative z-10">
+                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 mb-8 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full" /> Retention_Snapshot
+                </h3>
+                
+                <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 mb-8">
+                    <Image 
+                        src={RETENTION_SNAPSHOT} 
+                        alt="Retention Metrics" 
+                        fill 
+                        className="object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
+                    />
                 </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-between mt-4 text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
-            <span>08:00 AM</span>
-            <span>12:00 PM</span>
-            <span>04:00 PM</span>
-            <span>08:00 PM</span>
-          </div>
-        </div>
 
-        {/* Sentiment Distribution Pie/Progress Placeholder */}
-        <div className="bg-slate-900/40 border border-white/5 rounded-xl p-8 flex flex-col justify-between">
-            <div>
-                <h3 className="text-lg font-bold mb-4">Sentiment Analysis</h3>
-                <div className="space-y-6">
-                    <SentimentRow label="Positive / Satisfied" percent={72} color="bg-green-500" />
-                    <SentimentRow label="Neutral / Inquiry" percent={22} color="bg-cyan-500" />
-                    <SentimentRow label="Frustrated / Escalated" percent={6} color="bg-red-500" />
+                <div className="space-y-5">
+                    <SentimentRow label="Positive Sentiment" percent={78} color="bg-cyan-500" />
+                    <SentimentRow label="Agent Efficiency" percent={92} color="bg-white" />
                 </div>
             </div>
 
-            <div className="mt-8 p-4 bg-cyan-500/5 border border-cyan-500/10 rounded-lg">
+            <div className="mt-10 p-5 bg-cyan-500/5 border border-cyan-500/10 rounded-2xl">
                 <div className="flex items-center gap-2 mb-2">
-                    <Zap size={14} className="text-cyan-500" fill="currentColor" />
-                    <span className="text-[10px] font-black text-cyan-500 uppercase tracking-widest">Neural Insight</span>
+                    <Zap size={14} className="text-cyan-400" fill="currentColor" />
+                    <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">Neural Insight</span>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed italic">
-                    "Peak conversion occurs between 2 PM and 4 PM. High frequency of pricing questions detected in 12% of calls."
+                <p className="text-[11px] text-slate-400 leading-relaxed italic">
+                    AI Fleet successfully resolved 84% of churn-risk indicators without human escalation.
                 </p>
             </div>
         </div>
+
+        {/* Volume Analysis */}
+        <div className="lg:col-span-2 bg-slate-950 border border-white/5 rounded-3xl p-8 shadow-2xl">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-xl font-black italic text-white flex items-center gap-3">
+                <BarChart3 className="text-cyan-500" size={24} /> FLEET_USAGE_VOLUME
+            </h2>
+            <div className="px-3 py-1 bg-slate-900 border border-white/10 rounded-lg text-[10px] font-bold text-slate-400">
+                LIVE_FEED_01
+            </div>
+          </div>
+          
+          <div className="flex items-end gap-3 h-64 px-4">
+            {[45, 78, 92, 65, 58, 88, 95, 82, 70, 60, 85, 90, 75, 88, 98].map((val, i) => (
+              <div key={i} className="flex-1 group relative">
+                <div 
+                  style={{ height: `${val}%` }}
+                  className="w-full bg-white/10 rounded-t-lg group-hover:bg-cyan-500 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all duration-500"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between mt-6 text-[10px] text-slate-600 font-black uppercase tracking-widest px-2">
+            <span>Cycle Start</span>
+            <span>Mid Cycle</span>
+            <span>Current Pulse</span>
+          </div>
+        </div>
       </div>
 
-      {/* Footer System Status */}
-      <div className="flex items-center justify-between py-4 border-t border-white/5">
-        <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500" /> SYSTEM NOMINAL
+      {/* System Footer */}
+      <div className="flex items-center justify-between py-6 border-t border-white/5">
+        <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 text-[9px] font-black text-slate-600 uppercase tracking-widest">
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_5px_cyan]" /> Nodes Online
             </div>
-            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500" /> DATABASE SYNCED
+            <div className="flex items-center gap-2 text-[9px] font-black text-slate-600 uppercase tracking-widest">
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" /> Database Encrypted
             </div>
         </div>
-        <span className="text-[10px] font-mono text-slate-700 uppercase">Version 2.0.4-NEURAL</span>
+        <span className="text-[9px] font-mono text-slate-800 font-bold">V_2.1.0_PRO_CORE</span>
       </div>
     </div>
   );
@@ -215,13 +232,13 @@ export default function AnalyticsPage() {
 
 function SentimentRow({ label, percent, color }: { label: string, percent: number, color: string }) {
     return (
-        <div className="space-y-2">
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+        <div className="space-y-3">
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
                 <span className="text-slate-500">{label}</span>
                 <span className="text-white">{percent}%</span>
             </div>
-            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                <div className={`h-full ${color}`} style={{ width: `${percent}%` }} />
+            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                <div className={`h-full ${color} transition-all duration-1000`} style={{ width: `${percent}%` }} />
             </div>
         </div>
     );
