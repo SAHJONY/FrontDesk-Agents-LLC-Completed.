@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { HeroImage } from './components/HeroImage';
 import { Phone, Globe, Calendar, MessageSquare, TrendingUp, Zap, Shield, Users, BarChart3, Bot, Clock, CheckCircle2, Building2, Award, Lock, Workflow, Database, Cpu, Network } from 'lucide-react';
 import Link from 'next/link';
 
@@ -160,9 +161,11 @@ export default function EnterpriseLandingPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         {/* HERO SECTION */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 py-24 px-8 mb-20 shadow-2xl border border-slate-800">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.15),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(147,51,234,0.1),transparent_50%)]" />
+        <section className="relative overflow-hidden rounded-3xl bg-slate-900 py-24 px-8 mb-20 shadow-2xl border border-slate-800">
+          <div className="absolute inset-0 opacity-30">
+            <HeroImage />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-950/50 to-slate-900/80" />
           
           <div className="relative z-10 max-w-5xl mx-auto text-center text-white">
             <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-400/30 rounded-full px-5 py-2.5 mb-8 backdrop-blur-sm">
