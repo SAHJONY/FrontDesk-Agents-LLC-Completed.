@@ -1,22 +1,22 @@
-import { createServerClient } from "@supabase/ssr";
+import { createBrowserClient, createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 /**
- * 1. BROWSER CLIENT
- * Used for client-side components and hooks
+ * 1. BROWSER CLIENT (Safe for Client Components)
+ * This does NOT use next/headers
  */
-export const supabase = createClient(SUPABASE_URL, ANON_KEY);
+export const supabase = createBrowserClient(SUPABASE_URL, ANON_KEY);
 
 /**
- * 2. SERVER CLIENT (Next.js 15)
- * Use this inside your API routes and Server Components.
+ * 2. SERVER CLIENT (Next.js 15 Server-Only)
+ * This uses a dynamic import to keep it away from Client Components
  */
 export async function createClientServer() {
+  const { cookies } = await import("next/headers");
   const cookieStore = await cookies();
 
   return createServerClient(SUPABASE_URL, ANON_KEY, {
@@ -30,8 +30,7 @@ export async function createClientServer() {
             cookieStore.set(name, value, options)
           );
         } catch {
-          // The setAll method was called from a Server Component.
-          // This can be ignored if you have middleware refreshing sessions.
+          // Ignore: happens if called from a Server Component during render
         }
       },
     },
@@ -47,7 +46,7 @@ export const supabaseAdmin = SERVICE_ROLE_KEY
     })
   : null;
 
-// Keep your AuthUser interface
+// Your existing AuthUser interface...
 export interface AuthUser {
   id: string;
   email: string;
