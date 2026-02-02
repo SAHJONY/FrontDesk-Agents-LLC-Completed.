@@ -1,7 +1,7 @@
 {
-  "name": "frontdesk-agents-global-revenue-workforce",
+  "name": "frontdesk-agents-enterprise-platform",
   "version": "2.2.1",
-  "description": "Enterprise-grade AI workforce for autonomous intake, dispatch, and revenue intelligence.",
+  "description": "Professional virtual receptionist and automated intake management platform for enterprise clients.",
   "type": "module",
   "private": true,
   "packageManager": "pnpm@10.28.0",
@@ -91,11 +91,11 @@
       "included_minutes": 300,
       "overage_per_minute": 0.45,
       "features": [
-        "24/7 AI Receptionist",
-        "Call Summaries & Notes",
-        "Smart Triage + Tagging",
-        "Weekly Impact Reporting",
-        "Capacity Alerts + Enforcement"
+        "24/7 Virtual Receptionist",
+        "Call Summaries & Professional Transcripts",
+        "Workflow Triage & Data Tagging",
+        "Executive Impact Reporting",
+        "Resource Utilization Alerts"
       ]
     },
     "Professional": {
@@ -105,10 +105,10 @@
       "included_minutes": 1200,
       "overage_per_minute": 0.4,
       "features": [
-        "Priority Routing Logic",
-        "50+ Languages Supported",
-        "Weekly Impact Reporting",
-        "Capacity Alerts + Enforcement"
+        "Priority Routing Protocols",
+        "Multilingual Support (50+ Languages)",
+        "Executive Impact Reporting",
+        "Advanced Resource Management"
       ]
     },
     "Growth": {
@@ -117,9 +117,9 @@
       "included_minutes": 3000,
       "overage_per_minute": 0.35,
       "features": [
-        "Custom Voice Cloning",
-        "Multi-Region Deployment",
-        "Dedicated Jurisdictional DB"
+        "Custom Voice Profile Management",
+        "Multi-Regional Infrastructure",
+        "Dedicated Jurisdictional Databases"
       ]
     },
     "Enterprise": {
@@ -128,9 +128,9 @@
       "included_minutes": 7000,
       "overage_per_minute": 0.3,
       "features": [
-        "Performance Royalties (Sec. 3)",
-        "Infinite Scale Architecture",
-        "White-labeling Options"
+        "Performance-Based Service Models",
+        "Scalable Corporate Architecture",
+        "White-Label Implementation Options"
       ]
     }
   }
