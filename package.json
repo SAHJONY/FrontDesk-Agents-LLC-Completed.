@@ -1,6 +1,7 @@
 {
   "name": "frontdesk-agents-global-revenue-workforce",
   "version": "2.2.1",
+  "description": "Enterprise-grade AI workforce for autonomous intake, dispatch, and revenue intelligence.",
   "type": "module",
   "private": true,
   "packageManager": "pnpm@10.28.0",
