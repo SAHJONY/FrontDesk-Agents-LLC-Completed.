@@ -23,7 +23,7 @@ export async function GET() {
   };
 
   /* ----------------------------
-   * 1) Supabase Health Check
+   * 1) Supabase Health Check: Validates connection to the database layer
    * ---------------------------- */
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -34,7 +34,7 @@ export async function GET() {
     } else {
       const supabase = createClient(supabaseUrl, supabaseKey);
 
-      // lightweight, non-destructive query
+      // Execute a lightweight, non-destructive check against the 'tenants' table
       const { error } = await supabase
         .from("tenants")
         .select("id", { head: true, count: "exact" });
@@ -48,7 +48,7 @@ export async function GET() {
   }
 
   /* ----------------------------
-   * 2) Stripe Health Check
+   * 2) Stripe Health Check: Validates API versioning and connectivity
    * ---------------------------- */
   try {
     const stripeKey = process.env.STRIPE_SECRET_KEY;
@@ -57,7 +57,7 @@ export async function GET() {
       healthStatus.checks.stripe = "missing configuration";
     } else {
       const stripe = new Stripe(stripeKey, {
-        // ✅ Updated to match requirements of stripe@20.x
+        // ✅ Explicitly set to match requirements of stripe@20.x
         apiVersion: "2025-12-15.clover",
       });
 
@@ -69,7 +69,7 @@ export async function GET() {
   }
 
   /* ----------------------------
-   * Overall Status
+   * Overall Status Evaluation
    * ---------------------------- */
   if (
     healthStatus.checks.supabase !== "healthy" ||
