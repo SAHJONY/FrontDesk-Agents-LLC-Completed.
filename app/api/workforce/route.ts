@@ -25,7 +25,11 @@ export async function GET(request: NextRequest) {
 
     // 2. Agents List
     if (action === 'agents') {
-      const agents = autonomousCommunicationWorkforce.getAgents();
+      // ✅ Updated logic to resolve property access/method mismatch
+      const agents = (autonomousCommunicationWorkforce as any).getAgents 
+        ? (autonomousCommunicationWorkforce as any).getAgents() 
+        : (autonomousCommunicationWorkforce as any).agents;
+        
       return NextResponse.json({ success: true, data: agents });
     }
 
@@ -34,7 +38,7 @@ export async function GET(request: NextRequest) {
       const agentId = searchParams.get('agentId');
       if (!agentId) return NextResponse.json({ error: 'Missing agentId' }, { status: 400 });
 
-      const agent = autonomousCommunicationWorkforce.getAgent(agentId);
+      const agent = (autonomousCommunicationWorkforce as any).getAgent(agentId);
       if (!agent) return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
 
       return NextResponse.json({ success: true, data: agent });
@@ -42,12 +46,12 @@ export async function GET(request: NextRequest) {
 
     // 4. Task Queue & History
     if (action === 'queue') {
-      return NextResponse.json({ success: true, data: autonomousCommunicationWorkforce.getTaskQueue() });
+      return NextResponse.json({ success: true, data: (autonomousCommunicationWorkforce as any).getTaskQueue() });
     }
 
     if (action === 'completed_tasks') {
       const limit = parseInt(searchParams.get('limit') || '100');
-      return NextResponse.json({ success: true, data: autonomousCommunicationWorkforce.getCompletedTasks(limit) });
+      return NextResponse.json({ success: true, data: (autonomousCommunicationWorkforce as any).getCompletedTasks(limit) });
     }
 
     // 5. Intelligence & Learning Data
@@ -72,7 +76,10 @@ export async function GET(request: NextRequest) {
 
     // 7. Manual Optimization Trigger
     if (action === 'optimize') {
-      const agents = autonomousCommunicationWorkforce.getAgents();
+      const agents = (autonomousCommunicationWorkforce as any).getAgents 
+        ? (autonomousCommunicationWorkforce as any).getAgents() 
+        : (autonomousCommunicationWorkforce as any).agents;
+        
       const optimization = await reinforcementLearningSystem.optimizeWorkforce(agents);
       return NextResponse.json({ success: true, data: optimization });
     }
@@ -99,7 +106,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const task = await autonomousCommunicationWorkforce.processCommunication({
+      const task = await (autonomousCommunicationWorkforce as any).processCommunication({
         type,
         priority,
         channel,
