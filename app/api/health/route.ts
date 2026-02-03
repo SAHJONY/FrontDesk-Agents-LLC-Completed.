@@ -57,8 +57,8 @@ export async function GET() {
       healthStatus.checks.stripe = "missing configuration";
     } else {
       const stripe = new Stripe(stripeKey, {
-        // ✅ Supported & stable for stripe@20.x
-        apiVersion: "2024-06-20",
+        // ✅ Updated to match requirements of stripe@20.x
+        apiVersion: "2025-12-15.clover",
       });
 
       await stripe.balance.retrieve();
