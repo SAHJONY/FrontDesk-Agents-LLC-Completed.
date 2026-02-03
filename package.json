@@ -6,7 +6,7 @@
   "private": true,
   "packageManager": "pnpm@10.28.0",
   "engines": {
-    "node": ">=22.x"
+    "node": "22.x"
   },
   "scripts": {
     "preinstall": "corepack enable",
@@ -14,6 +14,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "node -e \"console.log('No tests configured yet'); process.exit(0)\"",
+    "ci": "pnpm lint && pnpm typecheck && pnpm build",
     "prepare": "node -e \"if(process.env.NODE_ENV!=='production'){try{require('husky').install()}catch(e){}}\""
   },
   "dependencies": {
