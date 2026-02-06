@@ -1,39 +1,25 @@
-import { Redis } from '@upstash/redis';
+import { Redis } from '@upstash/redis'
+
+if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  console.warn('⚠️ Telemetry Warning: Redis credentials missing. Real-time metrics are disabled.')
+}
+
+export const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL || '',
+  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
+})
 
 /**
- * Bulletproof Redis Configuration
- * Prevents "Application Error" by providing a fallback 
- * if environment variables are missing.
+ * Logs agent efficiency metrics to the Global Fleet Map
  */
-
-const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
-const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
-
-const isConfigured = !!(redisUrl && redisToken && redisUrl.startsWith('http'));
-
-// Initializing the real client or null
-const client = isConfigured
-  ? new Redis({
-      url: redisUrl as string,
-      token: redisToken as string,
+export async function logAgentTelemetry(agentId: string, metrics: { conversion: number; latency: number }) {
+  try {
+    await redis.hset(`agent:${agentId}:telemetry`, {
+      ...metrics,
+      timestamp: Date.now(),
     })
-  : null;
-
-/**
- * The exported redis object.
- * If unconfigured, it returns a Proxy that prevents .get() or .set() 
- * from throwing "Cannot read property of null" errors.
- */
-export const redis = new Proxy((client || {}) as Redis, {
-  get(target, prop) {
-    if (!isConfigured) {
-      // If code tries to call a redis method, return a no-op function
-      return () => Promise.resolve(null);
-    }
-    return Reflect.get(target, prop);
-  },
-});
-
-export const getRedis = () => (isConfigured ? redis : null);
-
-export default redis;
+    await redis.publish('fleet-updates', { agentId, ...metrics })
+  } catch (error) {
+    console.error('Telemetry Write Failed:', error)
+  }
+}
