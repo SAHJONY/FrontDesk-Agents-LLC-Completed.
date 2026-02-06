@@ -19,6 +19,8 @@ import {
   ChevronRight,
   Database,
   Layers,
+  Key,
+  Lock,
 } from 'lucide-react';
 import { LegalComplianceBadge } from '@/components/legal/LegalComplianceBadge';
 
@@ -60,7 +62,7 @@ export default function SettingsPage() {
             <LegalComplianceBadge />
           </div>
           <p className="text-zinc-500 text-[10px] font-mono tracking-[0.4em] uppercase">
-            System Configuration // Version 2.2.0
+            System Configuration // Version 2.2.1
           </p>
         </header>
 
@@ -103,7 +105,7 @@ export default function SettingsPage() {
           {/* Configuration Terminal */}
           <div className="lg:col-span-3">
             <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-10 relative overflow-hidden shadow-2xl">
-              {/* GitHub Asset Decorator: setup-steps.png */}
+              {/* GitHub Asset Decorator */}
               <div className="absolute top-0 right-0 w-64 h-64 opacity-[0.03] pointer-events-none">
                 <Image 
                   src="/assets/premium/setup-steps.png" 
@@ -155,7 +157,6 @@ export default function SettingsPage() {
                     </p>
                   </div>
 
-                  {/* Feature Visualizer: client-dashboard.png */}
                   <div className="relative h-40 rounded-2xl overflow-hidden border border-zinc-800 mb-6 group">
                     <Image 
                       src="/assets/premium/client-dashboard.png" 
@@ -185,29 +186,54 @@ export default function SettingsPage() {
                         Upgrade Tier
                       </button>
                     </div>
+                  </div>
+                </div>
+              )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                          <Globe className="w-3 h-3" /> Local Market Currency
-                        </label>
-                        <select className="input-field appearance-none" defaultValue={tenant.currencyCode}>
-                          <option value="USD">USD</option>
-                          <option value="GBP">GBP</option>
-                          <option value="EUR">EUR</option>
-                        </select>
+              {activeTab === 'security' && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h2 className="text-xl font-black uppercase italic tracking-tight mb-2">
+                        Vault Security
+                      </h2>
+                      <p className="text-[10px] text-zinc-500 uppercase tracking-widest">
+                        Infrastructure Credentials & Edge Authentication
+                      </p>
+                    </div>
+                    <Lock className="text-blue-600 w-6 h-6" />
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="p-6 bg-zinc-900/30 rounded-3xl border border-zinc-800">
+                      <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                        <Database className="w-3 h-3 text-blue-500" /> Real-time Telemetry (Redis)
+                      </h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest ml-1">UPSTASH_REDIS_REST_URL</label>
+                          <input type="password" placeholder="https://...upstash.io" className="input-field" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest ml-1">UPSTASH_REDIS_REST_TOKEN</label>
+                          <input type="password" placeholder="••••••••••••••••" className="input-field" />
+                        </div>
                       </div>
+                    </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                          <Zap className="w-3 h-3" /> Regional Multiplier
-                        </label>
-                        <input
-                          type="text"
-                          defaultValue={`${tenant.regionalMultiplier}x`}
-                          readOnly
-                          className="input-field opacity-50 cursor-not-allowed"
-                        />
+                    <div className="p-6 bg-zinc-900/30 rounded-3xl border border-zinc-800">
+                      <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                        <Key className="w-3 h-3 text-emerald-500" /> Messaging Gateway (SMS/Email)
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest ml-1">SMS_GATEWAY_KEY</label>
+                          <input type="password" placeholder="SK_PROD_••••" className="input-field" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest ml-1">RESEND_API_KEY</label>
+                          <input type="password" placeholder="re_••••••••" className="input-field" />
+                        </div>
                       </div>
                     </div>
                   </div>
