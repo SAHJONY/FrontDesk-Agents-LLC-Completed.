@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * FRONTDESK AGENTS: ENTERPRISE LANDING NODE
+ * Core Revenue Workforce Platform & Global Pricing Architecture
+ */
+
 import React, { useMemo, useState } from "react";
 import { HeroImage } from "./components/HeroImage";
 import {
@@ -16,7 +21,8 @@ import {
   Workflow,
   Database,
   Cpu,
-  Network
+  Network,
+  BookOpen
 } from "lucide-react";
 import Link from "next/link";
 
@@ -119,21 +125,6 @@ const ENTERPRISE_FEATURES = [
     icon: <BarChart3 className="w-8 h-8" />,
     title: "Predictive Analytics Engine",
     desc: "AI-powered insights, trend detection, anomaly alerts, and actionable recommendations for executive decision-making"
-  },
-  {
-    icon: <Network className="w-8 h-8" />,
-    title: "Seamless Integration",
-    desc: "Native connectors for Salesforce, HubSpot, Microsoft Dynamics, Bland.AI, OpenAI, Stripe, and custom APIs"
-  },
-  {
-    icon: <Cpu className="w-8 h-8" />,
-    title: "Autonomous Operations",
-    desc: "24/7 unattended operations with automated lead qualification, outbound campaigns, and revenue optimization"
-  },
-  {
-    icon: <Lock className="w-8 h-8" />,
-    title: "Compliance Ready",
-    desc: "Built-in DNC list checking, quiet hours enforcement, opt-in verification, and automated compliance logging"
   }
 ];
 
@@ -177,82 +168,68 @@ export default function EnterpriseLandingPage() {
       discount = 0.1;
     }
 
-    // Monthly subtotal BEFORE annual discount
     const monthlyBeforeAnnual = base * safeLocations * (1 - discount);
-
-    // Annual plan: 20% off the monthly subtotal
     const annualDiscount = 0.2;
     const monthlyFinal = isAnnual ? monthlyBeforeAnnual * (1 - annualDiscount) : monthlyBeforeAnnual;
-
-    // FIX: savings is 20% of monthly subtotal * 12 months
     const annualSavings = isAnnual ? monthlyBeforeAnnual * annualDiscount * 12 : 0;
-
     const costPerLocation = monthlyFinal / safeLocations;
 
     return { monthlyFinal, annualSavings, costPerLocation };
   }, [safeLocations, isAnnual]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      {/* Top Bar */}
-      <div className="bg-blue-600 text-white py-2 px-4 text-center text-sm font-semibold">
-        Trusted by Fortune 500 companies • 8-Division autonomous AI workforce platform
+    <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30">
+      {/* Top Bar Notification */}
+      <div className="bg-blue-600 text-white py-2 px-4 text-center text-[10px] font-black uppercase tracking-[0.2em]">
+        Operational Excellence: Trusted by Fortune 500 Financial & Healthcare Networks
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* HERO SECTION */}
-        <section className="relative overflow-hidden rounded-3xl bg-slate-900 py-24 px-8 mb-20 shadow-2xl border border-slate-800">
-          <div className="absolute inset-0 opacity-30">
+        <section className="relative overflow-hidden rounded-[3rem] bg-slate-900 py-24 px-8 mb-20 shadow-2xl border border-slate-800">
+          <div className="absolute inset-0 opacity-20">
             <HeroImage />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-950/50 to-slate-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-950/40 to-slate-900" />
 
-          <div className="relative z-10 max-w-5xl mx-auto text-center text-white">
-            <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-400/30 rounded-full px-5 py-2.5 mb-8 backdrop-blur-sm">
-              <Building2 className="w-5 h-5" />
-              <span className="text-sm font-bold">Enterprise AI Revenue Workforce Platform</span>
+          <div className="relative z-10 max-w-5xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-5 py-2 mb-8 backdrop-blur-xl">
+              <Building2 className="w-4 h-4 text-blue-400" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-300">Revenue Workforce v2.2</span>
             </div>
 
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 leading-tight">
-              <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                Transform Revenue Operations
-              </span>
-              <br />
-              <span className="text-blue-400">at Enterprise Scale</span>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 leading-[0.9] uppercase italic">
+              Scale Revenue <br />
+              <span className="text-blue-500">Autonomous Ops</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Deploy 8-division AI workforce with autonomous receptionist, outbound campaigns achieving 84% conversion, and
-              self-healing infrastructure. Trusted by Fortune 500 companies for mission-critical revenue operations.
+            <p className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
+              Deploy an 8-division AI workforce to manage mission-critical operations. 
+              Achieve 84% conversion rates with self-healing global infrastructure.
             </p>
 
-            <div className="flex flex-wrap justify-center gap-5 mb-12">
+            <div className="flex flex-wrap justify-center gap-4 mb-16">
               <Link
                 href="/signup"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-5 rounded-full font-bold text-lg transition-all shadow-xl shadow-blue-900/50 hover:shadow-blue-900/70 hover:scale-105 flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-[0_20px_40px_rgba(37,99,235,0.3)] hover:scale-105 active:scale-95 flex items-center gap-3"
               >
-                <Phone className="w-5 h-5" />
-                Request Enterprise Demo
-              </Link>
-              <Link
-                href="/case-studies"
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-10 py-5 rounded-full font-bold text-lg transition-all border border-white/20 hover:border-white/40"
-              >
-                View Case Studies
+                <Phone className="w-4 h-4" />
+                Request Demo
               </Link>
               <Link
                 href="/blog"
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-10 py-5 rounded-full font-bold text-lg transition-all border border-white/20 hover:border-white/40 ml-4"
+                className="bg-slate-800/50 hover:bg-slate-800 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all border border-slate-700 flex items-center gap-3"
               >
-                Our Blog
+                <BookOpen className="w-4 h-4 text-blue-400" />
+                ROI Insights
               </Link>
             </div>
 
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-8 text-sm text-slate-400 border-t border-slate-800 pt-8 mt-8">
+            {/* Trust Matrix */}
+            <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 border-t border-slate-800/50 pt-10">
               {TRUSTED_BY.map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-blue-400" />
+                  <Award className="w-4 h-4 text-blue-600" />
                   <span>{item}</span>
                 </div>
               ))}
@@ -260,239 +237,109 @@ export default function EnterpriseLandingPage() {
           </div>
         </section>
 
-        {/* ENTERPRISE FEATURES */}
-        <section className="mb-20">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-black mb-6 text-white">Built for Enterprise Requirements</h2>
-            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-              Security, scalability, and autonomous operations designed for the world's most demanding organizations
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {ENTERPRISE_FEATURES.map((feature, idx) => (
-              <div
-                key={idx}
-                className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-2xl hover:shadow-blue-900/20 group"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform shadow-lg">
-                  {feature.icon}
-                </div>
-                <h3 className="font-bold text-2xl mb-3 text-white">{feature.title}</h3>
-                <p className="text-slate-400 leading-relaxed">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* ENTERPRISE CALCULATOR */}
-        <section className="mb-20">
-          <div className="max-w-5xl mx-auto text-center mb-12">
-            <h2 className="text-5xl font-black mb-6 text-white">Enterprise Pricing Calculator</h2>
-            <p className="text-xl text-slate-400">
-              Flexible pricing that scales with your organization. Volume discounts up to 20%.
-            </p>
+        <section className="mb-32">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-4xl font-black uppercase italic tracking-tighter mb-4">Investment Calculator</h2>
+            <p className="text-slate-500 text-sm font-medium">Customized fiscal modeling for multi-region organizations.</p>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-10 rounded-3xl shadow-2xl border border-slate-700 max-w-5xl mx-auto">
-            <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
-              <div>
-                <h3 className="font-bold text-2xl text-white mb-2">Calculate Your Investment</h3>
-                <p className="text-slate-400">Customize pricing for your organization's needs</p>
+          <div className="bg-zinc-950 border border-zinc-900 p-12 rounded-[3rem] shadow-2xl max-w-5xl mx-auto relative overflow-hidden">
+             <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16">
+              <div className="space-y-1">
+                <h3 className="text-sm font-black uppercase tracking-widest text-zinc-300">Scale Parameters</h3>
+                <p className="text-xs text-zinc-500 uppercase tracking-widest">{tierForLocations.name} Tier Active</p>
               </div>
 
-              <div className="flex items-center gap-3 text-white">
-                <span className={`text-sm ${!isAnnual ? "font-bold text-blue-400" : "text-slate-500"}`}>Monthly</span>
-                <button
-                  type="button"
-                  aria-label="Toggle annual billing"
-                  aria-pressed={isAnnual}
-                  onClick={() => setIsAnnual(!isAnnual)}
-                  className={`w-16 h-8 rounded-full relative transition-colors ${isAnnual ? "bg-blue-600" : "bg-slate-700"}`}
+              <div className="flex items-center gap-4 bg-zinc-900 p-1.5 rounded-2xl border border-zinc-800">
+                <button 
+                  onClick={() => setIsAnnual(false)}
+                  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!isAnnual ? 'bg-zinc-800 text-white shadow-xl' : 'text-zinc-500'}`}
                 >
-                  <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all shadow-md ${isAnnual ? "left-9" : "left-1"}`} />
+                  Monthly
                 </button>
-                <span className={`text-sm ${isAnnual ? "font-bold text-blue-400" : "text-slate-500"}`}>
-                  Annual <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">-20%</span>
-                </span>
+                <button 
+                  onClick={() => setIsAnnual(true)}
+                  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isAnnual ? 'bg-blue-600 text-white shadow-xl' : 'text-zinc-500'}`}
+                >
+                  Annual <span className="ml-1 text-[8px] opacity-70">(-20%)</span>
+                </button>
               </div>
             </div>
 
-            <div className="mb-10">
-              <div className="flex justify-between mb-6">
-                <div>
-                  <label className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-                    Number of Locations
-                  </label>
-                  <p className="text-sm text-slate-500 mt-1">
-                    {tierForLocations.locations} • {tierForLocations.name} Tier
-                  </p>
-                </div>
-                <div className="text-right">
-                  <span className="text-6xl font-black bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
-                    {safeLocations}
-                  </span>
-                  <p className="text-sm text-slate-500 mt-1">locations</p>
-                </div>
+            <div className="mb-20">
+              <div className="flex justify-between items-end mb-8">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">Total Operational Nodes</span>
+                <span className="text-7xl font-black italic tracking-tighter text-blue-500">{safeLocations}</span>
               </div>
-
               <input
                 type="range"
-                aria-label="Number of locations"
                 min="1"
                 max="500"
                 value={safeLocations}
                 onChange={(e) => setLocations(clampInt(parseInt(e.target.value, 10), 1, 500))}
-                className="w-full h-4 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, rgb(59 130 246) 0%, rgb(59 130 246) ${(safeLocations / 500) * 100}%, rgb(51 65 85) ${(safeLocations / 500) * 100}%, rgb(51 65 85) 100%)`
-                }}
+                className="w-full h-2 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-blue-600"
               />
-
-              <div className="flex justify-between text-xs text-slate-500 mt-3">
-                <span>1</span>
-                <span>100</span>
-                <span>250</span>
-                <span>500+</span>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10 border-t border-slate-700">
-              <div className="text-center md:text-left">
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3">Selected Plan</p>
-                <p className="text-3xl font-black text-white">{tierForLocations.name}</p>
-                <p className="text-sm text-blue-400 mt-1">Enterprise-grade features</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pt-12 border-t border-zinc-900">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Monthly Opex</p>
+                <p className="text-4xl font-black tracking-tighter">${Math.round(pricing.monthlyFinal).toLocaleString()}</p>
               </div>
-
-              <div className="text-center md:text-left">
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3">
-                  {isAnnual ? "Annual" : "Monthly"} Investment
-                </p>
-                <p className="text-4xl font-black bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
-                  ${Math.round(pricing.monthlyFinal).toLocaleString()}
-                  <span className="text-lg text-slate-400 font-normal">/mo</span>
-                </p>
-                {isAnnual && (
-                  <p className="text-sm text-green-400 mt-2">
-                    Saving ${Math.round(pricing.annualSavings).toLocaleString()}/year
-                  </p>
-                )}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Per Node Cost</p>
+                <p className="text-4xl font-black tracking-tighter text-zinc-400">${Math.round(pricing.costPerLocation)}</p>
               </div>
-
-              <div className="text-center md:text-left">
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3">Cost Per Location</p>
-                <p className="text-3xl font-bold text-white">
-                  ${Math.round(pricing.costPerLocation).toLocaleString()}
-                  <span className="text-sm text-slate-400 font-normal">/mo</span>
-                </p>
-                <p className="text-sm text-slate-400 mt-2">All features included</p>
+              <div className="bg-blue-600/5 border border-blue-600/20 p-6 rounded-3xl">
+                <p className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2">Annual Savings</p>
+                <p className="text-4xl font-black tracking-tighter text-emerald-500">${Math.round(pricing.annualSavings).toLocaleString()}</p>
               </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-700/50 rounded-2xl p-6 text-center">
-              <p className="text-blue-300 font-semibold mb-3 flex items-center justify-center gap-2">
-                <Zap className="w-5 h-5" />
-                Enterprise customers save an average of $2.4M annually in operational costs
-              </p>
-              <Link
-                href="/demo"
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition-all"
-              >
-                Schedule Enterprise Consultation
-              </Link>
             </div>
           </div>
         </section>
 
-        {/* PRICING TIERS */}
+        {/* REVENUE TIERS */}
         <section className="mb-20">
-          <div className="text-center mb-12">
-            <h2 className="text-5xl font-black text-white mb-4">Choose Your Enterprise Plan</h2>
-            <p className="text-xl text-slate-400">Flexible plans designed for organizations of all sizes</p>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(TIERS).map(([key, tier]) => (
               <div
                 key={key}
-                className={`p-8 rounded-3xl border flex flex-col transition-all hover:scale-105 ${
+                className={`p-10 rounded-[2.5rem] border transition-all hover:translate-y-[-8px] flex flex-col ${
                   tier.highlight
-                    ? "border-blue-500 shadow-2xl ring-4 ring-blue-600/30 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900"
-                    : "border-slate-700 bg-gradient-to-br from-slate-900 to-slate-800 hover:border-blue-600"
+                    ? "border-blue-600 bg-zinc-950 shadow-[0_30px_60px_rgba(37,99,235,0.15)]"
+                    : "border-zinc-900 bg-zinc-950"
                 }`}
               >
-                {tier.highlight && (
-                  <span className="bg-gradient-to-r from-blue-600 to-blue-500 text-white text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest self-start shadow-lg">
-                    Most Popular
-                  </span>
-                )}
-                <h4 className="text-3xl font-black mt-4 text-white">{tier.name}</h4>
-                <p className="text-xs text-blue-400 font-semibold uppercase tracking-wider mt-2">{tier.locations}</p>
-                <p className="text-sm text-slate-400 my-4 min-h-[3rem]">{tier.desc}</p>
-                <div className="mb-6">
-                  <span className="text-5xl font-black text-white">${tier.price}</span>
-                  <span className="text-sm text-slate-500 ml-1">/mo per location</span>
+                <h4 className="text-2xl font-black uppercase italic tracking-tighter text-white">{tier.name}</h4>
+                <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mt-2 mb-6">{tier.locations}</p>
+                
+                <div className="mb-8">
+                  <span className="text-4xl font-black text-white">${tier.price}</span>
+                  <span className="text-xs text-zinc-600 font-bold uppercase tracking-widest ml-2">/ Node</span>
                 </div>
-                <ul className="space-y-3 mb-8 flex-grow">
-                  {tier.features.map((feature, i) => (
-                    <li key={i} className="text-sm text-slate-300 flex gap-3 items-start">
-                      <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                      <span>{feature}</span>
+
+                <ul className="space-y-4 mb-10 flex-grow">
+                  {tier.features.slice(0, 5).map((feature, i) => (
+                    <li key={i} className="text-[11px] font-bold text-zinc-400 flex gap-3 items-start uppercase tracking-tight leading-tight">
+                      <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      {feature}
                     </li>
                   ))}
                 </ul>
+
                 <Link
                   href="/signup"
-                  className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg text-center ${
+                  className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all text-center ${
                     tier.highlight
-                      ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-600/50"
-                      : "bg-slate-800 text-white hover:bg-slate-700"
+                      ? "bg-blue-600 text-white hover:bg-blue-500"
+                      : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                   }`}
                 >
-                  Contact Sales
+                  Initialize Tier
                 </Link>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* ENTERPRISE CTA */}
-        <section className="bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 rounded-3xl p-16 text-center text-white shadow-2xl relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
-          <div className="relative z-10">
-            <Building2 className="w-20 h-20 mx-auto mb-8 opacity-90" />
-            <h2 className="text-5xl font-black mb-6">Ready for Enterprise Transformation?</h2>
-            <p className="text-2xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
-              Join Fortune 500 companies using our 8-division AI workforce to deliver exceptional experiences at global scale
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <Link
-                href="/signup"
-                className="bg-white text-blue-600 px-12 py-6 rounded-full font-bold text-xl hover:bg-blue-50 transition-all shadow-2xl hover:scale-105"
-              >
-                Schedule Enterprise Demo →
-              </Link>
-              <Link
-                href="/demo"
-                className="bg-white/10 backdrop-blur-sm text-white px-12 py-6 rounded-full font-bold text-xl hover:bg-white/20 transition-all border-2 border-white/30"
-              >
-                Download Case Studies
-              </Link>
-            </div>
-            <div className="flex flex-wrap justify-center gap-8 text-sm text-blue-100">
-              <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                <span>SOC 2-Aligned</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Lock className="w-5 h-5" />
-                <span>HIPAA Ready</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5" />
-                <span>99.99% Uptime SLA</span>
-              </div>
-            </div>
           </div>
         </section>
       </div>
