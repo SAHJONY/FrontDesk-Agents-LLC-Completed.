@@ -106,7 +106,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('refreshToken', data.refreshToken);
     
     setUser(data.user);
-    router.push('/dashboard');
+    
+    // Role-based redirection
+    if (data.redirectUrl) {
+      router.push(data.redirectUrl);
+    } else if (data.user.role === 'ADMIN') {
+      router.push('/admin/tenants');
+    } else if (data.user.role === 'OWNER') {
+      router.push('/owner');
+    } else {
+      router.push('/dashboard');
+    }
   }
 
   async function logout() {

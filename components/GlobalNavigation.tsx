@@ -20,7 +20,7 @@ export default function GlobalNavigation() {
 
   const isOwner = useMemo(() => {
     if (!user) return false;
-    return user.email === OWNER_EMAIL || user.role === 'owner';
+    return user.email === OWNER_EMAIL || user.role === 'OWNER' || user.role === 'ADMIN';
   }, [user]);
 
   const navLinks = useMemo(() => {
