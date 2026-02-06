@@ -10,12 +10,11 @@ import { createClient } from '@supabase/supabase-js';
  * Returns null if environment variables are not configured
  */
 export function getSupabaseServer() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "placeholder";
 
-  if (!supabaseUrl || !supabaseKey) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || (!process.env.SUPABASE_SERVICE_ROLE_KEY && !process.env.SUPABASE_SERVICE_KEY)) {
     console.warn('Supabase environment variables not configured');
-    return null;
   }
 
   return createClient(supabaseUrl, supabaseKey, {

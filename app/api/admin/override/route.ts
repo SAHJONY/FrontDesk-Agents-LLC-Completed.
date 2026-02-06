@@ -3,10 +3,12 @@ import { requireSupabaseServer } from '@/lib/supabase-server';
 import { Redis } from '@upstash/redis';
 import { syncTenantStatus } from '@/lib/sovereign-sync';
 
-const redis = new Redis({
-  url: process.env.REDIS_URL!,
-  token: process.env.REDIS_TOKEN!,
-});
+const redis = process.env.REDIS_URL && process.env.REDIS_TOKEN 
+  ? new Redis({
+      url: process.env.REDIS_URL,
+      token: process.env.REDIS_TOKEN,
+    })
+  : null;
 
 export async function POST(req: NextRequest) {
   const supabase = requireSupabaseServer();
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest) {
         .eq('id', tenantId)
         .single();
       
-      if (tenant) await redis.del(`block:${tenant.owner_id}`);
+      if (tenant && redis) await redis.del(`block:${tenant.owner_id}`);
     }
 
     // Trigger a full re-sync to ensure everything is aligned
