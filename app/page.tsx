@@ -235,10 +235,16 @@ export default function EnterpriseLandingPage() {
                 Request Enterprise Demo
               </Link>
               <Link
-                href="/demo"
+                href="/case-studies"
                 className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-10 py-5 rounded-full font-bold text-lg transition-all border border-white/20 hover:border-white/40"
               >
                 View Case Studies
+              </Link>
+              <Link
+                href="/blog"
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-10 py-5 rounded-full font-bold text-lg transition-all border border-white/20 hover:border-white/40 ml-4"
+              >
+                Our Blog
               </Link>
             </div>
 
