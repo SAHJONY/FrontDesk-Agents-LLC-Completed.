@@ -1,250 +1,210 @@
 "use client";
 
 /**
- * FRONTDESK AGENTS: ENTERPRISE LANDING NODE
- * Core Revenue Workforce Platform & Global Pricing Architecture
- * Version: 2.2.1 | Tier: Enterprise
+ * FRONTDESK AGENTS: SUPREME ENTERPRISE NODE
+ * Design System: Obsidian Elite v4.0 (Fortune 500 Standard)
+ * Infrastructure: Global Command & Control Interface
  */
 
-import React, { useMemo, useState } from "react";
-import {
-  Phone,
-  Globe,
-  Zap,
-  Shield,
-  BarChart3,
-  Bot,
-  CheckCircle2,
-  Building2,
-  Award,
-  Database,
-  Workflow,
-  BookOpen
+import React, { useMemo, useState, useEffect } from "react";
+import { 
+  Shield, 
+  Cpu, 
+  ArrowRight, 
+  Globe, 
+  Lock, 
+  Zap, 
+  Activity, 
+  Building2, 
+  ChevronRight,
+  Target
 } from "lucide-react";
 import Link from "next/link";
 
-const TIERS = {
+const SOVEREIGN_TIERS = {
   STARTER: {
-    name: "Starter",
+    label: "Strategic Node",
     price: 199,
-    locations: "1 location",
-    features: [
-      "300 conversations/month",
-      "English & Spanish support",
-      "Google Calendar integration",
-      "Standard support (24hr response)",
-      "Workflow Triage & Data Tagging"
-    ],
-    highlight: false
+    capacity: "300 Mins/Mo",
+    specs: ["Linguistic Core: EN/ES", "Standard CRM Bridge", "Neural SMS Engine"],
   },
   PROFESSIONAL: {
-    name: "Professional",
+    label: "Professional Fleet",
     price: 399,
-    locations: "2-5 locations",
-    features: [
-      "1,200 conversations/month",
-      "50+ languages supported",
-      "Stripe billing integration",
-      "Priority Routing Protocols",
-      "Advanced Resource Management"
-    ],
+    capacity: "1,200 Mins/Mo",
+    specs: ["50+ Global Dialects", "Fiscal Gateway (Stripe)", "Active Lead Prospecting"],
     highlight: true
   },
   GROWTH: {
-    name: "Growth",
+    label: "Growth Cluster",
     price: 799,
-    locations: "6-15 locations",
-    features: [
-      "3,000 conversations/month",
-      "100+ languages supported",
-      "Custom Voice Profile Management",
-      "Multi-Regional Infrastructure",
-      "Dedicated Jurisdictional Databases"
-    ],
-    highlight: false
+    capacity: "3,000 Mins/Mo",
+    specs: ["Full API Command", "Predictive Analytics", "Dedicated Logic Guard"],
   },
   ENTERPRISE: {
-    name: "Enterprise",
+    label: "Enterprise Protocol",
     price: 1499,
-    locations: "16+ locations",
-    features: [
-      "7,000 conversations/month",
-      "All 100+ languages supported",
-      "White-label implementation options",
-      "Dedicated cloud infrastructure",
-      "Scalable Corporate Architecture"
-    ],
-    highlight: false
+    capacity: "7,000 Mins/Mo",
+    specs: ["Custom Neural Training", "Sovereign Infrastructure", "24/7 Executive SLA"],
   }
 };
 
-const TRUSTED_BY = [
-  "Fortune 500 Financial Services",
-  "Global Healthcare Networks",
-  "Multi-National Retail Chains",
-  "Enterprise Technology Leaders"
-];
-
-function clampInt(n: number, min: number, max: number) {
-  if (!Number.isFinite(n)) return min;
-  return Math.max(min, Math.min(max, Math.trunc(n)));
-}
-
-export default function EnterpriseLandingPage() {
-  const [locations, setLocations] = useState(16);
+export default function SupremeEnterprisePage() {
+  const [locations, setLocations] = useState(100);
   const [isAnnual, setIsAnnual] = useState(true);
 
-  const safeLocations = useMemo(() => clampInt(locations, 1, 500), [locations]);
-
-  const tierForLocations = useMemo(() => {
-    if (safeLocations >= 16) return TIERS.ENTERPRISE;
-    if (safeLocations >= 6) return TIERS.GROWTH;
-    if (safeLocations >= 2) return TIERS.PROFESSIONAL;
-    return TIERS.STARTER;
-  }, [safeLocations]);
-
   const pricing = useMemo(() => {
-    let base = 199;
-    let discount = 0;
-
-    if (safeLocations >= 16) {
-      base = 1499;
-      discount = 0.2;
-    } else if (safeLocations >= 6) {
-      base = 799;
-      discount = 0.15;
-    } else if (safeLocations >= 2) {
-      base = 399;
-      discount = 0.1;
-    }
-
-    const monthlyBeforeAnnual = base * safeLocations * (1 - discount);
-    const annualDiscount = 0.2;
-    const monthlyFinal = isAnnual ? monthlyBeforeAnnual * (1 - annualDiscount) : monthlyBeforeAnnual;
-    const annualSavings = isAnnual ? monthlyBeforeAnnual * annualDiscount * 12 : 0;
-    const costPerLocation = monthlyFinal / safeLocations;
-
-    return { monthlyFinal, annualSavings, costPerLocation };
-  }, [safeLocations, isAnnual]);
+    let base = locations >= 16 ? 1499 : locations >= 6 ? 799 : locations >= 2 ? 399 : 199;
+    let multiplier = locations >= 16 ? 0.70 : locations >= 6 ? 0.85 : 0.90;
+    const monthly = base * locations * multiplier * (isAnnual ? 0.8 : 1);
+    const savings = base * locations * 0.2 * 12;
+    return { monthly, savings, perNode: monthly / locations };
+  }, [locations, isAnnual]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30">
-      {/* Strategic Operational Bar */}
-      <div className="bg-blue-600 text-white py-2 px-4 text-center text-[10px] font-black uppercase tracking-[0.2em]">
-        Operational Excellence: Deployment Active in Portland (PDX1) Infrastructure
-      </div>
+    <div className="min-h-screen bg-[#020202] text-zinc-100 font-sans selection:bg-blue-600/40 selection:text-white">
+      {/* INSTITUTIONAL HEADER */}
+      <nav className="border-b border-white/5 bg-black/50 backdrop-blur-2xl sticky top-0 z-50">
+        <div className="max-w-screen-2xl mx-auto px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-blue-600 rounded-sm flex items-center justify-center">
+              <Target className="text-white w-6 h-6" />
+            </div>
+            <span className="text-xl font-black uppercase tracking-[0.3em] italic">FrontDesk <span className="text-zinc-500">Agents</span></span>
+          </div>
+          <div className="hidden lg:flex items-center gap-12 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+            <Link href="#" className="hover:text-blue-500 transition-colors">Infrastructure</Link>
+            <Link href="#" className="hover:text-blue-500 transition-colors">Global Fleet</Link>
+            <Link href="#" className="hover:text-blue-500 transition-colors">Governance</Link>
+            <Link href="/login" className="bg-white text-black px-6 py-2 rounded-sm hover:bg-zinc-200 transition-all">Client Access</Link>
+          </div>
+        </div>
+      </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* HERO SECTION */}
-        <section className="relative overflow-hidden rounded-[3rem] bg-slate-900 py-24 px-8 mb-20 shadow-2xl border border-slate-800">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-950/40 to-slate-900" />
+      {/* HERO: KINETIC DEPTH SECTION */}
+      <section className="relative pt-32 pb-48 px-8 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,#1e3a8a33,transparent)]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1400px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full" />
+        </div>
 
-          <div className="relative z-10 max-w-5xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-5 py-2 mb-8 backdrop-blur-xl">
-              <Building2 className="w-4 h-4 text-blue-400" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-300">Revenue Workforce v2.2.1</span>
+        <div className="relative z-10 max-w-screen-xl mx-auto text-center">
+          <div className="inline-flex items-center gap-3 py-2 px-6 rounded-full border border-blue-500/20 bg-blue-500/5 mb-12">
+            <Activity className="w-3 h-3 text-blue-500 animate-pulse" />
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400">Node PDX1: Operational</span>
+          </div>
+
+          <h1 className="text-7xl md:text-9xl font-black italic uppercase tracking-tighter leading-[0.8] mb-12">
+            The <span className="text-blue-600">Sovereign</span> <br /> 
+            Revenue <span className="text-zinc-700">Workforce</span>
+          </h1>
+
+          <p className="max-w-3xl mx-auto text-lg md:text-xl text-zinc-500 font-light leading-relaxed mb-16">
+            Deploy elite autonomous agents calibrated for Fortune 500 performance. 
+            Achieve absolute operational consistency with 84% conversion retention across global jurisdictions.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
+            <button className="group bg-blue-600 text-white px-14 py-6 rounded-sm font-black text-xs uppercase tracking-[0.3em] hover:bg-blue-500 transition-all flex items-center gap-4">
+              Deploy Protocol
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button className="border border-white/10 text-white px-14 py-6 rounded-sm font-black text-xs uppercase tracking-[0.3em] hover:bg-white/5 transition-all">
+              Institutional PDF
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* FISCAL INTELLIGENCE: THE CALCULATOR */}
+      <section className="max-w-screen-2xl mx-auto px-8 mb-48">
+        <div className="bg-zinc-900/30 border border-white/5 rounded-[4rem] p-20 backdrop-blur-3xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-12 opacity-10">
+            <Globe className="w-64 h-64 text-blue-500" />
+          </div>
+
+          <div className="flex flex-col lg:flex-row justify-between gap-24 relative z-10">
+            <div className="max-w-md">
+              <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 mb-6">Fiscal Modeling</h2>
+              <h3 className="text-5xl font-black italic uppercase tracking-tighter mb-8 leading-none">Global <br />Scale Engine</h3>
+              <p className="text-zinc-500 text-sm leading-relaxed mb-12">
+                Simulate enterprise-wide deployment costs across multi-jurisdictional nodes. Includes automatic volume discounting and annual fiscal optimization.
+              </p>
+              
+              <div className="flex bg-black p-1.5 rounded-sm border border-white/5 inline-flex">
+                <button onClick={() => setIsAnnual(false)} className={`px-8 py-3 text-[9px] font-black uppercase tracking-widest transition-all ${!isAnnual ? 'bg-zinc-800' : 'text-zinc-600'}`}>Monthly</button>
+                <button onClick={() => setIsAnnual(true)} className={`px-8 py-3 text-[9px] font-black uppercase tracking-widest transition-all ${isAnnual ? 'bg-blue-600' : 'text-zinc-600'}`}>Annual</button>
+              </div>
             </div>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 leading-[0.9] uppercase italic">
-              Scale Revenue <br />
-              <span className="text-blue-500">Autonomous Ops</span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
-              Deploy an 8-division AI workforce featuring self-healing global infrastructure and dedicated jurisdictional databases.
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-4 mb-16">
-              <Link
-                href="/signup"
-                className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-[0_20px_40px_rgba(37,99,235,0.3)] hover:scale-105 active:scale-95 flex items-center gap-3"
-              >
-                <Phone className="w-4 h-4" />
-                Access Portal
-              </Link>
-              <Link
-                href="/blog"
-                className="bg-slate-800/50 hover:bg-slate-800 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all border border-slate-700 flex items-center gap-3"
-              >
-                <BookOpen className="w-4 h-4 text-blue-400" />
-                ROI Insights
-              </Link>
-            </div>
-
-            {/* Trust Matrix */}
-            <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 border-t border-slate-800/50 pt-10">
-              {TRUSTED_BY.map((item, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-blue-600" />
-                  <span>{item}</span>
+            <div className="flex-1 space-y-20">
+              <div>
+                <div className="flex justify-between items-end mb-8">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">Total Active Nodes</span>
+                  <span className="text-8xl font-black italic tracking-tighter leading-none">{locations}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ENTERPRISE CALCULATOR */}
-        <section className="mb-32">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-4xl font-black uppercase italic tracking-tighter mb-4 text-white">Fiscal Impact Modeling</h2>
-            <p className="text-slate-500 text-sm font-medium uppercase tracking-widest">Enterprise-Tier Rate Optimization</p>
-          </div>
-
-          <div className="bg-zinc-950 border border-zinc-900 p-12 rounded-[3rem] shadow-2xl max-w-5xl mx-auto relative overflow-hidden">
-             <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16">
-              <div className="space-y-1">
-                <h3 className="text-sm font-black uppercase tracking-widest text-zinc-300">Scale Parameters</h3>
-                <p className="text-xs text-blue-500 font-black uppercase tracking-widest">{tierForLocations.name} Architecture Active</p>
+                <input 
+                  type="range" min="1" max="500" value={locations} 
+                  onChange={(e) => setLocations(parseInt(e.target.value))}
+                  className="w-full h-1 bg-zinc-800 appearance-none accent-blue-600 cursor-pointer"
+                />
               </div>
 
-              <div className="flex items-center gap-4 bg-zinc-900 p-1.5 rounded-2xl border border-zinc-800">
-                <button 
-                  onClick={() => setIsAnnual(false)}
-                  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!isAnnual ? 'bg-zinc-800 text-white shadow-xl' : 'text-zinc-500'}`}
-                >
-                  Monthly
-                </button>
-                <button 
-                  onClick={() => setIsAnnual(true)}
-                  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isAnnual ? 'bg-blue-600 text-white shadow-xl' : 'text-zinc-500'}`}
-                >
-                  Annual Billing
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-20">
-              <div className="flex justify-between items-end mb-8">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">Active Operational Nodes</span>
-                <span className="text-7xl font-black italic tracking-tighter text-blue-500">{safeLocations}</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="500"
-                value={safeLocations}
-                onChange={(e) => setLocations(clampInt(parseInt(e.target.value, 10), 1, 500))}
-                className="w-full h-2 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pt-12 border-t border-zinc-900">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Monthly Opex</p>
-                <p className="text-4xl font-black tracking-tighter">${Math.round(pricing.monthlyFinal).toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Cost Per Node</p>
-                <p className="text-4xl font-black tracking-tighter text-zinc-400">${Math.round(pricing.costPerLocation)}</p>
-              </div>
-              <div className="bg-blue-600/5 border border-blue-600/20 p-6 rounded-3xl">
-                <p className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2">Efficiency Savings</p>
-                <p className="text-4xl font-black tracking-tighter text-emerald-500">${Math.round(pricing.annualSavings).toLocaleString()}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-white/5 pt-12">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Net Monthly Opex</p>
+                  <p className="text-6xl font-black tracking-tighter">${Math.round(pricing.monthly).toLocaleString()}</p>
+                </div>
+                <div className="bg-blue-600/5 border border-blue-600/20 p-8">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-2">Institutional Savings</p>
+                  <p className="text-6xl font-black tracking-tighter text-emerald-500">${Math.round(pricing.savings).toLocaleString()}</p>
+                </div>
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {/* SOVEREIGN NODES: PRICING */}
+      <section className="max-w-screen-2xl mx-auto px-8 pb-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Object.entries(SOVEREIGN_TIERS).map(([key, tier]) => (
+            <div key={key} className={`p-12 border transition-all ${tier.highlight ? 'bg-zinc-100 text-black border-transparent' : 'bg-transparent border-white/10 hover:border-white/30 text-white'}`}>
+              <h4 className="text-xs font-black uppercase tracking-[0.4em] mb-8">{tier.label}</h4>
+              <div className="mb-12">
+                <span className="text-6xl font-black italic tracking-tighter">${tier.price}</span>
+                <span className="text-[9px] font-black uppercase tracking-widest ml-2 opacity-60">/ Node</span>
+              </div>
+              <ul className="space-y-6 mb-16">
+                {tier.specs.map((spec, i) => (
+                  <li key={i} className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest leading-tight">
+                    <div className={`w-1 h-1 rotate-45 ${tier.highlight ? 'bg-blue-600' : 'bg-zinc-600'}`} />
+                    {spec}
+                  </li>
+                ))}
+              </ul>
+              <button className={`w-full py-5 text-[9px] font-black uppercase tracking-[0.3em] transition-all border ${tier.highlight ? 'bg-black text-white border-black hover:bg-zinc-800' : 'border-white/20 hover:bg-white hover:text-black'}`}>
+                Initialize Node
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FOOTER: GLOBAL GOVERNANCE */}
+      <footer className="border-t border-white/5 py-24 bg-black">
+        <div className="max-w-screen-2xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-12">
+          <div className="flex items-center gap-4 opacity-50 grayscale">
+            <Building2 className="w-5 h-5" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em]">FrontDesk Agents LLC © 2026</span>
+          </div>
+          <div className="flex gap-12 text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600">
+            <Link href="#" className="hover:text-white transition-colors">Privacy Protocol</Link>
+            <Link href="#" className="hover:text-white transition-colors">Service Level Agreement</Link>
+            <Link href="#" className="hover:text-white transition-colors">Security Disclosure</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
