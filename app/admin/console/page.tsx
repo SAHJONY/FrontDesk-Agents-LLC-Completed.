@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// Removed unused 'PlusCircle' to resolve TypeScript build error
 import { ShieldAlert, LockOpen, Activity, TrendingUp, Cpu, Globe } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
