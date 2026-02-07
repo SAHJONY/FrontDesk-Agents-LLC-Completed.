@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from "@/lib/supabase";
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const resend = (process.env.RESEND_API_KEY) ? new Resend(process.env.RESEND_API_KEY) : null;
 
 /**
  * EXECUTIVE REPORTING ORCHESTRATOR
@@ -19,6 +15,8 @@ export async function GET(req: Request) {
     return new Response('Unauthorized Infrastructure Access', { status: 401 });
   }
 
+  const supabase = getSupabaseAdmin();
+
   try {
     // 1. Fetch Global Tenant List for Reporting
     const { data: tenants } = await supabase
@@ -29,11 +27,16 @@ export async function GET(req: Request) {
     if (!tenants) return NextResponse.json({ processed: 0 });
 
     const reportResults = await Promise.all(
-      tenants.map(async (tenant) => {
+      tenants.map(async (tenant: any) => {
         // 2. Aggregate weekly KPIs for this specific tenant
         const { data: stats } = await supabase.rpc('get_weekly_tenant_stats', {
           t_id: tenant.id
         });
+
+        if (!resend) {
+          console.warn("Resend API key missing, skipping email dispatch.");
+          return { success: false, message: "Resend missing" };
+        }
 
         // 3. Dispatch Professional Executive Summary
         return resend.emails.send({

@@ -1,16 +1,10 @@
 // services/whatsappAgent.ts
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from "@/lib/supabase";
 import twilio from 'twilio';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID!,
-  process.env.TWILIO_AUTH_TOKEN!
-);
+const twilioClient = (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
+  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+  : null;
 
 export interface WhatsAppMessage {
   from: string;
@@ -34,6 +28,7 @@ export const whatsappAgent = {
    * FIX: Renamed from processMessage to processIncoming to match Webhook route
    */
   async processIncoming(message: WhatsAppMessage): Promise<WhatsAppResponse> {
+    const supabase = getSupabaseAdmin();
     try {
       // Log the message to Supabase
       const { error: logError } = await supabase
@@ -78,7 +73,12 @@ export const whatsappAgent = {
    * Send WhatsApp message via Twilio
    */
   async sendMessage(message: WhatsAppMessage): Promise<WhatsAppResponse> {
+    const supabase = getSupabaseAdmin();
     try {
+      if (!twilioClient) {
+        throw new Error("Twilio client not initialized: Missing credentials");
+      }
+
       const twilioMessage = await twilioClient.messages.create({
         body: message.body,
         from: `whatsapp:${message.from}`,

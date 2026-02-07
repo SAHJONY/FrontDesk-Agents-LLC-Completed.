@@ -1,9 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 /**
  * SYSTEM RELIABILITY AGENT (THE "MEDIC")
@@ -16,6 +11,7 @@ export const medicAgent = {
    * Performs a health check on a specific service/product before the CEO acts.
    */
   async checkVitals(serviceName: string): Promise<boolean> {
+    const supabase = getSupabaseAdmin();
     try {
       // Logic: Ping the service or check recent success rates in Supabase
       const { data, error } = await supabase
@@ -67,6 +63,7 @@ export const medicAgent = {
    */
   async reportIncident(error: any, context: string) {
     console.error(`[MEDIC ALERT] ${context}:`, error);
+    const supabase = getSupabaseAdmin();
     
     await supabase.from('incident_logs').insert({
       event: context,

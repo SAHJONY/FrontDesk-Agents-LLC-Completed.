@@ -1,12 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from "@/lib/supabase";
 import { Plans } from './plans';
-// import { getAdjustedPricing } from './pricing';
 import { medicAgent } from './medic.service';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 /**
  * BILLING SERVICE: The Revenue Engine
@@ -18,6 +12,7 @@ export const billingService = {
    * Validates if a client has an active subscription for a specific plan
    */
   async validateSubscription(clientId: string): Promise<boolean> {
+    const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('clients')
       .select('plan_id, subscription_status')
@@ -36,6 +31,7 @@ export const billingService = {
    */
   async handlePayment(data: any) {
     console.log("[BILLING] Payment event received:", data.type);
+    const supabase = getSupabaseAdmin();
 
     try {
       // Logic for Stripe/LemonSqueezy event handling

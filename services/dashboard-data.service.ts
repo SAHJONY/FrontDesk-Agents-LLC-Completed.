@@ -1,15 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 export const globalIntelligence = {
   /**
    * Fetches the "Brain Activity" of the AI CEO
    */
   async getLiveHeatmap() {
+    const supabase = getSupabaseAdmin();
     const { data } = await supabase
       .from('agent_intelligence')
       .select('reward_score, industry_type, region, created_at')

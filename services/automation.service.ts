@@ -1,11 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from "@/lib/supabase";
 import { medicAgent } from './medic.service';
 import { guardianAgent } from './guardian.service';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export interface AutomationConfig {
   enabled: boolean;
@@ -65,6 +60,7 @@ export const aiCeoAgent = {
    */
   async autonomousOnboard(clientData: { name: string; website: string; industry?: string }) {
     console.log(`[AI CEO] Auto-Onboarding new client: ${clientData.name}`);
+    const supabase = getSupabaseAdmin();
     
     try {
       const industry = clientData.industry || 'General';
@@ -90,6 +86,7 @@ export const aiCeoAgent = {
   },
 
   async getGlobalContext(clientId: string) {
+    const supabase = getSupabaseAdmin();
     const { data } = await supabase
       .from('clients')
       .select('automation_settings, industry_type, region')
@@ -99,6 +96,7 @@ export const aiCeoAgent = {
   },
 
   async registerReward(interactionId: string, value: number) {
+    const supabase = getSupabaseAdmin();
     const { error } = await supabase
       .from('agent_intelligence')
       .upsert({ 
@@ -117,12 +115,14 @@ export const aiCeoAgent = {
  */
 export const fetchAutomationConfig = async (clientId?: string): Promise<AutomationConfig> => {
   if (!clientId) return { enabled: false, type: 'STANDARD', notifications: true };
+  const supabase = getSupabaseAdmin();
   const { data } = await supabase.from('clients').select('automation_settings').eq('id', clientId).single();
   return data?.automation_settings || { enabled: false, type: 'STANDARD', notifications: true };
 };
 
 export const updateAutomationConfig = async (config: Partial<AutomationConfig>, clientId?: string) => {
   if (!clientId) return { success: true };
+  const supabase = getSupabaseAdmin();
   const { error } = await supabase.from('clients').update({ automation_settings: config }).eq('id', clientId);
   if (error) {
     await medicAgent.reportIncident(error, 'Update Config');
@@ -131,5 +131,5 @@ export const updateAutomationConfig = async (config: Partial<AutomationConfig>, 
   return { success: true };
 };
 
-// Explicit export (already exported above with 'export const', but adding for clarity)
+// Explicit export
 export default aiCeoAgent;

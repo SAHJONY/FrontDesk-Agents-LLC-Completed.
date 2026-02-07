@@ -1,12 +1,7 @@
 // services/vp-growth.service.ts
 import { blandAiService } from './blandAiService';
 import { MarketingAutomation } from './marketingAutomation';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 const marketingAutomation = new MarketingAutomation();
 export const vpGrowthAgent = {
@@ -27,6 +22,7 @@ export const vpGrowthAgent = {
   },
 
   async getRLStrategy(industry: string, locale: string) {
+    const supabase = getSupabaseAdmin();
     // The "Brain": Queries Supabase for what is working WORLDWIDE right now
     const { data } = await supabase
       .from('global_intelligence')

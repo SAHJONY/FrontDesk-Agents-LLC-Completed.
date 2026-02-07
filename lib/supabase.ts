@@ -39,12 +39,32 @@ export async function createClientServer() {
 
 /**
  * 3. ADMIN CLIENT (God Mode)
+ * Safe for build time: returns null if keys are missing
  */
-export const supabaseAdmin = SERVICE_ROLE_KEY
+export const supabaseAdmin = (SUPABASE_URL && SERVICE_ROLE_KEY && SUPABASE_URL !== "https://placeholder.supabase.co")
   ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
   : null;
+
+/**
+ * 4. SAFE SERVICE CLIENT
+ * Returns a client or a proxy that logs errors instead of crashing
+ */
+export function getSupabaseAdmin() {
+  if (supabaseAdmin) return supabaseAdmin;
+  
+  console.warn("Supabase Admin client requested but keys are missing. Returning proxy.");
+  
+  return new Proxy({} as any, {
+    get: (target, prop) => {
+      return () => {
+        console.error(`Supabase Admin operation "${String(prop)}" failed: SUPABASE_SERVICE_ROLE_KEY is missing.`);
+        return { data: null, error: new Error("Supabase keys missing") };
+      };
+    }
+  });
+}
 
 // Your existing AuthUser interface...
 export interface AuthUser {
@@ -58,8 +78,8 @@ export interface AuthUser {
 }
 
 export async function getUserByEmail(email: string): Promise<AuthUser | null> {
-  if (!supabaseAdmin) return null;
-  const { data, error } = await supabaseAdmin
+  const admin = getSupabaseAdmin();
+  const { data, error } = await admin
     .from("users")
     .select('id, email, full_name, password_hash, role, tier, tenant_id')
     .eq("email", email.toLowerCase().trim())
