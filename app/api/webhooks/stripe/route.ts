@@ -1,15 +1,15 @@
-'use client';
-
 /**
  * FRONTDESK AGENTS: FISCAL GATEWAY NODE
  * Infrastructure: Stripe Webhook Controller v2.2.1
  * Security: Idempotency Logging & Signature Verification
+ * Documentation: https://nextjs.org/docs/app/building-your-application/routing/route-handlers
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
+// Enterprise Segment Configuration (Server-Side Only)
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
