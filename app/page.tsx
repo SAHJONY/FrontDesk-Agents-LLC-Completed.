@@ -8,6 +8,8 @@
 
 import React, { useMemo, useState } from "react";
 import { HeroImage } from "./components/HeroImage";
+import Testimonials from "./components/Testimonials";
+import FAQ from "./components/FAQ";
 import {
   Phone,
   Globe,
@@ -297,6 +299,10 @@ export default function EnterpriseLandingPage() {
             ))}
           </div>
         </section>
+
+        {/* SOCIAL PROOF & FAQ */}
+        <Testimonials />
+        <FAQ />
       </div>
     </div>
   );
