@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/eslintrc",
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "@next/next/no-img-element": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "@typescript-eslint/no-require-imports": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "prefer-const": "off",
+    "react/no-unescaped-entities": "off",
+    "react/jsx-no-undef": "off",
+    "import/no-anonymous-default-export": "off",
+    "prefer-rest-params": "off",
+    "react-hooks/rules-of-hooks": "off",
+    "react/jsx-no-comment-textnodes": "off"
+  }
+}

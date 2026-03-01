@@ -1,309 +1,364 @@
 "use client";
 
-/**
- * FRONTDESK AGENTS: ENTERPRISE LANDING NODE
- * Core Revenue Workforce Platform & Global Pricing Architecture
- * Design System: Obsidian Elite v3.0
- */
-
 import React, { useMemo, useState } from "react";
-import { HeroImage } from "./components/HeroImage";
+import Link from "next/link";
+import {
+  ArrowRight,
+  BadgeCheck,
+  BarChart3,
+  Building2,
+  CheckCircle2,
+  Cpu,
+  Globe,
+  Lock,
+  Shield,
+  Sparkles,
+  Workflow
+} from "lucide-react";
 import Testimonials from "./components/Testimonials";
 import FAQ from "./components/FAQ";
-import {
-  Phone,
-  Globe,
-  Zap,
-  Shield,
-  BarChart3,
-  Bot,
-  CheckCircle2,
-  Building2,
-  Award,
-  Lock,
-  Workflow,
-  Database,
-  Cpu,
-  Network,
-  BookOpen,
-  ArrowRight
-} from "lucide-react";
-import Link from "next/link";
 
-const TIERS = {
-  STARTER: {
-    name: "Starter Node",
-    price: 199,
-    locations: "Single Instance",
-    desc: "Essential AI receptionist for high-growth single location firms.",
-    features: [
-      "300 conversations/month",
-      "Global Linguistic Core (EN/ES)",
-      "Google Workspace Integration",
-      "Enterprise CRM Sync",
-      "Automated SMS Notification Node",
-      "Standard Priority SLA"
-    ],
-    highlight: false
-  },
-  PROFESSIONAL: {
-    name: "Professional Fleet",
-    price: 399,
-    locations: "2-5 Locations",
-    desc: "Autonomous workforce for scaling multi-location operations.",
-    features: [
-      "1,200 conversations/month",
-      "Global Linguistic Fleet (50+ Lang)",
-      "Stripe Fiscal Gateway Integration",
-      "Full CRM Orchestration",
-      "Outbound Sales Campaigns",
-      "Tier-1 Priority Support",
-      "Intelligent IVR Routing",
-      "Real-time Workforce Analytics"
-    ],
-    highlight: true
-  },
-  GROWTH: {
-    name: "Growth Cluster",
-    price: 799,
-    locations: "6-15 Locations",
-    desc: "Advanced AI orchestration for established enterprise networks.",
-    features: [
-      "3,000 conversations/month",
-      "Unrestricted Linguistic Support",
-      "API-First Workflow Customization",
-      "AI-Powered Lead Prioritization",
-      "Self-Healing Follow-up Sequences",
-      "Dedicated Technical Strategist",
-      "Predictive Analytics Node",
-      "Custom Data Ingestion"
-    ],
-    highlight: false
-  },
-  ENTERPRISE: {
-    name: "Enterprise Protocol",
-    price: 1499,
-    locations: "16+ Locations",
-    desc: "Unrestricted global workforce for Fortune 500 organizations.",
-    features: [
-      "7,000 conversations/month",
-      "Global Cloud Sovereignty",
-      "White-label Workforce Deployment",
-      "Custom Neural Model Training",
-      "Dedicated Private Infrastructure",
-      "Executive Response SLA",
-      "Compliance Governance Suite",
-      "Full Webhook Command Control"
-    ],
-    highlight: false
-  }
-};
+const STATS = [
+  { label: "Inbound SLA", value: "12s", detail: "Average response time globally" },
+  { label: "Conversion Lift", value: "+84%", detail: "vs. legacy answering services" },
+  { label: "Compliance", value: "24 regions", detail: "Regional governance frameworks" },
+  { label: "Languages", value: "50+", detail: "Neural workforce fluency" }
+];
 
-const TRUSTED_BY = [
+const TRUST_LOGOS = [
   "Fortune 500 Financial Services",
   "Global Healthcare Networks",
   "Tier-1 Legal Institutions",
   "Enterprise Technology Leaders"
 ];
 
-function clampInt(n: number, min: number, max: number) {
-  if (!Number.isFinite(n)) return min;
-  return Math.max(min, Math.min(max, Math.trunc(n)));
-}
+const PLATFORM_COLUMNS = [
+  {
+    title: "Autonomous Workforce",
+    copy: "Voice + messaging agents orchestrated by reinforcement signals. Escalation pathways mapped to your operating playbooks.",
+    bullets: ["Neural voice routing", "Sentiment-aware follow ups", "Owner takeover console"],
+    icon: Cpu
+  },
+  {
+    title: "Governance & Security",
+    copy: "Audit-grade observability with region-aware compliance layers for HIPAA, SOX, FINRA, and SOC2 pipelines.",
+    bullets: ["Role-based control plane", "Zero-trust session policies", "Immutable activity ledger"],
+    icon: Shield
+  },
+  {
+    title: "Revenue Command",
+    copy: "Unified telemetry for calls, conversations, billing posture, and proactive retention campaigns backed by AI scoring.",
+    bullets: ["Live owner cockpit", "Predictive churn radar", "Automated overage recovery"],
+    icon: BarChart3
+  }
+];
 
-export default function EnterpriseLandingPage() {
-  const [locations, setLocations] = useState(50);
-  const [isAnnual, setIsAnnual] = useState(true);
+const INDUSTRIES = [
+  {
+    name: "Financial Services",
+    detail: "Private banking, wealth desks, and capital markets teams with audit trails & KYC hand-offs"
+  },
+  {
+    name: "Healthcare Networks",
+    detail: "HIPAA-aligned intake, multilingual scheduling, and after-hours escalation workflows"
+  },
+  {
+    name: "Property & Hospitality",
+    detail: "Leasing ops, STR concierge, and hospitality brands with occupancy-focused playbooks"
+  },
+  {
+    name: "Legal & Compliance",
+    detail: "Boutique to AmLaw firms with docket-aware routing, CRM sync, and transcript export"
+  }
+];
 
+const TIERS = [
+  {
+    name: "Starter Node",
+    price: 199,
+    usage: "Up to 300 conversations / month",
+    bullets: ["Two-channel receptionist", "Core analytics", "Google Workspace sync"]
+  },
+  {
+    name: "Professional Fleet",
+    price: 399,
+    usage: "Up to 1,200 conversations / month",
+    bullets: ["Global linguistic fleet", "Stripe fiscal gateway", "Outbound sales automations"],
+    highlight: true
+  },
+  {
+    name: "Growth Cluster",
+    price: 799,
+    usage: "Up to 3,000 conversations / month",
+    bullets: ["API-first workflows", "Self-healing follow ups", "Dedicated strategist"]
+  },
+  {
+    name: "Enterprise Protocol",
+    price: 1499,
+    usage: "7,000+ conversations / month",
+    bullets: ["Private infra", "Custom neural models", "Executive response SLA"]
+  }
+];
+
+const clampInt = (value: number, min: number, max: number) => {
+  if (!Number.isFinite(value)) return min;
+  return Math.max(min, Math.min(max, Math.trunc(value)));
+};
+
+export default function Landing() {
+  const [locations, setLocations] = useState(24);
+  const [annual, setAnnual] = useState(true);
   const safeLocations = useMemo(() => clampInt(locations, 1, 500), [locations]);
 
   const pricing = useMemo(() => {
     let base = 199;
-    let discount = 0;
+    if (safeLocations >= 16) base = 1499;
+    else if (safeLocations >= 6) base = 799;
+    else if (safeLocations >= 2) base = 399;
 
-    if (safeLocations >= 16) {
-      base = 1499;
-      discount = 0.25;
-    } else if (safeLocations >= 6) {
-      base = 799;
-      discount = 0.15;
-    } else if (safeLocations >= 2) {
-      base = 399;
-      discount = 0.1;
-    }
-
-    const monthlyBeforeAnnual = base * safeLocations * (1 - discount);
+    const tierDiscount = safeLocations >= 16 ? 0.25 : safeLocations >= 6 ? 0.15 : safeLocations >= 2 ? 0.1 : 0;
+    const monthly = base * safeLocations * (1 - tierDiscount);
     const annualDiscount = 0.2;
-    const monthlyFinal = isAnnual ? monthlyBeforeAnnual * (1 - annualDiscount) : monthlyBeforeAnnual;
-    const annualSavings = isAnnual ? monthlyBeforeAnnual * annualDiscount * 12 : 0;
-    const costPerLocation = monthlyFinal / safeLocations;
+    const finalMonthly = annual ? monthly * (1 - annualDiscount) : monthly;
+    const annualSavings = annual ? monthly * annualDiscount * 12 : 0;
 
-    return { monthlyFinal, annualSavings, costPerLocation };
-  }, [safeLocations, isAnnual]);
+    return {
+      finalMonthly,
+      unitCost: finalMonthly / safeLocations,
+      annualSavings
+    };
+  }, [safeLocations, annual]);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-blue-500/30">
-      {/* GLOBAL INFRASTRUCTURE NOTIFICATION */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-900 text-white py-2 px-4 text-center text-[9px] font-black uppercase tracking-[0.3em] border-b border-white/10">
-        System Status: Operational Excellence | Global Workforce Initialized (PDX1)
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-        {/* HERO: STRATEGIC ASSET OVERVIEW */}
-        <section className="relative overflow-hidden rounded-[4rem] bg-[#0a0a0a] py-32 px-8 mb-24 shadow-[0_0_100px_rgba(0,0,0,1)] border border-white/5">
-          <div className="absolute inset-0 opacity-10">
-            <HeroImage />
+    <div className="min-h-screen bg-[#02030a] text-white">
+      <header className="border-b border-white/10 bg-gradient-to-br from-[#060b1a] via-[#050914] to-[#010205]">
+        <div className="max-w-6xl mx-auto px-6 py-20 md:py-28">
+          <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.4em] text-blue-300">
+            <span className="inline-flex items-center gap-2 text-blue-200">
+              <Sparkles className="w-3.5 h-3.5" />
+              Gen-5 Autonomous Workforce
+            </span>
+            <span className="text-white/40">•</span>
+            <span className="inline-flex items-center gap-2">
+              <Globe className="w-3.5 h-3.5" /> Global Nodes Active
+            </span>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
 
-          <div className="relative z-10 max-w-5xl mx-auto text-center">
-            <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-6 py-2.5 mb-10 backdrop-blur-3xl">
-              <Cpu className="w-4 h-4 text-blue-400" />
-              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-100">8-Division Autonomous Fleet</span>
+          <div className="grid gap-10 lg:grid-cols-[3fr,2fr] mt-12">
+            <div>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight">
+                Fortune-Grade AI Receptionists & Revenue Command for Every Location You Operate
+              </h1>
+              <p className="mt-6 text-lg md:text-xl text-white/60 leading-relaxed">
+                Deploy a multilingual, compliance-ready workforce in days. FrontDesk Agents unifies inbound voice, SMS, and proactive revenue campaigns under a single owner cockpit with auditable AI decisions.
+              </p>
+
+              <div className="mt-10 flex flex-wrap gap-4">
+                <Link href="/signup" className="inline-flex items-center gap-3 rounded-2xl bg-white text-black px-8 py-4 text-sm font-semibold tracking-wide shadow-xl shadow-blue-900/30 hover:translate-y-0.5 transition">
+                  Launch Enterprise Trial
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/demo" className="inline-flex items-center gap-3 rounded-2xl bg-transparent border border-white/20 px-8 py-4 text-sm font-semibold tracking-wide text-white hover:bg-white/5 transition">
+                  Review Platform Tour
+                </Link>
+              </div>
+
+              <div className="mt-10 flex flex-wrap gap-6 text-xs uppercase tracking-[0.3em] text-white/40">
+                {TRUST_LOGOS.map((logo) => (
+                  <span key={logo} className="flex items-center gap-2">
+                    <Shield className="w-3 h-3 text-blue-400" />
+                    {logo}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-10 leading-[0.85] uppercase italic">
-              Scale <span className="text-blue-600">Revenue</span> <br />
-              <span className="text-zinc-500">Without Limits</span>
-            </h1>
-
-            <p className="text-xl md:text-2xl text-zinc-500 mb-14 max-w-3xl mx-auto leading-relaxed font-light">
-              Replace operational friction with an autonomous workforce. 
-              Our enterprise nodes achieve <span className="text-white font-bold italic">84% conversion</span> through self-healing global infrastructure.
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-6 mb-20">
-              <Link
-                href="/signup"
-                className="bg-white text-black hover:bg-zinc-200 px-12 py-6 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-2xl hover:scale-[1.02] flex items-center gap-4"
-              >
-                Execute Deployment
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/blog"
-                className="bg-transparent hover:bg-white/5 text-white px-12 py-6 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border border-white/20 flex items-center gap-4"
-              >
-                Operational Insights
-              </Link>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-12 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">
-              {TRUSTED_BY.map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <Shield className="w-4 h-4 text-blue-600" />
-                  <span>{item}</span>
-                </div>
-              ))}
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur">
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.3em] text-white/60">System Health</p>
+                <span className="inline-flex items-center gap-2 text-emerald-300 text-sm font-semibold">
+                  <BadgeCheck className="w-4 h-4" /> Operational Excellence
+                </span>
+              </div>
+              <hr className="my-5 border-white/10" />
+              <div className="space-y-4">
+                {STATS.map((stat) => (
+                  <div key={stat.label} className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/60 text-xs uppercase tracking-[0.3em]">{stat.label}</p>
+                      <p className="text-sm text-white/40">{stat.detail}</p>
+                    </div>
+                    <p className="text-3xl font-black">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-6 py-16 space-y-24">
+        <section className="grid gap-8 md:grid-cols-3">
+          {PLATFORM_COLUMNS.map((column) => (
+            <div key={column.title} className="border border-white/10 rounded-3xl p-8 bg-gradient-to-b from-white/5 to-transparent">
+              <column.icon className="w-10 h-10 text-blue-400" />
+              <h3 className="mt-6 text-2xl font-bold">{column.title}</h3>
+              <p className="mt-3 text-white/70 text-sm leading-relaxed">{column.copy}</p>
+              <ul className="mt-6 space-y-3 text-sm text-white/70">
+                {column.bullets.map((bullet) => (
+                  <li key={bullet} className="flex items-center gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    {bullet}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </section>
 
-        {/* FISCAL MODELING INTERFACE */}
-        <section className="mb-40">
-          <div className="bg-[#0a0a0a] border border-white/5 p-16 rounded-[4rem] shadow-2xl max-w-6xl mx-auto relative">
-             <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-20 border-b border-white/5 pb-12">
-              <div>
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-blue-500 mb-4">Investment Calculator</h3>
-                <h2 className="text-5xl font-black uppercase italic tracking-tighter">Fiscal Modeling</h2>
-              </div>
-
-              <div className="flex items-center gap-2 bg-black p-2 rounded-2xl border border-white/5">
-                <button 
-                  onClick={() => setIsAnnual(false)}
-                  className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!isAnnual ? 'bg-zinc-800 text-white' : 'text-zinc-600 hover:text-white'}`}
-                >
-                  Monthly
-                </button>
-                <button 
-                  onClick={() => setIsAnnual(true)}
-                  className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isAnnual ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-zinc-600 hover:text-white'}`}
-                >
-                  Annual Protocol <span className="ml-2 opacity-60">(-20%)</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-24 px-4">
-              <div className="flex justify-between items-end mb-10">
-                <span className="text-[11px] font-black uppercase tracking-[0.5em] text-zinc-500 italic">Global Distribution Nodes</span>
-                <span className="text-9xl font-black italic tracking-tighter text-white">{safeLocations}</span>
+        <section className="grid gap-8 md:grid-cols-[3fr,2fr] items-center border border-white/10 rounded-3xl p-8">
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-white/50">Global Locations Planner</p>
+            <h2 className="mt-3 text-4xl font-black">Financial Modeling Console</h2>
+            <p className="mt-3 text-white/60">
+              Set the locations you operate and preview monthly operating expense, annual savings, and per-location efficiency with our enterprise pricing rails.
+            </p>
+            <div className="mt-10">
+              <div className="flex items-baseline justify-between">
+                <span className="text-white/50 text-xs uppercase tracking-[0.3em]">Locations</span>
+                <span className="text-6xl font-black">{safeLocations}</span>
               </div>
               <input
                 type="range"
-                min="1"
-                max="500"
+                min={1}
+                max={500}
                 value={safeLocations}
-                onChange={(e) => setLocations(clampInt(parseInt(e.target.value, 10), 1, 500))}
-                className="w-full h-1.5 bg-zinc-900 rounded-none appearance-none cursor-pointer accent-blue-600"
+                onChange={(event) => setLocations(clampInt(Number(event.target.value), 1, 500))}
+                className="w-full mt-6 accent-blue-500"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
+            <div className="mt-10 grid sm:grid-cols-3 gap-6">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-4">Net Monthly Opex</p>
-                <p className="text-6xl font-black tracking-tighter">${Math.round(pricing.monthlyFinal).toLocaleString()}</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Net Monthly Opex</p>
+                <p className="text-4xl font-black">${Math.round(pricing.finalMonthly).toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-4">Unit Efficiency Cost</p>
-                <p className="text-6xl font-black tracking-tighter text-zinc-500">${Math.round(pricing.costPerLocation)}</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Unit Efficiency</p>
+                <p className="text-4xl font-black text-white/60">${Math.round(pricing.unitCost).toLocaleString()}</p>
               </div>
-              <div className="bg-blue-600/5 border border-blue-600/20 p-8 rounded-3xl">
-                <p className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-4">Annual Fiscal Savings</p>
-                <p className="text-6xl font-black tracking-tighter text-emerald-500">${Math.round(pricing.annualSavings).toLocaleString()}</p>
+              <div className="bg-emerald-500/10 border border-emerald-500/40 rounded-2xl p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">Annual Savings</p>
+                <p className="text-4xl font-black text-emerald-300">${Math.round(pricing.annualSavings).toLocaleString()}</p>
               </div>
             </div>
           </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-5">
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-[0.3em] text-white/60">Billing cadence</p>
+              <div className="inline-flex rounded-full border border-white/10">
+                <button
+                  className={`px-4 py-2 text-xs font-semibold uppercase tracking-wide rounded-full ${!annual ? "bg-white text-black" : "text-white/60"}`}
+                  onClick={() => setAnnual(false)}
+                >
+                  Monthly
+                </button>
+                <button
+                  className={`px-4 py-2 text-xs font-semibold uppercase tracking-wide rounded-full ${annual ? "bg-emerald-400 text-black" : "text-white/60"}`}
+                  onClick={() => setAnnual(true)}
+                >
+                  Annual -20%
+                </button>
+              </div>
+            </div>
+            <hr className="border-white/10" />
+            <p className="text-sm text-white/70">
+              Enterprise agreements include telemetry ingestion, secure webhooks, field deployment support, and owner priority routing.
+            </p>
+          </div>
         </section>
 
-        {/* WORKFORCE TIERS */}
-        <section className="mb-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.entries(TIERS).map(([key, tier]) => (
+        <section>
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.4em] text-white/50">Industry blueprints</p>
+              <h2 className="mt-2 text-4xl font-black">Operational playbooks shipped with every deployment</h2>
+            </div>
+            <Link href="/case-studies" className="inline-flex items-center gap-3 text-sm font-semibold text-white/70 hover:text-white">
+              Explore case studies
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {INDUSTRIES.map((item) => (
+              <div key={item.name} className="border border-white/10 rounded-3xl p-6 bg-white/5 backdrop-blur">
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-5 h-5 text-blue-300" />
+                  <h3 className="text-xl font-semibold">{item.name}</h3>
+                </div>
+                <p className="mt-3 text-white/70 text-sm leading-relaxed">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
+            <div>
+              <p className="text-xs uppercase tracking-[0.4em] text-white/50">Commercial tiers</p>
+              <h2 className="mt-2 text-4xl font-black">Choose the fleet that matches your demand curve</h2>
+            </div>
+            <Link href="/pricing" className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white">
+              Download pricing brief <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {TIERS.map((tier) => (
               <div
-                key={key}
-                className={`p-12 rounded-[3rem] border transition-all hover:scale-[1.02] flex flex-col ${
+                key={tier.name}
+                className={`rounded-3xl border p-6 flex flex-col gap-6 ${
                   tier.highlight
-                    ? "border-blue-600 bg-black shadow-[0_40px_100px_rgba(37,99,235,0.1)]"
-                    : "border-white/5 bg-[#0a0a0a]"
+                    ? "border-emerald-400 bg-gradient-to-b from-emerald-500/10 to-transparent"
+                    : "border-white/10 bg-white/5"
                 }`}
               >
-                <h4 className="text-2xl font-black uppercase italic tracking-tighter text-white leading-none">{tier.name}</h4>
-                <div className="w-12 h-1 bg-blue-600 mt-4 mb-8" />
-                
-                <div className="mb-10">
-                  <span className="text-5xl font-black text-white">${tier.price}</span>
-                  <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest ml-3">/ Node</span>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/50">{tier.name}</p>
+                  <p className="mt-2 text-4xl font-black">${tier.price}<span className="text-sm text-white/40 font-normal"> / node</span></p>
+                  <p className="text-sm text-white/60">{tier.usage}</p>
                 </div>
-
-                <ul className="space-y-6 mb-12 flex-grow">
-                  {tier.features.map((feature, i) => (
-                    <li key={i} className="text-[10px] font-black text-zinc-500 flex gap-4 items-start uppercase tracking-wider leading-relaxed">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1 flex-shrink-0" />
-                      {feature}
+                <ul className="space-y-3 text-sm text-white/70 flex-1">
+                  {tier.bullets.map((bullet) => (
+                    <li key={bullet} className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                      {bullet}
                     </li>
                   ))}
                 </ul>
-
                 <Link
                   href="/signup"
-                  className={`w-full py-5 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all text-center ${
-                    tier.highlight
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-900/30 hover:bg-blue-500"
-                      : "bg-zinc-900 text-zinc-400 hover:bg-white hover:text-black"
+                  className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${
+                    tier.highlight ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"
                   }`}
                 >
-                  Authorize Node
+                  Authorize node <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             ))}
           </div>
         </section>
 
-        {/* SOCIAL PROOF & FAQ */}
         <Testimonials />
         <FAQ />
-      </div>
+      </main>
+
+      <footer className="border-t border-white/10 mt-16">
+        <div className="max-w-6xl mx-auto px-6 py-12 flex flex-wrap items-center gap-4 text-sm text-white/50">
+          <Lock className="w-4 h-4" />
+          SOC2 | HIPAA | FINRA controls validated across all US regions.
+        </div>
+      </footer>
     </div>
   );
 }

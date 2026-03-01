@@ -47,6 +47,10 @@
     "dist",
     ".next",
     "supabase",
+    "tests",
+    "tests/**/*",
+    "testEmail.ts",
+    "stripe_routes_fixed.ts",
     "**/*.disabled",
     "**/*.disabled/**"
   ]
